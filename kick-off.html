@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kickoff سامانه WebGIS کشاورزی - نسخه عمودی با Timeline و Milestones</title>
+
+  <!-- Vazir و آیکن -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <style>
+    /* سبک‌های پایه */
+    html, body {
+      height: 100%;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Vazir', sans-serif;
+      direction: rtl;
+      background-color: #f8f9fa;
+      color: #333;
+      overflow: hidden; /* کنترل اسکرول فقط درون ناحیه اسلایدها */
+    }
+
+    /* ساختار اصلی: سمت چپ محتوا (اسلایدها) و سمت راست Timeline */
+    .page {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: stretch;
+      justify-content: flex-start;
+    }
+
+    /* Timeline фикс: ثابت در کنار صفحه */
+    .timeline {
+      width: 260px;
+      min-width: 260px;
+      background: #fff;
+      border-left: 1px solid #ddd;
+      border-right: 0;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      height: 100vh;
+      position: fixed;
+      right: 0;
+      top: 0;
+      z-index: 1000;
+      box-shadow: -2px 0 6px rgba(0,0,0,0.05);
+    }
+
+    .timeline h3 {
+      text-align: center;
+      margin: 6px 0 12px;
+      font-size: 1.05em;
+      color: #075e54;
+    }
+
+    .timeline .milestone {
+      padding: 10px 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid transparent;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .timeline .milestone:hover {
+      background: #f1f5f9;
+      border-color: #e2e8f0;
+    }
+
+    .timeline .milestone .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      margin-left: 2px;
+    }
+
+    .timeline .milestone.active {
+      background: #e6fffb;
+      border-color: #bdebd3;
+    }
+
+    .timeline .milestone.completed .dot {
+      background: #10b981;
+    }
+
+    .timeline .milestone .label {
+      flex: 1;
+      font-size: 0.92em;
+    }
+
+    /* محتواهای عمودی اسلایدها */
+    .scene {
+      margin-right: 260px; /* فضای کنار Timeline برای محتوا */
+      height: 100vh;
+      width: calc(100vw - 260px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .slide {
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      padding: 40px;
+      box-sizing: border-box;
+      scroll-snap-align: start;
+    }
+
+    .slide-content {
+      width: min(1100px, 92%);
+      text-align: justify;
+      padding: 8px 16px;
+      box-sizing: border-box;
+      max-height: calc(100vh - 60px);
+      overflow: auto; /* اسکرول داخلی برای محتوای طولانی */
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    /* عناوین و متن */
+    .slide h1 {
+      font-size: 2.6em;
+      color: #0d7a40;
+      text-align: center;
+      margin: 6px 0 12px;
+    }
+
+    .slide h2 {
+      font-size: 2.1em;
+      color: #10b981;
+      text-align: center;
+      margin: 8px 0;
+      border-bottom: 2px solid #10b981;
+      padding-bottom: 6px;
+    }
+
+    .slide h3 {
+      font-size: 1.6em;
+      color: #047857;
+      margin: 14px 0 6px;
+    }
+
+    .slide p {
+      font-size: 1.15em;
+      color: #4b5563;
+      line-height: 1.9;
+      text-align: justify;
+      max-width: 900px;
+    }
+
+    .slide ul {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slide ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .slide ul li i {
+      color: #10b981;
+      font-size: 1.25em;
+      min-width: 22px;
+      margin-top: 2px;
+    }
+
+    /* چک‌لیست‌ها */
+    .checklist {
+      margin-top: 14px;
+      padding: 12px;
+      background: #e0f2f7;
+      border: 1px solid #b2d8e2;
+      border-radius: 8px;
+    }
+
+    .checklist h4 {
+      text-align: center;
+      color: #075e54;
+      margin: 6px 0 12px;
+      font-size: 1.15em;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 0;
+      font-size: 1.05em;
+      color: #333;
+    }
+
+    .checklist-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #10b981;
+    }
+
+    .checklist-item label {
+      flex-grow: 1;
+      cursor: pointer;
+    }
+
+    .checklist-item.completed label {
+      text-decoration: line-through;
+      color: #666;
+    }
+
+    /* نشانگر پیشرفت (مختصر در Timeline) */
+    .rail-progress {
+      position: fixed;
+      right: 270px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: calc(100vh - 120px);
+      background: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .rail-progress .fill {
+      width: 100%;
+      height: 0%;
+      background: #10b981;
+      transition: height 0.25s ease;
+    }
+
+    /* دکمه‌های ناوبری کنار صفحه */
+    .navigation {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 1000;
+      width: 54px;
+    }
+
+    .nav-up { left: 14px; }
+    .nav-down { right: 14px; }
+
+    .navigation button {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(4, 120, 87, 0.85);
+      color: #fff;
+      font-size: 1.2em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .navigation button:hover { background: rgba(5, 150, 105, 0.95); transform: scale(1.08); }
+    .navigation button:active { transform: scale(0.95); }
+
+    /* Active/current slide در کلاس‌های اسلاید (برای دسترسی راحت) */
+    .slide.active { outline: 2px solid #c6f6d5; outline-offset: -4px; }
+
+    /* استایل اختصاصی برای هر اسلاید (رنگ‌ها) */
+    #slide-1 h1 { color: #0d7a40; }
+    #slide-2 h2 { color: #10b981; }
+    #slide-3 h2 { color: #047857; }
+    #slide-4 h2 { color: #0d7a40; }
+    #slide-5 h2 { color: #10b981; }
+
+    /* ریسپانسیو: موبایل/تبلت */
+    @media (max-width: 1024px) {
+      .timeline { width: 220px; }
+      .scene { margin-right: 220px; width: calc(100vw - 220px); }
+    }
+
+    @media (max-width: 700px) {
+      .timeline { position: static; width: 100%; height: auto; overflow: visible; border-left: 0; border-right: 0; }
+      .page { flex-direction: column; }
+      .scene { width: 100%; margin-right: 0; height: auto; }
+      .slide { height: auto; min-height: 100vh; }
+      .slide-content { max-height: none; }
+      .rail-progress { display: none; }
+      .navigation { display: flex; flex-direction: row; left: 0; right: 0; justify-content: center; width: 100%; }
+      .nav-up { left: 0; }
+      .nav-down { right: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Timeline / Milestones -->
+  <aside class="timeline" aria-label="Timeline و Milestones">
+    <h3>دستور کار</h3>
+    <div class="milestone" data-index="1" onclick="scrollToIndex(1)">
+      آغاز Kickoff
+      <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:6px;"></span>
+    </div>
+    <div class="milestone" data-index="2" onclick="scrollToIndex(2)">
+      Vision و ابعاد کلیدی
+      <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:6px;"></span>
+    </div>
+    <div class="milestone" data-index="3" onclick="scrollToIndex(3)">
+      اهداف پروژه (Goals)
+      <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:6px;"></span>
+    </div>
+    <div class="milestone" data-index="4" onclick="scrollToIndex(4)">
+      دامنه پروژه (Scope)
+      <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:6px;"></span>
+    </div>
+    <div class="milestone" data-index="5" onclick="scrollToIndex(5)">
+      خروجی‌های پروژه (Deliverables)
+      <span class="dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:6px;"></span>
+    </div>
+  </aside>
+
+  <!-- شاخص پیشرفت عمودی (اختصاصی برای Timeline) -->
+  <div class="rail-progress" aria-label="پیشرفت موضوع">
+    <div id="rail-fill" class="fill" style="height:0%;"></div>
+  </div>
+
+  <!-- دکمه‌های ناوبری کنار صفحه -->
+  <div class="navigation nav-up" aria-label="قبلی">
+    <button onclick="prevSlide()"><i class="fas fa-chevron-up"></i></button>
+  </div>
+  <div class="navigation nav-down" aria-label="بعدی">
+    <button onclick="nextSlide()"><i class="fas fa-chevron-down"></i></button>
+  </div>
+
+  <!-- منطقه اسلاید‌ها (عمودی با اسکرول Snapping) -->
+  <main id="scene" class="scene" onscroll="updateProgress()">
+
+    <!-- اسلاید 1 -->
+    <section class="slide active" id="slide-1" data-index="1" style="scroll-snap-align:start;">
+      <div class="slide-content">
+        <h1>سامانه هوشمند WebGIS کشاورزی</h1>
+        <h2>جلسه Kickoff</h2>
+
+        <p>این جلسه، هدف اصلی از پروژه «سامانه هوشمند WebGIS کشاورزی» را معرفی می‌کند. هدف ایجاد یک سامانه یکپارچه برای مدیریت مزارع با ادغام فناوری‌های GIS، تصاویر ماهواره‌ای، IoT و هوش مصنوعی است تا تصمیم‌گیری‌های دقیق‌تری با داده‌های لحظه‌ای فراهم شود.</p>
+
+        <p>محورهای اصلی پروژه شامل مدیریت منابع، بهبود بازدهی، کاهش مصرف آب و کود، و پایداری زیست‌محیطی است. ذینفعان کلیدی، کشاورزان، مدیران کشاورزی، کارشناسان فنی و تیم پشتیبانی هستند.</p>
+
+        <div class="checklist" aria-label="چک‌لیست آغازین">
+          <h4>چک‌لیست آغازین پروژه</h4>
+          <div class="checklist-item">
+            <input type="checkbox" id="start-1" onclick="toggleCheck(this)"><label for="start-1">تعیین دامنه پروژه و مسئولان کلیدی</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="start-2" onclick="toggleCheck(this)"><label for="start-2">تعیین KPIها</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="start-3" onclick="toggleCheck(this)"><label for="start-3">تعیین سخت‌افزار و فناوری‌های پشتیبان</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="start-4" onclick="toggleCheck(this)"><label for="start-4">برنامه زمان‌بندی و نقاط دسترسی</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- اسلاید 2: Vision (Timeline/Milestones مربوطه) -->
+    <section class="slide" id="slide-2" data-index="2" style="scroll-snap-align:start;">
+      <div class="slide-content">
+        <h2>چشم‌انداز پروژه (Vision)</h2>
+        <p>تبدیل کشاورزی سنتی به اکوسیستمی هوشمند، داده‌محور و پایدار. تصمیم‌ها بر پایه تحلیل‌های علمی و داده‌های لحظه‌ای استوار است و با بهره‌گیری از AI، بهره‌وری افزایش می‌یابد، هزینه‌ها کاهش می‌یابد و منابع طبیعی بهینه‌تر مدیریت می‌شود.</p>
+        <h3>ابعاد کلیدی چشم‌انداز</h3>
+        <ul>
+          <li><i class="fas fa-seedling"></i> کشاورزی هوشمند و داده‌محور</li>
+          <li><i class="fas fa-chart-line"></i> داشبوردهای تصمیم‌گیری قابل دسترس</li>
+          <li><i class="fas fa-hand-holding-usd"></i> کاهش هزینه‌ها و افزایش سودآوری</li>
+          <li><i class="fas fa-leaf"></i> پایداری منابع آب و خاک</li>
+        </ul>
+
+        <h3>KPIs کلیدی</h3>
+        <ul>
+          <li>افزایش بهره‌وری محصولات</li>
+          <li>کاهش مصرف آب به ازای واحد محصول</li>
+          <li>کاهش هزینه‌های عملیاتی</li>
+          <li>پوشش داده‌های GIS و IoT در مزارع</li>
+        </ul>
+
+        <!-- چک‌لیست مربوط به Vision (اگر نیاز است) -->
+        <div class="checklist" aria-label="چک‌لیست Vision">
+          <h4>چک‌لیست Vision</h4>
+          <div class="checklist-item">
+            <input type="checkbox" id="vision-1" onclick="toggleCheck(this)"><label for="vision-1">تعریف معیارهای موفقیت Vision</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- اسلاید 3: Goals -->
+    <section class="slide" id="slide-3" data-index="3" style="scroll-snap-align:start;">
+      <div class="slide-content">
+        <h2>اهداف پروژه (Goals)</h2>
+
+        <h3>اهداف کلی</h3>
+        <ul>
+          <li><i class="fas fa-map-marked-alt"></i> ایجاد سامانه یکپارچه برای مدیریت مزارع، منابع و محصولات</li>
+          <li><i class="fas fa-robot"></i> به‌کارگیری GIS، IoT، هوش مصنوعی و تحلیل داده</li>
+          <li><i class="fas fa-coins"></i> کاهش هزینه‌ها و افزایش بازدهی تولید</li>
+          <li><i class="fas fa-exclamation-triangle"></i> پیش‌بینی و مدیریت خطرات اقلیمی، آفات و بیماری‌ها</li>
+          <li><i class="fas fa-file-invoice-dollar"></i> ابزارهای مدیریت مالی و اقتصادی دقیق‌تر</li>
+        </ul>
+
+        <h3>ابعاد عملی اهداف</h3>
+        <ul>
+          <li>ایجاد داشبورد مدیریتی با دسترسی امن</li>
+          <li>ماژول‌های GIS و نقشه‌های تعاملی</li>
+          <li>ادغام سنسورهای IoT برای داده‌های خاک و رطوبت</li>
+          <li>طرح‌های هوش مصنوعی برای پیش‌بینی آفات و رشد محصول</li>
+          <li>گزارش‌های مالی و سودآوری</li>
+        </ul>
+
+        <div class="checklist" aria-label="چک‌لیست اهداف پروژه">
+          <h4>چک‌لیست اهداف پروژه</h4>
+          <div class="checklist-item">
+            <input type="checkbox" id="goal-1" onclick="toggleCheck(this)"><label for="goal-1">سامانه یکپارچه مدیریت مزارع</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="goal-2" onclick="toggleCheck(this)"><label for="goal-2">GIS, IoT, AI</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="goal-3" onclick="toggleCheck(this)"><label for="goal-3">کاهش هزینه‌ها و افزایش بازدهی</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="goal-4" onclick="toggleCheck(this)"><label for="goal-4">پیش‌بینی و مقابله با خطرات</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="goal-5" onclick="toggleCheck(this)"><label for="goal-5">مدیریت مالی و اقتصادی</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- اسلاید 4: Scope -->
+    <section class="slide" id="slide-4" data-index="4" style="scroll-snap-align:start;">
+      <div class="slide-content">
+        <h2>دامنه پروژه (Scope)</h2>
+
+        <h3>کاربران هدف</h3>
+        <ul>
+          <li><i class="fas fa-user-tie"></i> کشاورزان: استفاده از سامانه برای مدیریت روزانه</li>
+          <li><i class="fas fa-users-cog"></i> مدیران کشاورزی: نظارت و تخصیص منابع</li>
+          <li><i class="fas fa-chalkboard-teacher"></i> کارشناسان کشاورزی: تحلیل داده‌ها و پشتیبانی فنی</li>
+          <li><i class="fas fa-user-shield"></i> ادمین‌ها: مدیریت زیرساخت و کاربران</li>
+        </ul>
+
+        <h3>ماژول‌های اصلی</h3>
+        <ul>
+          <li><i class="fas fa-globe"></i> GIS: نقشه‌های تعاملی و تحلیل مکانی</li>
+          <li><i class="fas fa-tractor"></i> مدیریت مزارع: ثبت اطلاعات و برنامه‌ریزی کشت</li>
+          <li><i class="fas fa-cloud-sun-rain"></i> هواشناسی: داده‌های لحظه‌ای و هشدارها</li>
+          <li><i class="fas fa-water"></i> آبیاری هوشمند: سنسورهای خاک و برنامه‌ریزی</li>
+          <li><i class="fas fa-chart-pie"></i> مالی: ثبت هزینه‌ها و تحلیل سودآوری</li>
+          <li><i class="fas fa-satellite"></i> تصاویر ماهواره‌ای: NDVI و تحلیل سلامت گیاه</li>
+          <li><i class="fas fa-brain"></i> هوش مصنوعی: پیش‌بینی آفات و بیماری‌ها</li>
+        </ul>
+
+        <h3>ویژگی‌های غیرعملیاتی و ریسک‌ها</h3>
+        <ul>
+          <li>امنیت داده‌ها و دسترسی</li>
+          <li>مقیاس‌پذیری سیستم</li>
+          <li>نگهداری و تعمیرات</li>
+          <li>استانداردهای GIS و API</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- اسلاید 5: Deliverables -->
+    <section class="slide" id="slide-5" data-index="5" style="scroll-snap-align:start;">
+      <div class="slide-content">
+        <h2>خروجی‌های پروژه (Deliverables)</h2>
+        <ul>
+          <li><i class="fas fa-desktop"></i> سامانه وب: داشبورد مدیریتی، نقشه‌های تعاملی</li>
+          <li><i class="fas fa-mobile-alt"></i> اپلیکیشن موبایل: دسترسی آفلاین و هشدارها</li>
+          <li><i class="fas fa-code"></i> API های داخلی و خارجی</li>
+          <li><i class="fas fa-book"></i> مستندات فنی و کاربری</li>
+          <li><i class="fas fa-file-alt"></i> گزارش‌های تخصصی</li>
+          <li><i class="fas fa-database"></i> داده‌های پردازش‌شده</li>
+        </ul>
+
+        <div class="checklist" aria-label="چک‌لیست خروجی‌ها">
+          <h4>چک‌لیست خروجی‌های پروژه</h4>
+          <div class="checklist-item">
+            <input type="checkbox" id="deliverable-1" onclick="toggleCheck(this)"><label for="deliverable-1">سامانه وب</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="deliverable-2" onclick="toggleCheck(this)"><label for="deliverable-2">اپلیکیشن موبایل</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="deliverable-3" onclick="toggleCheck(this)"><label for="deliverable-3">API ها</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="deliverable-4" onclick="toggleCheck(this)"><label for="deliverable-4">مستندات</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="deliverable-5" onclick="toggleCheck(this)"><label for="deliverable-5">گزارش‌های تخصصی</label>
+          </div>
+          <div class="checklist-item">
+            <input type="checkbox" id="deliverable-6" onclick="toggleCheck(this)"><label for="deliverable-6">داده‌های پردازش‌شده</label>
+          </div>
+        </div>
+
+        <p>هر خروجی دارای معیارهای پذیرش است و در جلسات آینده به‌طور دقیق بررسی می‌شود.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // مدیریت چک‌باكس‌ها
+    function toggleCheck(checkbox) {
+      const label = checkbox.nextElementSibling;
+      if (checkbox.checked) {
+        label.parentElement.classList.add('completed');
+      } else {
+        label.parentElement.classList.remove('completed');
+      }
+    }
+
+    // حرکت به اسلاید با محتوای index
+    function scrollToIndex(index) {
+      const scene = document.getElementById('scene');
+      const height = scene.clientHeight;
+      scene.scrollTo({ top: (index - 1) * height, behavior: 'smooth' });
+    }
+
+    // پیشرفت نشانگر عمودی (Rail)
+    function updateProgress() {
+      const scene = document.getElementById('scene');
+      const height = scene.clientHeight;
+      const totalSlides = 5;
+      const scrolled = scene.scrollTop;
+      let idx = Math.round(scrolled / height) + 1;
+      if (idx < 1) idx = 1;
+      if (idx > totalSlides) idx = totalSlides;
+
+      // بروزرسانی خط پر شده در rail
+      const railFill = document.getElementById('rail-fill');
+      if (railFill) {
+        const percent = (idx / totalSlides) * 100;
+        railFill.style.height = percent + '%';
+      }
+
+      // بروزرسانی حالت milestone ها
+      const milestones = document.querySelectorAll('.timeline .milestone');
+      milestones.forEach((m, i) => {
+        const index = i + 1;
+        if (index < idx) m.classList.add('completed');
+        else m.classList.remove('completed');
+        if (index === idx) m.classList.add('active');
+        else m.classList.remove('active');
+      });
+    }
+
+    // رفتن به اسلاید بعدی/قبلی با کلیدهای PageDown/PageUp یا فلش‌ها
+    function nextSlide() {
+      const scene = document.getElementById('scene');
+      const height = scene.clientHeight;
+      const idx = Math.round(scene.scrollTop / height) + 1;
+      if (idx < 5) scrollToIndex(idx + 1);
+    }
+
+    function prevSlide() {
+      const scene = document.getElementById('scene');
+      const height = scene.clientHeight;
+      const idx = Math.round(scene.scrollTop / height) + 1;
+      if (idx > 1) scrollToIndex(idx - 1);
+    }
+
+    // رویدادهای کلید
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+
+    // اجرای اولیه
+    document.addEventListener('DOMContentLoaded', () => {
+      // بروز رسانی اولیه پیشرفت
+      updateProgress();
+
+      // به‌روزرسانی در هنگام تغییر اندازه
+      window.addEventListener('resize', updateProgress);
+
+      // کشف اسلایدها برای IntersectionObserver (اگر خواستید به آینده اضافه کنید)
+      // این نسخه از کد به صورت پایه از scroll- snapping استفاده می‌کند و نیاز به observer ندارد.
+    });
+
+    // نویگیشن از طریق Milestones
+    // هم‌چنین امکان کلیک روی Milestone وجود دارد و با scrollToIndex حرکت می‌کند.
+
+  </script>
+</body>
+</html>
