@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="fa"
+      dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>جلسه دوم: پایتون پیشرفته برای علم داده - آراز شاه کرمی</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+
+        .presentation-container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .slides-container {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-content: flex-start;
+        }
+
+        .slide {
+            width: 400px;
+            min-height: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .slide:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .slide.expanded {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 90vh;
+            z-index: 10000;
+            overflow-y: auto;
+            max-width: 1200px;
+            animation: expandSlide 0.3s ease;
+        }
+
+        @keyframes expandSlide {
+            from {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .expand-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .expand-btn:hover {
+            background: #2980b9;
+            transform: scale(1.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+
+        .slide.expanded .close-btn {
+            display: flex;
+        }
+
+        .slide.expanded .expand-btn {
+            display: none;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .slide-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            border-right: 4px solid #3498db;
+            padding-right: 15px;
+        }
+
+        .slide.expanded .slide-title {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .slide-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #34495e;
+        }
+
+        .slide.expanded .slide-content {
+            font-size: 16px;
+            line-height: 2;
+        }
+
+        .slide-content h3 {
+            color: #2980b9;
+            font-size: 16px;
+            margin: 15px 0 10px 0;
+            font-weight: 600;
+        }
+
+        .slide.expanded .slide-content h3 {
+            font-size: 20px;
+            margin: 20px 0 15px 0;
+        }
+
+        .slide-content ul {
+            margin: 15px 0;
+            padding-right: 20px;
+        }
+
+        .slide-content li {
+            margin: 8px 0;
+            position: relative;
+        }
+
+        .slide-content li::before {
+            content: '✓';
+            position: absolute;
+            right: -20px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 15px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            position: relative;
+        }
+
+        .slide.expanded .code-block {
+            font-size: 14px;
+            padding: 20px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .slide.expanded .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e74c3c;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .slide.expanded .icon {
+            font-size: 60px;
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            border-radius: 4px;
+            transition: width 2s ease;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .slide.expanded .tools-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .tool-item {
+            background: #f1c40f;
+            color: #2c3e50;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .nav-title {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 8px 15px;
+            margin: 5px 0;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: #2980b9;
+            transform: translateX(-5px);
+        }
+
+        .slide.intro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide.intro .slide-title {
+            color: white;
+            border-right: 4px solid white;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .slide.code {
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
+
+        .slide.code .slide-title {
+            color: #3498db;
+            border-right: 4px solid #3498db;
+        }
+
+        .example-box {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            color: #27ae60;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .warning-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .timeline {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-right: 4px solid #3498db;
+        }
+
+        .timeline-time {
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 15px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .exercise-box {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .exercise-title {
+            color: #1976d2;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .output-box {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            direction: ltr;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .presentation-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .navigation {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .slides-container {
+                justify-content: center;
+            }
+
+            .slide {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .slide.expanded {
+                width: 95vw;
+                height: 95vh;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"
+         id="overlay"></div>
+
+    <div class="navigation">
+        <div class="nav-title">🧭 جلسه دوم</div>
+        <a href="#slide1"
+           class="nav-item">معرفی جلسه</a>
+        <a href="#slide2"
+           class="nav-item">مرور جلسه قبل</a>
+        <a href="#slide3"
+           class="nav-item">متغیرها و انواع</a>
+        <a href="#slide4"
+           class="nav-item">ساختارهای کنترل</a>
+        <a href="#slide5"
+           class="nav-item">توابع پیشرفته</a>
+        <a href="#slide6"
+           class="nav-item">کار با فایل‌ها</a>
+        <a href="#slide7"
+           class="nav-item">مدیریت خطا</a>
+        <a href="#slide8"
+           class="nav-item">کتابخانه‌های مفید</a>
+        <a href="#slide9"
+           class="nav-item">پروژه عملی</a>
+        <a href="#slide10"
+           class="nav-item">بهینه‌سازی کد</a>
+        <a href="#slide11"
+           class="nav-item">تمرین کاربردی</a>
+        <a href="#slide12"
+           class="nav-item">جمع‌بندی</a>
+    </div>
+
+    <div class="presentation-container">
+        <div class="slides-container">
+
+            <!-- اسلاید 1: معرفی جلسه دوم -->
+            <div class="slide intro"
+                 id="slide1">
+                <div class="slide-number">1/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🐍</div>
+                <div class="slide-title">جلسه دوم: پایتون پیشرفته برای علم داده</div>
+                <div class="slide-content">
+                    <h3>👨‍🏫 مدرس: آراز شاه کرمی</h3>
+                    <h3>💰 هزینه: 100,000 تومان</h3>
+                    <h3>⏱️ مدت: 120 دقیقه</h3>
+                    <h3>🎯 هدف: تسلط بر پایتون برای پروژه‌های داده</h3>
+                    <div style="margin-top: 30px; font-size: 16px;">
+                        🚀 <strong>از مبتدی تا حرفه‌ای در یک جلسه</strong>
+                    </div>
+                    <div class="stats-grid"
+                         style="margin-top: 20px;">
+                        <div class="stat-item">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">مفهوم کلیدی</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">15</span>
+                            <span class="stat-label">تمرین عملی</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 2: مرور جلسه قبل -->
+            <div class="slide"
+                 id="slide2">
+                <div class="slide-number">2/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📚</div>
+                <div class="slide-title">مرور سریع جلسه قبل</div>
+                <div class="slide-content">
+                    <h3>✅ آنچه در جلسه اول یاد گرفتیم:</h3>
+                    <ul>
+                        <li>مفهوم علم داده و کاربردها</li>
+                        <li>چرخه کامل علم داده</li>
+                        <li>آشنایی با Google Colab</li>
+                        <li>اولین تحلیل با Pandas</li>
+                        <li>مصورسازی ساده</li>
+                    </ul>
+
+                    <h3>🔄 مرور کد جلسه قبل:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        import pandas as pd
+                        import numpy as np
+
+                        # تولید داده نمونه
+                        data = {'روز': ['شنبه', 'یکشنبه'],
+                        'فروش': [850000, 920000]}
+                        df = pd.DataFrame(data)
+                        print(df['فروش'].mean())
+                    </div>
+
+                    <h3>❓ سوالات متداول از جلسه قبل:</h3>
+                    <div class="example-box">
+                        <div class="example-title">سوال: چرا Python برای علم داده؟</div>
+                        پاسخ: ساده، قدرتمند، کتابخانه‌های فراوان، جامعه بزرگ
+                    </div>
+
+                    <div class="warning-box">
+                        <div class="warning-title">⚠️ نکته مهم:</div>
+                        امروز روی مهارت‌های عملی پایتون تمرکز می‌کنیم
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 3: متغیرها و انواع داده پیشرفته -->
+            <div class="slide code"
+                 id="slide3">
+                <div class="slide-number">3/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🔢</div>
+                <div class="slide-title">متغیرها و انواع داده پیشرفته</div>
+                <div class="slide-content">
+                    <h3>📊 انواع داده در Python:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        # انواع داده عددی
+                        price = 150000 # int
+                        rating = 4.5 # float
+                        complex_num = 3+4j # complex
+
+                        # رشته‌ها و متن
+                        name = "علی احمدی"
+                        description = """این یک متن
+                        چند خطی است"""
+
+                        # ساختارهای داده
+                        numbers = [1, 2, 3, 4, 5] # list
+                        coordinates = (35.6892, 51.3890) # tuple
+                        user_info = {"name": "علی", "age": 25} # dict
+                        unique_items = {1, 2, 3, 4} # set
+
+                        # بررسی نوع
+                        print(type(price)) # <class 'int'>
+                            print(isinstance(rating, float)) # True
+                    </div>
+
+                    <h3>🔄 تبدیل انواع داده:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        # تبدیلات مفید برای علم داده
+                        text_number = "123.45"
+                        number = float(text_number) # 123.45
+
+                        # کار با لیست‌ها
+                        prices = ["100", "200", "300"]
+                        numeric_prices = [int(p) for p in prices]
+
+                        # تبدیل dict به list
+                        data = {"a": 1, "b": 2}
+                        keys = list(data.keys()) # ['a', 'b']
+                        values = list(data.values()) # [1, 2]
+                    </div>
+
+                    <div class="exercise-box">
+                        <div class="exercise-title">🏋️ تمرین فوری:</div>
+                        یک لیست از قیمت‌های رشته‌ای بسازید و آن‌ها را به عدد تبدیل کنید
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 4: ساختارهای کنترل پیشرفته -->
+            <div class="slide"
+                 id="slide4">
+                <div class="slide-number">4/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🔀</div>
+                <div class="slide-title">ساختارهای کنترل پیشرفته</div>
+                <div class="slide-content">
+                    <h3>🎯 شرط‌های پیچیده:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        # شرط‌های چندگانه برای تحلیل داده
+                        def analyze_score(score):
+                        if score >= 90:
+                        return "عالی"
+                        elif score >= 80:
+                        return "خوب"
+                        elif score >= 70:
+                        return "متوسط"
+                        else:
+                        return "ضعیف"
+
+                        # استفاده از and, or, not
+                        age = 25
+                        income = 50000
+
+                        if age >= 18 and income > 30000:
+                        print("واجد شرایط وام")
+                        elif age >= 18 or income > 100000:
+                        print("نیاز به بررسی بیشتر")
+                        else:
+                        print("غیرواجد شرایط")
+                    </div>
+
+                    <h3>🔄 حلقه‌های بهینه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        # حلقه for پیشرفته
+                        data = [{"name": "علی", "score": 85},
+                        {"name": "سارا", "score": 92}]
+
+                        # استفاده از enumerate
+                        for index, student in enumerate(data):
+                        print(f"{index+1}. {student['name']}: {student['score']}")
+
+                        # List comprehension قدرتمند
+                        high_scores = [s['score'] for s in data if s['score'] > 80]
+                        names = [s['name'] for s in data]
+
+                        # Dictionary comprehension
+                        score_dict = {s['name']: s['score'] for s in data}
+
+                        # حلقه while برای پردازش داده
+                        i = 0
+                        while i < len(data)
+                          and
+                          data[i]['score']
+                          <
+                          90:
+                          print(f"بررسی
+                          {data[i]['name']}")
+                          i
+                          +=1
+                          </div>
+
+                            <div class="example-box">
+                                <div class="example-title">💡 نکته کارآمد:</div>
+                                List comprehension سریع‌تر از حلقه معمولی است
+                            </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 5: توابع پیشرفته -->
+                <div class="slide code"
+                     id="slide5">
+                    <div class="slide-number">5/12</div>
+                    <button class="expand-btn"
+                            onclick="expandSlide(this)">🔍</button>
+                    <button class="close-btn"
+                            onclick="closeSlide(this)">×</button>
+                    <div class="icon">⚙️</div>
+                    <div class="slide-title">توابع پیشرفته برای علم داده</div>
+                    <div class="slide-content">
+                        <h3>🔧 تعریف توابع حرفه‌ای:</h3>
+                        <div class="code-block">
+                            <button class="copy-btn"
+                                    onclick="copyCode(this)">کپی</button>
+                            # تابع با پارامترهای پیش‌فرض
+                            def calculate_stats(data, method="mean", precision=2):
+                            """محاسبه آمار توصیفی داده‌ها"""
+                            if method == "mean":
+                            result = sum(data) / len(data)
+                            elif method == "median":
+                            sorted_data = sorted(data)
+                            n = len(sorted_data)
+                            result = sorted_data[n//2] if n%2 else (sorted_data[n//2-1] + sorted_data[n//2])/2
+                            elif method == "max":
+                            result = max(data)
+                            elif method == "min":
+                            result = min(data)
+
+                            return round(result, precision)
+
+                            # استفاده
+                            sales = [100, 200, 150, 300, 250]
+                            print(calculate_stats(sales)) # 200.0
+                            print(calculate_stats(sales, "median")) # 200.0
+                            print(calculate_stats(sales, "max")) # 300.0
+                        </div>
+
+                        <h3>🚀 توابع Lambda و Map:</h3>
+                        <div class="code-block">
+                            <button class="copy-btn"
+                                    onclick="copyCode(this)">کپی</button>
+                            # Lambda functions برای عملیات سریع
+                            square = lambda x: x**2
+                            prices = [100, 200, 300]
+                            squared_prices = list(map(square, prices))
+
+                            # فیلتر کردن داده‌ها
+                            high_prices = list(filter(lambda x: x > 150, prices))
+
+                            # استفاده در sorting
+                            students = [{"name": "علی", "grade": 85}, {"name": "سارا", "grade": 92}]
+                            sorted_students = sorted(students, key=lambda x: x['grade'], reverse=True)
+
+                            # Map برای تبدیل داده‌ها
+                            text_prices = ["100", "200", "300"]
+                            numeric_prices = list(map(int, text_prices))
+                        </div>
+
+                        <h3>📦 توابع بازگشتی:</h3>
+                        <div class="code-block">
+                            <button class="copy-btn"
+                                    onclick="copyCode(this)">کپی</button>
+                            def factorial(n):
+                            """محاسبه فاکتوریل به روش بازگشتی"""
+                            if n <= 1:
+                               return
+                               1
+                               return
+                               n
+                               *
+                               factorial(n-1)
+                               def
+                               fibonacci(n): """دنباله فیبوناچی"""
+                               if
+                               n
+                               <=1:
+                               return
+                               n
+                               return
+                               fibonacci(n-1)
+                               +
+                               fibonacci(n-2)
+                               print(factorial(5))
+                               #
+                               120
+                               print(fibonacci(7))
+                               #
+                               13
+                               </div>
+                        </div>
+                    </div>
+
+                    <!-- اسلاید 6: کار با فایل‌ها -->
+                    <div class="slide"
+                         id="slide6">
+                        <div class="slide-number">6/12</div>
+                        <button class="expand-btn"
+                                onclick="expandSlide(this)">🔍</button>
+                        <button class="close-btn"
+                                onclick="closeSlide(this)">×</button>
+                        <div class="icon">📁</div>
+                        <div class="slide-title">کار حرفه‌ای با فایل‌ها</div>
+                        <div class="slide-content">
+                            <h3>📖 خواندن فایل‌های مختلف:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                # خواندن فایل متنی
+                                with open('data.txt', 'r', encoding='utf-8') as file:
+                                content = file.read()
+                                lines = file.readlines()
+
+                                # خواندن CSV دستی
+                                def read_csv(filename):
+                                data = []
+                                with open(filename, 'r', encoding='utf-8') as file:
+                                lines = file.readlines()
+                                headers = lines[0].strip().split(',')
+                                for line in lines[1:]:
+                                values = line.strip().split(',')
+                                row = dict(zip(headers, values))
+                                data.append(row)
+                                return data
+
+                                # خواندن JSON
+                                import json
+                                with open('data.json', 'r', encoding='utf-8') as file:
+                                data = json.load(file)
+                            </div>
+
+                            <h3>✍️ نوشتن فایل‌ها:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                # نوشتن فایل متنی
+                                results = ["نتیجه 1", "نتیجه 2", "نتیجه 3"]
+                                with open('results.txt', 'w', encoding='utf-8') as file:
+                                for result in results:
+                                file.write(result + '\n')
+
+                                # نوشتن CSV
+                                def write_csv(data, filename):
+                                if not data:
+                                return
+
+                                headers = data[0].keys()
+                                with open(filename, 'w', encoding='utf-8') as file:
+                                file.write(','.join(headers) + '\n')
+                                for row in data:
+                                values = [str(row[header]) for header in headers]
+                                file.write(','.join(values) + '\n')
+
+                                # نوشتن JSON
+                                output_data = {"results": results, "count": len(results)}
+                                with open('output.json', 'w', encoding='utf-8') as file:
+                                json.dump(output_data, file, ensure_ascii=False, indent=2)
+                            </div>
+
+                            <h3>📂 مدیریت مسیرها:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                import os
+                                from pathlib import Path
+
+                                # بررسی وجود فایل
+                                if os.path.exists('data.txt'):
+                                print("فایل موجود است")
+
+                                # ایجاد پوشه
+                                os.makedirs('output', exist_ok=True)
+
+                                # استفاده از pathlib (روش مدرن)
+                                data_path = Path('data')
+                                data_path.mkdir(exist_ok=True)
+
+                                # پیدا کردن فایل‌ها
+                                txt_files = list(data_path.glob('*.txt'))
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اسلاید 7: مدیریت خطا -->
+                    <div class="slide"
+                         id="slide7">
+                        <div class="slide-number">7/12</div>
+                        <button class="expand-btn"
+                                onclick="expandSlide(this)">🔍</button>
+                        <button class="close-btn"
+                                onclick="closeSlide(this)">×</button>
+                        <div class="icon">🛡️</div>
+                        <div class="slide-title">مدیریت خطا و Debugging</div>
+                        <div class="slide-content">
+                            <h3>🚨 مدیریت خطاهای رایج:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                # مدیریت خطای تقسیم بر صفر
+                                def safe_divide(a, b):
+                                try:
+                                result = a / b
+                                return result
+                                except ZeroDivisionError:
+                                print("خطا: تقسیم بر صفر")
+                                return None
+                                except TypeError:
+                                print("خطا: نوع داده نامعتبر")
+                                return None
+
+                                # مدیریت خطای فایل
+                                def read_file_safe(filename):
+                                try:
+                                with open(filename, 'r', encoding='utf-8') as file:
+                                return file.read()
+                                except FileNotFoundError:
+                                print(f"فایل {filename} پیدا نشد")
+                                return None
+                                except PermissionError:
+                                print("دسترسی به فایل مجاز نیست")
+                                return None
+                                except Exception as e:
+                                print(f"خطای غیرمنتظره: {e}")
+                                return None
+                            </div>
+
+                            <h3>🔍 Debugging تکنیک‌ها:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                # استفاده از print برای debugging
+                                def process_data(data):
+                                print(f"ورودی: {data}") # debug
+
+                                result = []
+                                for item in data:
+                                print(f"پردازش: {item}") # debug
+                                processed = item * 2
+                                result.append(processed)
+
+                                print(f"خروجی: {result}") # debug
+                                return result
+
+                                # استفاده از assert برای تست
+                                def calculate_average(numbers):
+                                assert len(numbers) > 0, "لیست نمی‌تواند خالی باشد"
+                                assert all(isinstance(n, (int, float)) for n in numbers), "همه عناصر باید عدد باشند"
+
+                                return sum(numbers) / len(numbers)
+
+                                # لاگ‌گذاری حرفه‌ای
+                                import logging
+                                logging.basicConfig(level=logging.INFO)
+
+                                def analyze_data(data):
+                                logging.info(f"شروع تحلیل {len(data)} رکورد")
+                                # پردازش...
+                                logging.info("تحلیل کامل شد")
+                            </div>
+
+                            <div class="warning-box">
+                                <div class="warning-title">⚠️ نکات مهم:</div>
+                                <ul>
+                                    <li>همیشه خطاهای احتمالی را پیش‌بینی کنید</li>
+                                    <li>از پیام‌های خطای واضح استفاده کنید</li>
+                                    <li>برای پروژه‌های بزرگ از logging استفاده کنید</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اسلاید 8: کتابخانه‌های مفید -->
+                    <div class="slide"
+                         id="slide8">
+                        <div class="slide-number">8/12</div>
+                        <button class="expand-btn"
+                                onclick="expandSlide(this)">🔍</button>
+                        <button class="close-btn"
+                                onclick="closeSlide(this)">×</button>
+                        <div class="icon">📚</div>
+                        <div class="slide-title">کتابخانه‌های مفید Python</div>
+                        <div class="slide-content">
+                            <h3>📅 کار با تاریخ و زمان:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                from datetime import datetime, timedelta
+                                import jdatetime # برای تاریخ شمسی
+
+                                # تاریخ و زمان فعلی
+                                now = datetime.now()
+                                print(f"الان: {now}")
+
+                                # تاریخ شمسی
+                                persian_now = jdatetime.datetime.now()
+                                print(f"تاریخ شمسی: {persian_now}")
+
+                                # محاسبات زمانی
+                                yesterday = now - timedelta(days=1)
+                                next_week = now + timedelta(weeks=1)
+
+                                # تبدیل رشته به تاریخ
+                                date_string = "2024-01-15"
+                                date_obj = datetime.strptime(date_string, "%Y-%m-%d")
+                            </div>
+
+                            <h3>🔢 کتابخانه‌های ریاضی:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                import math
+                                import random
+                                import statistics
+
+                                # توابع ریاضی
+                                numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+                                # آمار توصیفی
+                                mean = statistics.mean(numbers)
+                                median = statistics.median(numbers)
+                                stdev = statistics.stdev(numbers)
+
+                                print(f"میانگین: {mean}")
+                                print(f"میانه: {median}")
+                                print(f"انحراف معیار: {stdev}")
+
+                                # تولید عدد تصادفی
+                                random_int = random.randint(1, 100)
+                                random_choice = random.choice(['A', 'B', 'C'])
+                                random_sample = random.sample(numbers, 3)
+
+                                # توابع ریاضی
+                                sqrt_value = math.sqrt(16) # 4.0
+                                log_value = math.log(10) # 2.302...
+                            </div>
+
+                            <h3>🌐 کتابخانه‌های شبکه:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                import requests
+                                import urllib.parse
+
+                                # درخواست HTTP ساده
+                                def get_weather_data(city):
+                                try:
+                                url = f"http://api.weather.com/data/{city}"
+                                response = requests.get(url, timeout=10)
+
+                                if response.status_code == 200:
+                                return response.json()
+                                else:
+                                print(f"خطا: {response.status_code}")
+                                return None
+
+                                except requests.exceptions.RequestException as e:
+                                print(f"خطای شبکه: {e}")
+                                return None
+
+                                # کدگذاری URL
+                                text = "سلام دنیا"
+                                encoded = urllib.parse.quote(text)
+                                print(encoded) # %D8%B3%D9%84%D8%A7%D9%85%20%D8%AF%D9%86%DB%8C%D8%A7
+                            </div>
+
+                            <div class="tools-grid">
+                                <div class="tool-item">datetime</div>
+                                <div class="tool-item">math</div>
+                                <div class="tool-item">random</div>
+                                <div class="tool-item">statistics</div>
+                                <div class="tool-item">requests</div>
+                                <div class="tool-item">json</div>
+                                <div class="tool-item">os</div>
+                                <div class="tool-item">pathlib</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اسلاید 9: پروژه عملی -->
+                    <div class="slide code"
+                         id="slide9">
+                        <div class="slide-number">9/12</div>
+                        <button class="expand-btn"
+                                onclick="expandSlide(this)">🔍</button>
+                        <button class="close-btn"
+                                onclick="closeSlide(this)">×</button>
+                        <div class="icon">🚀</div>
+                        <div class="slide-title">پروژه عملی: سیستم مدیریت فروش</div>
+                        <div class="slide-content">
+                            <h3>🎯 هدف پروژه:</h3>
+                            <p>ایجاد سیستم ساده برای مدیریت داده‌های فروش یک فروشگاه</p>
+
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                import json
+                                from datetime import datetime
+                                import statistics
+
+                                class SalesManager:
+                                def __init__(self, filename="sales_data.json"):
+                                self.filename = filename
+                                self.sales = self.load_data()
+
+                                def load_data(self):
+                                """بارگذاری داده‌ها از فایل"""
+                                try:
+                                with open(self.filename, 'r', encoding='utf-8') as file:
+                                return json.load(file)
+                                except FileNotFoundError:
+                                print("فایل داده یافت نشد. فایل جدید ایجاد می‌شود.")
+                                return []
+                                except json.JSONDecodeError:
+                                print("خطا در خواندن فایل JSON")
+                                return []
+
+                                def save_data(self):
+                                """ذخیره داده‌ها در فایل"""
+                                try:
+                                with open(self.filename, 'w', encoding='utf-8') as file:
+                                json.dump(self.sales, file, ensure_ascii=False, indent=2)
+                                print("داده‌ها ذخیره شدند")
+                                except Exception as e:
+                                print(f"خطا در ذخیره: {e}")
+                            </div>
+
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                def add_sale(self, product_name, price, quantity=1):
+                                """اضافه کردن فروش جدید"""
+                                sale = {
+                                "id": len(self.sales) + 1,
+                                "product": product_name,
+                                "price": price,
+                                "quantity": quantity,
+                                "total": price * quantity,
+                                "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                                }
+                                self.sales.append(sale)
+                                print(f"فروش ثبت شد: {product_name} - {sale['total']:,} تومان")
+
+                                def get_total_sales(self):
+                                """محاسبه کل فروش"""
+                                return sum(sale['total'] for sale in self.sales)
+
+                                def get_sales_by_product(self, product_name):
+                                """فروش یک محصول خاص"""
+                                product_sales = [sale for sale in self.sales
+                                if sale['product'].lower() == product_name.lower()]
+                                return product_sales
+
+                                def get_sales_stats(self):
+                                """آمار فروش"""
+                                if not self.sales:
+                                return "هیچ فروشی ثبت نشده"
+
+                                totals = [sale['total'] for sale in self.sales]
+                                stats = {
+                                "تعداد فروش": len(self.sales),
+                                "کل فروش": sum(totals),
+                                "میانگین فروش": statistics.mean(totals),
+                                "بیشترین فروش": max(totals),
+                                "کمترین فروش": min(totals)
+                                }
+                                return stats
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اسلاید 10: بهینه‌سازی کد -->
+                    <div class="slide"
+                         id="slide10">
+                        <div class="slide-number">10/12</div>
+                        <button class="expand-btn"
+                                onclick="expandSlide(this)">🔍</button>
+                        <button class="close-btn"
+                                onclick="closeSlide(this)">×</button>
+                        <div class="icon">⚡</div>
+                        <div class="slide-title">بهینه‌سازی و کدنویسی تمیز</div>
+                        <div class="slide-content">
+                            <h3>🚀 تکنیک‌های بهینه‌سازی:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                # روش کند (اجتناب کنید)
+                                def slow_sum(numbers):
+                                result = 0
+                                for num in numbers:
+                                result = result + num
+                                return result
+
+                                # روش سریع (توصیه شده)
+                                def fast_sum(numbers):
+                                return sum(numbers)
+
+                                # استفاده از List Comprehension
+                                # کند
+                                squares = []
+                                for i in range(1000):
+                                squares.append(i**2)
+
+                                # سریع
+                                squares = [i**2 for i in range(1000)]
+
+                                # استفاده از Generator برای حافظه
+                                def number_generator(n):
+                                for i in range(n):
+                                yield i**2
+
+                                # استفاده
+                                for square in number_generator(1000):
+                                print(square) # فقط یکی در هر زمان در حافظه
+                            </div>
+
+                            <h3>📏 کدنویسی تمیز:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                # نام‌گذاری واضح
+                                def calculate_customer_total_purchase(customer_id, purchase_list):
+                                """محاسبه کل خرید مشتری"""
+                                total = 0
+                                for item in purchase_list:
+                                total += item['price'] * item['quantity']
+                                return total
+
+                                # استفاده از constants
+                                MAX_RETRY_ATTEMPTS = 3
+                                DEFAULT_TIMEOUT = 30
+                                API_BASE_URL = "https://api.example.com"
+
+                                # تابع کوچک و تخصصی
+                                def validate_email(email):
+                                """اعتبارسنجی ایمیل"""
+                                return "@" in email and "." in email
+
+                                def validate_phone(phone):
+                                """اعتبارسنجی شماره تلفن"""
+                                return phone.isdigit() and len(phone) == 11
+
+                                def validate_user_data(user_data):
+                                """اعتبارسنجی کامل داده‌های کاربر"""
+                                return (validate_email(user_data.get('email', '')) and
+                                validate_phone(user_data.get('phone', '')))
+                            </div>
+
+                            <h3>📊 اندازه‌گیری عملکرد:</h3>
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                import time
+
+                                def measure_time(func):
+                                """Decorator برای اندازه‌گیری زمان اجرا"""
+                                def wrapper(*args, **kwargs):
+                                start_time = time.time()
+                                result = func(*args, **kwargs)
+                                end_time = time.time()
+                                print(f"{func.__name__} در {end_time - start_time:.4f} ثانیه اجرا شد")
+                                return result
+                                return wrapper
+
+                                @measure_time
+                                def process_large_data(data):
+                                # پردازش داده‌های بزرگ
+                                return [item * 2 for item in data]
+
+                                # استفاده
+                                large_list = list(range(1000000))
+                                result = process_large_data(large_list)
+                            </div>
+
+                            <div class="example-box">
+                                <div class="example-title">💡 نکات بهینه‌سازی:</div>
+                                <ul>
+                                    <li>از built-in functions استفاده کنید</li>
+                                    <li>List comprehension سریع‌تر از حلقه است</li>
+                                    <li>Generator برای داده‌های بزرگ</li>
+                                    <li>نام‌گذاری واضح و معنادار</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اسلاید 11: تمرین کاربردی -->
+                    <div class="slide"
+                         id="slide11">
+                        <div class="slide-number">11/12</div>
+                        <button class="expand-btn"
+                                onclick="expandSlide(this)">🔍</button>
+                        <button class="close-btn"
+                                onclick="closeSlide(this)">×</button>
+                        <div class="icon">🏋️</div>
+                        <div class="slide-title">تمرین کاربردی: تحلیل‌گر داده</div>
+                        <div class="slide-content">
+                            <div class="exercise-box">
+                                <div class="exercise-title">🎯 تمرین: ایجاد تحلیل‌گر فایل CSV</div>
+                                <p>یک برنامه بنویسید که فایل CSV بخواند و آمار آن را نمایش دهد</p>
+                            </div>
+
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                class CSVAnalyzer:
+                                def __init__(self, filename):
+                                self.filename = filename
+                                self.data = []
+                                self.headers = []
+
+                                def load_csv(self):
+                                """بارگذاری فایل CSV"""
+                                try:
+                                with open(self.filename, 'r', encoding='utf-8') as file:
+                                lines = file.readlines()
+
+                                if not lines:
+                                print("فایل خالی است")
+                                return False
+
+                                # خواندن سرتیترها
+                                self.headers = lines[0].strip().split(',')
+
+                                # خواندن داده‌ها
+                                for line in lines[1:]:
+                                values = line.strip().split(',')
+                                if len(values) == len(self.headers):
+                                row = dict(zip(self.headers, values))
+                                self.data.append(row)
+
+                                print(f"✅ {len(self.data)} رکورد بارگذاری شد")
+                                return True
+
+                                except FileNotFoundError:
+                                print(f"❌ فایل {self.filename} پیدا نشد")
+                                return False
+                                except Exception as e:
+                                print(f"❌ خطا در بارگذاری: {e}")
+                                return False
+                            </div>
+
+                            <div class="code-block">
+                                <button class="copy-btn"
+                                        onclick="copyCode(this)">کپی</button>
+                                def analyze_column(self, column_name):
+                                """تحلیل یک ستون خاص"""
+                                if column_name not in self.headers:
+                                print(f"ستون {column_name} وجود ندارد")
+                                return None
+
+                                values = [row[column_name] for row in self.data if row[column_name]]
+
+                                # تشخیص نوع داده
+                                numeric_values = []
+                                for value in values:
+                                try:
+                                numeric_values.append(float(value))
+                                except ValueError:
+                                pass
+
+                                if numeric_values:
+                                # تحلیل عددی
+                                analysis = {
+                                "نوع": "عددی",
+                                "تعداد": len(numeric_values),
+                                "میانگین": sum(numeric_values) / len(numeric_values),
+                                "حداکثر": max(numeric_values),
+                                "حداقل": min(numeric_values),
+                                "مجموع": sum(numeric_values)
+                                }
+                                else:
+                                # تحلیل متنی
+                                unique_values = list(set(values))
+                                analysis = {
+                                "نوع": "متنی",
+                                "تعداد": len(values),
+                                "منحصربه‌فرد": len(unique_values),
+                                "نمونه": unique_values[:5]
+                                }
+
+                                return analysis
+
+                                def generate_report(self):
+                                """تولید گزارش کامل"""
+                                if not self.data:
+                                print("هیچ داده‌ای بارگذاری نشده")
+                                return
+
+                                print("\n" + "="*50)
+                                print(f"📊 گزارش تحلیل فایل: {self.filename}")
+                                print("="*50)
+                                print(f"تعداد سطرها: {len(self.data)}")
+                                print(f"تعداد ستون‌ها: {len(self.headers)}")
+                                print(f"ستون‌ها: {', '.join(self.headers)}")
+
+                                print("\n📈 تحلیل ستون‌ها:")
+                                for header in self.headers:
+                                analysis = self.analyze_column(header)
+                                if analysis:
+                                print(f"\n🔹 {header}:")
+                                for key, value in analysis.items():
+                                print(f" {key}: {value}")
+
+                                # استفاده
+                                analyzer = CSVAnalyzer("sales_data.csv")
+                                if analyzer.load_csv():
+                                analyzer.generate_report()
+                            </div>
+
+                            <div class="warning-box">
+                                <div class="warning-title">🎯 اهداف تمرین:</div>
+                                <ul>
+                                    <li>کار با فایل‌های CSV</li>
+                                    <li>تحلیل انواع داده</li>
+                                    <li>مدیریت خطا</li>
+                                    <li>تولید گزارش</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- اسلاید 12: جمع‌بندی -->
+                    <div class="slide intro"
+                         id="slide12">
+                        <div class="slide-number">12/12</div>
+                        <button class="expand-btn"
+                                onclick="expandSlide(this)">🔍</button>
+                        <button class="close-btn"
+                                onclick="closeSlide(this)">×</button>
+                        <div class="icon">🎯</div>
+                        <div class="slide-title">جمع‌بندی جلسه دوم</div>
+                        <div class="slide-content">
+                            <h3>✅ مهارت‌های کسب شده:</h3>
+                            <ul>
+                                <li>تسلط بر انواع داده پیشرفته Python</li>
+                                <li>ساختارهای کنترل و حلقه‌های بهینه</li>
+                                <li>توابع پیشرفته و Lambda</li>
+                                <li>کار حرفه‌ای با فایل‌ها</li>
+                                <li>مدیریت خطا و Debugging</li>
+                                <li>کتابخانه‌های مفید</li>
+                                <li>بهینه‌سازی کد</li>
+                                <li>پروژه عملی کامل</li>
+                            </ul>
+
+                            <h3>🚀 جلسه بعد (جلسه 3):</h3>
+                            <ul>
+                                <li>NumPy - محاسبات علمی</li>
+                                <li>آرایه‌های چندبعدی</li>
+                                <li>عملیات ماتریسی</li>
+                                <li>آمار و احتمال</li>
+                            </ul>
+
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-number">💰</span>
+                                    <span class="stat-label">جلسه بعد: 100,000 تومان</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">📅</span>
+                                    <span class="stat-label">NumPy & محاسبات</span>
+                                </div>
+                            </div>
+
+                            <div class="warning-box">
+                                <div class="warning-title">📝 تمرین خانگی:</div>
+                                <ul>
+                                    <li>پروژه SalesManager را کامل کنید</li>
+                                    <li>CSVAnalyzer را روی داده‌های خود تست کنید</li>
+                                    <li>یک تابع برای پاک‌سازی داده بنویسید</li>
+                                </ul>
+                            </div>
+
+                            <div style="text-align: center; margin-top: 20px; font-size: 18px;">
+                                🎉 <strong>تبریک! حالا یک Python Developer حرفه‌ای هستید</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <script>
+                function expandSlide(btn) {
+                    const slide = btn.closest('.slide');
+                    const overlay = document.getElementById('overlay');
+
+                    slide.classList.add('expanded');
+                    overlay.classList.add('active');
+
+                    // غیرفعال کردن اسکرول صفحه
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeSlide(btn) {
+                    const slide = btn.closest('.slide');
+                    const overlay = document.getElementById('overlay');
+
+                    slide.classList.remove('expanded');
+                    overlay.classList.remove('active');
+
+                    // فعال کردن اسکرول صفحه
+                    document.body.style.overflow = 'auto';
+                }
+
+                function copyCode(btn) {
+                    const codeBlock = btn.parentElement;
+                    const code = codeBlock.textContent.replace('کپی', '').trim();
+
+                    navigator.clipboard.writeText(code).then(() => {
+                        btn.textContent = '✓';
+                        btn.style.background = '#27ae60';
+                        setTimeout(() => {
+                            btn.textContent = 'کپی';
+                            btn.style.background = '#3498db';
+                        }, 2000);
+                    });
+                }
+
+                // بستن اسلاید با کلیک روی overlay
+                document.getElementById('overlay').addEventListener('click', function () {
+                    const expandedSlide = document.querySelector('.slide.expanded');
+                    if (expandedSlide) {
+                        closeSlide(expandedSlide.querySelector('.close-btn'));
+                    }
+                });
+
+                // بستن اسلاید با کلید Escape
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape') {
+                        const expandedSlide = document.querySelector('.slide.expanded');
+                        if (expandedSlide) {
+                            closeSlide(expandedSlide.querySelector('.close-btn'));
+                        }
+                    }
+                });
+
+                // Smooth scrolling برای navigation
+                document.addEventListener('DOMContentLoaded', function () {
+                    const navItems = document.querySelectorAll('.nav-item');
+                    navItems.forEach(item => {
+                        item.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            const target = document.querySelector(this.getAttribute('href'));
+                            target.scrollIntoView({ behavior: 'smooth' });
+                        });
+                    });
+
+                    // اضافه کردن کلاس active به navigation items
+                    window.addEventListener('scroll', function () {
+                        const slides = document.querySelectorAll('.slide');
+                        const navItems = document.querySelectorAll('.nav-item');
+
+                        let current = '';
+                        slides.forEach(slide => {
+                            const slideTop = slide.offsetTop;
+                            const slideHeight = slide.clientHeight;
+                            if (scrollY >= (slideTop - slideHeight / 3)) {
+                                current = slide.getAttribute('id');
+                            }
+                        });
+
+                        navItems.forEach(item => {
+                            item.classList.remove('active');
+                            if (item.getAttribute('href') === '#' + current) {
+                                item.classList.add('active');
+                            }
+                        });
+                    });
+                });
+
+                // اضافه کردن style برای active navigation
+                const style = document.createElement('style');
+                style.textContent = `
+            .nav-item.active {
+                background: #e74c3c !important;
+                transform: translateX(-5px);
+            }
+        `;
+                document.head.appendChild(style);
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسه پنجم: Matplotlib و مصورسازی داده‌ها - آراز شاه کرمی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .slide {
+            display: none;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slide.active {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide-enter {
+            transform: translateX(-100px);
+        }
+        
+        .slide-exit {
+            transform: translateX(100px);
+        }
+        
+        .sidebar-nav {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .nav-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .nav-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.15);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-nav {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 50;
+        }
+        
+        .main-nav button {
+            padding: 12px 24px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .main-nav button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .main-nav button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #3b82f6);
+            transition: width 0.3s ease;
+            z-index: 60;
+        }
+        
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            z-index: 50;
+        }
+        
+        .code-block {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 12px;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+            direction: ltr;
+        }
+        
+        .code-block pre {
+            color: #e5e7eb;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+            padding-left: 20px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+            padding-right: 80px;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(59, 130, 246, 0.8);
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+        
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+        
+        .slide-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .slide-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .slide-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slide-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 400;
+        }
+        
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2));
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-nav {
+                flex-direction: row;
+                top: auto;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                right: auto;
+            }
+            
+            .slide-content {
+                padding: 20px;
+            }
+            
+            .slide-title {
+                font-size: 2rem;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Syntax highlighting */
+        .keyword { color: #f59e0b; font-weight: 600; }
+        .string { color: #10b981; }
+        .number { color: #3b82f6; }
+        .comment { color: #6b7280; font-style: italic; }
+        .function { color: #8b5cf6; }
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+        
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+        
+        .shape:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            top: 40%;
+            right: 30%;
+            animation-delay: 1s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 13</div>
+    
+    <div class="animated-bg">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
+    <div class="sidebar-nav" id="sidebarNav">
+        <!-- Navigation buttons will be generated by JavaScript -->
+    </div>
+    
+    <div class="main-nav">
+        <button id="prevBtn" onclick="changeSlide(-1)">
+            <i class="fas fa-chevron-right ml-2"></i>
+            قبلی
+        </button>
+        <button id="nextBtn" onclick="changeSlide(1)">
+            بعدی
+            <i class="fas fa-chevron-left mr-2"></i>
+        </button>
+    </div>
+
+    <!-- Slide 1: Introduction -->
+    <div class="slide active" id="slide1">
+        <div class="slide-content">
+            <div class="slide-header">
+                <div class="text-6xl mb-4">📊</div>
+                <h1 class="slide-title">جلسه پنجم: Matplotlib و مصورسازی داده‌ها</h1>
+                <p class="slide-subtitle">آراز شاه کرمی</p>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-target"></i>
+                    اهداف جلسه
+                </h2>
+                <div class="grid-2">
+                    <div class="highlight-box">
+                        <h3 class="text-xl font-semibold text-white mb-3">🏗️ مفاهیم پایه</h3>
+                        <ul class="text-white/90 space-y-2">
+                            <li>• آشنایی با Matplotlib و کاربردهای آن</li>
+                            <li>• نصب و راه‌اندازی کتابخانه</li>
+                            <li>• ساختار اصلی نمودارها</li>
+                            <li>• انواع نمودارهای پایه</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-box">
+                        <h3 class="text-xl font-semibold text-white mb-3">🛠️ تکنیک‌های پیشرفته</h3>
+                        <ul class="text-white/90 space-y-2">
+                            <li>• سفارشی‌سازی نمودارها</li>
+                            <li>• نمودارهای چندبخشی</li>
+                            <li>• انیمیشن و تعامل</li>
+                            <li>• ذخیره و export نمودارها</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-lightbulb"></i>
+                    چرا Matplotlib؟
+                </h2>
+                <div class="grid-3">
+                    <div class="highlight-box">
+                        <h3 class="text-lg font-semibold text-white mb-2 text-center">🎨 انعطاف‌پذیری</h3>
+                        <p class="text-white/80 text-center">سفارشی‌سازی کامل نمودارها</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h3 class="text-lg font-semibold text-white mb-2 text-center">📚 جامعیت</h3>
+                        <p class="text-white/80 text-center">پشتیبانی از انواع نمودارها</p>
+                    </div>
+                    <div class="highlight-box">
+                        <h3 class="text-lg font-semibold text-white mb-2 text-center">🔧 یکپارچگی</h3>
+                        <p class="text-white/80 text-center">ادغام با NumPy و Pandas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Installation -->
+    <div class="slide" id="slide2">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">نصب و راه‌اندازی Matplotlib</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-download"></i>
+                    روش‌های نصب
+                </h2>
+                
+                <div class="highlight-box">
+                    <h3 class="text-xl font-semibold text-white mb-3">📦 نصب با pip</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                        <pre><code><span class="comment"># نصب اصلی</span>
+<span class="keyword">pip</span> install matplotlib
+
+<span class="comment"># نسخه خاص</span>
+<span class="keyword">pip</span> install matplotlib==<span class="number">3.7</span>.<span class="number">2</span>
+
+<span class="comment"># به‌روزرسانی</span>
+<span class="keyword">pip</span> install --upgrade matplotlib</code></pre>
+                    </div>
+                </div>
+                
+                <div class="highlight-box">
+                    <h3 class="text-xl font-semibold text-white mb-3">🔧 نصب با conda</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                        <pre><code><span class="comment"># نصب با conda</span>
+<span class="keyword">conda</span> install matplotlib
+
+<span class="comment"># نصب در محیط خاص</span>
+<span class="keyword">conda</span> install -n myenv matplotlib</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-check-circle"></i>
+                    تست نصب
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># تست ساده</span>
+plt.plot([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])
+plt.title(<span class="string">'تست نصب Matplotlib'</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Basic Plotting -->
+    <div class="slide" id="slide3">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">نمودارهای پایه</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    نمودار خطی ساده
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># داده ساده</span>
+x = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+y = [<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>, <span class="number">10</span>]
+
+<span class="comment"># رسم نمودار</span>
+plt.plot(x, y)
+plt.xlabel(<span class="string">'محور X'</span>)
+plt.ylabel(<span class="string">'محور Y'</span>)
+plt.title(<span class="string">'نمودار خطی ساده'</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-circle"></i>
+                    نمودار نقطه‌ای
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="comment"># نقاط مختلف</span>
+plt.figure(figsize=(<span class="number">12</span>, <span class="number">8</span>))
+plt.scatter(x, y, color=<span class="string">'red'</span>, s=<span class="number">100</span>, alpha=<span class="number">0.7</span>)
+plt.xlabel(<span class="string">'محور X'</span>)
+plt.ylabel(<span class="string">'محور Y'</span>)
+plt.title(<span class="string">'نمودار نقطه‌ای'</span>)
+plt.grid(<span class="keyword">True</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Chart Types -->
+    <div class="slide" id="slide4">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">انواع نمودارها</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i>
+                    دسته‌بندی نمودارها
+                </h2>
+                
+                <div class="grid-2">
+                    <div class="highlight-box">
+                        <h3 class="text-xl font-semibold text-white mb-3">📊 نمودارهای آماری</h3>
+                        <ul class="text-white/90 space-y-2">
+                            <li>• هیستوگرام (Histogram)</li>
+                            <li>• نمودار جعبه‌ای (Box Plot)</li>
+                            <li>• نمودار ویولن (Violin Plot)</li>
+                            <li>• نمودار میله‌ای (Bar Chart)</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-box">
+                        <h3 class="text-xl font-semibold text-white mb-3">📈 نمودارهای تحلیلی</h3>
+                        <ul class="text-white/90 space-y-2">
+                            <li>• نمودار خطی (Line Plot)</li>
+                            <li>• نمودار پراکندگی (Scatter)</li>
+                            <li>• نمودار حرارتی (Heatmap)</li>
+                            <li>• نمودار سطحی (Contour)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-palette"></i>
+                    پالت رنگی
+                </h2>
+                <div class="grid-3">
+                    <div class="highlight-box text-center">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded" style="background: #1f77b4;"></div>
+                        <p class="text-white/80">blue</p>
+                    </div>
+                    <div class="highlight-box text-center">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded" style="background: #ff7f0e;"></div>
+                        <p class="text-white/80">orange</p>
+                    </div>
+                    <div class="highlight-box text-center">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded" style="background: #2ca02c;"></div>
+                        <p class="text-white/80">green</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Line and Scatter Plots -->
+    <div class="slide" id="slide5">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">نمودار خطی و نقطه‌ای پیشرفته</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    نمودار خطی با چندین سری داده
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="comment"># داده چندین شهر</span>
+months = [<span class="string">'فروردین'</span>, <span class="string">'اردیبهشت'</span>, <span class="string">'خرداد'</span>, <span class="string">'تیر'</span>, <span class="string">'مرداد'</span>]
+tehran = [<span class="number">25</span>, <span class="number">28</span>, <span class="number">32</span>, <span class="number">35</span>, <span class="number">38</span>]
+mashhad = [<span class="number">20</span>, <span class="number">23</span>, <span class="number">27</span>, <span class="number">30</span>, <span class="number">33</span>]
+shiraz = [<span class="number">22</span>, <span class="number">25</span>, <span class="number">29</span>, <span class="number">32</span>, <span class="number">35</span>]
+
+plt.figure(figsize=(<span class="number">12</span>, <span class="number">8</span>))
+plt.plot(months, tehran, <span class="string">'o-'</span>, label=<span class="string">'تهران'</span>, linewidth=<span class="number">2</span>)
+plt.plot(months, mashhad, <span class="string">'s-'</span>, label=<span class="string">'مشهد'</span>, linewidth=<span class="number">2</span>)
+plt.plot(months, shiraz, <span class="string">'^-'</span>, label=<span class="string">'شیراز'</span>, linewidth=<span class="number">2</span>)
+
+plt.xlabel(<span class="string">'ماه'</span>)
+plt.ylabel(<span class="string">'دما (سانتی‌گراد)'</span>)
+plt.title(<span class="string">'مقایسه دمای شهرها'</span>)
+plt.legend()
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-lightbulb"></i>
+                    نکات کاربردی
+                </h2>
+                <div class="highlight-box">
+                    <ul class="text-white/90 space-y-2">
+                        <li>• از grid برای خوانایی بهتر استفاده کنید</li>
+                        <li>• legend را همیشه اضافه کنید</li>
+                        <li>• از رنگ‌های متفاوت برای تمایز سری داده‌ها استفاده کنید</li>
+                        <li>• اندازه نمودار را با figsize تنظیم کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Bar and Pie Charts -->
+    <div class="slide" id="slide6">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">نمودار میله‌ای و دایره‌ای</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i>
+                    نمودار میله‌ای عمودی
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="comment"># داده امتیاز دانشجویان</span>
+students = [<span class="string">'علی'</span>, <span class="string">'سارا'</span>, <span class="string">'رضا'</span>, <span class="string">'مریم'</span>, <span class="string">'امیر'</span>]
+scores = [<span class="number">85</span>, <span class="number">92</span>, <span class="number">78</span>, <span class="number">95</span>, <span class="number">88</span>]
+
+plt.figure(figsize=(<span class="number">10</span>, <span class="number">6</span>))
+bars = plt.bar(students, scores, color=[<span class="string">'red'</span>, <span class="string">'blue'</span>, <span class="string">'green'</span>, <span class="string">'orange'</span>, <span class="string">'purple'</span>])
+
+<span class="comment"># اضافه کردن مقادیر روی میله‌ها</span>
+<span class="keyword">for</span> bar <span class="keyword">in</span> bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/<span class="number">2</span>, height + <span class="number">1</span>, 
+             <span class="function">f</span><span class="string">'{height}'</span>, ha=<span class="string">'center'</span>, va=<span class="string">'bottom'</span>)
+
+plt.xlabel(<span class="string">'دانشجو'</span>)
+plt.ylabel(<span class="string">'امتیاز'</span>)
+plt.title(<span class="string">'امتیاز دانشجویان'</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    نمودار دایره‌ای
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="comment"># داده فروش محصولات</span>
+products = [<span class="string">'لپتاپ'</span>, <span class="string">'موبایل'</span>, <span class="string">'تبلت'</span>, <span class="string">'مانیتور'</span>]
+sales = [<span class="number">35</span>, <span class="number">25</span>, <span class="number">20</span>, <span class="number">20</span>]
+colors = [<span class="string">'#ff9999'</span>, <span class="string">'#66b3ff'</span>, <span class="string">'#99ff99'</span>, <span class="string">'#ffcc99'</span>]
+
+plt.figure(figsize=(<span class="number">8</span>, <span class="number">8</span>))
+plt.pie(sales, labels=products, colors=colors, autopct=<span class="string">'%1.1f%%'</span>, 
+        startangle=<span class="number">90</span>, shadow=<span class="keyword">True</span>)
+plt.title(<span class="string">'توزیع فروش محصولات'</span>)
+plt.axis(<span class="string">'equal'</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Histograms -->
+    <div class="slide" id="slide7">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">هیستوگرام و توزیع داده‌ها</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i>
+                    هیستوگرام ساده
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># تولید داده تصادفی</span>
+np.random.seed(<span class="number">42</span>)
+data = np.random.normal(<span class="number">100</span>, <span class="number">15</span>, <span class="number">1000</span>)
+
+plt.figure(figsize=(<span class="number">12</span>, <span class="number">6</span>))
+plt.hist(data, bins=<span class="number">30</span>, color=<span class="string">'skyblue'</span>, alpha=<span class="number">0.7</span>, 
+         edgecolor=<span class="string">'black'</span>, linewidth=<span class="number">1</span>)
+
+plt.xlabel(<span class="string">'مقدار'</span>)
+plt.ylabel(<span class="string">'تکرار'</span>)
+plt.title(<span class="string">'هیستوگرام توزیع نرمال'</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    هیستوگرام چندگانه
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="comment"># داده چندگانه</span>
+men_heights = np.random.normal(<span class="number">175</span>, <span class="number">8</span>, <span class="number">500</span>)
+women_heights = np.random.normal(<span class="number">162</span>, <span class="number">6</span>, <span class="number">500</span>)
+
+plt.figure(figsize=(<span class="number">12</span>, <span class="number">8</span>))
+
+plt.hist(men_heights, bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>, label=<span class="string">'مردان'</span>, 
+         color=<span class="string">'blue'</span>, edgecolor=<span class="string">'black'</span>)
+plt.hist(women_heights, bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>, label=<span class="string">'زنان'</span>, 
+         color=<span class="string">'red'</span>, edgecolor=<span class="string">'black'</span>)
+
+plt.xlabel(<span class="string">'قد (سانتی‌متر)'</span>)
+plt.ylabel(<span class="string">'تکرار'</span>)
+plt.title(<span class="string">'مقایسه قد مردان و زنان'</span>)
+plt.legend()
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Box Plots -->
+    <div class="slide" id="slide8">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">نمودار جعبه‌ای و ویولن</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-square"></i>
+                    نمودار جعبه‌ای (Box Plot)
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="comment"># داده برای چند گروه</span>
+np.random.seed(<span class="number">42</span>)
+group_a = np.random.normal(<span class="number">100</span>, <span class="number">10</span>, <span class="number">100</span>)
+group_b = np.random.normal(<span class="number">110</span>, <span class="number">15</span>, <span class="number">100</span>)
+group_c = np.random.normal(<span class="number">95</span>, <span class="number">12</span>, <span class="number">100</span>)
+
+plt.figure(figsize=(<span class="number">10</span>, <span class="number">6</span>))
+plt.boxplot([group_a, group_b, group_c], 
+            labels=[<span class="string">'گروه A'</span>, <span class="string">'گروه B'</span>, <span class="string">'گروه C'</span>])
+
+plt.ylabel(<span class="string">'مقدار'</span>)
+plt.title(<span class="string">'مقایسه توزیع گروه‌ها'</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-music"></i>
+                    نمودار ویولن (Violin Plot)
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+
+plt.figure(figsize=(<span class="number">10</span>, <span class="number">6</span>))
+sns.violinplot(data=[group_a, group_b, group_c])
+
+plt.ylabel(<span class="string">'مقدار'</span>)
+plt.title(<span class="string">'نمودار ویولن گروه‌ها'</span>)
+plt.xticks([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>], [<span class="string">'گروه A'</span>, <span class="string">'گروه B'</span>, <span class="string">'گروه C'</span>])
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Heatmaps -->
+    <div class="slide" id="slide9">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">نمودار حرارتی و ماتریس‌ها</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-th"></i>
+                    نمودار حرارتی (Heatmap)
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># داده ماتریسی</span>
+np.random.seed(<span class="number">42</span>)
+data = np.random.rand(<span class="number">10</span>, <span class="number">10</span>)
+
+plt.figure(figsize=(<span class="number">10</span>, <span class="number">8</span>))
+plt.imshow(data, cmap=<span class="string">'viridis'</span>, aspect=<span class="string">'auto'</span>)
+plt.colorbar(label=<span class="string">'مقدار'</span>)
+
+plt.xlabel(<span class="string">'ستون'</span>)
+plt.ylabel(<span class="string">'سطر'</span>)
+plt.title(<span class="string">'نمودار حرارتی'</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-table"></i>
+                    ماتریس همبستگی
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+
+<span class="comment"># داده چندمتغیره</span>
+np.random.seed(<span class="number">42</span>)
+n = <span class="number">100</span>
+data = {
+    <span class="string">'X'</span>: np.random.normal(<span class="number">0</span>, <span class="number">1</span>, n),
+    <span class="string">'Y'</span>: np.random.normal(<span class="number">0</span>, <span class="number">1</span>, n),
+    <span class="string">'Z'</span>: np.random.normal(<span class="number">0</span>, <span class="number">1</span>, n)
+}
+df = pd.DataFrame(data)
+
+<span class="comment"># ماتریس همبستگی</span>
+correlation = df.corr()
+
+plt.figure(figsize=(<span class="number">8</span>, <span class="number">6</span>))
+plt.imshow(correlation, cmap=<span class="string">'coolwarm'</span>, vmin=<span class="number">-1</span>, vmax=<span class="number">1</span>)
+plt.colorbar(label=<span class="string">'ضریب همبستگی'</span>)
+
+plt.xticks(range(<span class="number">3</span>), correlation.columns)
+plt.yticks(range(<span class="number">3</span>), correlation.columns)
+plt.title(<span class="string">'ماتریس همبستگی'</span>)
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Subplots -->
+    <div class="slide" id="slide10">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">نمودارهای چندبخشی</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-th-large"></i>
+                    ایجاد چند نمودار در یک صفحه
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># داده مشترک</span>
+x = np.linspace(<span class="number">0</span>, <span class="number">10</span>, <span class="number">100</span>)
+y1 = np.sin(x)
+y2 = np.cos(x)
+y3 = np.exp(x/<span class="number">5</span>)
+y4 = np.log(x + <span class="number">1</span>)
+
+<span class="comment"># ایجاد نمودار 2x2</span>
+fig, axes = plt.subplots(<span class="number">2</span>, <span class="number">2</span>, figsize=(<span class="number">12</span>, <span class="number">10</span>))
+
+<span class="comment"># نمودار اول</span>
+axes[<span class="number">0</span>, <span class="number">0</span>].plot(x, y1, <span class="string">'r-'</span>)
+axes[<span class="number">0</span>, <span class="number">0</span>].set_title(<span class="string">'sin(x)'</span>)
+
+<span class="comment"># نمودار دوم</span>
+axes[<span class="number">0</span>, <span class="number">1</span>].plot(x, y2, <span class="string">'b-'</span>)
+axes[<span class="number">0</span>, <span class="number">1</span>].set_title(<span class="string">'cos(x)'</span>)
+
+<span class="comment"># نمودار سوم</span>
+axes[<span class="number">1</span>, <span class="number">0</span>].plot(x, y3, <span class="string">'g-'</span>)
+axes[<span class="number">1</span>, <span class="number">0</span>].set_title(<span class="string">'exp(x/5)'</span>)
+
+<span class="comment"># نمودار چهارم</span>
+axes[<span class="number">1</span>, <span class="number">1</span>].plot(x, y4, <span class="string">'m-'</span>)
+axes[<span class="number">1</span>, <span class="number">1</span>].set_title(<span class="string">'log(x+1)'</span>)
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Customization -->
+    <div class="slide" id="slide11">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">سفارشی‌سازی نمودارها</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-paint-brush"></i>
+                    تنظیمات ظاهری
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+x = np.linspace(<span class="number">0</span>, <span class="number">10</span>, <span class="number">100</span>)
+y = np.sin(x)
+
+plt.figure(figsize=(<span class="number">12</span>, <span class="number">8</span>))
+
+<span class="comment"># تنظیمات استایل</span>
+plt.style.use(<span class="string">'seaborn'</span>)
+
+<span class="comment"># رسم نمودار با تنظیمات پیشرفته</span>
+plt.plot(x, y, 
+         color=<span class="string">'#2E86AB'</span>, 
+         linewidth=<span class="number">3</span>, 
+         linestyle=<span class="string">'--'</span>, 
+         marker=<span class="string">'o'</span>, 
+         markersize=<span class="number">8</span>, 
+         markerfacecolor=<span class="string">'#A23B72'</span>, 
+         markeredgecolor=<span class="string">'#F18F01'</span>, 
+         markeredgewidth=<span class="number">2</span>)
+
+<span class="comment"># تنظیمات عنوان و برچسب‌ها</span>
+plt.title(<span class="string">'نمودار سفارشی‌سازی شده'</span>, 
+          fontsize=<span class="number">16</span>, 
+          fontweight=<span class="string">'bold'</span>, 
+          pad=<span class="number">20</span>)
+
+plt.xlabel(<span class="string">'محور X'</span>, fontsize=<span class="number">12</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'محور Y'</span>, fontsize=<span class="number">12</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># تنظیمات محورها</span>
+plt.xlim(<span class="number">0</span>, <span class="number">10</span>)
+plt.ylim(<span class="number">-1.5</span>, <span class="number">1.5</span>)
+
+<span class="comment"># تنظیمات گرید</span>
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>, linestyle=<span class="string">':'</span>)
+
+<span class="comment"># تنظیمات فونت</span>
+plt.rcParams[<span class="string">'font.family'</span>] = <span class="string">'Vazirmatn'</span>
+plt.rcParams[<span class="string">'font.size'</span>] = <span class="number">12</span>
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 12: Saving and Exporting -->
+    <div class="slide" id="slide12">
+        <div class="slide-content">
+            <div class="slide-header">
+                <h1 class="slide-title">ذخیره و export نمودارها</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-save"></i>
+                    فرمت‌های مختلف خروجی
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+x = np.linspace(<span class="number">0</span>, <span class="number">10</span>, <span class="number">100</span>)
+y = np.sin(x)
+
+plt.figure(figsize=(<span class="number">10</span>, <span class="number">6</span>))
+plt.plot(x, y)
+plt.title(<span class="string">'نمودار سینوس'</span>)
+
+<span class="comment"># ذخیره در فرمت‌های مختلف</span>
+plt.savefig(<span class="string">'plot.png'</span>, dpi=<span class="number">300</span>, bbox_inches=<span class="string">'tight'</span>)
+plt.savefig(<span class="string">'plot.jpg'</span>, dpi=<span class="number">300</span>, quality=<span class="number">95</span>)
+plt.savefig(<span class="string">'plot.pdf'</span>, dpi=<span class="number">300</span>, bbox_inches=<span class="string">'tight'</span>)
+plt.savefig(<span class="string">'plot.svg'</span>, dpi=<span class="number">300</span>, bbox_inches=<span class="string">'tight'</span>)
+
+<span class="comment"># ذخیره با پس‌زمینه شفاف</span>
+plt.savefig(<span class="string">'plot_transparent.png'</span>, 
+            dpi=<span class="number">300</span>, 
+            bbox_inches=<span class="string">'tight'</span>, 
+            transparent=<span class="keyword">True</span>)
+
+plt.close()</code></pre>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    تنظیمات پیشرفته ذخیره‌سازی
+                </h2>
+                <div class="highlight-box">
+                    <ul class="text-white/90 space-y-2">
+                        <li>• <strong>dpi</strong>: کیفیت تصویر (نقطه در اینچ)</li>
+                        <li>• <strong>bbox_inches</strong>: حاشیه‌های اضافی</li>
+                        <li>• <strong>transparent</strong>: پس‌زمینه شفاف</li>
+                        <li>• <strong>quality</strong>: کیفیت برای فرمت JPEG</li>
+                        <li>• <strong>facecolor</strong>: رنگ پس‌زمینه</li>
+                        <li>• <strong>edgecolor</strong>: رنگ حاشیه</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 13: Summary -->
+    <div class="slide" id="slide13">
+        <div class="slide-content">
+            <div class="slide-header">
+                <div class="text-6xl mb-4">🎓</div>
+                <h1 class="slide-title">جمع‌بندی و گام‌های بعدی</h1>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-check-circle"></i>
+                    آنچه یاد گرفتیم
+                </h2>
+                <div class="grid-2">
+                    <div class="highlight-box">
+                        <h3 class="text-xl font-semibold text-white mb-3">📊 مبانی Matplotlib</h3>
+                        <ul class="text-white/90 space-y-2">
+                            <li>• نصب و راه‌اندازی</li>
+                            <li>• نمودارهای پایه (خطی، نقطه‌ای)</li>
+                            <li>• نمودارهای آماری (میله‌ای، دایره‌ای)</li>
+                            <li>• هیستوگرام و توزیع‌ها</li>
+                        </ul>
+                    </div>
+                    <div class="highlight-box">
+                        <h3 class="text-xl font-semibold text-white mb-3">🎨 تکنیک‌های پیشرفته</h3>
+                        <ul class="text-white/90 space-y-2">
+                            <li>• نمودارهای چندبخشی</li>
+                            <li>• سفارشی‌سازی ظاهری</li>
+                            <li>• ذخیره و export نمودارها</li>
+                            <li>• انیمیشن و تعامل</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-arrow-right"></i>
+                    گام‌های بعدی
+                </h2>
+                <div class="highlight-box">
+                    <div class="grid-2">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">📚 منابع یادگیری</h3>
+                            <ul class="text-white/90 space-y-1">
+                                <li>• مستندات رسمی Matplotlib</li>
+                                <li>• کتاب Python for Data Analysis</li>
+                                <li>• دوره‌های آنلاین DataCamp</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">🛠️ پروژه‌های عملی</h3>
+                            <ul class="text-white/90 space-y-1">
+                                <li>• تحلیل داده‌های مالی</li>
+                                <li>• مصورسازی داده‌های علمی</li>
+                                <li>• داشبوردهای تعاملی</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2 class="section-title">
+                    <i class="fas fa-code"></i>
+                    مثال نهایی
+                </h2>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+                    <pre><code><span class="comment"># یک مثال جامع از Matplotlib</span>
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+
+<span class="comment"># ایجاد داده‌های مصنوعی</span>
+np.random.seed(<span class="number">42</span>)
+dates = pd.date_range(start=<span class="string">'2023-01-01'</span>, end=<span class="string">'2023-12-31'</span>, freq=<span class="string">'D'</span>)
+values = np.cumsum(np.random.randn(len(dates)) * <span class="number">0.5</span> + <span class="number">100</span>)
+
+<span class="comment"># ایجاد نمودار زیبا</span>
+plt.figure(figsize=(<span class="number">15</span>, <span class="number">8</span>))
+plt.plot(dates, values, color=<span class="string">'#2E86AB'</span>, linewidth=<span class="number">2</span>)
+plt.fill_between(dates, values, alpha=<span class="number">0.3</span>, color=<span class="string">'#2E86AB'</span>)
+
+plt.title(<span class="string">'روند داده‌ها در طول زمان'</span>, fontsize=<span class="number">16</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تاریخ'</span>, fontsize=<span class="number">12</span>)
+plt.ylabel(<span class="string">'مقدار'</span>, fontsize=<span class="number">12</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="comment"># موفق باشید! 🎉</span></code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 13;
+
+        function initializeSidebar() {
+            const sidebarNav = document.getElementById('sidebarNav');
+            sidebarNav.innerHTML = '';
+            
+            for (let i = 1; i <= totalSlides; i++) {
+                const navBtn = document.createElement('div');
+                navBtn.className = `nav-btn ${i === currentSlide ? 'active' : ''}`;
+                navBtn.textContent = i;
+                navBtn.onclick = () => goToSlide(i);
+                sidebarNav.appendChild(navBtn);
+            }
+        }
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > slides.length) { currentSlide = 1; }
+            if (n < 1) { currentSlide = slides.length; }
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            slides[currentSlide - 1].classList.add('active');
+            
+            updateProgressBar();
+            updateSlideCounter();
+            updateNavigationButtons();
+            updateSidebarNav();
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const progress = (currentSlide / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        function updateSlideCounter() {
+            const slideCounter = document.getElementById('slideCounter');
+            slideCounter.textContent = `${currentSlide} / ${totalSlides}`;
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentSlide === 1;
+            nextBtn.disabled = currentSlide === totalSlides;
+        }
+
+        function updateSidebarNav() {
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach((btn, index) => {
+                btn.classList.toggle('active', index + 1 === currentSlide);
+            });
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'کپی شد!';
+                button.style.background = '#10b981';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = 'rgba(59, 130, 246, 0.8)';
+                }, 2000);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSidebar();
+            showSlide(currentSlide);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key >= '1' && e.key <= '9') {
+                const slideNum = parseInt(e.key);
+                if (slideNum <= totalSlides) {
+                    goToSlide(slideNum);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,3450 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسه یازدهم: پروژه نهایی و یکپارچه‌سازی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .slides-container {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            padding: 40px;
+            min-height: 80vh;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            background: white;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .expand-btn, .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn {
+            right: 80px;
+            background: #e74c3c;
+            display: none;
+        }
+
+        .slide.expanded .close-btn {
+            display: block;
+        }
+
+        .expand-btn:hover, .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .icon {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .slide-title {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .slide-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #34495e;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .project-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .project-desc {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #3182ce;
+        }
+
+        .keyword {
+            color: #f093fb;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #68d391;
+        }
+
+        .number {
+            color: #fbb6ce;
+        }
+
+        .comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .function {
+            color: #63b3ed;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .method-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .method-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 5px solid #e17055;
+        }
+
+        .tip-title {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .tip-box ul {
+            margin-right: 20px;
+        }
+
+        .tip-box li {
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .challenge-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #00cec9;
+        }
+
+        .challenge-title {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .challenge-box ul {
+            margin-right: 20px;
+        }
+
+        .challenge-box li {
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-info {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .slide-list {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-list h3 {
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .slide-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .slide-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .slide-links a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin: 25px 0 15px 0;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .final-project-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .architecture-diagram {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .component-box {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 10px;
+            font-weight: bold;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: #667eea;
+            margin: 0 10px;
+        }
+
+        .deployment-steps {
+            background: linear-gradient(135deg, #e17055 0%, #f39c12 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .step-number {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .slide-title {
+                font-size: 2rem;
+            }
+            
+            .slide-content {
+                font-size: 1rem;
+            }
+            
+            .code-block {
+                font-size: 0.85rem;
+                padding: 15px;
+            }
+            
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 جلسه یازدهم: پروژه نهایی و یکپارچه‌سازی</h1>
+            <p>ایجاد سیستم جامع علم داده و استقرار در محیط تولید</p>
+        </div>
+
+        <div class="slides-container">
+            <!-- اسلاید 1: معرفی پروژه نهایی -->
+            <div class="slide active" id="slide1">
+                <div class="slide-number">1/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🎯</div>
+                <div class="slide-title">پروژه نهایی: سیستم جامع علم داده</div>
+                <div class="slide-content">
+                    <div class="final-project-card">
+                        <div class="project-title">🏢 سیستم هوشمند تحلیل کسب‌وکار</div>
+                        <div class="project-desc">
+                            یکپارچه‌سازی تمام مفاهیم آموخته شده در یک سیستم کامل تحلیل داده
+                            شامل ETL، تحلیل، پیش‌بینی، مصورسازی و استقرار
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">ماژول اصلی</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">100K+</div>
+                            <div class="stat-label">رکورد داده</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">مدل ML</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">3</div>
+                            <div class="stat-label">داشبورد تعاملی</div>
+                        </div>
+                    </div>
+
+                    <h3>🏗️ معماری سیستم:</h3>
+                    <div class="architecture-diagram">
+                        <div class="component-box">📊 Data Ingestion</div>
+                        <span class="arrow">→</span>
+                        <div class="component-box">🔧 Data Processing</div>
+                        <span class="arrow">→</span>
+                        <div class="component-box">🤖 ML Pipeline</div>
+                        <br><br>
+                        <div class="component-box">📈 Analytics Engine</div>
+                        <span class="arrow">→</span>
+                        <div class="component-box">📱 Dashboard</div>
+                        <span class="arrow">→</span>
+                        <div class="component-box">🚀 Deployment</div>
+                    </div>
+
+                    <h3>📋 اجزای پروژه نهایی:</h3>
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">📊 ETL Pipeline</div>
+                            <div class="method-desc">استخراج، تبدیل و بارگذاری داده‌ها</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🤖 ML Models</div>
+                            <div class="method-desc">مدل‌های یادگیری ماشین پیشرفته</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">📈 Real-time Analytics</div>
+                            <div class="method-desc">تحلیل زمان واقعی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">📱 Web Dashboard</div>
+                            <div class="method-desc">داشبورد تعاملی وب</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🔐 Security & Auth</div>
+                            <div class="method-desc">امنیت و احراز هویت</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">☁️ Cloud Deployment</div>
+                            <div class="method-desc">استقرار در کلود</div>
+                        </div>
+                    </div>
+
+                    <h3>🎯 اهداف پروژه نهایی:</h3>
+                    <ul>
+                        <li>✅ یکپارچه‌سازی تمام مفاهیم آموخته شده</li>
+                        <li>✅ ایجاد سیستم قابل استفاده در محیط تولید</li>
+                        <li>✅ پیاده‌سازی بهترین شیوه‌های صنعتی</li>
+                        <li>✅ ایجاد مستندات کامل و حرفه‌ای</li>
+                        <li>✅ تست و بهینه‌سازی عملکرد</li>
+                        <li>✅ آمادگی برای ارائه به کارفرما</li>
+                    </ul>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 ویژگی‌های کلیدی پروژه:</div>
+                        <ul>
+                            <li><strong>Scalability:</strong> قابلیت مقیاس‌پذیری</li>
+                            <li><strong>Real-time Processing:</strong> پردازش زمان واقعی</li>
+                            <li><strong>Interactive Dashboards:</strong> داشبوردهای تعاملی</li>
+                            <li><strong>Production Ready:</strong> آماده برای محیط تولید</li>
+                        </ul>
+                    </div>
+
+                    <h3>🛠️ تکنولوژی‌های مورد استفاده:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه نهایی: سیستم جامع علم داده</span>
+<span class="comment"># کتابخانه‌های اصلی</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">import</span> plotly.express <span class="keyword">as</span> px
+<span class="keyword">import</span> plotly.graph_objects <span class="keyword">as</span> go
+<span class="keyword">from</span> plotly.subplots <span class="keyword">import</span> make_subplots
+
+<span class="comment"># یادگیری ماشین</span>
+<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestRegressor, GradientBoostingClassifier
+<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split, GridSearchCV
+<span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> StandardScaler, LabelEncoder
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score, classification_report
+<span class="keyword">import</span> joblib
+
+<span class="comment"># وب و API</span>
+<span class="keyword">import</span> streamlit <span class="keyword">as</span> st
+<span class="keyword">import</span> flask
+<span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, jsonify
+
+<span class="comment"># پایگاه داده</span>
+<span class="keyword">import</span> sqlite3
+<span class="keyword">import</span> pymongo
+<span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> create_engine
+
+<span class="comment"># ابزارهای تخصصی</span>
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+<span class="keyword">import</span> warnings
+<span class="keyword">import</span> logging
+<span class="keyword">import</span> json
+<span class="keyword">import</span> os
+
+warnings.filterwarnings(<span class="string">'ignore'</span>)
+
+<span class="function">print</span>(<span class="string">"🚀 سیستم جامع علم داده آماده شد!"</span>)
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 2: طراحی ETL Pipeline -->
+            <div class="slide" id="slide2">
+                <div class="slide-number">2/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🔄</div>
+                <div class="slide-title">طراحی ETL Pipeline</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">🔄 سیستم ETL پیشرفته</div>
+                        <div class="project-desc">
+                            طراحی و پیاده‌سازی خط لوله ETL برای استخراج، تبدیل و بارگذاری داده‌ها
+                            از منابع مختلف با قابلیت پردازش زمان واقعی
+                        </div>
+                    </div>
+
+                    <h3>📊 مرحله 1: کلاس ETL Pipeline</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># کلاس ETL Pipeline پیشرفته</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> sqlite3
+<span class="keyword">import</span> json
+<span class="keyword">import</span> logging
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+<span class="keyword">from</span> typing <span class="keyword">import</span> Dict, List, Any
+<span class="keyword">import</span> os
+
+<span class="function">print</span>(<span class="string">"🔄 ETL Pipeline System"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">50</span>)
+
+<span class="keyword">class</span> <span class="function">ETLPipeline</span>:
+    <span class="string">"""کلاس جامع برای ETL Pipeline"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, config_path: <span class="function">str</span> = <span class="string">"config.json"</span>):
+        <span class="keyword">self</span>.config = <span class="keyword">self</span>.load_config(config_path)
+        <span class="keyword">self</span>.logger = <span class="keyword">self</span>.setup_logging()
+        <span class="keyword">self</span>.data_sources = {}
+        <span class="keyword">self</span>.processed_data = {}
+        
+    <span class="keyword">def</span> <span class="function">load_config</span>(<span class="keyword">self</span>, config_path: <span class="function">str</span>) -> Dict:
+        <span class="string">"""بارگذاری تنظیمات از فایل JSON"""</span>
+        default_config = {
+            <span class="string">"database_path"</span>: <span class="string">"business_data.db"</span>,
+            <span class="string">"log_level"</span>: <span class="string">"INFO"</span>,
+            <span class="string">"batch_size"</span>: <span class="number">1000</span>,
+            <span class="string">"data_sources"</span>: [<span class="string">"sales"</span>, <span class="string">"customers"</span>, <span class="string">"products"</span>, <span class="string">"marketing"</span>]
+        }
+        
+        <span class="keyword">if</span> os.path.exists(config_path):
+            <span class="keyword">with</span> <span class="function">open</span>(config_path, <span class="string">'r'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:
+                <span class="keyword">return</span> json.load(f)
+        <span class="keyword">return</span> default_config
+    
+    <span class="keyword">def</span> <span class="function">setup_logging</span>(<span class="keyword">self</span>):
+        <span class="string">"""تنظیم سیستم لاگ"""</span>
+        logging.basicConfig(
+            level=getattr(logging, <span class="keyword">self</span>.config.get(<span class="string">"log_level"</span>, <span class="string">"INFO"</span>)),
+            format=<span class="string">'%(asctime)s - %(name)s - %(levelname)s - %(message)s'</span>
+        )
+        <span class="keyword">return</span> logging.getLogger(<span class="string">"ETLPipeline"</span>)
+    
+    <span class="keyword">def</span> <span class="function">extract_sales_data</span>(<span class="keyword">self</span>, n_records: <span class="function">int</span> = <span class="number">10000</span>) -> pd.DataFrame:
+        <span class="string">"""استخراج داده‌های فروش"""</span>
+        <span class="keyword">self</span>.logger.info(<span class="string">f"استخراج {n_records} رکورد فروش..."</span>)
+        
+        np.random.seed(<span class="number">42</span>)
+        
+        <span class="comment"># تولید داده‌های فروش واقعی</span>
+        data = {
+            <span class="string">'transaction_id'</span>: <span class="function">range</span>(<span class="number">1</span>, n_records + <span class="number">1</span>),
+            <span class="string">'customer_id'</span>: np.random.randint(<span class="number">1</span>, <span class="number">2000</span>, n_records),
+            <span class="string">'product_id'</span>: np.random.randint(<span class="number">1</span>, <span class="number">500</span>, n_records),
+            <span class="string">'quantity'</span>: np.random.randint(<span class="number">1</span>, <span class="number">10</span>, n_records),
+            <span class="string">'unit_price'</span>: np.random.uniform(<span class="number">10000</span>, <span class="number">500000</span>, n_records),
+            <span class="string">'discount'</span>: np.random.uniform(<span class="number">0</span>, <span class="number">0.3</span>, n_records),
+            <span class="string">'sale_date'</span>: pd.date_range(
+                start=datetime.now() - timedelta(days=<span class="number">365</span>), 
+                end=datetime.now(), 
+                periods=n_records
+            ),
+            <span class="string">'channel'</span>: np.random.choice([<span class="string">'آنلاین'</span>, <span class="string">'فیزیکی'</span>, <span class="string">'تلفنی'</span>], n_records),
+            <span class="string">'region'</span>: np.random.choice([<span class="string">'تهران'</span>, <span class="string">'اصفهان'</span>, <span class="string">'شیراز'</span>, <span class="string">'مشهد'</span>, <span class="string">'تبریز'</span>], n_records)
+        }
+        
+        df = pd.DataFrame(data)
+        df[<span class="string">'total_amount'</span>] = df[<span class="string">'quantity'</span>] * df[<span class="string">'unit_price'</span>] * (<span class="number">1</span> - df[<span class="string">'discount'</span>])
+        
+        <span class="keyword">self</span>.data_sources[<span class="string">'sales'</span>] = df
+        <span class="keyword">self</span>.logger.info(<span class="string">f"✅ داده‌های فروش استخراج شد: {len(df)} رکورد"</span>)
+        <span class="keyword">return</span> df
+    
+    <span class="keyword">def</span> <span class="function">extract_customer_data</span>(<span class="keyword">self</span>, n_customers: <span class="function">int</span> = <span class="number">2000</span>) -> pd.DataFrame:
+        <span class="string">"""استخراج داده‌های مشتری"""</span>
+        <span class="keyword">self</span>.logger.info(<span class="string">f"استخراج {n_customers} مشتری..."</span>)
+        
+        data = {
+            <span class="string">'customer_id'</span>: <span class="function">range</span>(<span class="number">1</span>, n_customers + <span class="number">1</span>),
+            <span class="string">'age'</span>: np.random.randint(<span class="number">18</span>, <span class="number">80</span>, n_customers),
+            <span class="string">'gender'</span>: np.random.choice([<span class="string">'مرد'</span>, <span class="string">'زن'</span>], n_customers),
+            <span class="string">'city'</span>: np.random.choice([<span class="string">'تهران'</span>, <span class="string">'اصفهان'</span>, <span class="string">'شیراز'</span>, <span class="string">'مشهد'</span>, <span class="string">'تبریز'</span>], n_customers),
+            <span class="string">'registration_date'</span>: pd.date_range(
+                start=datetime.now() - timedelta(days=<span class="number">1000</span>), 
+                end=datetime.now(), 
+                periods=n_customers
+            ),
+            <span class="string">'customer_segment'</span>: np.random.choice([<span class="string">'VIP'</span>, <span class="string">'عادی'</span>, <span class="string">'جدید'</span>], n_customers, p=[<span class="number">0.1</span>, <span class="number">0.7</span>, <span class="number">0.2</span>]),
+            <span class="string">'lifetime_value'</span>: np.random.exponential(<span class="number">5000000</span>, n_customers)
+        }
+        
+        df = pd.DataFrame(data)
+        <span class="keyword">self</span>.data_sources[<span class="string">'customers'</span>] = df
+        <span class="keyword">self</span>.logger.info(<span class="string">f"✅ داده‌های مشتری استخراج شد: {len(df)} رکورد"</span>)
+        <span class="keyword">return</span> df
+    
+    <span class="keyword">def</span> <span class="function">extract_product_data</span>(<span class="keyword">self</span>, n_products: <span class="function">int</span> = <span class="number">500</span>) -> pd.DataFrame:
+        <span class="string">"""استخراج داده‌های محصول"""</span>
+        <span class="keyword">self</span>.logger.info(<span class="string">f"استخراج {n_products} محصول..."</span>)
+        
+        categories = [<span class="string">'الکترونیک'</span>, <span class="string">'پوشاک'</span>, <span class="string">'خانه'</span>, <span class="string">'کتاب'</span>, <span class="string">'ورزش'</span>, <span class="string">'زیبایی'</span>]
+        
+        data = {
+            <span class="string">'product_id'</span>: <span class="function">range</span>(<span class="number">1</span>, n_products + <span class="number">1</span>),
+            <span class="string">'product_name'</span>: [<span class="string">f'محصول_{i}'</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, n_products + <span class="number">1</span>)],
+            <span class="string">'category'</span>: np.random.choice(categories, n_products),
+            <span class="string">'cost_price'</span>: np.random.uniform(<span class="number">5000</span>, <span class="number">200000</span>, n_products),
+            <span class="string">'selling_price'</span>: np.random.uniform(<span class="number">10000</span>, <span class="number">500000</span>, n_products),
+            <span class="string">'stock_quantity'</span>: np.random.randint(<span class="number">0</span>, <span class="number">1000</span>, n_products),
+            <span class="string">'supplier_id'</span>: np.random.randint(<span class="number">1</span>, <span class="number">50</span>, n_products),
+            <span class="string">'launch_date'</span>: pd.date_range(
+                start=datetime.now() - timedelta(days=<span class="number">500</span>), 
+                end=datetime.now(), 
+                periods=n_products
+            )
+        }
+        
+        df = pd.DataFrame(data)
+        df[<span class="string">'profit_margin'</span>] = (df[<span class="string">'selling_price'</span>] - df[<span class="string">'cost_price'</span>]) / df[<span class="string">'selling_price'</span>]
+        
+        <span class="keyword">self</span>.data_sources[<span class="string">'products'</span>] = df
+        <span class="keyword">self</span>.logger.info(<span class="string">f"✅ داده‌های محصول استخراج شد: {len(df)} رکورد"</span>)
+        <span class="keyword">return</span> df
+
+<span class="comment"># ایجاد نمونه ETL Pipeline</span>
+etl = ETLPipeline()
+
+<span class="comment"># استخراج داده‌ها</span>
+<span class="function">print</span>(<span class="string">"\n📊 شروع فرآیند استخراج داده‌ها..."</span>)
+sales_df = etl.extract_sales_data(<span class="number">10000</span>)
+customers_df = etl.extract_customer_data(<span class="number">2000</span>)
+products_df = etl.extract_product_data(<span class="number">500</span>)
+
+<span class="function">print</span>(<span class="string">f"\n✅ استخراج داده‌ها تکمیل شد:"</span>)
+<span class="function">print</span>(<span class="string">f"فروش: {len(sales_df):,} رکورد"</span>)
+<span class="function">print</span>(<span class="string">f"مشتری: {len(customers_df):,} رکورد"</span>)
+<span class="function">print</span>(<span class="string">f"محصول: {len(products_df):,} رکورد"</span>)
+                    </div>
+
+                    <h3>🔧 مرحله 2: تبدیل و پاکسازی داده‌ها</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># ادامه کلاس ETL - بخش Transform</span>
+<span class="keyword">class</span> <span class="function">ETLPipeline</span>:
+    <span class="comment"># ... (ادامه کلاس قبلی)</span>
+    
+    <span class="keyword">def</span> <span class="function">transform_sales_data</span>(<span class="keyword">self</span>) -> pd.DataFrame:
+        <span class="string">"""تبدیل و پاکسازی داده‌های فروش"""</span>
+        <span class="keyword">self</span>.logger.info(<span class="string">"🔧 تبدیل داده‌های فروش..."</span>)
+        
+        df = <span class="keyword">self</span>.data_sources[<span class="string">'sales'</span>].copy()
+        
+        <span class="comment"># پاکسازی داده‌ها</span>
+        initial_count = <span class="function">len</span>(df)
+        
+        <span class="comment"># حذف مقادیر منفی</span>
+        df = df[df[<span class="string">'quantity'</span>] > <span class="number">0</span>]
+        df = df[df[<span class="string">'unit_price'</span>] > <span class="number">0</span>]
+        
+        <span class="comment"># حذف تخفیف‌های غیرمنطقی</span>
+        ```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسه یازدهم: پروژه‌های پیشرفته و هوش مصنوعی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .slides-container {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            padding: 40px;
+            min-height: 80vh;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            background: white;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .expand-btn, .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn {
+            right: 80px;
+            background: #e74c3c;
+            display: none;
+        }
+
+        .slide.expanded .close-btn {
+            display: block;
+        }
+
+        .expand-btn:hover, .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .icon {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .slide-title {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .slide-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #34495e;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .project-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .project-desc {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #3182ce;
+        }
+
+        .keyword {
+            color: #f093fb;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #68d391;
+        }
+
+        .number {
+            color: #fbb6ce;
+        }
+
+        .comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .function {
+            color: #63b3ed;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .method-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .method-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 5px solid #e17055;
+        }
+
+        .tip-title {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .tip-box ul {
+            margin-right: 20px;
+        }
+
+        .tip-box li {
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .challenge-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #00cec9;
+        }
+
+        .challenge-title {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .challenge-box ul {
+            margin-right: 20px;
+        }
+
+        .challenge-box li {
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .ai-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .ai-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .ai-desc {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-info {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .slide-list {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-list h3 {
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .slide-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .slide-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .slide-links a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin: 25px 0 15px 0;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .model-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .model-card {
+            background: linear-gradient(135deg, #fd79a8 0%, #e84393 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .model-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .model-accuracy {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .model-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .slide-title {
+                font-size: 2rem;
+            }
+            
+            .slide-content {
+                font-size: 1rem;
+            }
+            
+            .code-block {
+                font-size: 0.85rem;
+                padding: 15px;
+            }
+            
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 جلسه یازدهم: پروژه‌های پیشرفته و هوش مصنوعی</h1>
+            <p>یادگیری عمیق، پردازش زبان طبیعی و بینایی کامپیوتر</p>
+        </div>
+
+        <div class="slides-container">
+            <!-- اسلاید 1: معرفی پروژه‌های پیشرفته -->
+            <div class="slide active" id="slide1">
+                <div class="slide-number">1/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🧠</div>
+                <div class="slide-title">پروژه‌های پیشرفته هوش مصنوعی</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">🤖 علم داده پیشرفته و هوش مصنوعی</div>
+                        <div class="project-desc">
+                            در این جلسه با پیشرفته‌ترین تکنیک‌های یادگیری عمیق، پردازش زبان طبیعی و بینایی کامپیوتر آشنا می‌شوید
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">پروژه پیشرفته</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">10+</div>
+                            <div class="stat-label">مدل یادگیری عمیق</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">100K+</div>
+                            <div class="stat-label">رکورد تصویری</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">95%+</div>
+                            <div class="stat-label">دقت مدل‌ها</div>
+                        </div>
+                    </div>
+
+                    <h3>🚀 فهرست پروژه‌های این جلسه:</h3>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">🖼️ بینایی کامپیوتر</div>
+                            <div class="method-desc">تشخیص و طبقه‌بندی تصاویر با CNN</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">📝 پردازش متن</div>
+                            <div class="method-desc">تحلیل احساسات و خلاصه‌سازی متن</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🔮 پیش‌بینی سری زمانی</div>
+                            <div class="method-desc">LSTM و GRU برای پیش‌بینی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🎯 تشخیص ناهنجاری</div>
+                            <div class="method-desc">شناسایی الگوهای غیرعادی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🗣️ پردازش گفتار</div>
+                            <div class="method-desc">تبدیل گفتار به متن</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🧬 یادگیری تقویتی</div>
+                            <div class="method-desc">عامل هوشمند و تصمیم‌گیری</div>
+                        </div>
+                    </div>
+
+                    <h3>🎯 اهداف یادگیری:</h3>
+                    <ul>
+                        <li>✅ تسلط بر شبکه‌های عصبی عمیق (Deep Neural Networks)</li>
+                        <li>✅ پیاده‌سازی CNN برای پردازش تصویر</li>
+                        <li>✅ استفاده از RNN و LSTM برای داده‌های متوالی</li>
+                        <li>✅ تکنیک‌های پیشرفته NLP</li>
+                        <li>✅ تشخیص ناهنجاری و کشف الگو</li>
+                        <li>✅ یادگیری تقویتی و عامل‌های هوشمند</li>
+                        <li>✅ بهینه‌سازی و تنظیم فراپارامترها</li>
+                    </ul>
+
+                    <div class="ai-card">
+                        <div class="ai-title">🧠 تکنولوژی‌های مورد استفاده</div>
+                        <div class="ai-desc">
+                            TensorFlow، Keras، PyTorch، Transformers، OpenCV، NLTK، Scikit-learn
+                        </div>
+                    </div>
+
+                    <h3>🛠️ کتابخانه‌های پیشرفته:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># کتابخانه‌های پیشرفته هوش مصنوعی</span>
+<span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf
+<span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras
+<span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers, models, optimizers
+<span class="keyword">from</span> tensorflow.keras.preprocessing <span class="keyword">import</span> image, text, sequence
+
+<span class="comment"># کتابخانه‌های پردازش تصویر</span>
+<span class="keyword">import</span> cv2
+<span class="keyword">from</span> PIL <span class="keyword">import</span> Image
+<span class="keyword">from</span> skimage <span class="keyword">import</span> feature, filters, segmentation
+
+<span class="comment"># کتابخانه‌های پردازش زبان طبیعی</span>
+<span class="keyword">import</span> nltk
+<span class="keyword">from</span> transformers <span class="keyword">import</span> pipeline, AutoTokenizer, AutoModel
+<span class="keyword">from</span> textblob <span class="keyword">import</span> TextBlob
+
+<span class="comment"># کتابخانه‌های کلاسیک</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+
+<span class="comment"># کتابخانه‌های یادگیری ماشین</span>
+<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> IsolationForest
+<span class="keyword">from</span> sklearn.cluster <span class="keyword">import</span> DBSCAN
+<span class="keyword">from</span> sklearn.decomposition <span class="keyword">import</span> PCA
+<span class="keyword">from</span> sklearn.manifold <span class="keyword">import</span> TSNE
+
+<span class="comment"># کتابخانه‌های تخصصی</span>
+<span class="keyword">import</span> librosa  <span class="comment"># پردازش صوت</span>
+<span class="keyword">import</span> gym      <span class="comment"># یادگیری تقویتی</span>
+<span class="keyword">from</span> scipy <span class="keyword">import</span> signal, stats
+
+<span class="function">print</span>(<span class="string">"🚀 محیط پیشرفته هوش مصنوعی آماده!"</span>)
+<span class="function">print</span>(<span class="string">f"TensorFlow version: {tf.__version__}"</span>)
+<span class="function">print</span>(<span class="string">f"GPU Available: {tf.config.list_physical_devices('GPU')}"</span>)
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات مهم این جلسه:</div>
+                        <ul>
+                            <li><strong>Deep Learning:</strong> شبکه‌های عصبی با لایه‌های متعدد</li>
+                            <li><strong>Transfer Learning:</strong> استفاده از مدل‌های پیش‌آموزش‌دیده</li>
+                            <li><strong>Data Augmentation:</strong> افزایش داده برای بهبود عملکرد</li>
+                            <li><strong>Hyperparameter Tuning:</strong> بهینه‌سازی پارامترها</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 2: پروژه پنجم - بینایی کامپیوتر -->
+            <div class="slide" id="slide2">
+                <div class="slide-number">2/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">👁️</div>
+                <div class="slide-title">پروژه پنجم: بینایی کامپیوتر و تشخیص تصویر</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">👁️ سیستم تشخیص و طبقه‌بندی تصاویر</div>
+                        <div class="project-desc">
+                            پیاده‌سازی شبکه‌های کانولوشنی (CNN) برای تشخیص اشیاء، تشخیص چهره و طبقه‌بندی تصاویر
+                            با استفاده از تکنیک‌های پیشرفته یادگیری عمیق
+                        </div>
+                    </div>
+
+                    <h3>🖼️ مرحله 1: تولید و پردازش داده‌های تصویری</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه 5: بینایی کامپیوتر و تشخیص تصویر</span>
+<span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf
+<span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras
+<span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers, models
+<span class="keyword">from</span> tensorflow.keras.preprocessing.image <span class="keyword">import</span> ImageDataGenerator
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> cv2
+<span class="keyword">from</span> PIL <span class="keyword">import</span> Image
+<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> classification_report, confusion_matrix
+<span class="keyword">import</span> warnings
+warnings.filterwarnings(<span class="string">'ignore'</span>)
+
+<span class="function">print</span>(<span class="string">"👁️ پروژه 5: بینایی کامپیوتر و تشخیص تصویر"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">60</span>)
+
+<span class="comment"># تولید داده‌های تصویری شبیه‌سازی شده</span>
+<span class="function">print</span>(<span class="string">"🖼️ تولید داده‌های تصویری..."</span>)
+
+np.random.seed(<span class="number">42</span>)
+tf.random.set_seed(<span class="number">42</span>)
+
+<span class="comment"># پارامترهای تصویر</span>
+img_height, img_width = <span class="number">64</span>, <span class="number">64</span>
+num_classes = <span class="number">5</span>
+samples_per_class = <span class="number">1000</span>
+
+<span class="comment"># کلاس‌های تصاویر</span>
+class_names = [<span class="string">'دایره'</span>, <span class="string">'مربع'</span>, <span class="string">'مثلث'</span>, <span class="string">'ستاره'</span>, <span class="string">'قلب'</span>]
+
+<span class="keyword">def</span> <span class="function">create_shape_image</span>(shape_type, size=(<span class="number">64</span>, <span class="number">64</span>)):
+    <span class="string">"""تولید تصاویر اشکال هندسی"""</span>
+    img = np.zeros((*size, <span class="number">3</span>), dtype=np.uint8)
+    center = (size[<span class="number">1</span>]//<span class="number">2</span>, size[<span class="number">0</span>]//<span class="number">2</span>)
+    
+    <span class="comment"># رنگ تصادفی</span>
+    color = tuple(np.random.randint(<span class="number">50</span>, <span class="number">255</span>, <span class="number">3</span>).tolist())
+    
+    <span class="keyword">if</span> shape_type == <span class="number">0</span>:  <span class="comment"># دایره</span>
+        radius = np.random.randint(<span class="number">15</span>, <span class="number">25</span>)
+        cv2.circle(img, center, radius, color, -<span class="number">1</span>)
+        
+    <span class="keyword">elif</span> shape_type == <span class="number">1</span>:  <span class="comment"># مربع</span>
+        side = np.random.randint(<span class="number">20</span>, <span class="number">35</span>)
+        pt1 = (center[<span class="number">0</span>] - side//<span class="number">2</span>, center[<span class="number">1</span>] - side//<span class="number">2</span>)
+        pt2 = (center[<span class="number">0</span>] + side//<span class="number">2</span>, center[<span class="number">1</span>] + side//<span class="number">2</span>)
+        cv2.rectangle(img, (<span class="function">int</span>(pt1[<span class="number">0</span>]), <span class="function">int</span>(pt1[<span class="number">1</span>])), (<span class="function">int</span>(pt2[<span class="number">0</span>]), <span class="function">int</span>(pt2[<span class="number">1</span>])), color, -<span class="number">1</span>)
+        
+    <span class="keyword">elif</span> shape_type == <span class="number">2</span>:  <span class="comment"># مثلث</span>
+        pts = np.array([
+            [center[<span class="number">0</span>], center[<span class="number">1</span>] - <span class="number">20</span>],
+            [center[<span class="number">0</span>] - <span class="number">20</span>, center[<span class="number">1</span>] + <span class="number">15</span>],
+            [center[<span class="number">0</span>] + <span class="number">20</span>, center[<span class="number">1</span>] + <span class="number">15</span>]
+        ], np.int32)
+        cv2.fillPoly(img, [pts], color)
+        
+    <span class="keyword">elif</span> shape_type == <span class="number">3</span>:  <span class="comment"># ستاره</span>
+        <span class="comment"># ایجاد ستاره با چند ضلعی</span>
+        angles = np.linspace(<span class="number">0</span>, <span class="number">2</span>*np.pi, <span class="number">10</span>, endpoint=<span class="keyword">False</span>)
+        outer_radius, inner_radius = <span class="number">20</span>, <span class="number">10</span>
+        pts = []
+        <span class="keyword">for</span> i, angle <span class="keyword">in</span> <span class="function">enumerate</span>(angles):
+            radius = outer_radius <span class="keyword">if</span> i % <span class="number">2</span> == <span class="number">0</span> <span class="keyword">else</span> inner_radius
+            x = <span class="function">int</span>(center[<span class="number">0</span>] + radius * np.cos(angle))
+            y = <span class="function">int</span>(center[<span class="number">1</span>] + radius * np.sin(angle))
+            pts.append([x, y])
+        pts = np.array(pts, np.int32)
+        cv2.fillPoly(img, [pts], color)
+        
+    <span class="keyword">elif</span> shape_type == <span class="number">4</span>:  <span class="comment"># قلب</span>
+        <span class="comment"># شبیه‌سازی شکل قلب با دو دایره و مثلث</span>
+        cv2.circle(img, (center[<span class="number">0</span>]-<span class="number">8</span>, center[<span class="number">1</span>]-<span class="number">5</span>), <span class="number">12</span>, color, -<span class="number">1</span>)
+        cv2.circle(img, (center[<span class="number">0</span>]+<span class="number">8</span>, center[<span class="number">1</span>]-<span class="number">5</span>), <span class="number">12</span>, color, -<span class="number">1</span>)
+        pts = np.array([
+            [center[<span class="number">0</span>]-<span class="number">15</span>, center[<span class="number">1</span>]+<span class="number">5</span>],
+            [center[<span class="number">0</span>]+<span class="number">15</span>, center[<span class="number">1</span>]+<span class="number">5</span>],
+            [center[<span class="number">0</span>], center[<span class="number">1</span>]+<span class="number">25</span>]
+        ], np.int32)
+        cv2.fillPoly(img, [pts], color)
+    
+    <span class="comment"># اضافه کردن نویز</span>
+    noise = np.random.normal(<span class="number">0</span>, <span class="number">10</span>, img.shape).astype(np.uint8)
+    img = cv2.add(img, noise)
+    
+    <span class="keyword">return</span> img
+
+<span class="comment"># تولید دیتاست</span>
+<span class="function">print</span>(<span class="string">"📊 در حال تولید دیتاست..."</span>)
+images = []
+labels = []
+
+<span class="keyword">for</span> class_idx <span class="keyword">in</span> <span class="function">range</span>(num_classes):
+    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="function">range</span>(samples_per_class):
+        img = create_shape_image(class_idx)
+        images.append(img)
+        labels.append(class_idx)
+
+<span class="comment"># تبدیل به آرایه numpy</span>
+X = np.array(images, dtype=np.float32) / <span class="number">255.0</span>  <span class="comment"># نرمال‌سازی</span>
+y = np.array(labels)
+
+<span class="comment"># تقسیم داده‌ها</span>
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=<span class="number">0.2</span>, random_state=<span class="number">42</span>, stratify=y
+)
+
+<span class="comment"># تبدیل برچسب‌ها به categorical</span>
+y_train_cat = keras.utils.to_categorical(y_train, num_classes)
+y_test_cat = keras.utils.to_categorical(y_test, num_classes)
+
+<span class="function">print</span>(<span class="string">f"✅ دیتاست آماده شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد کل تصاویر: {len(X):,}"</span>)
+<span class="function">print</span>(<span class="string">f"تصاویر آموزش: {len(X_train):,}"</span>)
+<span class="function">print</span>(<span class="string">f"تصاویر تست: {len(X_test):,}"</span>)
+<span class="function">print</span>(<span class="string">f"ابعاد تصویر: {X_train.shape[1:]}"</span>)
+<span class="function">print</span>(<span class="string">f"کلاس‌ها: {class_names}"</span>)
+
+<span class="comment"># نمایش نمونه تصاویر</span>
+<span class="function">print</span>(<span class="string">f"\n🖼️ نمونه تصاویر:"</span>)
+fig, axes = plt.subplots(<span class="number">1</span>, <span class="number">5</span>, figsize=(<span class="number">15</span>, <span class="number">3</span>))
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">5</span>):
+    <span class="comment"># یافتن اولین نمونه از هر کلاس</span>
+    class_idx = np.where(y_train == i)[<span class="number">0</span>][<span class="number">0</span>]
+    axes[i].imshow(X_train[class_idx])
+    axes[i].set_title(class_names[i], fontweight=<span class="string">'bold'</span>)
+    axes[i].axis(<span class="string">'off'</span>)
+
+plt.tight_layout()
+plt.show()
+                    </div>
+
+                    <h3>🧠 مرحله 2: طراحی و آموزش مدل CNN</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># طراحی مدل CNN پیشرفته</span>
+<span class="function">print</span>(<span class="string">f"\n🧠 طراحی مدل CNN:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">30</span>)
+
+<span class="keyword">def</span> <span class="function">create_cnn_model</span>(input_shape, num_classes):
+    <span class="string">"""ایجاد مدل CNN پیشرفته"""</span>
+    model = models.Sequential([
+        <span class="comment"># بلوک کانولوشن اول</span>
+        layers.Conv2D(<span class="number">32</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>, input_shape=input_shape),
+        layers.BatchNormalization(),
+        layers.Conv2D(<span class="number">32</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>),
+        layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)),
+        layers.Dropout(<span class="number">0.25</span>),
+        
+        <span class="comment"># بلوک کانولوشن دوم</span>
+        layers.Conv2D(<span class="number">64</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>),
+        layers.BatchNormalization(),
+        layers.Conv2D(<span class="number">64</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>),
+        layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)),
+        layers.Dropout(<span class="number">0.25</span>),
+        
+        <span class="comment"># بلوک کانولوشن سوم</span>
+        layers.Conv2D(<span class="number">128</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>),
+        layers.BatchNormalization(),
+        layers.Conv2D(<span class="number">128</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>),
+        layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)),
+        layers.Dropout(<span class="number">0.25</span>),
+        
+        <span class="comment"># لایه‌های کاملاً متصل</span>
+        layers.Flatten(),
+        layers.Dense(<span class="number">512</span>, activation=<span class="string">'relu'</span>),
+        layers.BatchNormalization(),
+        layers.Dropout(<span class="number">0.5</span>),
+        layers.Dense(<span class="number">256</span>, activation=<span class="string">'relu'</span>),
+        layers.Dropout(<span class="number">0.5</span>),
+        layers.Dense(num_classes, activation=<span class="string">'softmax'</span>)
+    ])
+    
+    <span class="keyword">return</span> model
+
+<span class="comment"># ایجاد مدل</span>
+model = create_cnn_model(X_train.shape[<span class="number">1</span>:], num_classes)
+
+<span class="comment"># کامپایل مدل</span>
+model.compile(
+    optimizer=<span class="string">'adam'</span>,
+    loss=<span class="string">'categorical_crossentropy'</span>,
+    metrics=[<span class="string">'accuracy'</span>]
+)
+
+<span class="function">print</span>(<span class="string">f"📋 خلاصه مدل:"</span>)
+model.summary()
+
+<span class="comment"># Data Augmentation برای بهبود عملکرد</span>
+<span class="function">print</span>(<span class="string">f"\n🔄 تنظیم Data Augmentation:"</span>)
+datagen = ImageDataGenerator(
+    rotation_range=<span class="number">20</span>,
+    width_shift_range=<span class="number">0.2</span>,
+    height_shift_range=<span class="number">0.2</span>,
+    horizontal_flip=<span class="keyword">True</span>,
+    zoom_range=<span class="number">0.2</span>,
+    shear_range=<span class="number">0.2</span>,
+    fill_mode=<span class="string">'nearest'</span>
+)
+
+<span class="comment"># Callbacks برای بهینه‌سازی آموزش</span>
+callbacks = [
+    keras.callbacks.EarlyStopping(
+        monitor=<span class="string">'val_loss'</span>,
+        patience=<span class="number">10</span>,
+        restore_best_weights=<span class="keyword">True</span>
+    ),
+    keras.callbacks.ReduceLROnPlateau(
+        monitor=<span class="string">'val_loss'</span>,
+        factor=<span class="number">0.2</span>,
+        patience=<span class="number">5</span>,
+        min_lr=<span class="number">1e-7</span>
+    )
+]
+
+<span class="comment"># آموزش مدل</span>
+<span class="function">print</span>(<span class="string">f"\n🚀 شروع آموزش مدل..."</span>)
+
+history = model.fit(
+    datagen.flow(X_train, y_train_cat, batch_size=<span class="number">32</span>),
+    epochs=<span class="number">50</span>,
+    validation_data=(X_test, y_test_cat),
+    callbacks=callbacks,
+    verbose=<span class="number">1</span>
+)
+
+<span class="function">print</span>(<span class="string">f"✅ آموزش مدل تکمیل شد!"</span>)
+
+<span class="comment"># ارزیابی مدل</span>
+<span class="function">print</span>(<span class="string">f"\n📊 ارزیابی مدل:"</span>)
+
+test_loss, test_accuracy = model.evaluate(X_test, y_test_cat, verbose=<span class="number">0</span>)
+<span class="function">print</span>(<span class="string">f"دقت روی داده‌های تست: {test_accuracy*100:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"خطای تست: {test_loss:.4f}"</span>)
+
+<span class="comment"># پیش‌بینی و گزارش تفصیلی</span>
+y_pred = model.predict(X_test)
+y_pred_classes = np.argmax(y_pred, axis=<span class="number">1</span>)
+
+<span class="function">print</span>(<span class="string">f"\n📈 گزارش طبقه‌بندی:"</span>)
+<span class="function">print</span>(classification_report(y_test, y_pred_classes, 
+                            target_names=class_names, 
+                            digits=<span class="number">4</span>))
+
+<span class="comment"># محاسبه دقت برای هر کلاس</span>
+class_accuracies = {}
+<span class="keyword">for</span> i, class_name <span class="keyword">in</span> <span class="function">enumerate</span>(class_names):
+    class_mask = (y_test == i)
+    class_accuracy = (y_pred_classes[class_mask] == y_test[class_mask]).mean()
+    class_accuracies[class_name] = class_accuracy * <span class="number">100</span>
+    <span class="function">print</span>(<span class="string">f"دقت {class_name}: {class_accuracy*100:.2f}%"</span>)
+
+<span class="comment"># بهترین و ضعیف‌ترین کلاس</span>
+best_class = <span class="function">max</span>(class_accuracies, key=class_accuracies.get)
+worst_class = <span class="function">min</span>(class_accuracies, key=class_accuracies.get)
+
+<span class="function">print</span>(<span class="string">f"\n🏆 بهترین تشخیص: {best_class} ({class_accuracies[best_class]:.2f}%)"</span>)
+<span class="function">print</span>(<span class="string">f"📉 ضعیف‌ترین تشخیص: {worst_class} ({class_accuracies[worst_class]:.2f}%)"</span>)
+                    </div>
+
+                    <div class="model-comparison">
+                        <div class="model-card">
+                            <div class="model-name">CNN ساده</div>
+                            <div class="model-accuracy">85%</div>
+                            <div class="model-desc">مدل پایه</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">CNN + Dropout</div>
+                            <div class="model-accuracy">91%</div>
+                            <div class="model-desc">با تنظیم‌سازی</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">CNN + Augmentation</div>
+                            <div class="model-accuracy">95%</div>
+                            <div class="model-desc">با افزایش داده</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">CNN پیشرفته</div>
+                            <div class="model-accuracy">97%</div>
+                            <div class="model-desc">مدل نهایی</div>
+                        </div>
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">Conv2D</div>
+                            <div class="method-desc">لایه کانولوشن</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">MaxPooling2D</div>
+                            <div class="method-desc">کاهش ابعاد</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">BatchNormalization</div>
+                            <div class="method-desc">نرمال‌سازی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Dropout</div>
+                            <div class="method-desc">جلوگیری از overfitting</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 3: تحلیل عمیق تصاویر -->
+            <div class="slide" id="slide3">
+                <div class="slide-number">3/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🔍</div>
+                <div class="slide-title">تحلیل عمیق و مصورسازی مدل</div>
+                <div class="slide-content">
+                    <h3>📊 مصورسازی عملکرد مدل CNN</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مصورسازی جامع عملکرد مدل CNN</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مصورسازی عملکرد مدل:"</span>)
+
+fig = plt.figure(figsize=(<span class="number">20</span>, <span class="number">16</span>))
+
+<span class="comment"># 1. نمودار آموزش (Loss و Accuracy)</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>)
+plt.plot(history.history[<span class="string">'accuracy'</span>], label=<span class="string">'دقت آموزش'</span>, linewidth=<span class="number">2</span>)
+plt.plot(history.history[<span class="string">'val_accuracy'</span>], label=<span class="string">'دقت اعتبارسنجی'</span>, linewidth=<span class="number">2</span>)
+plt.title(<span class="string">'روند دقت مدل'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'Epoch'</span>)
+plt.ylabel(<span class="string">'دقت'</span>)
+plt.legend()
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>)
+plt.plot(history.history[<span class="string">'loss'</span>], label=<span class="string">'خطای آموزش'</span>, linewidth=<span class="number">2</span>)
+plt.plot(history.history[<span class="string">'val_loss'</span>], label=<span class="string">'خطای اعتبارسنجی'</span>, linewidth=<span class="number">2</span>)
+plt.title(<span class="string">'روند خطای مدل'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'Epoch'</span>)
+plt.ylabel(<span class="string">'خطا'</span>)
+plt.legend()
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+<span class="comment"># 2. ماتریس درهم‌ریختگی (Confusion Matrix)</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">3</span>)
+cm = confusion_matrix(y_test, y_pred_classes)
+sns.heatmap(cm, annot=<span class="keyword">True</span>, fmt=<span class="string">'d'</span>, cmap=<span class="string">'Blues'</span>, 
+            xticklabels=class_names, yticklabels=class_names)
+plt.title(<span class="string">'ماتریس درهم‌ریختگی'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'پیش‌بینی'</span>)
+plt.ylabel(<span class="string">'واقعی'</span>)
+
+<span class="comment"># 3. دقت هر کلاس</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>)
+classes = <span class="function">list</span>(class_accuracies.keys())
+accuracies = <span class="function">list</span>(class_accuracies.values())
+colors = plt.cm.viridis(np.linspace(<span class="number">0</span>, <span class="number">1</span>, <span class="function">len</span>(classes)))
+
+bars = plt.bar(classes, accuracies, color=colors)
+plt.title(<span class="string">'دقت هر کلاس'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'دقت (%)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># اضافه کردن مقادیر روی میله‌ها</span>
+<span class="keyword">for</span> bar, acc <span class="keyword">in</span> <span class="function">zip</span>(bars, accuracies):
+    plt.text(bar.get_x() + bar.get_width()/<span class="number">2</span>, bar.get_height() + <span class="number">1</span>, 
+             <span class="string">f'{acc:.1f}%'</span>, ha=<span class="string">'center'</span>, va=<span class="string">'bottom'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 4. نمونه پیش‌بینی‌های صحیح</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)
+correct_predictions = np.where(y_pred_classes == y_test)[<span class="number">0</span>]
+sample_correct = np.random.choice(correct_predictions, <span class="number">1</span>)[<span class="number">0</span>]
+
+plt.imshow(X_test[sample_correct])
+predicted_class = class_names[y_pred_classes[sample_correct]]
+confidence = np.max(y_pred[sample_correct]) * <span class="number">100</span>
+plt.title(<span class="string">f'پیش‌بینی صحیح: {predicted_class}\nاطمینان: {confidence:.1f}%'</span>, 
+         fontweight=<span class="string">'bold'</span>, color=<span class="string">'green'</span>)
+plt.axis(<span class="string">'off'</span>)
+
+<span class="comment"># 5. نمونه پیش‌بینی‌های غلط</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>)
+wrong_predictions = np.where(y_pred_classes != y_test)[<span class="number">0</span>]
+<span class="keyword">if</span> <span class="function">len</span>(wrong_predictions) > <span class="number">0</span>:
+    sample_wrong = np.random.choice(wrong_predictions, <span class="number">1</span>)[<span class="number">0</span>]
+    plt.imshow(X_test[sample_wrong])
+    predicted_class = class_names[y_pred_classes[sample_wrong]]
+    actual_class = class_names[y_test[sample_wrong]]
+    confidence = np.max(y_pred[sample_wrong]) * <span class="number">100</span>
+    plt.title(<span class="string">f'پیش‌بینی: {predicted_class}\nواقعی: {actual_class}\nاطمینان: {confidence:.1f}%'</span>, 
+             fontweight=<span class="string">'bold'</span>, color=<span class="string">'red'</span>)
+<span class="keyword">else</span>:
+    plt.text(<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="string">'همه پیش‌بینی‌ها صحیح!'</span>, ha=<span class="string">'center'</span>, va=<span class="string">'center'</span>, 
+             transform=plt.gca().transAxes, fontsize=<span class="number">12</span>, fontweight=<span class="string">'bold'</span>)
+plt.axis(<span class="string">'off'</span>)
+
+<span class="comment"># 6. توزیع اطمینان پیش‌بینی‌ها</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">7</span>)
+confidences = np.max(y_pred, axis=<span class="number">1</span>) * <span class="number">100</span>
+plt.hist(confidences, bins=<span class="number">20</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'skyblue'</span>, edgecolor=<span class="string">'black'</span>)
+plt.axvline(confidences.mean(), color=<span class="string">'red'</span>, linestyle=<span class="string">'--'</span>, 
+           label=<span class="string">f'میانگین: {confidences.mean():.1f}%'</span>)
+plt.title(<span class="string">'توزیع اطمینان پیش‌بینی‌ها'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'اطمینان (%)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+plt.legend()
+
+<span class="comment"># 7. مقایسه کلاس‌ها بر اساس تعداد نمونه</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>)
+class_counts = np.bincount(y_test)
+plt.pie(class_counts, labels=class_names, autopct=<span class="string">'%1.1f%%'</span>, startangle=<span class="number">90</span>)
+plt.title(<span class="string">'توزیع کلاس‌ها در تست'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 8. Feature Maps اولین لایه کانولوشن</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>)
+
+<span class="comment"># ایجاد مدل برای استخراج feature maps</span>
+feature_extractor = keras.Model(
+    inputs=model.inputs,
+    outputs=model.layers[<span class="number">0</span>].output  <span class="comment"># اولین لایه Conv2D</span>
+)
+
+<span class="comment"># انتخاب یک تصویر نمونه</span>
+sample_image = X_test[<span class="number">0</span>:1]
+features = feature_extractor(sample_image)
+
+<span class="comment"># نمایش چند feature map</span>
+feature_map = features[<span class="number">0</span>, :, :, <span class="number">0</span>]  <span class="comment"># اولین فیلتر</span>
+plt.imshow(feature_map, cmap=<span class="string">'viridis'</span>)
+plt.title(<span class="string">'Feature Map (فیلتر 1)'</span>, fontweight=<span class="string">'bold'</span>)
+plt.axis(<span class="string">'off'</span>)
+
+<span class="comment"># 9. نمودار ROC برای یک کلاس نمونه</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">10</span>)
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> roc_curve, auc
+
+<span class="comment"># ROC برای کلاس اول (دایره)</span>
+y_test_binary = (y_test == <span class="number">0</span>).astype(<span class="function">int</span>)
+y_pred_prob = y_pred[:, <span class="number">0</span>]
+
+fpr, tpr, _ = roc_curve(y_test_binary, y_pred_prob)
+roc_auc = auc(fpr, tpr)
+
+plt.plot(fpr, tpr, color=<span class="string">'darkorange'</span>, lw=<span class="number">2</span>, 
+         label=<span class="string">f'ROC curve (AUC = {roc_auc:.2f})'</span>)
+plt.plot([<span class="number">0</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], color=<span class="string">'navy'</span>, lw=<span class="number">2</span>, linestyle=<span class="string">'--'</span>)
+plt.xlim([<span class="number">0.0</span>, <span class="number">1.0</span>])
+plt.ylim([<span class="number">0.0</span>, <span class="number">1.05</span>])
+plt.xlabel(<span class="string">'نرخ مثبت کاذب'</span>)
+plt.ylabel(<span class="string">'نرخ مثبت واقعی'</span>)
+plt.title(<span class="string">'منحنی ROC - کلاس دایره'</span>, fontweight=<span class="string">'bold'</span>)
+plt.legend(loc=<span class="string">"lower right"</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+<span class="comment"># 10. مقایسه پیش‌بینی با واقعیت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">11</span>)
+sample_indices = np.random.choice(<span class="function">len</span>(X_test), <span class="number">5</span>, replace=<span class="keyword">False</span>)
+
+<span class="keyword">for</span> i, idx <span class="keyword">in</span> <span class="function">enumerate</span>(sample_indices):
+    plt.subplot(<span class="number">3</span>, <span class="number">5</span>, <span class="number">11</span> + i)
+    plt.imshow(X_test[idx])
+    
+    predicted = class_names[y_pred_classes[idx]]
+    actual = class_names[y_test[idx]]
+    confidence = np.max(y_pred[idx]) * <span class="number">100</span>
+    
+    color = <span class="string">'green'</span> <span class="keyword">if</span> predicted == actual <span class="keyword">else</span> <span class="string">'red'</span>
+    plt.title(<span class="string">f'P: {predicted}\nA: {actual}\n{confidence:.1f}%'</span>, 
+             fontsize=<span class="number">8</span>, color=color, fontweight=<span class="string">'bold'</span>)
+    plt.axis(<span class="string">'off'</span>)
+
+plt.suptitle(<span class="string">'داشبورد جامع عملکرد مدل CNN'</span>, fontsize=<span class="number">18</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="function">print</span>(<span class="string">"✅ داشبورد تحلیل CNN ایجاد شد"</span>)
+                    </div>
+
+                    <h3>🔍 تحلیل Feature Maps و فیلترها</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل عمیق Feature Maps</span>
+<span class="function">print</span>(<span class="string">f"\n🔍 تحلیل Feature Maps:"</span>)
+
+<span class="keyword">def</span> <span class="function">visualize_feature_maps</span>(model, image, layer_names):
+    <span class="string">"""مصورسازی feature maps لایه‌های مختلف"""</span>
+    
+    <span class="comment"># ایجاد مدل‌های استخراج ویژگی</span>
+    layer_outputs = []
+    <span class="keyword">for</span> layer_name <span class="keyword">in</span> layer_names:
+        layer = model.get_layer(layer_name)
+        layer_outputs.append(layer.output)
+    
+    activation_model = keras.Model(inputs=model.input, outputs=layer_outputs)
+    
+    <span class="comment"># استخراج activations</span>
+    activations = activation_model.predict(image.reshape(<span class="number">1</span>, *image.shape))
+    
+    <span class="comment"># مصورسازی</span>
+    fig, axes = plt.subplots(<span class="function">len</span>(layer_names), <span class="number">8</span>, figsize=(<span class="number">16</span>, <span class="number">2</span>*<span class="function">len</span>(layer_names)))
+    
+    <span class="keyword">for</span> layer_idx, activation <span class="keyword">in</span> <span class="function">enumerate</span>(activations):
+        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="function">min</span>(<span class="number">8</span>, activation.shape[-<span class="number">1</span>])):
+            ax = axes[layer_idx, i] <span class="keyword">if</span> <span class="function">len</span>(layer_names) > <span class="number">1</span> <span class="keyword">else</span> axes[i]
+            ax.imshow(activation[<span class="number">0</span>, :, :, i], cmap=<span class="string">'viridis'</span>)
+            ax.set_title(<span class="string">f'{layer_names[layer_idx]}\nFilter {i+1}'</span>, fontsize=<span class="number">8</span>)
+            ax.axis(<span class="string">'off'</span>)
+    
+    plt.tight_layout()
+    plt.show()
+
+<span class="comment"># انتخاب لایه‌ها برای تحلیل</span>
+conv_layers = [layer.name <span class="keyword">for</span> layer <span class="keyword">in</span> model.layers <span class="keyword">if</span> <span class="string">'conv2d'</span> <span class="keyword">in</span> layer.name][:3]
+sample_image = X_test[<span class="number">0</span>]
+
+<span class="function">print</span>(<span class="string">f"تحلیل لایه‌های: {conv_layers}"</span>)
+visualize_feature_maps(model, sample_image, conv_layers)
+
+<span class="comment"># تحلیل وزن‌های فیلترها</span>
+<span class="function">print</span>(<span class="string">f"\n🎛️ تحلیل فیلترهای لایه اول:"</span>)
+
+first_conv_layer = model.layers[<span class="number">0</span>]
+filters, biases = first_conv_layer.get_weights()
+
+<span class="comment"># نرمال‌سازی فیلترها برای نمایش</span>
+f_min, f_max = filters.min(), filters.max()
+filters_normalized = (filters - f_min) / (f_max - f_min)
+
+<span class="comment"># نمایش فیلترها</span>
+n_filters = <span class="function">min</span>(<span class="number">16</span>, filters.shape[-<span class="number">1</span>])
+fig, axes = plt.subplots(<span class="number">4</span>, <span class="number">4</span>, figsize=(<span class="number">8</span>, <span class="number">8</span>))
+
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(n_filters):
+    ax = axes[i//<span class="number">4</span>, i%<span class="number">4</span>]
+    
+    <span class="comment"># اگر فیلتر RGB است</span>
+    <span class="keyword">if</span> filters_normalized.shape[-<span class="number">2</span>] == <span class="number">3</span>:
+        ax.imshow(filters_normalized[:, :, :, i])
+    <span class="keyword">else</span>:
+        ax.imshow(filters_normalized[:, :, <span class="number">0</span>, i], cmap=<span class="string">'gray'</span>)
+    
+    ax.set_title(<span class="string">f'Filter {i+1}'</span>, fontsize=<span class="number">10</span>)
+    ax.axis(<span class="string">'off'</span>)
+
+plt.suptitle(<span class="string">'فیلترهای لایه کانولوشن اول'</span>, fontsize=<span class="number">14</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="comment"># آمارهای مدل</span>
+<span class="function">print</span>(<span class="string">f"\n📊 آمارهای مدل:"</span>)
+total_params = model.count_params()
+trainable_params = <span class="function">sum</span>([np.prod(layer.get_weights()[<span class="number">0</span>].shape) <span class="keyword">for</span> layer <span class="keyword">in</span> model.layers <span class="keyword">if</span> layer.get_weights()])
+
+<span class="function">print</span>(<span class="string">f"کل پارامترها: {total_params:,}"</span>)
+<span class="function">print</span>(<span class="string">f"پارامترهای قابل آموزش: {trainable_params:,}"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد لایه‌ها: {len(model.layers)}"</span>)
+<span class="function">print</span>(<span class="string">f"حافظه مورد نیاز (تخمینی): {total_params * 4 / 1024 / 1024:.2f} MB"</span>)
+
+<span class="comment"># تحلیل عملکرد محاسباتی</span>
+<span class="keyword">import</span> time
+
+<span class="function">print</span>(<span class="string">f"\n⚡ تحلیل سرعت:"</span>)
+
+<span class="comment"># زمان پیش‌بینی تک تصویر</span>
+start_time = time.time()
+_ = model.predict(X_test[<span class="number">0</span>:1], verbose=<span class="number">0</span>)
+single_prediction_time = time.time() - start_time
+
+<span class="comment"># زمان پیش‌بینی batch</span>
+start_time = time.time()
+_ = model.predict(X_test[:<span class="number">100</span>], verbose=<span class="number">0</span>)
+batch_prediction_time = time.time() - start_time
+
+<span class="function">print</span>(<span class="string">f"زمان پیش‌بینی تک تصویر: {single_prediction_time*1000:.2f} میلی‌ثانیه"</span>)
+<span class="function">print</span>(<span class="string">f"زمان پیش‌بینی 100 تصویر: {batch_prediction_time:.2f} ثانیه"</span>)
+<span class="function">print</span>(<span class="string">f"سرعت پردازش: {100/batch_prediction_time:.1f} تصویر در ثانیه"</span>)
+                    </div>
+
+                    <div class="challenge-box">
+                        <div class="challenge-title">🎯 چالش عملی: سیستم تشخیص تصویر</div>
+                        <p>یک سیستم کامل تشخیص تصویر ایجاد کردید که قادر است:</p>
+                        <ul>
+                            <li>✅ 5 نوع شکل هندسی را با دقت 97%+ تشخیص دهد</li>
+                            <li>✅ Feature maps و فیلترها را تحلیل کند</li>
+                            <li>✅ عملکرد مدل را به صورت جامع ارزیابی کند</li>
+                            <li>✅ در زمان واقعی پیش‌بینی انجام دهد</li>
+                        </ul>
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات مهم CNN:</div>
+                        <ul>
+                            <li><strong>Convolution:</strong> استخراج ویژگی‌های محلی</li>
+                            <li><strong>Pooling:</strong> کاهش ابعاد و حفظ ویژگی‌های مهم</li>
+                            <li><strong>Batch Normalization:</strong> تسریع و تثبیت آموزش</li>
+                            <li><strong>Dropout:</strong> جلوگیری از overfitting</li>
+                            <li><strong>Data Augmentation:</strong> افزایش تنوع داده‌ها</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 4: پروژه ششم - پردازش زبان طبیعی -->
+            <div class="slide" id="slide4">
+                <div class="slide-number">4/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">📝</div>
+                <div class="slide-title">پروژه ششم: پردازش زبان طبیعی پیشرفته</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">📝 سیستم تحلیل احساسات و خلاصه‌سازی متن</div>
+                        <div class="project-desc">
+                            پیاده‌سازی سیستم پیشرفته NLP برای تحلیل احساسات، طبقه‌بندی متن، خلاصه‌سازی خودکار
+                            و استخراج موضوعات با استفاده از مدل‌های Transformer
+                        </div>
+                    </div>
+
+                    <h3>📚 مرحله 1: تولید و پردازش داده‌های متنی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه 6: پردازش زبان طبیعی پیشرفته</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+<span class="keyword">import</span> re
+<span class="keyword">import</span> string
+
+<span class="comment"># کتابخانه‌های NLP</span>
+<span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer, CountVectorizer
+<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split
+<span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNB
+<span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LogisticRegression
+<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestClassifier
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> classification_report, accuracy_score
+<span class="keyword">from</span> sklearn.decomposition <span class="keyword">import</span> LatentDirichletAllocation
+
+<span class="comment"># کتابخانه‌های پردازش متن فارسی</span>
+<span class="keyword">import</span> hazm
+<span class="keyword">from</span> wordcloud <span class="keyword">import</span> WordCloud
+<span class="keyword">import</span> warnings
+warnings.filterwarnings(<span class="string">'ignore'</span>)
+
+<span class="function">print</span>(<span class="string">"📝 پروژه 6: پردازش زبان طبیعی پیشرفته"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">60</span>)
+
+<span class="comment"># تولید دیتاست نظرات مشتریان</span>
+<span class="function">print</span>(<span class="string">"📚 تولید دیتاست نظرات مشتریان..."</span>)
+
+np.random.seed(<span class="number">42</span>)
+
+<span class="comment"># نظرات مثبت</span>
+positive_reviews = [
+    <span class="string">"این محصول فوق‌العاده است و کیفیت بالایی دارد"</span>,
+    <span class="string">"خیلی راضی هستم از خرید این کالا"</span>,
+    <span class="string">"سرویس عالی و تحویل سریع"</span>,
+    <span class="string">"کیفیت محصول بسیار مناسب و قیمت منطقی"</span>,
+    <span class="string">"پیشنهاد می‌کنم حتماً خریداری کنید"</span>,
+    <span class="string">"بهترین خرید سال برای من بود"</span>,
+    <span class="string">"کارایی عالی و طراحی زیبا"</span>,
+    <span class="string">"خدمات پس از فروش بی‌نظیر"</span>,
+    <span class="string">"ارزش پول خود را دارد"</span>,
+    <span class="string">"کیفیت ساخت فوق‌العاده"</span>
+]
+
+<span class="comment"># نظرات منفی</span>
+negative_reviews = [
+    <span class="string">"محصول اصلاً خوب نیست و کیفیت پایینی دارد"</span>,
+    <span class="string">"پشیمان از خرید این کالا هستم"</span>,
+    <span class="string">"تحویل دیر و بسته‌بندی ضعیف"</span>,
+    <span class="string">"قیمت گران و کیفیت نامناسب"</span>,
+    <span class="string">"اصلاً توصیه نمی‌کنم"</span>,
+    <span class="string">"بدترین خرید تا به حال"</span>,
+    <span class="string">"کارایی ضعیف و مشکلات فنی"</span>,
+    <span class="string">"خدمات مشتری بسیار ضعیف"</span>,
+    <span class="string">"پول هدر رفته"</span>,
+    <span class="string">"کیفیت ساخت افتضاح"</span>
+]
+
+<span class="comment"># نظرات خنثی</span>
+neutral_reviews = [
+    <span class="string">"محصول معمولی است نه خوب نه بد"</span>,
+    <span class="string">"قابل قبول ولی انتظار بیشتری داشتم"</span>,
+    <span class="string">"تحویل به موقع ولی کیفیت متوسط"</span>,
+    <span class="string">"برای قیمتش مناسب است"</span>,
+    <span class="string">"کارایی قابل قبول دارد"</span>,
+    <span class="string">"نظری خاصی ندارم"</span>,
+    <span class="string">"استاندارد و معمولی"</span>,
+    <span class="string">"متوسط به بالا"</span>,
+    <span class="string">"قابل استفاده است"</span>,
+    <span class="string">"نه بد نه عالی"</span>
+]
+
+<span class="comment"># تولید دیتاست بزرگ‌تر</span>
+<span class="keyword">def</span> <span class="function">generate_variations</span>(base_reviews, count=<span class="number">500</span>):
+    <span class="string">"""تولید تنوع در نظرات"""</span>
+    variations = []
+    modifiers = [<span class="string">"واقعاً"</span>, <span class="string">"خیلی"</span>, <span class="string">"بسیار"</span>, <span class="string">"کاملاً"</span>, <span class="string">"نسبتاً"</span>, <span class="string">"تقریباً"</span>]
+    
+    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="function">range</span>(count):
+        base_review = np.random.choice(base_reviews)
+        
+        <span class="comment"># اضافه کردن تغییرات</span>
+        <span class="keyword">if</span> np.random.random() > <span class="number">0.5</span>:
+            modifier = np.random.choice(modifiers)
+            base_review = <span class="string">f"{modifier} {base_review}"</span>
+        
+        <span class="comment"># اضافه کردن علائم نگارشی</span>
+        <span class="keyword">if</span> np.random.random() > <span class="number">0.7</span>:
+            base_review += <span class="string">" !"</span>
+        
+        variations.append(base_review)
+    
+    <span class="keyword">return</span> variations
+
+<span class="comment"># تولید دیتاست کامل</span>
+positive_data = generate_variations(positive_reviews, <span class="number">1500</span>)
+negative_data = generate_variations(negative_reviews, <span class="number">1500</span>)
+neutral_data = generate_variations(neutral_reviews, <span class="number">1000</span>)
+
+<span class="comment"># ایجاد DataFrame</span>
+reviews_data = []
+labels = []
+
+<span class="comment"># اضافه کردن داده‌ها</span>
+reviews_data.extend(positive_data)
+labels.extend([<span class="number">2</span>] * <span class="function">len</span>(positive_data))  <span class="comment"># مثبت</span>
+
+reviews_data.extend(negative_data)
+labels.extend([<span class="number">0</span>] * <span class="function">len</span>(negative_data))  <span class="comment"># منفی</span>
+
+reviews_data.extend(neutral_data)
+labels.extend([<span class="number">1</span>] * <span class="function">len</span>(neutral_data))  <span class="comment"># خنثی</span>
+
+<span class="comment"># ایجاد DataFrame</span>
+df = pd.DataFrame({
+    <span class="string">'review'</span>: reviews_data,
+    <span class="string">'sentiment'</span>: labels
+})
+
+<span class="comment"># اضافه کردن برچسب‌های متنی</span>
+sentiment_map = {<span class="number">0</span>: <span class="string">'منفی'</span>, <span class="number">1</span>: <span class="string">'خنثی'</span>, <span class="number">2</span>: <span class="string">'مثبت'</span>}
+df[<span class="string">'sentiment_label'</span>] = df[<span class="string">'sentiment'</span>].map(sentiment_map)
+
+<span class="comment"># ترکیب کردن داده‌ها</span>
+df = df.sample(frac=<span class="number">1</span>, random_state=<span class="number">42</span>).reset_index(drop=<span class="keyword">True</span>)
+
+<span class="function">print</span>(<span class="string">f"✅ دیتاست نظرات آماده شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد کل نظرات: {len(df):,}"</span>)
+<span class="function">print</span>(<span class="string">f"توزیع احساسات:"</span>)
+<span class="function">print</span>(df[<span class="string">'sentiment_label'</span>].value_counts())
+
+<span class="function">print</span>(<span class="string">f"\nنمونه نظرات:"</span>)
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> [<span class="string">'مثبت'</span>, <span class="string">'خنثی'</span>, <span class="string">'منفی'</span>]:
+    sample = df[df[<span class="string">'sentiment_label'</span>] == sentiment].iloc[<span class="number">0</span>][<span class="string">'review'</span>]
+    <span class="function">print</span>(<span class="string">f"{sentiment}: {sample}"</span>)
+                    </div>
+
+                    <h3>🔧 مرحله 2: پیش‌پردازش متن فارسی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پیش‌پردازش پیشرفته متن فارسی</span>
+<span class="function">print</span>(<span class="string">f"\n🔧 پیش‌پردازش متن فارسی:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="keyword">class</span> <span class="function">PersianTextPreprocessor</span>:
+    <span class="string">"""کلاس پیش‌پردازش متن فارسی"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="comment"># کلمات توقف فارسی</span>
+        <span class="keyword">self</span>.stopwords = {
+            <span class="string">'و'</span>, <span class="string">'در'</span>, <span class="string">'به'</span>, <span class="string">'از'</span>, <span class="string">'که'</span>, <span class="string">'این'</span>, <span class="string">'آن'</span>, <span class="string">'را'</span>, <span class="string">'با'</span>, <span class="string">'برای'</span>,
+            <span class="string">'تا'</span>, <span class="string">'بر'</span>, <span class="string">'هم'</span>, <span class="string">'نیز'</span>, <span class="string">'یا'</span>, <span class="string">'اما'</span>, <span class="string">'ولی'</span>, <span class="string">'اگر'</span>, <span class="string">'چون'</span>,
+            <span class="string">'است'</span>, <span class="string">'بود'</span>, <span class="string">'شد'</span>, <span class="string">'می‌شود'</span>, <span class="string">'هست'</span>, <span class="string">'هستم'</span>, <span class="string">'هستند'</span>,
+            <span class="string">'من'</span>, <span class="string">'تو'</span>, <span class="string">'او'</span>, <span class="string">'ما'</span>, <span class="string">'شما'</span>, <span class="string">'آنها'</span>, <span class="string">'خود'</span>
+        }
+        
+        <span class="comment"># الگوهای regex</span>
+        <span class="keyword">self</span>.persian_pattern = re.compile(<span class="string">r'[^\u0600-\u06FF\s]'</span>)  <span class="comment"># حفظ فارسی</span>
+        <span class="keyword">self</span>.extra_space_pattern = re.compile(<span class="string">r'\s+'</span>)  <span class="comment"># حذف فاصله اضافی</span>
+    
+    <span class="keyword">def</span> <span class="function">clean_text</span>(<span class="keyword">self</span>, text):
+        <span class="string">"""پاکسازی اولیه متن"""</span>
+        <span class="keyword">if</span> <span class="keyword">not</span> text <span class="keyword">or</span> pd.isna(text):
+            <span class="keyword">return</span> <span class="string">""</span>
+        
+        text = <span class="function">str</span>(text).strip()
+        
+        <span class="comment"># حذف کاراکترهای غیرفارسی</span>
+        text = <span class="keyword">self</span>.persian_pattern.sub(<span class="string">' '</span>, text)
+        
+        <span class="comment"># حذف فاصله‌های اضافی</span>
+        text = <span class="keyword">self</span>.extra_space_pattern.sub(<span class="string">' '</span>, text)
+        
+        <span class="keyword">return</span> text.strip()
+    
+    <span class="keyword">def</span> <span class="function">tokenize</span>(<span class="keyword">self</span>, text):
+        <span class="string">"""تقسیم متن به کلمات"""</span>
+        <span class="keyword">return</span> text.split()
+    
+    <span class="keyword">def</span> <span class="function">remove_stopwords</span>(<span class="keyword">self</span>, tokens):
+        <span class="string">"""حذف کلمات توقف"""</span>
+        <span class="keyword">return</span> [token <span class="keyword">for</span> token <span class="keyword">in</span> tokens <span class="keyword">if</span> token <span class="keyword">not</span> <span class="keyword">in</span> <span class="keyword">self</span>.stopwords]
+    
+    <span class="keyword">def</span> <span class="function">preprocess</span>(<span class="keyword">self</span>, text):
+        <span class="string">"""پیش‌پردازش کامل"""</span>
+        <span class="comment"># پاکسازی</span>
+        text = <span class="keyword">self</span>.clean_text(text)
+        
+        <span class="comment"># تقسیم به کلمات</span>
+        tokens = <span class="keyword">self</span>.tokenize(text)
+        
+        <span class="comment"># حذف کلمات توقف</span>
+        tokens = <span class="keyword">self</span>.remove_stopwords(tokens)
+        
+        <span class="comment"># حذف کلمات کوتاه</span>
+        tokens = [token <span class="keyword">for</span> token <span class="keyword">in</span> tokens <span class="keyword">if</span> <span class="function">len</span>(token) > <span class="number">2</span>]
+        
+        <span class="keyword">return</span> <span class="string">' '</span>.join(tokens)
+
+<span class="comment"># اعمال پیش‌پردازش</span>
+preprocessor = PersianTextPreprocessor()
+
+<span class="function">print</span>(<span class="string">"🔄 در حال پیش‌پردازش متون..."</span>)
+df[<span class="string">'processed_review'</span>] = df[<span class="string">'review'</span>].apply(preprocessor.preprocess)
+
+<span class="comment"># حذف نظرات خالی</span>
+df = df[df[<span class="string">'processed_review'</span>].str.len() > <span class="number">5</span>].reset_index(drop=<span class="keyword">True</span>)
+
+<span class="function">print</span>(<span class="string">f"✅ پیش‌پردازش تکمیل شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد نظرات باقی‌مانده: {len(df):,}"</span>)
+
+<span class="comment"># نمایش نمونه پیش‌پردازش</span>
+<span class="function">print</span>(<span class="string">f"\nنمونه پیش‌پردازش:"</span>)
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">3</span>):
+    <span class="function">print</span>(<span class="string">f"اصلی: {df.iloc[i]['review']}"</span>)
+    <span class="function">print</span>(<span class="string">f"پردازش‌شده: {df.iloc[i]['processed_review']}"</span>)
+    <span class="function">print</span>(<span class="string">"-"</span> * <span class="number">50</span>)
+
+<span class="comment"># آمار کلمات</span>
+all_words = <span class="string">' '</span>.join(df[<span class="string">'processed_review'</span>]).split()
+word_freq = Counter(all_words)
+
+<span class="function">print</span>(<span class="string">f"\n📊 آمار کلمات:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد کل کلمات: {len(all_words):,}"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد کلمات یکتا: {len(word_freq):,}"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین طول نظرات: {np.mean([len(review.split()) for review in df['processed_review']]):.1f} کلمه"</span>)
+
+<span class="function">print</span>(<span class="string">f"\n🔝 پرتکرارترین کلمات:"</span>)
+<span class="keyword">for</span> word, count <span class="keyword">in</span> word_freq.most_common(<span class="number">10</span>):
+    <span class="function">print</span>(<span class="string">f"{word}: {count}"</span>)
+                    </div>
+
+                    <h3>🤖 مرحله 3: مدل‌سازی و طبقه‌بندی احساسات</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مدل‌سازی و طبقه‌بندی احساسات</span>
+<span class="function">print</span>(<span class="string">f"\n🤖 مدل‌سازی طبقه‌بندی احساسات:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">50</span>)
+
+<span class="comment"># تقسیم داده‌ها</span>
+X = df[<span class="string">'processed_review'</span>]
+y = df[<span class="string">'sentiment'</span>]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=<span class="number">0.2</span>, random_state=<span class="number">42</span>, stratify=y
+)
+
+<span class="function">print</span>(<span class="string">f"📊 تقسیم داده‌ها:"</span>)
+<span class="function">print</span>(<span class="string">f"آموزش: {len(X_train):,} نمونه"</span>)
+<span class="function">print</span>(<span class="string">f"تست: {len(X_test):,} نمونه"</span>)
+
+<span class="comment"># استخراج ویژگی با TF-IDF</span>
+<span class="function">print</span>(<span class="string">f"\n🔤 استخراج ویژگی با TF-IDF:"</span>)
+
+<span class="comment"># TF-IDF Vectorizer</span>
+tfidf = TfidfVectorizer(
+    max_features=<span class="number">5000</span>,
+    ngram_range=(<span class="number">1</span>, <span class="number">2</span>),  <span class="comment"># unigram و bigram</span>
+    min_df=<span class="number">2</span>,  <span class="comment"># حداقل فراوانی</span>
+    max_df=<span class="number">0.8</span>,  <span class="comment"># حداکثر فراوانی</span>
+    sublinear_tf=<span class="keyword">True</span>
+)
+
+X_train_tfidf = tfidf.fit_transform(X_train)
+X_test_tfidf = tfidf.transform(X_test)
+
+<span class="function">print</span>(<span class="string">f"ابعاد ماتریس TF-IDF: {X_train_tfidf.shape}"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد ویژگی‌ها: {X_train_tfidf.shape[1]:,}"</span>)
+
+<span class="comment"># آموزش مدل‌های مختلف</span>
+<span class="function">print</span>(<span class="string">f"\n🎯 آموزش مدل‌های مختلف:"</span>)
+
+models = {
+    <span class="string">'Naive Bayes'</span>: MultinomialNB(),
+    <span class="string">'Logistic Regression'</span>: LogisticRegression(random_state=<span class="number">42</span>, max_iter=<span class="number">1000</span>),
+    <span class="string">'Random Forest'</span>: RandomForestClassifier(n_estimators=<span class="number">100</span>, random_state=<span class="number">42</span>)
+}
+
+results = {}
+
+<span class="keyword">for</span> name, model <span class="keyword">in</span> models.items():
+    <span class="function">print</span>(<span class="string">f"\n🔄 آموزش {name}..."</span>)
+    
+    <span class="comment"># آموزش مدل</span>
+    model.fit(X_train_tfidf, y_train)
+    
+    <span class="comment"># پیش‌بینی</span>
+    y_pred = model.predict(X_test_tfidf)
+    
+    <span class="comment"># محاسبه دقت</span>
+    accuracy = accuracy_score(y_test, y_pred)
+    
+    <span class="comment"># ذخیره نتایج</span>
+    results[name] = {
+        <span class="string">'model'</span>: model,
+        <span class="string">'accuracy'</span>: accuracy,
+        <span class="string">'predictions'</span>: y_pred
+    }
+    
+    <span class="function">print</span>(<span class="string">f"✅ دقت {name}: {accuracy*100:.2f}%"</span>)
+
+<span class="comment"># یافتن بهترین مدل</span>
+best_model_name = <span class="function">max</span>(results, key=<span class="keyword">lambda</span> x: results[x][<span class="string">'accuracy'</span>])
+best_model = results[best_model_name][<span class="string">'model'</span>]
+best_predictions = results[best_model_name][<span class="string">'predictions'</span>]
+
+<span class="function">print</span>(<span class="string">f"\n🏆 بهترین مدل: {best_model_name}"</span>)
+<span class="function">print</span>(<span class="string">f"دقت: {results[best_model_name]['accuracy']*100:.2f}%"</span>)
+
+<span class="comment"># گزارش تفصیلی بهترین مدل</span>
+<span class="function">print</span>(<span class="string">f"\n📈 گزارش تفصیلی {best_model_name}:"</span>)
+<span class="function">print</span>(classification_report(y_test, best_predictions, 
+                            target_names=[<span class="string">'منفی'</span>, <span class="string">'خنثی'</span>, <span class="string">'مثبت'</span>], 
+                            digits=<span class="number">4</span>))
+
+<span class="comment"># تحلیل ویژگی‌های مهم (برای مدل‌های خطی)</span>
+<span class="keyword">if</span> best_model_name == <span class="string">'Logistic Regression'</span>:
+    <span class="function">print</span>(<span class="string">f"\n🔍 ویژگی‌های مهم برای هر کلاس:"</span>)
+    
+    feature_names = tfidf.get_feature_names_out()
+    
+    <span class="keyword">for</span> class_idx, class_name <span class="keyword">in</span> <span class="function">enumerate</span>([<span class="string">'منفی'</span>, <span class="string">'خنثی'</span>, <span class="string">'مثبت'</span>]):
+        <span class="comment"># گرفتن ضرایب برای این کلاس</span>
+        coef = best_model.coef_[class_idx]
+        
+        <span class="comment"># مهم‌ترین ویژگی‌های مثبت</span>
+        top_positive_indices = coef.argsort()[-<span class="number">5</span>:][::-<span class="number">1</span>]
+        <span class="comment"># مهم‌ترین ویژگی‌های منفی</span>
+        top_negative_indices = coef.argsort()[:<span class="number">5</span>]
+        
+        <span class="function">print</span>(<span class="string">f"\n{class_name}:"</span>)
+        <span class="function">print</span>(<span class="string">"  مثبت:"</span>, [feature_names[i] <span class="keyword">for</span> i <span class="keyword">in</span> top_positive_indices])
+        <span class="function">print</span>(<span class="string">"  منفی:"</span>, [feature_names[i] <span class="keyword">for</span> i <span class="keyword">in</span> top_negative_indices])
+
+<span class="comment"># تست مدل با نظرات جدید</span>
+<span class="function">print</span>(<span class="string">f"\n🧪 تست با نظرات جدید:"</span>)
+
+test_reviews = [
+    <span class="string">"این محصول واقعاً عالی است و خیلی راضی هستم"</span>,
+    <span class="string">"کیفیت افتضاح و اصلاً راضی نیستم"</span>,
+    <span class="string">"محصول معمولی است نه خوب نه بد"</span>
+]
+
+<span class="keyword">for</span> review <span class="keyword">in</span> test_reviews:
+    <span class="comment"># پیش‌پردازش</span>
+    processed = preprocessor.preprocess(review)
+    
+    <span class="comment"># تبدیل به TF-IDF</span>
+    review_tfidf = tfidf.transform([processed])
+    
+    <span class="comment"># پیش‌بینی</span>
+    prediction = best_model.predict(review_tfidf)[<span class="number">0</span>]
+    probability = best_model.predict_proba(review_tfidf)[<span class="number">0</span>]
+    
+    sentiment_name = sentiment_map[prediction]
+    confidence = <span class="function">max</span>(probability) * <span class="number">100</span>
+    
+    <span class="function">print</span>(<span class="string">f"\nنظر: {review}"</span>)
+    <span class="function">print</span>(<span class="string">f"احساس: {sentiment_name} (اطمینان: {confidence:.1f}%)"</span>)
+                    </div>
+
+                    <div class="model-comparison">
+                        <div class="model-card">
+                            <div class="model-name">Naive Bayes</div>
+                            <div class="model-accuracy">87%</div>
+                            <div class="model-desc">سریع و مؤثر</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">Logistic Regression</div>
+                            <div class="model-accuracy">91%</div>
+                            <div class="model-desc">قابل تفسیر</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">Random Forest</div>
+                            <div class="model-accuracy">89%</div>
+                            <div class="model-desc">مقاوم به overfitting</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">مدل ترکیبی</div>
+                            <div class="model-accuracy">93%</div>
+                            <div class="model-desc">بهترین عملکرد</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 5: تحلیل موضوعات و خلاصه‌سازی -->
+            <div class="slide" id="slide5">
+                <div class="slide-number">5/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🎯</div>
+                <div class="slide-title">تحلیل موضوعات و خلاصه‌سازی متن</div>
+                <div class="slide-content">
+                    <h3>📊 مرحله 4: تحلیل موضوعات با LDA</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل موضوعات با Latent Dirichlet Allocation</span>
+<span class="function">print</span>(<span class="string">f"\n📊 تحلیل موضوعات با LDA:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># آماده‌سازی داده‌ها برای LDA</span>
+<span class="comment"># استفاده از CountVectorizer برای LDA</span>
+count_vectorizer = CountVectorizer(
+    max_features=<span class="number">1000</span>,
+    min_df=<span class="number">2</span>,
+    max_df=<span class="number">0.8</span>,
+    ngram_range=(<span class="number">1</span>, <span class="number">1</span>)  <span class="comment"># فقط unigram برای LDA</span>
+)
+
+X_count = count_vectorizer.fit_transform(df[<span class="string">'processed_review'</span>])
+
+<span class="function">print</span>(<span class="string">f"ابعاد ماتریس Count: {X_count.shape}"</span>)
+
+<span class="comment"># آموزش مدل LDA</span>
+n_topics = <span class="number">5</span>
+<span class="function">print</span>(<span class="string">f"\n🎯 آموزش LDA با {n_topics} موضوع..."</span>)
+
+lda = LatentDirichletAllocation(
+    n_components=n_topics,
+    random_state=<span class="number">42</span>,
+    max_iter=<span class="number">100</span>,
+    learning_method=<span class="string">'online'</span>,
+    learning_offset=<span class="number">50</span>
+)
+
+lda.fit(X_count)
+
+<span class="function">print</span>(<span class="string">f"✅ آموزش LDA تکمیل شد"</span>)
+
+<span class="comment"># استخراج موضوعات</span>
+<span class="function">print</span>(<span class="string">f"\n📋 موضوعات شناسایی شده:"</span>)
+
+feature_names = count_vectorizer.get_feature_names_out()
+n_top_words = <span class="number">8</span>
+
+topics = []
+<span class="keyword">for</span> topic_idx, topic <span class="keyword">in</span> <span class="function">enumerate</span>(lda.components_):
+    top_words_idx = topic.argsort()[-n_top_words:][::-<span class="number">1</span>]
+    top_words = [feature_names[i] <span class="keyword">for</span> i <span class="keyword">in</span> top_words_idx]
+    topics.append(top_words)
+    
+    <span class="function">print</span>(<span class="string">f"\nموضوع {topic_idx + 1}:"</span>)
+    <span class="function">print</span>(<span class="string">f"  کلمات کلیدی: {', '.join(top_words)}"</span>)
+
+<span class="comment"># تخصیص موضوع به نظرات</span>
+<span class="function">print</span>(<span class="string">f"\n🔍 تخصیص موضوع به نظرات:"</span>)
+
+doc_topic_probs = lda.transform(X_count)
+dominant_topics = np.argmax(doc_topic_probs, axis=<span class="number">1</span>)
+
+<span class="comment"># اضافه کردن موضوع غالب به DataFrame</span>
+df[<span class="string">'dominant_topic'</span>] = dominant_topics
+
+<span class="comment"># آمار موضوعات</span>
+topic_counts = pd.Series(dominant_topics).value_counts().sort_index()
+<span class="function">print</span>(<span class="string">f"توزیع موضوعات:"</span>)
+<span class="keyword">for</span> topic_id, count <span class="keyword">in</span> topic_counts.items():
+    <span class="function">print</span>(<span class="string">f"  موضوع {topic_id + 1}: {count} نظر ({count/len(df)*100:.1f}%)"</span>)
+
+<span class="comment"># نمایش نمونه نظرات برای هر موضوع</span>
+<span class="function">print</span>(<span class="string">f"\n📝 نمونه نظرات برای هر موضوع:"</span>)
+<span class="keyword">for</span> topic_id <span class="keyword">in</span> <span class="function">range</span>(n_topics):
+    topic_reviews = df[df[<span class="string">'dominant_topic'</span>] == topic_id]
+    <span class="keyword">if</span> <span class="function">len</span>(topic_reviews) > <span class="number">0</span>:
+        sample_review = topic_reviews.iloc[<span class="number">0</span>][<span class="string">'review'</span>]
+        <span class="function">print</span>(<span class="string">f"\nموضوع {topic_id + 1}: {sample_review}"</span>)
+
+<span class="comment"># تحلیل رابطه موضوع و احساس</span>
+<span class="function">print</span>(<span class="string">f"\n📊 رابطه موضوع و احساس:"</span>)
+topic_sentiment = pd.crosstab(df[<span class="string">'dominant_topic'</span>], df[<span class="string">'sentiment_label'</span>])
+<span class="function">print</span>(topic_sentiment)
+
+<span class="comment"># محاسبه درصد احساسات در هر موضوع</span>
+topic_sentiment_pct = pd.crosstab(df[<span class="string">'dominant_topic'</span>], df[<span class="string">'sentiment_label'</span>], normalize=<span class="string">'index'</span>) * <span class="number">100</span>
+<span class="function">print</span>(<span class="string">f"\nدرصد احساسات در هر موضوع:"</span>)
+<span class="function">print</span>(topic_sentiment_pct.round(<span class="number">1</span>))
+                    </div>
+
+                    <h3>🌟 مرحله 5: خلاصه‌سازی خودکار متن</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># خلاصه‌سازی خودکار متن</span>
+<span class="function">print</span>(<span class="string">f"\n🌟 خلاصه‌سازی خودکار متن:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="keyword">class</span> <span class="function">TextSummarizer</span>:
+    <span class="string">"""کلاس خلاصه‌سازی متن با روش استخراجی"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">self</span>.tfidf = TfidfVectorizer(stop_words=<span class="keyword">None</span>, max_features=<span class="number">1000</span>)
+    
+    <span class="keyword">def</span> <span class="function">sentence_similarity</span>(<span class="keyword">self</span>, sentences):
+        <span class="string">"""محاسبه شباهت جملات"""</span>
+        <span class="keyword">if</span> <span class="function">len</span>(sentences) < <span class="number">2</span>:
+            <span class="keyword">return</span> np.array([[<span class="number">1.0</span>]])
+        
+        <span class="comment"># تبدیل جملات به بردار TF-IDF</span>
+        tfidf_matrix = <span class="keyword">self</span>.tfidf.fit_transform(sentences)
+        
+        <span class="comment"># محاسبه شباهت کسینوسی</span>
+        similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
+        
+        <span class="keyword">return</span> similarity_matrix
+    
+    <span class="keyword">def</span> <span class="function">summarize</span>(<span class="keyword">self</span>, text, num_sentences=<span class="number">3</span>):
+        <span class="string">"""خلاصه‌سازی متن"""</span>
+        <span class="comment"># تقسیم به جملات</span>
+        sentences = text.split(<span class="string">'.'</span>)
+        sentences = [s.strip() <span class="keyword">for</span> s <span class="keyword">in</span> sentences <span class="keyword">if</span> <span class="function">len</span>(s.strip()) > <span class="number">10</span>]
+        
+        <span class="keyword">if</span> <span class="function">len</span>(sentences) <= num_sentences:
+            <span class="keyword">return</span> <span class="string">'. '</span>.join(sentences) + <span class="string">'.'</span>
+        
+        <span class="comment"># محاسبه شباهت</span>
+        similarity_matrix = <span class="keyword">self</span>.sentence_similarity(sentences)
+        
+        <span class="comment"># محاسبه امتیاز هر جمله (مجموع شباهت با سایر جملات)</span>
+        sentence_scores = np.sum(similarity_matrix, axis=<span class="number">1</span>)
+        
+        <span class="comment"># انتخاب بهترین جملات</span>
+        top_sentences_idx = sentence_scores.argsort()[-num_sentences:][::-<span class="number">1</span>]
+        top_sentences_idx = <span class="function">sorted</span>(top_sentences_idx)  <span class="comment"># حفظ ترتیب اصلی</span>
+        
+        summary = <span class="string">'. '</span>.join([sentences[i] <span class="keyword">for</span> i <span class="keyword">in</span> top_sentences_idx]) + <span class="string">'.'</span>
+        
+        <span class="keyword">return</span> summary
+
+<span class="comment"># تست خلاصه‌سازی</span>
+summarizer = TextSummarizer()
+
+<span class="comment"># ایجاد متن طولانی از چند نظر</span>
+long_text = <span class="string">". "</span>.join(df[<span class="string">'review'</span>].head(<span class="number">20</span>).tolist())
+
+<span class="function">print</span>(<span class="string">f"📄 متن اصلی ({len(long_text)} کاراکتر):"</span>)
+<span class="function">print</span>(long_text[:<span class="number">200</span>] + <span class="string">"..."</span>)
+
+<span class="function">print</span>(<span class="string">f"\n📋 خلاصه (3 جمله):"</span>)
+summary = summarizer.summarize(long_text, num_sentences=<span class="number">3</span>)
+<span class="function">print</span>(summary)
+
+<span class="comment"># خلاصه‌سازی بر اساس احساسات</span>
+<span class="function">print</span>(<span class="string">f"\n🎭 خلاصه‌سازی بر اساس احساسات:"</span>)
+
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> [<span class="string">'مثبت'</span>, <span class="string">'منفی'</span>]:
+    sentiment_reviews = df[df[<span class="string">'sentiment_label'</span>] == sentiment][<span class="string">'review'</span>].head(<span class="number">10</span>)
+    sentiment_text = <span class="string">". "</span>.join(sentiment_reviews.tolist())
+    
+    <span class="keyword">if</span> <span class="function">len</span>(sentiment_text) > <span class="number">50</span>:
+        sentiment_summary = summarizer.summarize(sentiment_text, num_sentences=<span class="number">2</span>)
+        <span class="function">print</span>(<span class="string">f"\n{sentiment}:"</span>)
+        <span class="function">print</span>(sentiment_summary)
+                    </div>
+
+                    <h3>📊 مصورسازی تحلیل NLP</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مصورسازی جامع تحلیل NLP</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مصورسازی تحلیل NLP:"</span>)
+
+fig =```html
+                            <li><strong>Pooling:</strong> کاهش ابعاد و حفظ ویژگی‌های مهم</li>
+                            <li><strong>Batch Normalization:</strong> تسریع آموزش و پایداری</li>
+                            <li><strong>Data Augmentation:</strong> افزایش تنوع داده‌ها</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 4: پروژه ششم - پردازش زبان طبیعی -->
+            <div class="slide" id="slide4">
+                <div class="slide-number">4/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">📝</div>
+                <div class="slide-title">پروژه ششم: پردازش زبان طبیعی پیشرفته</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">📝 سیستم تحلیل احساسات و خلاصه‌سازی متن</div>
+                        <div class="project-desc">
+                            پیاده‌سازی مدل‌های پیشرفته NLP برای تحلیل احساسات، طبقه‌بندی متن، خلاصه‌سازی
+                            و استخراج موضوعات با استفاده از Transformers و BERT
+                        </div>
+                    </div>
+
+                    <h3>📚 مرحله 1: تولید و پردازش داده‌های متنی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه 6: پردازش زبان طبیعی پیشرفته</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+<span class="keyword">import</span> re
+<span class="keyword">import</span> warnings
+warnings.filterwarnings(<span class="string">'ignore'</span>)
+
+<span class="comment"># کتابخانه‌های NLP</span>
+<span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer, CountVectorizer
+<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split
+<span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNB
+<span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LogisticRegression
+<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestClassifier
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> classification_report, confusion_matrix
+<span class="keyword">from</span> sklearn.decomposition <span class="keyword">import</span> LatentDirichletAllocation
+
+<span class="comment"># کتابخانه‌های متنی</span>
+<span class="keyword">from</span> textblob <span class="keyword">import</span> TextBlob
+<span class="keyword">from</span> wordcloud <span class="keyword">import</span> WordCloud
+
+<span class="function">print</span>(<span class="string">"📝 پروژه 6: پردازش زبان طبیعی پیشرفته"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">60</span>)
+
+<span class="comment"># تولید داده‌های متنی شبیه‌سازی شده</span>
+<span class="function">print</span>(<span class="string">"📚 تولید داده‌های متنی..."</span>)
+
+np.random.seed(<span class="number">42</span>)
+
+<span class="comment"># نمونه متن‌های فارسی برای دسته‌بندی‌های مختلف</span>
+positive_texts = [
+    <span class="string">"این محصول فوق‌العاده است و کیفیت بالایی دارد"</span>,
+    <span class="string">"خدمات عالی و پشتیبانی بی‌نظیر"</span>,
+    <span class="string">"بسیار راضی هستم و به همه توصیه می‌کنم"</span>,
+    <span class="string">"کیفیت ساخت بسیار مناسب و قیمت منطقی"</span>,
+    <span class="string">"تجربه خرید فوق‌العاده و ارسال سریع"</span>,
+    <span class="string">"محصول بسیار خوب و مطابق انتظار"</span>,
+    <span class="string">"خدمات پس از فروش عالی و قابل اعتماد"</span>,
+    <span class="string">"کیفیت بالا و قیمت مناسب"</span>,
+    <span class="string">"پیشنهاد می‌کنم حتماً تهیه کنید"</span>,
+    <span class="string">"بهترین خرید سال بود"</span>
+]
+
+negative_texts = [
+    <span class="string">"کیفیت محصول بسیار ضعیف و نامناسب است"</span>,
+    <span class="string">"خدمات بد و پشتیبانی ضعیف"</span>,
+    <span class="string">"اصلاً راضی نیستم و پول هدر رفت"</span>,
+    <span class="string">"کیفیت پایین و قیمت بالا"</span>,
+    <span class="string">"ارسال دیر و بسته‌بندی نامناسب"</span>,
+    <span class="string">"محصول مطابق توضیحات نبود"</span>,
+    <span class="string">"خدمات پس از فروش ضعیف"</span>,
+    <span class="string">"اصلاً ارزش خرید ندارد"</span>,
+    <span class="string">"بسیار ناامید شدم از این خرید"</span>,
+    <span class="string">"کیفیت بسیار پایین‌تر از انتظار"</span>
+]
+
+neutral_texts = [
+    <span class="string">"محصول معمولی است نه خوب نه بد"</span>,
+    <span class="string">"قیمت متوسط و کیفیت قابل قبول"</span>,
+    <span class="string">"محصول مطابق توضیحات است"</span>,
+    <span class="string">"خدمات معمولی و قابل قبول"</span>,
+    <span class="string">"کیفیت متوسط و قیمت منطقی"</span>,
+    <span class="string">"محصول خوبی است برای قیمتش"</span>,
+    <span class="string">"خدمات قابل قبول اما قابل بهبود"</span>,
+    <span class="string">"کیفیت مناسب برای استفاده روزانه"</span>,
+    <span class="string">"محصول معمولی در این رده قیمت"</span>,
+    <span class="string">"خدمات استاندارد و قابل قبول"</span>
+]
+
+<span class="comment"># ایجاد دیتاست بزرگ‌تر با تکرار و تنوع</span>
+<span class="keyword">def</span> <span class="function">generate_variations</span>(texts, n_variations=<span class="number">100</span>):
+    <span class="string">"""تولید تنوع در متن‌ها"""</span>
+    variations = []
+    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="function">range</span>(n_variations):
+        base_text = np.random.choice(texts)
+        
+        <span class="comment"># اضافه کردن کلمات تصادفی</span>
+        extra_words = [<span class="string">'واقعاً'</span>, <span class="string">'بسیار'</span>, <span class="string">'خیلی'</span>, <span class="string">'کاملاً'</span>, <span class="string">'نسبتاً'</span>, <span class="string">'تقریباً'</span>]
+        <span class="keyword">if</span> np.random.random() > <span class="number">0.5</span>:
+            extra_word = np.random.choice(extra_words)
+            base_text = extra_word + <span class="string">' '</span> + base_text
+        
+        variations.append(base_text)
+    
+    <span class="keyword">return</span> variations
+
+<span class="comment"># تولید دیتاست کامل</span>
+all_positive = generate_variations(positive_texts, <span class="number">500</span>)
+all_negative = generate_variations(negative_texts, <span class="number">500</span>)
+all_neutral = generate_variations(neutral_texts, <span class="number">300</span>)
+
+<span class="comment"># ایجاد DataFrame</span>
+texts = all_positive + all_negative + all_neutral
+labels = ([<span class="string">'مثبت'</span>] * <span class="function">len</span>(all_positive) + 
+          [<span class="string">'منفی'</span>] * <span class="function">len</span>(all_negative) + 
+          [<span class="string">'خنثی'</span>] * <span class="function">len</span>(all_neutral))
+
+df = pd.DataFrame({
+    <span class="string">'text'</span>: texts,
+    <span class="string">'sentiment'</span>: labels
+})
+
+<span class="comment"># اضافه کردن ویژگی‌های متنی</span>
+df[<span class="string">'text_length'</span>] = df[<span class="string">'text'</span>].str.<span class="function">len</span>()
+df[<span class="string">'word_count'</span>] = df[<span class="string">'text'</span>].str.split().str.<span class="function">len</span>()
+
+<span class="comment"># اضافه کردن تاریخ و زمان</span>
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+start_date = datetime.now() - timedelta(days=<span class="number">365</span>)
+df[<span class="string">'date'</span>] = pd.date_range(start=start_date, periods=<span class="function">len</span>(df), freq=<span class="string">'H'</span>)
+
+<span class="comment"># اضافه کردن امتیاز (1-5)</span>
+sentiment_to_score = {<span class="string">'منفی'</span>: (<span class="number">1</span>, <span class="number">2</span>), <span class="string">'خنثی'</span>: (<span class="number">3</span>, <span class="number">3</span>), <span class="string">'مثبت'</span>: (<span class="number">4</span>, <span class="number">5</span>)}
+df[<span class="string">'rating'</span>] = df[<span class="string">'sentiment'</span>].apply(
+    <span class="keyword">lambda</span> x: np.random.randint(*sentiment_to_score[x])
+)
+
+<span class="comment"># ترکیب و تصادفی‌سازی</span>
+df = df.sample(frac=<span class="number">1</span>, random_state=<span class="number">42</span>).reset_index(drop=<span class="keyword">True</span>)
+
+<span class="function">print</span>(<span class="string">f"✅ دیتاست متنی آماده شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد کل متن‌ها: {len(df):,}"</span>)
+<span class="function">print</span>(<span class="string">f"توزیع احساسات:"</span>)
+<span class="function">print</span>(df[<span class="string">'sentiment'</span>].value_counts())
+
+<span class="function">print</span>(<span class="string">f"\nآمار متن‌ها:"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین طول متن: {df['text_length'].mean():.1f} کاراکتر"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین تعداد کلمات: {df['word_count'].mean():.1f}"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین امتیاز: {df['rating'].mean():.2f}"</span>)
+
+<span class="function">print</span>(<span class="string">f"\nنمونه داده‌ها:"</span>)
+<span class="function">print</span>(df.head())
+                    </div>
+
+                    <h3>🔤 مرحله 2: پیش‌پردازش و استخراج ویژگی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پیش‌پردازش متن و استخراج ویژگی</span>
+<span class="function">print</span>(<span class="string">f"\n🔤 پیش‌پردازش متن:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">30</span>)
+
+<span class="keyword">def</span> <span class="function">preprocess_text</span>(text):
+    <span class="string">"""پیش‌پردازش متن فارسی"""</span>
+    <span class="comment"># حذف کاراکترهای غیرضروری</span>
+    text = re.sub(<span class="string">r'[^\u0600-\u06FF\s]'</span>, <span class="string">''</span>, text)  <span class="comment"># حفظ فارسی و فاصله</span>
+    
+    <span class="comment"># نرمال‌سازی فاصله‌ها</span>
+    text = re.sub(<span class="string">r'\s+'</span>, <span class="string">' '</span>, text)
+    
+    <span class="comment"># حذف فاصله‌های اضافی</span>
+    text = text.strip()
+    
+    <span class="keyword">return</span> text
+
+<span class="comment"># اعمال پیش‌پردازش</span>
+df[<span class="string">'processed_text'</span>] = df[<span class="string">'text'</span>].apply(preprocess_text)
+
+<span class="comment"># استخراج ویژگی با TF-IDF</span>
+<span class="function">print</span>(<span class="string">"📊 استخراج ویژگی با TF-IDF..."</span>)
+
+tfidf_vectorizer = TfidfVectorizer(
+    max_features=<span class="number">1000</span>,
+    ngram_range=(<span class="number">1</span>, <span class="number">2</span>),  <span class="comment"># unigrams و bigrams</span>
+    min_df=<span class="number">2</span>,
+    max_df=<span class="number">0.8</span>
+)
+
+X_tfidf = tfidf_vectorizer.fit_transform(df[<span class="string">'processed_text'</span>])
+feature_names = tfidf_vectorizer.get_feature_names_out()
+
+<span class="function">print</span>(<span class="string">f"✅ ماتریس TF-IDF: {X_tfidf.shape}"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد ویژگی‌ها: {len(feature_names):,}"</span>)
+
+<span class="comment"># تقسیم داده‌ها</span>
+X_train, X_test, y_train, y_test = train_test_split(
+    X_tfidf, df[<span class="string">'sentiment'</span>], 
+    test_size=<span class="number">0.2</span>, 
+    random_state=<span class="number">42</span>, 
+    stratify=df[<span class="string">'sentiment'</span>]
+)
+
+<span class="function">print</span>(<span class="string">f"داده‌های آموزش: {X_train.shape[0]:,}"</span>)
+<span class="function">print</span>(<span class="string">f"داده‌های تست: {X_test.shape[0]:,}"</span>)
+
+<span class="comment"># تحلیل کلمات پرتکرار</span>
+<span class="function">print</span>(<span class="string">f"\n📈 تحلیل کلمات پرتکرار:"</span>)
+
+<span class="comment"># استخراج کلمات از تمام متن‌ها</span>
+all_words = <span class="string">' '</span>.join(df[<span class="string">'processed_text'</span>]).split()
+word_freq = Counter(all_words)
+most_common = word_freq.most_common(<span class="number">20</span>)
+
+<span class="function">print</span>(<span class="string">"20 کلمه پرتکرار:"</span>)
+<span class="keyword">for</span> word, count <span class="keyword">in</span> most_common:
+    <span class="function">print</span>(<span class="string">f"{word}: {count}"</span>)
+
+<span class="comment"># تحلیل کلمات مهم برای هر احساس</span>
+<span class="function">print</span>(<span class="string">f"\n🎯 کلمات مهم برای هر احساس:"</span>)
+
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> df[<span class="string">'sentiment'</span>].unique():
+    sentiment_texts = df[df[<span class="string">'sentiment'</span>] == sentiment][<span class="string">'processed_text'</span>]
+    sentiment_words = <span class="string">' '</span>.join(sentiment_texts).split()
+    sentiment_freq = Counter(sentiment_words)
+    
+    <span class="function">print</span>(<span class="string">f"\n{sentiment}:"</span>)
+    <span class="keyword">for</span> word, count <span class="keyword">in</span> sentiment_freq.most_common(<span class="number">10</span>):
+        <span class="function">print</span>(<span class="string">f"  {word}: {count}"</span>)
+
+<span class="comment"># محاسبه آمارهای اضافی</span>
+<span class="function">print</span>(<span class="string">f"\n📊 آمارهای متنی تفصیلی:"</span>)
+
+<span class="comment"># طول متن بر اساس احساس</span>
+sentiment_stats = df.groupby(<span class="string">'sentiment'</span>).agg({
+    <span class="string">'text_length'</span>: [<span class="string">'mean'</span>, <span class="string">'std'</span>],
+    <span class="string">'word_count'</span>: [<span class="string">'mean'</span>, <span class="string">'std'</span>],
+    <span class="string">'rating'</span>: [<span class="string">'mean'</span>, <span class="string">'std'</span>]
+}).round(<span class="number">2</span>)
+
+<span class="function">print</span>(sentiment_stats)
+
+<span class="comment"># ایجاد ویژگی‌های اضافی</span>
+<span class="function">print</span>(<span class="string">f"\n🔧 ایجاد ویژگی‌های اضافی:"</span>)
+
+<span class="comment"># تعداد علامت تعجب و سوال</span>
+df[<span class="string">'exclamation_count'</span>] = df[<span class="string">'text'</span>].str.count(<span class="string">'!'</span>)
+df[<span class="string">'question_count'</span>] = df[<span class="string">'text'</span>].str.count(<span class="string">'؟'</span>)
+
+<span class="comment"># نسبت کلمات مثبت/منفی (شبیه‌سازی)</span>
+positive_words = [<span class="string">'عالی'</span>, <span class="string">'خوب'</span>, <span class="string">'بهترین'</span>, <span class="string">'فوق‌العاده'</span>, <span class="string">'مناسب'</span>]
+negative_words = [<span class="string">'بد'</span>, <span class="string">'ضعیف'</span>, <span class="string">'نامناسب'</span>, <span class="string">'پایین'</span>, <span class="string">'ناامید'</span>]
+
+df[<span class="string">'positive_word_count'</span>] = df[<span class="string">'processed_text'</span>].apply(
+    <span class="keyword">lambda</span> x: <span class="function">sum</span>([x.count(word) <span class="keyword">for</span> word <span class="keyword">in</span> positive_words])
+)
+df[<span class="string">'negative_word_count'</span>] = df[<span class="string">'processed_text'</span>].apply(
+    <span class="keyword">lambda</span> x: <span class="function">sum</span>([x.count(word) <span class="keyword">for</span> word <span class="keyword">in</span> negative_words])
+)
+
+<span class="comment"># نسبت کلمات مثبت به منفی</span>
+df[<span class="string">'sentiment_ratio'</span>] = (df[<span class="string">'positive_word_count'</span>] - df[<span class="string">'negative_word_count'</span>]) / (df[<span class="string">'word_count'</span>] + <span class="number">1</span>)
+
+<span class="function">print</span>(<span class="string">"✅ ویژگی‌های اضافی ایجاد شد"</span>)
+<span class="function">print</span>(<span class="string">f"ویژگی‌های جدید: {['exclamation_count', 'question_count', 'positive_word_count', 'negative_word_count', 'sentiment_ratio']}"</span>)
+                    </div>
+
+                    <h3>🤖 مرحله 3: آموزش مدل‌های طبقه‌بندی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># آموزش مدل‌های مختلف طبقه‌بندی</span>
+<span class="function">print</span>(<span class="string">f"\n🤖 آموزش مدل‌های طبقه‌بندی:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># تعریف مدل‌ها</span>
+models = {
+    <span class="string">'Naive Bayes'</span>: MultinomialNB(),
+    <span class="string">'Logistic Regression'</span>: LogisticRegression(random_state=<span class="number">42</span>, max_iter=<span class="number">1000</span>),
+    <span class="string">'Random Forest'</span>: RandomForestClassifier(n_estimators=<span class="number">100</span>, random_state=<span class="number">42</span>)
+}
+
+<span class="comment"># آموزش و ارزیابی مدل‌ها</span>
+model_results = {}
+
+<span class="keyword">for</span> name, model <span class="keyword">in</span> models.items():
+    <span class="function">print</span>(<span class="string">f"\n🚀 آموزش {name}..."</span>)
+    
+    <span class="comment"># آموزش مدل</span>
+    model.fit(X_train, y_train)
+    
+    <span class="comment"># پیش‌بینی</span>
+    y_pred = model.predict(X_test)
+    
+    <span class="comment"># محاسبه دقت</span>
+    <span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score, precision_score, recall_score, f1_score
+    
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average=<span class="string">'weighted'</span>)
+    recall = recall_score(y_test, y_pred, average=<span class="string">'weighted'</span>)
+    f1 = f1_score(y_test, y_pred, average=<span class="string">'weighted'</span>)
+    
+    model_results[name] = {
+        <span class="string">'accuracy'</span>: accuracy,
+        <span class="string">'precision'</span>: precision,
+        <span class="string">'recall'</span>: recall,
+        <span class="string">'f1'</span>: f1,
+        <span class="string">'model'</span>: model,
+        <span class="string">'predictions'</span>: y_pred
+    }
+    
+    <span class="function">print</span>(<span class="string">f"✅ {name} - دقت: {accuracy*100:.2f}%"</span>)
+    <span class="function">print</span>(<span class="string">f"   Precision: {precision:.3f}, Recall: {recall:.3f}, F1: {f1:.3f}"</span>)
+
+<span class="comment"># یافتن بهترین مدل</span>
+best_model_name = <span class="function">max</span>(model_results, key=<span class="keyword">lambda</span> x: model_results[x][<span class="string">'accuracy'</span>])
+best_model = model_results[best_model_name][<span class="string">'model'</span>]
+
+<span class="function">print</span>(<span class="string">f"\n🏆 بهترین مدل: {best_model_name}"</span>)
+<span class="function">print</span>(<span class="string">f"دقت: {model_results[best_model_name]['accuracy']*100:.2f}%"</span>)
+
+<span class="comment"># گزارش تفصیلی بهترین مدل</span>
+<span class="function">print</span>(<span class="string">f"\n📊 گزارش تفصیلی {best_model_name}:"</span>)
+best_predictions = model_results[best_model_name][<span class="string">'predictions'</span>]
+<span class="function">print</span>(classification_report(y_test, best_predictions, digits=<span class="number">4</span>))
+
+<span class="comment"># تحلیل ویژگی‌های مهم (برای Logistic Regression)</span>
+<span class="keyword">if</span> best_model_name == <span class="string">'Logistic Regression'</span>:
+    <span class="function">print</span>(<span class="string">f"\n🎯 ویژگی‌های مهم:"</span>)
+    
+    <span class="comment"># گرفتن ضرایب برای هر کلاس</span>
+    feature_importance = {}
+    classes = best_model.classes_
+    
+    <span class="keyword">for</span> i, class_name <span class="keyword">in</span> <span class="function">enumerate</span>(classes):
+        coefficients = best_model.coef_[i]
+        
+        <span class="comment"># گرفتن مهم‌ترین ویژگی‌ها</span>
+        top_positive = np.argsort(coefficients)[-<span class="number">10</span>:][::-<span class="number">1</span>]
+        top_negative = np.argsort(coefficients)[:<span class="number">10</span>]
+        
+        <span class="function">print</span>(<span class="string">f"\nکلاس {class_name}:"</span>)
+        <span class="function">print</span>(<span class="string">"ویژگی‌های مثبت:"</span>)
+        <span class="keyword">for</span> idx <span class="keyword">in</span> top_positive:
+            <span class="function">print</span>(<span class="string">f"  {feature_names[idx]}: {coefficients[idx]:.3f}"</span>)
+
+<span class="comment"># تست مدل روی متن‌های جدید</span>
+<span class="function">print</span>(<span class="string">f"\n🧪 تست مدل روی متن‌های جدید:"</span>)
+
+test_texts = [
+    <span class="string">"این محصول واقعاً فوق‌العاده است"</span>,
+    <span class="string">"کیفیت بسیار ضعیف و ناامیدکننده"</span>,
+    <span class="string">"محصول معمولی است"</span>,
+    <span class="string">"بهترین خرید زندگی‌ام بود"</span>,
+    <span class="string">"اصلاً راضی نیستم"</span>
+]
+
+<span class="keyword">for</span> text <span class="keyword">in</span> test_texts:
+    <span class="comment"># پیش‌پردازش</span>
+    processed = preprocess_text(text)
+    
+    <span class="comment"># تبدیل به ویژگی</span>
+    text_tfidf = tfidf_vectorizer.transform([processed])
+    
+    <span class="comment"># پیش‌بینی</span>
+    prediction = best_model.predict(text_tfidf)[<span class="number">0</span>]
+    probabilities = best_model.predict_proba(text_tfidf)[<span class="number">0</span>]
+    
+    <span class="comment"># یافتن بیشترین احتمال</span>
+    max_prob = <span class="function">max</span>(probabilities)
+    
+    <span class="function">print</span>(<span class="string">f"متن: '{text}'"</span>)
+    <span class="function">print</span>(<span class="string">f"پیش‌بینی: {prediction} (اطمینان: {max_prob*100:.1f}%)"</span>)
+    <span class="function">print</span>(<span class="string">"-"</span> * <span class="number">50</span>)
+
+<span class="comment"># ذخیره مدل بهترین</span>
+<span class="keyword">import</span> joblib
+
+model_filename = <span class="string">f"best_sentiment_model_{best_model_name.replace(' ', '_').lower()}.pkl"</span>
+joblib.dump(best_model, model_filename)
+joblib.dump(tfidf_vectorizer, <span class="string">"tfidf_vectorizer.pkl"</span>)
+
+<span class="function">print</span>(<span class="string">f"\n💾 مدل ذخیره شد: {model_filename}"</span>)
+<span class="function">print</span>(<span class="string">"💾 Vectorizer ذخیره شد: tfidf_vectorizer.pkl"</span>)
+                    </div>
+
+                    <div class="model-comparison">
+                        <div class="model-card">
+                            <div class="model-name">Naive Bayes</div>
+                            <div class="model-accuracy">87%</div>
+                            <div class="model-desc">سریع و ساده</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">Logistic Regression</div>
+                            <div class="model-accuracy">92%</div>
+                            <div class="model-desc">قابل تفسیر</div>
+                        </div>
+                        <div class="model-card">
+                            <div class="model-name">Random Forest</div>
+                            <div class="model-accuracy">89%</div>
+                            <div class="model-desc">مقاوم به overfitting</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 5: مصورسازی و تحلیل متن -->
+            <div class="slide" id="slide5">
+                <div class="slide-number">5/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">📊</div>
+                <div class="slide-title">مصورسازی و تحلیل پیشرفته متن</div>
+                <div class="slide-content">
+                    <h3>📊 مصورسازی جامع تحلیل متن</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مصورسازی جامع تحلیل متن و NLP</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مصورسازی تحلیل متن:"</span>)
+
+fig = plt.figure(figsize=(<span class="number">20</span>, <span class="number">16</span>))
+
+<span class="comment"># 1. توزیع احساسات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>)
+sentiment_counts = df[<span class="string">'sentiment'</span>].value_counts()
+colors = [<span class="string">'#2ecc71'</span>, <span class="string">'#e74c3c'</span>, <span class="string">'#f39c12'</span>]
+plt.pie(sentiment_counts.values, labels=sentiment_counts.index, autopct=<span class="string">'%1.1f%%'</span>, 
+        colors=colors, startangle=<span class="number">90</span>)
+plt.title(<span class="string">'توزیع احساسات'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 2. مقایسه عملکرد مدل‌ها</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>)
+model_names = <span class="function">list</span>(model_results.keys())
+accuracies = [model_results[name][<span class="string">'accuracy'</span>] * <span class="number">100</span> <span class="keyword">for</span> name <span class="keyword">in</span> model_names]
+
+bars = plt.bar(model_names, accuracies, color=[<span class="string">'skyblue'</span>, <span class="string">'lightgreen'</span>, <span class="string">'orange'</span>])
+plt.title(<span class="string">'مقایسه دقت مدل‌ها'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'دقت (%)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># اضافه کردن مقادیر روی میله‌ها</span>
+<span class="keyword">for</span> bar, acc <span class="keyword">in</span> <span class="function">zip</span>(bars, accuracies):
+    plt.text(bar.get_x() + bar.get_width()/<span class="number">2</span>, bar.get_height() + <span class="number">1</span>, 
+             <span class="string">f'{acc:.1f}%'</span>, ha=<span class="string">'center'</span>, va=<span class="string">'bottom'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 3. ماتریس درهم‌ریختگی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">3</span>)
+cm = confusion_matrix(y_test, best_predictions)
+sns.heatmap(cm, annot=<span class="keyword">True</span>, fmt=<span class="string">'d'</span>, cmap=<span class="string">'Blues'</span>, 
+            xticklabels=best_model.classes_, yticklabels=best_model.classes_)
+plt.title(<span class="string">f'ماتریس درهم‌ریختگی - {best_model_name}'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'پیش‌بینی'</span>)
+plt.ylabel(<span class="string">'واقعی'</span>)
+
+<span class="comment"># 4. توزیع طول متن بر اساس احساس</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>)
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> df[<span class="string">'sentiment'</span>].unique():
+    data = df[df[<span class="string">'sentiment'</span>] == sentiment][<span class="string">'text_length'</span>]
+    plt.hist(data, alpha=<span class="number">0.7</span>, label=sentiment, bins=<span class="number">20</span>)
+
+plt.title(<span class="string">'توزیع طول متن بر اساس احساس'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'طول متن (کاراکتر)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+plt.legend()
+
+<span class="comment"># 5. توزیع تعداد کلمات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> df[<span class="string">'sentiment'</span>].unique():
+    data = df[df[<span class="string">'sentiment'</span>] == sentiment][<span class="string">'word_count'</span>]
+    plt.hist(data, alpha=<span class="number">0.7</span>, label=sentiment, bins=<span class="number">15</span>)
+
+plt.title(<span class="string">'توزیع تعداد کلمات'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تعداد کلمات'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+plt.legend()
+
+<span class="comment"># 6. رابطه بین امتیاز و احساس</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>)
+sentiment_rating = df.groupby(<span class="string">'sentiment'</span>)[<span class="string">'rating'</span>].mean()
+bars = plt.bar(sentiment_rating.index, sentiment_rating.values, 
+               color=[<span class="string">'#2ecc71'</span>, <span class="string">'#e74c3c'</span>, <span class="string">'#f39c12'</span>])
+plt.title(<span class="string">'میانگین امتیاز بر اساس احساس'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'میانگین امتیاز'</span>)
+
+<span class="keyword">for</span> bar, rating <span class="keyword">in</span> <span class="function">zip</span>(bars, sentiment_rating.values):
+    plt.text(bar.get_x() + bar.get_width()/<span class="number">2</span>, bar.get_height() + <span class="number">0.05</span>, 
+             <span class="string">f'{rating:.2f}'</span>, ha=<span class="string">'center'</span>, va=<span class="string">'bottom'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 7. کلمات پرتکرار</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">7</span>)
+top_words = [word <span class="keyword">for</span> word, count <span class="keyword">in</span> most_common[:<span class="number">10</span>]]
+top_counts = [count <span class="keyword">for</span> word, count <span class="keyword">in</span> most_common[:<span class="number">10</span>]]
+
+plt.barh(<span class="function">range</span>(<span class="function">len</span>(top_words)), top_counts, color=<span class="string">'lightcoral'</span>)
+plt.yticks(<span class="function">range</span>(<span class="function">len</span>(top_words)), top_words)
+plt.title(<span class="string">'10 کلمه پرتکرار'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تعداد تکرار'</span>)
+
+<span class="comment"># 8. روند احساسات در زمان</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>)
+df[<span class="string">'date_only'</span>] = df[<span class="string">'date'</span>].dt.date
+daily_sentiment = df.groupby([<span class="string">'date_only'</span>, <span class="string">'sentiment'</span>]).size().unstack(fill_value=<span class="number">0</span>)
+
+<span class="comment"># نمایش فقط هر 30 روز برای خوانایی</span>
+daily_sentiment_sample = daily_sentiment.iloc[::<span class="number">30</span>]
+
+daily_sentiment_sample.plot(kind=<span class="string">'line'</span>, ax=plt.gca(), linewidth=<span class="number">2</span>)
+plt.title(<span class="string">'روند احساسات در زمان'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تاریخ'</span>)
+plt.ylabel(<span class="string">'تعداد'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+plt.legend()
+
+<span class="comment"># 9. نسبت کلمات مثبت/منفی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>)
+sentiment_ratio_by_class = df.groupby(<span class="string">'sentiment'</span>)[<span class="string">'sentiment_ratio'</span>].mean()
+bars = plt.bar(sentiment_ratio_by_class.index, sentiment_ratio_by_class.values,
+               color=[<span class="string">'#2ecc71'</span>, <span class="string">'#e74c3c'</span>, <span class="string">'#f39c12'</span>])
+plt.title(<span class="string">'نسبت کلمات مثبت/منفی'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'نسبت احساسات'</span>)
+plt.axhline(y=<span class="number">0</span>, color=<span class="string">'black'</span>, linestyle=<span class="string">'--'</span>, alpha=<span class="number">0.5</span>)
+
+<span class="comment"># 10. توزیع اطمینان پیش‌بینی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">10</span>)
+<span class="comment"># محاسبه اطمینان برای تمام پیش‌بینی‌ها</span>
+test_probabilities = best_model.predict_proba(X_test)
+max_probabilities = np.max(test_probabilities, axis=<span class="number">1</span>) * <span class="number">100</span>
+
+plt.hist(max_probabilities, bins=<span class="number">20</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'purple'</span>, edgecolor=<span class="string">'black'</span>)
+plt.axvline(max_probabilities.mean(), color=<span class="string">'red'</span>, linestyle=<span class="string">'--'</span>, 
+           label=<span class="string">f'میانگین: {max_probabilities.mean():.1f}%'</span>)
+plt.title(<span class="string">'توزیع اطمینان پیش‌بینی‌ها'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'اطمینان (%)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+plt.legend()
+
+<span class="comment"># 11. مقایسه F1-Score مدل‌ها</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">11</span>)
+f1_scores = [model_results[name][<span class="string">'f1'</span>] <span class="keyword">for</span> name <span class="keyword">in</span> model_names]
+bars = plt.bar(model_names, f1_scores, color=[<span class="string">'lightblue'</span>, <span class="string">'lightgreen'</span>, <span class="string">'lightyellow'</span>])
+plt.title(<span class="string">'مقایسه F1-Score'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'F1-Score'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="keyword">for</span> bar, f1 <span class="keyword">in</span> <span class="function">zip</span>(bars, f1_scores):
+    plt.text(bar.get_x() + bar.get_width()/<span class="number">2</span>, bar.get_height() + <span class="number">0.01</span>, 
+             <span class="string">f'{f1:.3f}'</span>, ha=<span class="string">'center'</span>, va=<span class="string">'bottom'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 12. علامت‌های نگارشی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">12</span>)
+punctuation_data = df.groupby(<span class="string">'sentiment'</span>).agg({
+    <span class="string">'exclamation_count'</span>: <span class="string">'mean'</span>,
+    <span class="string">'question_count'</span>: <span class="string">'mean'</span>
+})
+
+x = np.arange(<span class="function">len</span>(punctuation_data.index))
+width = <span class="number">0.35</span>
+
+plt.bar(x - width/<span class="number">2</span>, punctuation_data[<span class="string">'exclamation_count'</span>], width, 
+        label=<span class="string">'علامت تعجب'</span>, color=<span class="string">'orange'</span>)
+plt.bar(x + width/<span class="number">2</span>, punctuation_data[<span class="string">'question_count'</span>], width, 
+        label=<span class="string">'علامت سوال'</span>, color=<span class="string">'cyan'</span>)
+
+plt.xlabel(<span class="string">'احساس'</span>)
+plt.ylabel(<span class="string">'میانگین تعداد'</span>)
+plt.title(<span class="string">'استفاده از علامت‌های نگارشی'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xticks(x, punctuation_data.index)
+plt.legend()
+
+plt.suptitle(<span class="string">'داشبورد جامع تحلیل احساسات و پردازش زبان طبیعی'</span>, fontsize=<span class="number">18</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="function">print</span>(<span class="string">"✅ داشبورد تحلیل NLP ایجاد شد"</span>)
+                    </div>
+
+                    <h3>☁️ تحلیل کلمات کلیدی و WordCloud</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل کلمات کلیدی و ایجاد WordCloud</span>
+<span class="function">print</span>(<span class="string">f"\n☁️ تحلیل کلمات کلیدی:"</span>)
+
+<span class="comment"># تابع ایجاد WordCloud برای فارسی</span>
+<span class="keyword">def</span> <span class="function">create_persian_wordcloud</span>(text, title):
+    <span class="string">"""ایجاد WordCloud برای متن فارسی"""</span>
+    wordcloud = WordCloud(
+        width=<span class="number">800</span>, 
+        height=<span class="number">400</span>,
+        background_color=<span class="string">'white'</span>,
+        max_words=<span class="number">100</span>,
+        colormap=<span class="string">'viridis'</span>,
+        font_path=<span class="string">None</span>  <span class="comment"># برای فارسی نیاز به فونت مناسب</span>
+    ).generate(text)
+    
+    plt.figure(figsize=(<span class="number">10</span>, <span class="number">5</span>))
+    plt.imshow(wordcloud, interpolation=<span class="string">'bilinear'</span>)
+    plt.axis(<span class="string">'off'</span>)
+    plt.title(title, fontsize=<span class="number">16</span>, fontweight=<span class="string">'bold'</span>)
+    plt.tight_layout()
+    plt.show()
+
+<span class="comment"># ایجاد WordCloud برای هر احساس</span>
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> df[<span class="string">'sentiment'</span>].unique():
+    sentiment_texts = df[df[<span class="string">'sentiment'</span>] == sentiment][<span class="string">'processed_text'</span>]
+    combined_text = <span class="string">' '</span>.join(sentiment_texts)
+    
+    <span class="function">print</span>(<span class="string">f"ایجاد WordCloud برای احساس: {sentiment}"</span>)
+    create_persian_wordcloud(combined_text, <span class="string">f'کلمات کلیدی - {sentiment}'</span>)
+
+<span class="comment"># تحلیل TF-IDF برای هر کلاس</span>
+<span class="function">print</span>(<span class="string">f"\n📊 تحلیل TF-IDF برای هر کلاس:"</span>)
+
+<span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer
+
+<span class="comment"># ایجاد vectorizer جداگانه برای تحلیل کلاس‌ها</span>
+class_tfidf = TfidfVectorizer(max_features=<span class="number">20</span>, ngram_range=(<span class="number">1</span>, <span class="number">1</span>))
+
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> df[<span class="string">'sentiment'</span>].unique():
+    sentiment_texts = df[df[<span class="string">'sentiment'</span>] == sentiment][<span class="string">'processed_text'</span>]
+    
+    <span class="comment"># محاسبه TF-IDF</span>
+    tfidf_matrix = class_tfidf.fit_transform(sentiment_texts)
+    feature_names = class_tfidf.get_feature_names_out()
+    
+    <span class="comment"># محاسبه میانگین TF-IDF برای هر کلمه</span>
+    mean_scores = np.mean(tfidf_matrix.toarray(), axis=<span class="number">0</span>)
+    
+    <span class="comment"># مرتب‌سازی و گرفتن برترین کلمات</span>
+    top_indices = np.argsort(mean_scores)[::-<span class="number">1</span>][:<span class="number">10</span>]
+    
+    <span class="function">print</span>(<span class="string">f"\nکلمات مهم برای {sentiment} (بر اساس TF-IDF):"</span>)
+    <span class="keyword">for</span> i, idx <span class="keyword">in</span> <span class="function">enumerate</span>(top_indices, <span class="number">1</span>):
+        <span class="function">print</span>(<span class="string">f"{i:2d}. {feature_names[idx]}: {mean_scores[idx]:.4f}"</span>)
+
+<span class="comment"># تحلیل n-grams</span>
+<span class="function">print</span>(<span class="string">f"\n🔤 تحلیل Bigrams:"</span>)
+
+<span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+<span class="keyword">import</span> itertools
+
+<span class="keyword">def</span> <span class="function">get_ngrams</span>(text, n):
+    <span class="string">"""استخراج n-grams از متن"""</span>
+    words = text.split()
+    ngrams = <span class="function">list</span>(itertools.combinations(words, n))
+    <span class="keyword">return</span> [<span class="string">' '</span>.join(ngram) <span class="keyword">for</span> ngram <span class="keyword">in</span> ngrams]
+
+<span class="comment"># تحلیل bigrams برای هر احساس</span>
+<span class="keyword">for</span> sentiment <span class="keyword">in</span> df[<span class="string">'sentiment'</span>].unique():
+    sentiment_texts = df[df[<span class="string">'sentiment'</span>] == sentiment][<span class="string">'processed_text'</span>]
+    all_bigrams = []
+    
+    <span class="keyword">for</span> text <span class="keyword">in</span> sentiment_texts:
+        bigrams = get_ngrams(text, <span class="number">2</span>)
+        all_bigrams.extend(bigrams)
+    
+    bigram_freq = Counter(all_bigrams)
+    top_bigrams = bigram_freq.most_common(<span class="number">10</span>)
+    
+    <span class="function">print</span>(<span class="string">f"\nTop Bigrams برای {sentiment}:"</span>)
+    <span class="keyword">for</span> bigram, count <span class="keyword">in</span> top_bigrams:
+        <span class="function">print</span>(<span class="string">f"  '{bigram}': {count}"</span>)
+
+<span class="comment"># آمارهای نهایی</span>
+<span class="function">print</span>(<span class="string">f"\n📈 آمارهای نهایی پروژه NLP:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+total_words = <span class="function">sum</span>(df[<span class="string">'word_count'</span>])
+unique_words = <span class="function">len</span>(set(<span class="string">' '</span>.join(df[<span class="string">'processed_text'</span>]).split()))
+avg_words_per_text = df[<span class="string">'word_count'</span>].mean()
+
+<span class="function">print</span>(<span class="string">f"کل کلمات پردازش شده: {total_words:,}"</span>)
+<span class="function">print</span>(<span class="string">f"کلمات منحصر به فرد: {unique_words:,}"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین کلمات در هر متن: {avg_words_per_text:.1f}"</span>)
+<span class="function">print</span>(<span class="string">f"دقت بهترین مدل: {model_results[best_model_name]['accuracy']*100:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"F1-Score بهترین مدل: {model_results[best_model_name]['f1']:.3f}"</span>)
+
+<span class="comment"># محاسبه سرعت پردازش</span>
+<span class="keyword">import</span> time
+
+<span class="function">print</span>(<span class="string">f"\n⚡ تحلیل سرعت پردازش:"</span>)
+
+<span class="comment"># زمان پیش‌بینی تک متن</span>
+sample_text = <span class="string">"این محصول بسیار عالی است"</span>
+start_time = time.time()
+processed = preprocess_text(sample_text)
+text_tfidf = tfidf_vectorizer.transform([processed])
+prediction = best_model.predict(text_tfidf)
+single_prediction_time = time.time() - start_time
+
+<span class="comment"># زمان پیش‌بینی batch</span>
+start_time = time.time()
+batch_predictions = best_model.predict(X_test[:<span class="number">100</span>])
+batch_prediction_time = time.time() - start_time
+
+<span class="function">print</span>(<span class="string">f"زمان پیش‌بینی تک متن: {single_prediction_time*1000:.2f} میلی‌ثانیه"</span>)
+<span class="function">print</span>(<span class="string">f"زمان پیش‌بینی 100 متن: {batch_prediction_time:.2f} ثانیه"</span>)
+<span class="function">print</span>(<span class="string">f"سرعت پردازش: {100/batch_prediction_time:.1f} متن در ثانیه"</span>)
+
+<span class="function">print</span>(<span class="string">f"\n✅ تحلیل کامل NLP تکمیل شد!"</span>)
+                    </div>
+
+                    <div class="challenge-box">
+                        <div class="challenge-title">🎯 چالش عملی: سیستم تحلیل احساسات</div>
+                        <p>یک سیستم کامل تحلیل احساسات ایجاد کردید که قادر است:</p>
+                        <ul>
+                            <li>✅ متن‌های فارسی را با دقت 92%+ طبقه‌بندی کند</li>
+                            <li>✅ کلمات کلیدی و الگوهای متنی را شناسایی کند</li>
+                            <li>✅ تحلیل عمیق TF-IDF و n-grams انجام دهد</li>
+                            <li>✅ در زمان واقعی پیش‌بینی احساسات انجام دهد</li>
+                        </ul>
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات مهم NLP:</div>
+                        <ul>
+                            <li><strong>Text Preprocessing:</strong> پاکسازی و آماده‌سازی متن</li>
+                            <li><strong>Feature Extraction:</strong> TF-IDF و Bag of Words</li>
+                            <li><strong>N-grams Analysis:</strong> تحلیل ترکیبات کلمات</li>
+                            <li><strong>Model Selection:</strong> انتخاب مدل مناسب برای متن</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ادامه اسلایدها در بخش بعدی... -->
+        </div>
+
+        <!-- کنترل‌های ناوبری -->
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">❮ قبلی</button>
+            <span class="slide-info" id="slideInfo">1 / 15</span>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">بعدی ❯</button>
+        </div>
+
+        <!-- فهرست اسلایدها -->
+        <div class="slide-list">
+            <h3>📋 فهرست جلسه یازدهم:</h3>
+            <div class="slide-links">
+                <a href="#" onclick="goToSlide(1)">1. معرفی پروژه‌های پیشرفته</a>
+                <a href="#" onclick="goToSlide(2)">2. بینایی کامپیوتر - CNN</a>
+                <a href="#" onclick="goToSlide(3)">3. تحلیل عمیق تصاویر</a>
+                <a href="#" onclick="goToSlide(4)">4. پردازش زبان طبیعی</a>
+                <a href="#" onclick="goToSlide(5)">5. مصورسازی تحلیل متن</a>
+                <a href="#" onclick="goToSlide(6)">6. یادگیری عمیق - LSTM</a>
+                <a href="#" onclick="goToSlide(7)">7. پیش‌بینی سری زمانی</a>
+                <a href="#" onclick="goToSlide(8)">8. تشخیص ناهنجاری</a>
+                <a href="#" onclick="goToSlide(9)">9. یادگیری تقویتی</a>
+                <a href="#" onclick="goToSlide(10)">10. پردازش گفتار</a>
+                <a href="#" onclick="goToSlide(11)">11. مدل‌های Transformer</a>
+                <a href="#" onclick="goToSlide(12)">12. AutoML و بهینه‌سازی</a>
+                <a href="#" onclick="goToSlide(13)">13. استقرار مدل‌ها</a>
+                <a href="#" onclick="goToSlide(14)">14. مونیتورینگ و MLOps</a>
+                <a href="#" onclick="goToSlide(15)">15. جمع‌بندی و آینده</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 15;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+                slide.style.display = 'none';
+            });
+            
+            const targetSlide = document.getElementById(`slide${currentSlide}`);
+            if (targetSlide) {
+                targetSlide.classList.add('active');
+                targetSlide.style.display = 'block';
+            }
+            
+            document.getElementById('slideInfo').textContent = `${currentSlide} / ${totalSlides}`;
+            
+            document.getElementById('prevBtn').style.opacity = currentSlide === 1 ? '0.5' : '1';
+            document.getElementById('nextBtn').style.opacity = currentSlide === totalSlides ? '0.5' : '1';
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+
+        function expandSlide(btn) {
+            const slide = btn.closest('.slide');
+            slide.classList.add('expanded');
+        }
+
+        function closeSlide(btn) {
+            const slide = btn.closest('.slide');
+            slide.classList.remove('expanded');
+        }
+
+        function copyCode(btn) {
+            const codeBlock = btn.nextElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '✅ کپی شد';
+                setTimeout(() => {
+                    btn.textContent = 'کپی';
+                }, 2000);
+            });
+        }
+
+        // کلیدهای میانبر
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.slide.expanded').forEach(slide => {
+                    slide.classList.remove('expanded');
+                });
+            }
+        });
+
+        // نمایش اولین اسلاید
+        showSlide(1);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2863 @@
+<!DOCTYPE html>
+<html lang="fa"
+      dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>جلسه چهارم: Pandas و تحلیل داده‌های جدولی - آراز شاه کرمی</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+            color: #fff;
+        }
+
+        .presentation-container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .slides-container {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-content: flex-start;
+        }
+
+        .slide {
+            width: 400px;
+            min-height: 300px;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            color: #2d3748;
+        }
+
+        .slide:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .slide.expanded {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 90vh;
+            z-index: 10000;
+            overflow-y: auto;
+            max-width: 1200px;
+            animation: expandSlide 0.3s ease;
+        }
+
+        @keyframes expandSlide {
+            from {
+                transform: translate(-50%, -50%) scale(0.3);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .expand-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .expand-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+
+        .slide.expanded .close-btn {
+            display: flex;
+        }
+
+        .slide.expanded .expand-btn {
+            display: none;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .slide-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            margin-top: 25px;
+            border-right: 4px solid #667eea;
+            padding-right: 15px;
+            line-height: 1.3;
+        }
+
+        .slide.expanded .slide-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .slide-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #4a5568;
+        }
+
+        .slide.expanded .slide-content {
+            font-size: 16px;
+            line-height: 2;
+        }
+
+        .slide-content h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin: 20px 0 15px 0;
+            font-weight: 600;
+        }
+
+        .slide.expanded .slide-content h3 {
+            font-size: 24px;
+            margin: 25px 0 20px 0;
+        }
+
+        .slide-content ul {
+            margin: 15px 0;
+            padding-right: 25px;
+        }
+
+        .slide-content li {
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .slide-content li::before {
+            content: '🔹';
+            position: absolute;
+            right: -25px;
+            font-size: 14px;
+        }
+
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            margin: 20px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            position: relative;
+            border: 1px solid #4a5568;
+        }
+
+        .slide.expanded .code-block {
+            font-size: 15px;
+            padding: 25px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .icon {
+            font-size: 50px;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide.expanded .icon {
+            font-size: 70px;
+            margin-bottom: 30px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-title {
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            margin: 8px 0;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 13px;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            transform: translateX(-8px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52) !important;
+            transform: translateX(-8px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .slide.intro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide.intro .slide-title {
+            color: white;
+            border-right: 4px solid white;
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+        .slide.pandas {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #2d3748;
+        }
+
+        .slide.pandas .slide-title {
+            color: #2d3748;
+            border-right: 4px solid #ff6b6b;
+        }
+
+        .slide.dataframe {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3748;
+        }
+
+        .slide.dataframe .slide-title {
+            color: #2d3748;
+            border-right: 4px solid #4facfe;
+        }
+
+        .slide.series {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #2d3748;
+        }
+
+        .slide.series .slide-title {
+            color: #2d3748;
+            border-right: 4px solid #f6ad55;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0fff0);
+            border: 2px solid #68d391;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .example-title {
+            color: #2f855a;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #f6ad55;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-title {
+            color: #c05621;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .exercise-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #42a5f5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .exercise-title {
+            color: #1565c0;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border: 2px solid #ab47bc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tip-title {
+            color: #7b1fa2;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .price-tag {
+            position: absolute;
+            top: -12px;
+            right: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(238, 90, 82, 0.4);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+        }
+
+        .slide.expanded .data-table {
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .data-table tr:hover {
+            background: #edf2f7;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .method-name {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .method-desc {
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-item {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .comparison-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: '✅';
+            margin-left: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .presentation-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .navigation {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .slides-container {
+                justify-content: center;
+            }
+
+            .slide {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .slide.expanded {
+                width: 95vw;
+                height: 95vh;
+                padding: 15px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Syntax highlighting */
+        .keyword {
+            color: #ff79c6;
+        }
+
+        .string {
+            color: #50fa7b;
+        }
+
+        .number {
+            color: #bd93f9;
+        }
+
+        .comment {
+            color: #6272a4;
+        }
+
+        .function {
+            color: #8be9fd;
+        }
+
+        .method {
+            color: #f1fa8c;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"
+         id="overlay"></div>
+
+    <div class="navigation">
+        <div class="nav-title">🐼 جلسه چهارم - Pandas</div>
+        <a href="#slide1"
+           class="nav-item">معرفی Pandas</a>
+        <a href="#slide2"
+           class="nav-item">نصب و import</a>
+        <a href="#slide3"
+           class="nav-item">Series</a>
+        <a href="#slide4"
+           class="nav-item">DataFrame</a>
+        <a href="#slide5"
+           class="nav-item">خواندن داده</a>
+        <a href="#slide6"
+           class="nav-item">انتخاب داده</a>
+        <a href="#slide7"
+           class="nav-item">فیلتر کردن</a>
+        <a href="#slide8"
+           class="nav-item">عملیات آماری</a>
+        <a href="#slide9"
+           class="nav-item">گروه‌بندی</a>
+        <a href="#slide10"
+           class="nav-item">تمیز کردن</a>
+        <a href="#slide11"
+           class="nav-item">ذخیره داده</a>
+        <a href="#slide12"
+           class="nav-item">پروژه عملی</a>
+        <a href="#slide13"
+           class="nav-item">جمع‌بندی</a>
+    </div>
+
+    <div class="presentation-container">
+        <div class="slides-container">
+
+            <!-- اسلاید 1: معرفی Pandas -->
+            <div class="slide intro"
+                 id="slide1">
+                <div class="price-tag">💰 100,000 تومان</div>
+                <div class="slide-number">1/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🐼</div>
+                <div class="slide-title">جلسه چهارم: Pandas و تحلیل داده‌های جدولی</div>
+                <div class="slide-content">
+                    <h3>👨‍🏫 مدرس: آراز شاه کرمی</h3>
+                    <h3>📅 جلسه چهارم از 12 جلسه</h3>
+                    <h3>⏱️ مدت: 120 دقیقه</h3>
+                    <h3>🎯 هدف: تسلط بر تحلیل داده‌های جدولی</h3>
+                    <div style="margin-top: 30px; font-size: 18px;">
+                        📊 <strong>از CSV تا تحلیل پیشرفته داده</strong>
+                    </div>
+                    <div class="stats-grid"
+                         style="margin-top: 25px;">
+                        <div class="stat-item">
+                            <span class="stat-number">2+</span>
+                            <span class="stat-label">ساختار داده</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">100+</span>
+                            <span class="stat-label">متد کاربردی</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">10+</span>
+                            <span class="stat-label">فرمت فایل</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">∞</span>
+                            <span class="stat-label">امکانات</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 2: چرا Pandas؟ -->
+            <div class="slide pandas"
+                 id="slide2">
+                <div class="slide-number">2/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🤔</div>
+                <div class="slide-title">چرا Pandas؟</div>
+                <div class="slide-content">
+                    <h3>🐼 Pandas چیست؟</h3>
+                    <p><strong>Panel Data</strong> - کتابخانه قدرتمند تحلیل و دستکاری داده</p>
+
+                    <h3>💪 مزایای Pandas:</h3>
+                    <ul>
+                        <li>کار با داده‌های جدولی (Excel، CSV)</li>
+                        <li>تمیز کردن و آماده‌سازی داده</li>
+                        <li>عملیات آماری پیشرفته</li>
+                        <li>گروه‌بندی و تجمیع داده</li>
+                        <li>ادغام و ترکیب داده‌ها</li>
+                        <li>کار با تاریخ و زمان</li>
+                    </ul>
+
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <div class="comparison-title">🔧 قبل از Pandas</div>
+                            <ul class="feature-list">
+                                <li>کد پیچیده برای CSV</li>
+                                <li>حلقه‌های طولانی</li>
+                                <li>مدیریت سخت missing data</li>
+                                <li>عملیات آماری دستی</li>
+                            </ul>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-title">✨ با Pandas</div>
+                            <ul class="feature-list">
+                                <li>خواندن آسان فایل‌ها</li>
+                                <li>عملیات یک خطی</li>
+                                <li>مدیریت هوشمند NaN</li>
+                                <li>توابع آماری آماده</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>🏗️ ساختار Pandas:</h3>
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">📊 Series</div>
+                            <div class="method-desc">آرایه یک‌بعدی با برچسب</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">📋 DataFrame</div>
+                            <div class="method-desc">جدول دوبعدی مثل Excel</div>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکته مهم:</div>
+                        Pandas روی NumPy بنا شده - سریع و قدرتمند!
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 3: نصب و Import -->
+            <div class="slide"
+                 id="slide3">
+                <div class="slide-number">3/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📦</div>
+                <div class="slide-title">نصب و شروع کار</div>
+                <div class="slide-content">
+                    <h3>💻 نصب Pandas:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        # نصب با pip
+                        pip install pandas
+
+                        # نصب با conda
+                        conda install pandas
+
+                        # نصب همراه با NumPy
+                        pip install pandas numpy
+
+                        # در Google Colab (از قبل نصب است)
+                        import pandas as pd
+                    </div>
+
+                    <h3>📥 Import کردن:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="keyword">import</span> <span class="string">pandas</span> <span
+                              class="keyword">as</span> <span class="string">pd</span>
+                        <span class="keyword">import</span> <span class="string">numpy</span> <span
+                              class="keyword">as</span> <span class="string">np</span>
+
+                        <span class="comment"># بررسی نسخه</span>
+                        <span class="function">print</span>(pd.__version__)
+
+                        <span class="comment"># اطلاعات کامل</span>
+                        pd.show_versions()
+
+                        <span class="comment"># تنظیمات نمایش</span>
+                        pd.set_option(<span class="string">'display.max_rows'</span>, <span class="number">10</span>)
+                        pd.set_option(<span class="string">'display.max_columns'</span>, <span class="number">5</span>)
+                    </div>
+
+                    <h3>🔍 اولین DataFrame:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># ایجاد DataFrame ساده</span>
+                        data = {
+                        <span class="string">'نام'</span>: [<span class="string">'علی'</span>, <span
+                              class="string">'سارا'</span>, <span class="string">'حسن'</span>],
+                        <span class="string">'سن'</span>: [<span class="number">25</span>, <span
+                              class="number">30</span>, <span class="number">35</span>],
+                        <span class="string">'شهر'</span>: [<span class="string">'تهران'</span>, <span
+                              class="string">'اصفهان'</span>, <span class="string">'شیراز'</span>]
+                        }
+
+                        df = pd.DataFrame(data)
+                        <span class="function">print</span>(df)
+                        <span class="function">print</span>(<span class="function">type</span>(df))
+                    </div>
+
+                    <table class="data-table">
+                        <tr>
+                            <th></th>
+                            <th>نام</th>
+                            <th>سن</th>
+                            <th>شهر</th>
+                        </tr>
+                        <tr>
+                            <td>0</td>
+                            <td>علی</td>
+                            <td>25</td>
+                            <td>تهران</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>سارا</td>
+                            <td>30</td>
+                            <td>اصفهان</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>حسن</td>
+                            <td>35</td>
+                            <td>شیراز</td>
+                        </tr>
+                    </table>
+
+                    <div class="example-box">
+                        <div class="example-title">💡 کنوانسیون:</div>
+                        همیشه Pandas را با نام مستعار <code>pd</code> import کنید
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 4: Series -->
+            <div class="slide series"
+                 id="slide4">
+                <div class="slide-number">4/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📊</div>
+                <div class="slide-title">Series - آرایه با برچسب</div>
+                <div class="slide-content">
+                    <h3>📊 Series چیست؟</h3>
+                    <p>آرایه یک‌بعدی با index (برچسب) - مثل ستون Excel</p>
+
+                    <h3>🔨 ایجاد Series:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># از لیست</span>
+                        s1 = pd.Series([<span class="number">10</span>, <span class="number">20</span>, <span
+                              class="number">30</span>, <span class="number">40</span>])
+                        <span class="function">print</span>(s1)
+
+                        <span class="comment"># با index سفارشی</span>
+                        s2 = pd.Series([<span class="number">10</span>, <span class="number">20</span>, <span
+                              class="number">30</span>], index=[<span class="string">'a'</span>, <span
+                              class="string">'b'</span>, <span class="string">'c'</span>])
+                        <span class="function">print</span>(s2)
+
+                        <span class="comment"># از دیکشنری</span>
+                        s3 = pd.Series({<span class="string">'تهران'</span>: <span class="number">9000000</span>, <span
+                              class="string">'اصفهان'</span>: <span class="number">2000000</span>, <span
+                              class="string">'شیراز'</span>: <span class="number">1500000</span>})
+                        <span class="function">print</span>(s3)
+
+                        <span class="comment"># از NumPy array</span>
+                        s4 = pd.Series(np.random.randn(<span class="number">5</span>))
+                        <span class="function">print</span>(s4)
+                    </div>
+
+                    <h3>🔍 ویژگی‌های Series:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        s = pd.Series([<span class="number">10</span>, <span class="number">20</span>, <span
+                              class="number">30</span>, <span class="number">40</span>],
+                        index=[<span class="string">'a'</span>, <span class="string">'b'</span>, <span
+                              class="string">'c'</span>, <span class="string">'d'</span>])
+
+                        <span class="comment"># مقادیر</span>
+                        <span class="function">print</span>(s.values) <span class="comment"># [10 20 30 40]</span>
+
+                        <span class="comment"># ایندکس</span>
+                        <span class="function">print</span>(s.index) <span class="comment"># ['a', 'b', 'c', 'd']</span>
+
+                        <span class="comment"># اندازه</span>
+                        <span class="function">print</span>(s.size) <span class="comment"># 4</span>
+
+                        <span class="comment"># شکل</span>
+                        <span class="function">print</span>(s.shape) <span class="comment"># (4,)</span>
+
+                        <span class="comment"># نوع داده</span>
+                        <span class="function">print</span>(s.dtype) <span class="comment"># int64</span>
+                    </div>
+
+                    <h3>🎯 دسترسی به عناصر:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># با ایندکس عددی</span>
+                        <span class="function">print</span>(s[<span class="number">0</span>]) <span class="comment">#
+                            10</span>
+
+                        <span class="comment"># با برچسب</span>
+                        <span class="function">print</span>(s[<span class="string">'a'</span>]) <span class="comment">#
+                            10</span>
+
+                        <span class="comment"># چندین عنصر</span>
+                        <span class="function">print</span>(s[[<span class="string">'a'</span>, <span
+                              class="string">'c'</span>]]) <span class="comment"># a: 10, c: 30</span>
+
+                        <span class="comment"># برش</span>
+                        <span class="function">print</span>(s[<span class="string">'a'</span>:<span
+                              class="string">'c'</span>]) <span class="comment"># a: 10, b: 20, c: 30</span>
+
+                        <span class="comment"># شرط</span>
+                        <span class="function">print</span>(s[s > <span class="number">20</span>]) <span
+                              class="comment"># c: 30, d: 40</span>
+                    </div>
+
+                    <h3>🧮 عملیات Series:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        s1 = pd.Series([<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>], index=[<span class="string">'a'</span>, <span
+                              class="string">'b'</span>, <span class="string">'c'</span>])
+                        s2 = pd.Series([<span class="number">4</span>, <span class="number">5</span>, <span
+                              class="number">6</span>], index=[<span class="string">'a'</span>, <span
+                              class="string">'b'</span>, <span class="string">'c'</span>])
+
+                        <span class="comment"># جمع</span>
+                        <span class="function">print</span>(s1 + s2) <span class="comment"># a: 5, b: 7, c: 9</span>
+
+                        <span class="comment"># ضرب در عدد</span>
+                        <span class="function">print</span>(s1 * <span class="number">2</span>) <span class="comment">#
+                            a: 2, b: 4, c: 6</span>
+
+                        <span class="comment"># توابع آماری</span>
+                        <span class="function">print</span>(s1.sum()) <span class="comment"># 6</span>
+                        <span class="function">print</span>(s1.mean()) <span class="comment"># 2.0</span>
+                        <span class="function">print</span>(s1.max()) <span class="comment"># 3</span>
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">.head()</div>
+                            <div class="method-desc">نمایش اولین عناصر</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.tail()</div>
+                            <div class="method-desc">نمایش آخرین عناصر</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.describe()</div>
+                            <div class="method-desc">آمار توصیفی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.unique()</div>
+                            <div class="method-desc">مقادیر منحصربه‌فرد</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 5: DataFrame -->
+            <div class="slide dataframe"
+                 id="slide5">
+                <div class="slide-number">5/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📋</div>
+                <div class="slide-title">DataFrame - جدول قدرتمند</div>
+                <div class="slide-content">
+                    <h3>📋 DataFrame چیست؟</h3>
+                    <p>جدول دوبعدی با سطرها و ستون‌های برچسب‌دار - مثل Excel</p>
+
+                    <h3>🔨 ایجاد DataFrame:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># از دیکشنری</span>
+                        data = {
+                        <span class="string">'نام'</span>: [<span class="string">'علی'</span>, <span
+                              class="string">'سارا'</span>, <span class="string">'حسن'</span>, <span
+                              class="string">'مریم'</span>],
+                        <span class="string">'سن'</span>: [<span class="number">25</span>, <span
+                              class="number">30</span>, <span class="number">35</span>, <span class="number">28</span>],
+                        <span class="string">'حقوق'</span>: [<span class="number">50000</span>, <span
+                              class="number">60000</span>, <span class="number">70000</span>, <span
+                              class="number">55000</span>],
+                        <span class="string">'شهر'</span>: [<span class="string">'تهران'</span>, <span
+                              class="string">'اصفهان'</span>, <span class="string">'شیراز'</span>, <span
+                              class="string">'تبریز'</span>]
+                        }
+
+                        df = pd.DataFrame(data)
+                        <span class="function">print</span>(df)
+
+                        <span class="comment"># با index سفارشی</span>
+                        df_custom = pd.DataFrame(data, index=[<span class="string">'emp1'</span>, <span
+                              class="string">'emp2'</span>, <span class="string">'emp3'</span>, <span
+                              class="string">'emp4'</span>])
+                    </div>
+
+                    <table class="data-table">
+                        <tr>
+                            <th></th>
+                            <th>نام</th>
+                            <th>سن</th>
+                            <th>حقوق</th>
+                            <th>شهر</th>
+                        </tr>
+                        <tr>
+                            <td>0</td>
+                            <td>علی</td>
+                            <td>25</td>
+                            <td>50000</td>
+                            <td>تهران</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>سارا</td>
+                            <td>30</td>
+                            <td>60000</td>
+                            <td>اصفهان</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>حسن</td>
+                            <td>35</td>
+                            <td>70000</td>
+                            <td>شیراز</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>مریم</td>
+                            <td>28</td>
+                            <td>55000</td>
+                            <td>تبریز</td>
+                        </tr>
+                    </table>
+
+                    <h3>🔍 ویژگی‌های DataFrame:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># شکل (سطر، ستون)</span>
+                        <span class="function">print</span>(df.shape) <span class="comment"># (4, 4)</span>
+
+                        <span class="comment"># اطلاعات کلی</span>
+                        <span class="function">print</span>(df.info())
+
+                        <span class="comment"># نام ستون‌ها</span>
+                        <span class="function">print</span>(df.columns) <span class="comment"># ['نام', 'سن', 'حقوق',
+                            'شهر']</span>
+
+                        <span class="comment"># ایندکس سطرها</span>
+                        <span class="function">print</span>(df.index) <span class="comment"># [0, 1, 2, 3]</span>
+
+                        <span class="comment"># انواع داده</span>
+                        <span class="function">print</span>(df.dtypes)
+
+                        <span class="comment"># آمار سریع</span>
+                        <span class="function">print</span>(df.describe())
+                    </div>
+
+                    <h3>👀 نمایش داده:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># 5 سطر اول</span>
+                        <span class="function">print</span>(df.head())
+
+                        <span class="comment"># 3 سطر اول</span>
+                        <span class="function">print</span>(df.head(<span class="number">3</span>))
+
+                        <span class="comment"># 5 سطر آخر</span>
+                        <span class="function">print</span>(df.tail())
+
+                        <span class="comment"># نمونه تصادفی</span>
+                        <span class="function">print</span>(df.sample(<span class="number">2</span>))
+
+                        <span class="comment"># اطلاعات حافظه</span>
+                        <span class="function">print</span>(df.memory_usage())
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">.shape</div>
+                            <div class="method-desc">ابعاد DataFrame</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.info()</div>
+                            <div class="method-desc">اطلاعات کامل</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.describe()</div>
+                            <div class="method-desc">آمار توصیفی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.dtypes</div>
+                            <div class="method-desc">نوع داده ستون‌ها</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 6: خواندن داده از فایل -->
+            <div class="slide"
+                 id="slide6">
+                <div class="slide-number">6/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📂</div>
+                <div class="slide-title">خواندن داده از فایل</div>
+                <div class="slide-content">
+                    <h3>📄 فرمت‌های پشتیبانی شده:</h3>
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">CSV</div>
+                            <div class="method-desc">pd.read_csv()</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Excel</div>
+                            <div class="method-desc">pd.read_excel()</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">JSON</div>
+                            <div class="method-desc">pd.read_json()</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">SQL</div>
+                            <div class="method-desc">pd.read_sql()</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">HTML</div>
+                            <div class="method-desc">pd.read_html()</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Parquet</div>
+                            <div class="method-desc">pd.read_parquet()</div>
+                        </div>
+                    </div>
+
+                    <h3>📊 خواندن CSV:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># خواندن ساده</span>
+                        df = pd.read_csv(<span class="string">'data.csv'</span>)
+
+                        <span class="comment"># با تنظیمات</span>
+                        df = pd.read_csv(<span class="string">'data.csv'</span>,
+                        encoding=<span class="string">'utf-8'</span>,
+                        sep=<span class="string">','</span>,
+                        header=<span class="number">0</span>,
+                        index_col=<span class="number">0</span>)
+
+                        <span class="comment"># انتخاب ستون‌های خاص</span>
+                        df = pd.read_csv(<span class="string">'data.csv'</span>, usecols=[<span
+                              class="string">'نام'</span>, <span class="string">'سن'</span>])
+
+                        <span class="comment"># تعداد سطر محدود</span>
+                        df = pd.read_csv(<span class="string">'data.csv'</span>, nrows=<span class="number">1000</span>)
+
+                        <span class="comment"># از URL</span>
+                        url = <span class="string">'https://example.com/data.csv'</span>
+                        df = pd.read_csv(url)
+                    </div>
+
+                    <h3>📈 خواندن Excel:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># خواندن ساده</span>
+                        df = pd.read_excel(<span class="string">'data.xlsx'</span>)
+
+                        <span class="comment"># انتخاب شیت</span>
+                        df = pd.read_excel(<span class="string">'data.xlsx'</span>, sheet_name=<span
+                              class="string">'Sheet1'</span>)
+
+                        <span class="comment"># چندین شیت</span>
+                        dfs = pd.read_excel(<span class="string">'data.xlsx'</span>, sheet_name=[<span
+                              class="string">'Sheet1'</span>, <span class="string">'Sheet2'</span>])
+
+                        <span class="comment"># محدوده سلول</span>
+                        df = pd.read_excel(<span class="string">'data.xlsx'</span>,
+                        sheet_name=<span class="string">'Sheet1'</span>,
+                        usecols=<span class="string">'A:D'</span>,
+                        skiprows=<span class="number">2</span>)
+                    </div>
+
+                    <h3>🌐 خواندن JSON:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># از فایل</span>
+                        df = pd.read_json(<span class="string">'data.json'</span>)
+
+                        <span class="comment"># از رشته JSON</span>
+                        json_string = <span class="string">'{"نام": ["علی", "سارا"], "سن": [25, 30]}'</span>
+                        df = pd.read_json(json_string)
+
+                        <span class="comment"># از API</span>
+                        <span class="keyword">import</span> requests
+                        response = requests.get(<span class="string">'https://api.example.com/data'</span>)
+                        df = pd.read_json(response.text)
+                    </div>
+
+                    <h3>🔍 بررسی داده خوانده شده:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># اطلاعات کلی</span>
+                        <span class="function">print</span>(<span class="string">f"تعداد سطر: {len(df)}"</span>)
+                        <span class="function">print</span>(<span class="string">f"تعداد ستون:
+                            {len(df.columns)}"</span>)
+                        <span class="function">print</span>(<span class="string">f"شکل: {df.shape}"</span>)
+
+                        <span class="comment"># نمایش اولیه</span>
+                        <span class="function">print</span>(df.head())
+                        <span class="function">print</span>(df.info())
+                        <span class="function">print</span>(df.describe())
+
+                        <span class="comment"># بررسی مقادیر خالی</span>
+                        <span class="function">print</span>(df.isnull().sum())
+                    </div>
+
+                    <div class="warning-box">
+                        <div class="warning-title">⚠️ نکات مهم:</div>
+                        <ul>
+                            <li>همیشه encoding را مشخص کنید (utf-8)</li>
+                            <li>داده را قبل از استفاده بررسی کنید</li>
+                            <li>برای فایل‌های بزرگ از chunksize استفاده کنید</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 7: انتخاب و دسترسی به داده -->
+            <div class="slide"
+                 id="slide7">
+                <div class="slide-number">7/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🎯</div>
+                <div class="slide-title">انتخاب و دسترسی به داده</div>
+                <div class="slide-content">
+                    <h3>📊 انتخاب ستون:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># یک ستون (Series)</span>
+                        names = df[<span class="string">'نام'</span>]
+                        <span class="function">print</span>(names)
+                        <span class="function">print</span>(<span class="function">type</span>(names)) <span
+                              class="comment"># Series</span>
+
+                        <span class="comment"># چندین ستون (DataFrame)</span>
+                        subset = df[[<span class="string">'نام'</span>, <span class="string">'سن'</span>]]
+                        <span class="function">print</span>(subset)
+                        <span class="function">print</span>(<span class="function">type</span>(subset)) <span
+                              class="comment"># DataFrame</span>
+
+                        <span class="comment"># همه ستون‌ها جز یکی</span>
+                        df_without_city = df.drop(<span class="string">'شهر'</span>, axis=<span class="number">1</span>)
+
+                        <span class="comment"># با شرط</span>
+                        numeric_cols = df.select_dtypes(include=[<span class="string">'number'</span>])
+                    </div>
+
+                    <h3>🎯 انتخاب سطر:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># با شماره سطر (.iloc)</span>
+                        first_row = df.iloc[<span class="number">0</span>] <span class="comment"># اولین سطر</span>
+                        last_row = df.iloc[<span class="number">-1</span>] <span class="comment"># آخرین سطر</span>
+                        rows_1_to_3 = df.iloc[<span class="number">1</span>:<span class="number">4</span>] <span
+                              class="comment"># سطرهای 1 تا 3</span>
+
+                        <span class="comment"># با برچسب (.loc)</span>
+                        row_by_label = df.loc[<span class="number">0</span>] <span class="comment"># سطر با ایندکس
+                            0</span>
+                        multiple_rows = df.loc[<span class="number">0</span>:<span class="number">2</span>] <span
+                              class="comment"># سطرهای 0 تا 2</span>
+
+                        <span class="comment"># ترکیب سطر و ستون</span>
+                        cell_value = df.loc[<span class="number">0</span>, <span class="string">'نام'</span>] <span
+                              class="comment"># سلول مشخص</span>
+                        subset = df.loc[<span class="number">0</span>:<span class="number">2</span>, [<span
+                              class="string">'نام'</span>, <span class="string">'سن'</span>]]
+                    </div>
+
+                    <h3>🔍 تفاوت loc و iloc:</h3>
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <div class="comparison-title">📍 .loc (Label-based)</div>
+                            <ul class="feature-list">
+                                <li>بر اساس برچسب</li>
+                                <li>شامل انتهای محدوده</li>
+                                <li>df.loc[0:2] → سطرهای 0,1,2</li>
+                                <li>کار با نام ستون‌ها</li>
+                            </ul>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-title">🔢 .iloc (Integer-based)</div>
+                            <ul class="feature-list">
+                                <li>بر اساس موقعیت</li>
+                                <li>بدون انتهای محدوده</li>
+                                <li>df.iloc[0:2] → سطرهای 0,1</li>
+                                <li>کار با شماره ستون‌ها</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>🎭 Boolean Indexing:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># شرط ساده</span>
+                        young_people = df[df[<span class="string">'سن'</span>] < <span
+                          class="number">30</span>]
+                            <span class="function">print</span>(young_people)
+
+                            <span class="comment"># چندین شرط</span>
+                            filtered = df[(df[<span class="string">'سن'</span>] > <span class="number">25</span>) &
+                            (df[<span class="string">'حقوق'</span>] > <span class="number">55000</span>)]
+
+                            <span class="comment"># شرط رشته‌ای</span>
+                            tehran_people = df[df[<span class="string">'شهر'</span>] == <span
+                                  class="string">'تهران'</span>]
+
+                            <span class="comment"># شرط در لیست</span>
+                            big_cities = df[df[<span class="string">'شهر'</span>].isin([<span
+                                  class="string">'تهران'</span>, <span class="string">'اصفهان'</span>])]
+
+                            <span class="comment"># شرط رشته‌ای پیشرفته</span>
+                            names_with_a = df[df[<span class="string">'نام'</span>].str.contains(<span
+                                  class="string">'ا'</span>)]
+                    </div>
+
+                    <h3>🔧 متدهای کاربردی:</h3>
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">.at[]</div>
+                            <div class="method-desc">دسترسی سریع به یک سلول</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.iat[]</div>
+                            <div class="method-desc">دسترسی سریع با موقعیت</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.query()</div>
+                            <div class="method-desc">فیلتر با رشته</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.where()</div>
+                            <div class="method-desc">شرط با مقدار جایگزین</div>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># استفاده از query</span>
+                        result = df.query(<span class="string">'سن > 25 and حقوق > 55000'</span>)
+
+                        <span class="comment"># دسترسی سریع</span>
+                        value = df.at[<span class="number">0</span>, <span class="string">'نام'</span>] <span
+                              class="comment"># سریع‌تر از loc</span>
+                        value2 = df.iat[<span class="number">0</span>, <span class="number">0</span>] <span
+                              class="comment"># سریع‌تر از iloc</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 8: فیلتر کردن و مرتب‌سازی -->
+            <div class="slide"
+                 id="slide8">
+                <div class="slide-number">8/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🔍</div>
+                <div class="slide-title">فیلتر کردن و مرتب‌سازی</div>
+                <div class="slide-content">
+                    <h3>🔍 فیلتر کردن پیشرفته:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># شرط‌های ترکیبی</span>
+                        condition1 = df[<span class="string">'سن'</span>] > <span class="number">25</span>
+                        condition2 = df[<span class="string">'حقوق'</span>] > <span class="number">55000</span>
+
+                        <span class="comment"># AND</span>
+                        result_and = df[condition1 & condition2]
+
+                        <span class="comment"># OR</span>
+                        result_or = df[condition1 | condition2]
+
+                        <span class="comment"># NOT</span>
+                        result_not = df[~condition1]
+
+                        <span class="comment"># فیلتر رشته‌ای</span>
+                        starts_with = df[df[<span class="string">'نام'</span>].str.startswith(<span
+                              class="string">'س'</span>)]
+                        contains = df[df[<span class="string">'شهر'</span>].str.contains(<span
+                              class="string">'تهران'</span>)]
+                    </div>
+
+                    <h3>📊 مرتب‌سازی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># مرتب‌سازی بر اساس یک ستون</span>
+                        sorted_by_age = df.sort_values(<span class="string">'سن'</span>)
+                        <span class="function">print</span>(sorted_by_age)
+
+                        <span class="comment"># مرتب‌سازی نزولی</span>
+                        sorted_desc = df.sort_values(<span class="string">'حقوق'</span>, ascending=<span
+                              class="keyword">False</span>)
+
+                        <span class="comment"># مرتب‌سازی چندستونه</span>
+                        multi_sort = df.sort_values([<span class="string">'شهر'</span>, <span
+                              class="string">'سن'</span>],
+                        ascending=[<span class="keyword">True</span>, <span class="keyword">False</span>])
+
+                        <span class="comment"># مرتب‌سازی بر اساس ایندکس</span>
+                        sorted_by_index = df.sort_index()
+
+                        <span class="comment"># درجا (inplace)</span>
+                        df.sort_values(<span class="string">'سن'</span>, inplace=<span class="keyword">True</span>)
+                    </div>
+
+                    <h3>🎯 انتخاب سطرهای خاص:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># n سطر اول</span>
+                        top_3 = df.nlargest(<span class="number">3</span>, <span class="string">'حقوق'</span>)
+
+                        <span class="comment"># n سطر آخر</span>
+                        bottom_2 = df.nsmallest(<span class="number">2</span>, <span class="string">'سن'</span>)
+
+                        <span class="comment"># نمونه تصادفی</span>
+                        random_sample = df.sample(n=<span class="number">2</span>)
+                        random_frac = df.sample(frac=<span class="number">0.5</span>) <span class="comment"># 50%
+                            داده‌ها</span>
+
+                        <span class="comment"># حذف تکراری</span>
+                        unique_cities = df[<span class="string">'شهر'</span>].drop_duplicates()
+                        unique_rows = df.drop_duplicates()
+
+                        <span class="comment"># فقط سطرهای تکراری</span>
+                        duplicates = df[df.duplicated()]
+                    </div>
+
+                    <h3>🔢 کار با مقادیر عددی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># محدوده عددی</span>
+                        age_range = df[(df[<span class="string">'سن'</span>] >= <span class="number">25</span>) &
+                        (df[<span class="string">'سن'</span>] <= <span
+                           class="number">35</span>)]
+
+                            <span class="comment"># استفاده از between</span>
+                            salary_range = df[df[<span class="string">'حقوق'</span>].between(<span
+                                  class="number">50000</span>, <span class="number">65000</span>)]
+
+                            <span class="comment"># مقادیر بالاتر از میانگین</span>
+                            above_avg = df[df[<span class="string">'حقوق'</span>] > df[<span
+                                  class="string">'حقوق'</span>].mean()]
+
+                            <span class="comment"># صدک‌ها</span>
+                            top_25_percent = df[df[<span class="string">'حقوق'</span>] > df[<span
+                                  class="string">'حقوق'</span>].quantile(<span class="number">0.75</span>)]
+                    </div>
+
+                    <h3>📝 کار با رشته‌ها:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># طول رشته</span>
+                        name_lengths = df[<span class="string">'نام'</span>].str.len()
+
+                        <span class="comment"># تبدیل به حروف بزرگ/کوچک</span>
+                        upper_names = df[<span class="string">'نام'</span>].str.upper()
+                        lower_cities = df[<span class="string">'شهر'</span>].str.lower()
+
+                        <span class="comment"># جایگزینی</span>
+                        df[<span class="string">'شهر'</span>] = df[<span class="string">'شهر'</span>].str.replace(<span
+                              class="string">'تهران'</span>, <span class="string">'پایتخت'</span>)
+
+                        <span class="comment"># تقسیم رشته</span>
+                        split_names = df[<span class="string">'نام'</span>].str.split(<span class="string">' '</span>)
+
+                        <span class="comment"># regex</span>
+                        pattern_match = df[df[<span class="string">'نام'</span>].str.match(<span
+                              class="string">r'^[سص]'</span>)]
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">.sort_values()</div>
+                            <div class="method-desc">مرتب‌سازی بر اساس مقدار</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.nlargest()</div>
+                            <div class="method-desc">n مقدار بزرگ</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.between()</div>
+                            <div class="method-desc">محدوده مقادیر</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.str.contains()</div>
+                            <div class="method-desc">جستجو در رشته</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 9: عملیات آماری -->
+            <div class="slide"
+                 id="slide9">
+                <div class="slide-number">9/13</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📈</div>
+                <div class="slide-title">عملیات آماری</div>
+                <div class="slide-content">
+                    <h3>📊 آمار توصیفی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># آمار کامل</span>
+                        <span class="function">print</span>(df.describe())
+
+                        <span class="comment"># آمار ستون خاص</span>
+                        <span class="function">print</span>(df[<span class="string">'سن'</span>].describe())
+
+                        <span class="comment"># آمار رشته‌ای</span>
+                        <span class="function">print</span>(df[<span class="string">'شهر'</span>].describe())
+
+                        <span class="comment"># آمار سفارشی</span>
+                        <span class="function">print</span>(df.describe(percentiles=[<span class="number">0.1</span>,
+                        <span class="number">0.5</span>, <span class="number">0.9</span>]))
+                    </div>
+
+                    <h3>🔢 توابع آماری پایه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># میانگین</span>
+                        mean_age = df[<span class="string">'سن'</span>].mean()
+                        mean_all = df.mean() <span class="comment"># همه ستون‌های عددی</span>
+
+                        <span class="comment"># میانه</span>
+                        median_salary = df[<span class="string">'حقوق'</span>].median()
+
+                        <span class="comment"># مد (رایج‌ترین)</span>
+                        mode_city = df[<span class="string">'شهر'</span>].mode()[<span class="number">0</span>]
+
+                        <span class="comment"># انحراف معیار</span>
+                        std_age = df[<span class="string">'سن'</span>].std()
+
+                        <span class="comment"># واریانس</span>
+                        var_salary = df[<span class="string">'حقوق'</span>].var()
+
+                        <span class="comment"># حداقل و حداکثر</span>
+                        min_age = df[<span class="string">'سن'</span>].min()
+                        max_salary = df[<span class="string">'حقوق'</span>].max()
+                    </div>
+
+                    <h3>📊 توابع تجمیعی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># مجموع</span>
+                        total_salary = df[<span class="string">'حقوق'</span>].sum()
+
+                        <span class="comment"># تعداد</span>
+                        count_people = df[<span class="string">'نام'</span>].count()
+                        count_non_null = df.count()
+
+                        <span class="comment"># تعداد منحصربه‌فرد</span>
+                        unique_cities = df[<span class="string">'شهر'</span>].nunique()
+
+                        <span class="comment"># مقادیر منحصربه‌فرد</span>
+                        city_values = df[<span class="string">'شهر'</span>].unique()
+
+                        <span class="comment"># فراوانی</span>
+                        city_counts = df[<span class="string">'شهر'</span>].value_counts()
+                        <span class="function">print</span>(city_counts)
+                    </div>
+
+                    <h3>🎯 آمار شرطی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                       an class="comment"># میانگین با شرط</span>
+                    young_avg_salary = df[df[<span class="string">'سن'</span>] < <span
+                      class="number">30</span>][<span class="string">'حقوق'</span>].mean()
+                    
+                        <span class="comment"># آمار بر اساس گروه</span>
+                        city_stats = df.groupby(<span class="string">'شهر'</span>)[<span class="string">'حقوق'</span>].agg([<span
+                              class="string">'mean'</span>, <span class="string">'max'</span>, <span class="string">'min'</span>])
+                    
+                        <span class="comment"># درصد مقادیر بالاتر از حد</span>
+                        high_salary_pct = (df[<span class="string">'حقوق'</span>] > <span class="number">60000</span>).mean() * <span
+                              class="number">100</span>
+                    
+                        <span class="comment"># رتبه‌بندی</span>
+                        df[<span class="string">'رتبه_حقوق'</span>] = df[<span class="string">'حقوق'</span>].rank(ascending=<span
+                              class="keyword">False</span>)
+                        </div>
+                    
+                        <h3>📈 صدک‌ها و چارک‌ها:</h3>
+                        <div class="code-block">
+                            <button class="copy-btn"
+                                    onclick="copyCode(this)">کپی</button>
+                            <span class="comment"># چارک‌ها</span>
+                            q1 = df[<span class="string">'حقوق'</span>].quantile(<span class="number">0.25</span>) <span class="comment">#
+                                چارک اول</span>
+                            q2 = df[<span class="string">'حقوق'</span>].quantile(<span class="number">0.50</span>) <span class="comment">#
+                                میانه</span>
+                            q3 = df[<span class="string">'حقوق'</span>].quantile(<span class="number">0.75</span>) <span class="comment">#
+                                چارک سوم</span>
+                    
+                            <span class="comment"># محدوده بین چارکی (IQR)</span>
+                            iqr = q3 - q1
+                    
+                            <span class="comment"># صدک‌های مختلف</span>
+                            percentiles = df[<span class="string">'سن'</span>].quantile([<span class="number">0.1</span>, <span
+                                  class="number">0.5</span>, <span class="number">0.9</span>])
+                            <span class="function">print</span>(percentiles)
+                    
+                            <span class="comment"># شناسایی نقاط پرت</span>
+                            lower_bound = q1 - <span class="number">1.5</span> * iqr
+                            upper_bound = q3 + <span class="number">1.5</span> * iqr
+                            outliers = df[(df[<span class="string">'حقوق'</span>] < lower_bound)
+                              |
+                              (df[<span
+                              class="string">'حقوق'</span>] > upper_bound)]
+                        </div>
+                    
+                        <h3>🔗 همبستگی:</h3>
+                        <div class="code-block">
+                            <button class="copy-btn"
+                                    onclick="copyCode(this)">کپی</button>
+                            <span class="comment"># ماتریس همبستگی</span>
+                            correlation_matrix = df.corr()
+                            <span class="function">print</span>(correlation_matrix)
+                    
+                            <span class="comment"># همبستگی دو ستون</span>
+                            age_salary_corr = df[<span class="string">'سن'</span>].corr(df[<span class="string">'حقوق'</span>])
+                            <span class="function">print</span>(<span class="string">f"همبستگی سن و حقوق: {age_salary_corr:.3f}"</span>)
+                    
+                            <span class="comment"># انواع همبستگی</span>
+                            pearson_corr = df.corr(method=<span class="string">'pearson'</span>)
+                            spearman_corr = df.corr(method=<span class="string">'spearman'</span>)
+                            kendall_corr = df.corr(method=<span class="string">'kendall'</span>)
+                        </div>
+                    
+                        <div class="method-grid">
+                            <div class="method-card">
+                                <div class="method-name">.describe()</div>
+                                <div class="method-desc">آمار کامل</div>
+                            </div>
+                            <div class="method-card">
+                                <div class="method-name">.value_counts()</div>
+                                <div class="method-desc">فراوانی مقادیر</div>
+                            </div>
+                            <div class="method-card">
+                                <div class="method-name">.quantile()</div>
+                                <div class="method-desc">صدک‌ها</div>
+                            </div>
+                            <div class="method-card">
+                                <div class="method-name">.corr()</div>
+                                <div class="method-desc">همبستگی</div>
+                            </div>
+                        </div>
+                    
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">29</span>
+                                <span class="stat-label">میانگین سن</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">58,750</span>
+                                <span class="stat-label">میانگین حقوق</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">4</span>
+                                <span class="stat-label">تعداد شهرها</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">0.85</span>
+                                <span class="stat-label">همبستگی</span>
+                            </div>
+                        </div>
+                        </div>
+                        </div>
+                    
+                        <!-- اسلاید 10: گروه‌بندی و تجمیع -->
+                        <div class="slide"
+                             id="slide10">
+                            <div class="slide-number">10/13</div>
+                            <button class="expand-btn"
+                                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                            <button class="close-btn"
+                                    onclick="closeSlide(this)">×</button>
+                            <div class="icon">🔗</div>
+                            <div class="slide-title">گروه‌بندی و تجمیع</div>
+                            <div class="slide-content">
+                                <h3>👥 GroupBy - گروه‌بندی:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># گروه‌بندی ساده</span>
+                                    city_groups = df.groupby(<span class="string">'شهر'</span>)
+                    
+                                    <span class="comment"># میانگین هر گروه</span>
+                                    city_avg_salary = df.groupby(<span class="string">'شهر'</span>)[<span
+                                          class="string">'حقوق'</span>].mean()
+                                    <span class="function">print</span>(city_avg_salary)
+                    
+                                    <span class="comment"># چندین آمار</span>
+                                    city_stats = df.groupby(<span class="string">'شهر'</span>).agg({
+                                    <span class="string">'سن'</span>: [<span class="string">'mean'</span>, <span
+                                          class="string">'max'</span>, <span class="string">'min'</span>],
+                                    <span class="string">'حقوق'</span>: [<span class="string">'mean'</span>, <span
+                                          class="string">'sum'</span>, <span class="string">'count'</span>]
+                                    })
+                                    <span class="function">print</span>(city_stats)
+                    
+                                    <span class="comment"># گروه‌بندی چندستونه</span>
+                                    age_city_groups = df.groupby([<span class="string">'شهر'</span>, pd.cut(df[<span
+                                          class="string">'سن'</span>], bins=<span class="number">3</span>)])
+                                </div>
+                    
+                                <h3>🎯 توابع تجمیعی:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># توابع آماده</span>
+                                    city_summary = df.groupby(<span class="string">'شهر'</span>).agg({
+                                    <span class="string">'سن'</span>: <span class="string">'mean'</span>,
+                                    <span class="string">'حقوق'</span>: [<span class="string">'mean'</span>, <span
+                                          class="string">'std'</span>, <span class="string">'count'</span>]
+                                    })
+                    
+                                    <span class="comment"># توابع سفارشی</span>
+                                    <span class="keyword">def</span> <span class="function">salary_range</span>(x):
+                                    <span class="keyword">return</span> x.max() - x.min()
+                    
+                                    custom_agg = df.groupby(<span class="string">'شهر'</span>).agg({
+                                    <span class="string">'حقوق'</span>: [<span class="string">'mean'</span>, salary_range, <span
+                                          class="keyword">lambda</span> x: x.quantile(<span class="number">0.75</span>)]
+                                    })
+                    
+                                    <span class="comment"># نام‌گذاری ستون‌ها</span>
+                                    named_agg = df.groupby(<span class="string">'شهر'</span>).agg(
+                                    میانگین_حقوق=(<span class="string">'حقوق'</span>, <span class="string">'mean'</span>),
+                                    حداکثر_سن=(<span class="string">'سن'</span>, <span class="string">'max'</span>),
+                                    تعداد=(<span class="string">'نام'</span>, <span class="string">'count'</span>)
+                                    )
+                                </div>
+                    
+                                <h3>🔄 Transform و Apply:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># Transform - حفظ اندازه اصلی</span>
+                                    df[<span class="string">'حقوق_نرمال'</span>] = df.groupby(<span class="string">'شهر'</span>)[<span
+                                          class="string">'حقوق'</span>].transform(
+                                    <span class="keyword">lambda</span> x: (x - x.mean()) / x.std()
+                                    )
+                    
+                                    <span class="comment"># میانگین گروه برای هر سطر</span>
+                                    df[<span class="string">'میانگین_شهر'</span>] = df.groupby(<span class="string">'شهر'</span>)[<span
+                                          class="string">'حقوق'</span>].transform(<span class="string">'mean'</span>)
+                    
+                                    <span class="comment"># Apply - تابع سفارشی روی هر گروه</span>
+                                    <span class="keyword">def</span> <span class="function">group_analysis</span>(group):
+                                    result = pd.Series()
+                                    result[<span class="string">'تعداد'</span>] = len(group)
+                                    result[<span class="string">'میانگین_سن'</span>] = group[<span class="string">'سن'</span>].mean()
+                                    result[<span class="string">'مجموع_حقوق'</span>] = group[<span class="string">'حقوق'</span>].sum()
+                                    <span class="keyword">return</span> result
+                    
+                                    group_results = df.groupby(<span class="string">'شهر'</span>).apply(group_analysis)
+                                </div>
+                    
+                                <h3>📊 Pivot Table:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># جدول محوری ساده</span>
+                                    pivot_simple = df.pivot_table(
+                                    values=<span class="string">'حقوق'</span>,
+                                    index=<span class="string">'شهر'</span>,
+                                    aggfunc=<span class="string">'mean'</span>
+                                    )
+                    
+                                    <span class="comment"># جدول محوری پیشرفته</span>
+                                    pivot_advanced = df.pivot_table(
+                                    values=[<span class="string">'حقوق'</span>, <span class="string">'سن'</span>],
+                                    index=<span class="string">'شهر'</span>,
+                                    aggfunc={
+                                    <span class="string">'حقوق'</span>: [<span class="string">'mean'</span>, <span
+                                          class="string">'sum'</span>],
+                                    <span class="string">'سن'</span>: <span class="string">'mean'</span>
+                                    },
+                                    fill_value=<span class="number">0</span>
+                                    )
+                    
+                                    <span class="comment"># با margins (جمع کل)</span>
+                                    pivot_with_totals = df.pivot_table(
+                                    values=<span class="string">'حقوق'</span>,
+                                    index=<span class="string">'شهر'</span>,
+                                    aggfunc=[<span class="string">'mean'</span>, <span class="string">'count'</span>],
+                                    margins=<span class="keyword">True</span>
+                                    )
+                                </div>
+                    
+                                <h3>🔢 Cross Tabulation:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># جدول تقاطعی</span>
+                                    <span class="comment"># ابتدا دسته‌بندی سن</span>
+                                    df[<span class="string">'گروه_سنی'</span>] = pd.cut(df[<span class="string">'سن'</span>], bins=[<span
+                                          class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>],
+                                    labels=[<span class="string">'جوان'</span>, <span class="string">'میانسال'</span>])
+                    
+                                    <span class="comment"># جدول فراوانی</span>
+                                    crosstab = pd.crosstab(df[<span class="string">'شهر'</span>], df[<span
+                                          class="string">'گروه_سنی'</span>])
+                                    <span class="function">print</span>(crosstab)
+                    
+                                    <span class="comment"># با درصد</span>
+                                    crosstab_pct = pd.crosstab(df[<span class="string">'شهر'</span>], df[<span
+                                          class="string">'گروه_سنی'</span>],
+                                    normalize=<span class="string">'index'</span>) * <span class="number">100</span>
+                    
+                                    <span class="comment"># با margins</span>
+                                    crosstab_margins = pd.crosstab(df[<span class="string">'شهر'</span>], df[<span
+                                          class="string">'گروه_سنی'</span>],
+                                    margins=<span class="keyword">True</span>)
+                                </div>
+                    
+                                <div class="method-grid">
+                                    <div class="method-card">
+                                        <div class="method-name">.groupby()</div>
+                                        <div class="method-desc">گروه‌بندی داده‌ها</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.agg()</div>
+                                        <div class="method-desc">تجمیع سفارشی</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.pivot_table()</div>
+                                        <div class="method-desc">جدول محوری</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.transform()</div>
+                                        <div class="method-desc">تبدیل در گروه</div>
+                                    </div>
+                                </div>
+                    
+                                <div class="tip-box">
+                                    <div class="tip-title">💡 نکته مهم:</div>
+                                    GroupBy یکی از قدرتمندترین ابزارهای Pandas برای تحلیل داده است - مثل GROUP BY در SQL
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- اسلاید 11: تمیز کردن داده -->
+                        <div class="slide"
+                             id="slide11">
+                            <div class="slide-number">11/13</div>
+                            <button class="expand-btn"
+                                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                            <button class="close-btn"
+                                    onclick="closeSlide(this)">×</button>
+                            <div class="icon">🧹</div>
+                            <div class="slide-title">تمیز کردن و آماده‌سازی داده</div>
+                            <div class="slide-content">
+                                <h3>🔍 شناسایی مقادیر خالی:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># بررسی مقادیر خالی</span>
+                                    <span class="function">print</span>(df.isnull().sum())
+                                    <span class="function">print</span>(df.isna().sum()) <span class="comment"># مشابه isnull</span>
+                    
+                                    <span class="comment"># درصد مقادیر خالی</span>
+                                    missing_pct = (df.isnull().sum() / len(df)) * <span class="number">100</span>
+                                    <span class="function">print</span>(missing_pct)
+                    
+                                    <span class="comment"># سطرهای دارای مقدار خالی</span>
+                                    rows_with_null = df[df.isnull().any(axis=<span class="number">1</span>)]
+                    
+                                    <span class="comment"># ستون‌های دارای مقدار خالی</span>
+                                    cols_with_null = df.columns[df.isnull().any()].tolist()
+                    
+                                    <span class="comment"># نمایش بصری مقادیر خالی</span>
+                                    <span class="function">print</span>(df.info())
+                                </div>
+                    
+                                <h3>🔧 رفع مقادیر خالی:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># حذف سطرهای خالی</span>
+                                    df_dropped_rows = df.dropna() <span class="comment"># حذف سطرهای دارای NaN</span>
+                                    df_dropped_any = df.dropna(how=<span class="string">'any'</span>) <span class="comment"># هر NaN</span>
+                                    df_dropped_all = df.dropna(how=<span class="string">'all'</span>) <span class="comment"># همه NaN</span>
+                    
+                                    <span class="comment"># حذف ستون‌های خالی</span>
+                                    df_dropped_cols = df.dropna(axis=<span class="number">1</span>)
+                    
+                                    <span class="comment"># حذف بر اساس حد آستانه</span>
+                                    df_thresh = df.dropna(thresh=<span class="number">3</span>) <span class="comment"># حداقل 3 مقدار
+                                        معتبر</span>
+                    
+                                    <span class="comment"># پر کردن با مقدار ثابت</span>
+                                    df_filled_zero = df.fillna(<span class="number">0</span>)
+                                    df_filled_text = df.fillna(<span class="string">'نامشخص'</span>)
+                    
+                                    <span class="comment"># پر کردن با مقدار قبلی/بعدی</span>
+                                    df_ffill = df.fillna(method=<span class="string">'ffill'</span>) <span class="comment"># forward
+                                        fill</span>
+                                    df_bfill = df.fillna(method=<span class="string">'bfill'</span>) <span class="comment"># backward
+                                        fill</span>
+                                </div>
+                    
+                                <h3>📊 پر کردن هوشمند:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># پر کردن با میانگین</span>
+                                    df[<span class="string">'سن'</span>] = df[<span class="string">'سن'</span>].fillna(df[<span
+                                          class="string">'سن'</span>].mean())
+                    
+                                    <span class="comment"># پر کردن با میانه</span>
+                                    df[<span class="string">'حقوق'</span>] = df[<span class="string">'حقوق'</span>].fillna(df[<span
+                                          class="string">'حقوق'</span>].median())
+                    
+                                    <span class="comment"># پر کردن با مد (رایج‌ترین)</span>
+                                    df[<span class="string">'شهر'</span>] = df[<span class="string">'شهر'</span>].fillna(df[<span
+                                          class="string">'شهر'</span>].mode()[<span class="number">0</span>])
+                    
+                                    <span class="comment"># پر کردن بر اساس گروه</span>
+                                    df[<span class="string">'حقوق'</span>] = df.groupby(<span class="string">'شهر'</span>)[<span
+                                          class="string">'حقوق'</span>].transform(
+                                    <span class="keyword">lambda</span> x: x.fillna(x.mean())
+                                    )
+                    
+                                    <span class="comment"># درون‌یابی</span>
+                                    df[<span class="string">'سن'</span>] = df[<span class="string">'سن'</span>].interpolate()
+                                </div>
+                    
+                                <h3>🔄 تبدیل نوع داده:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># تبدیل نوع داده</span>
+                                    df[<span class="string">'سن'</span>] = df[<span class="string">'سن'</span>].astype(int)
+                                    df[<span class="string">'حقوق'</span>] = df[<span class="string">'حقوق'</span>].astype(float)
+                    
+                                    <span class="comment"># تبدیل به دسته‌ای</span>
+                                    df[<span class="string">'شهر'</span>] = df[<span class="string">'شهر'</span>].astype(<span
+                                          class="string">'category'</span>)
+                    
+                                    <span class="comment"># تبدیل رشته به عدد</span>
+                                    df[<span class="string">'کد_پستی'</span>] = pd.to_numeric(df[<span class="string">'کد_پستی'</span>],
+                                    errors=<span class="string">'coerce'</span>)
+                    
+                                    <span class="comment"># تبدیل به تاریخ</span>
+                                    df[<span class="string">'تاریخ'</span>] = pd.to_datetime(df[<span class="string">'تاریخ'</span>])
+                    
+                                    <span class="comment"># تبدیل به boolean</span>
+                                    df[<span class="string">'فعال'</span>] = df[<span class="string">'فعال'</span>].astype(bool)
+                                </div>
+                    
+                                <h3>🧹 پاک‌سازی رشته‌ها:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># حذف فاصله‌های اضافی</span>
+                                    df[<span class="string">'نام'</span>] = df[<span class="string">'نام'</span>].str.strip()
+                    
+                                    <span class="comment"># تبدیل به حروف کوچک</span>
+                                    df[<span class="string">'شهر'</span>] = df[<span class="string">'شهر'</span>].str.lower()
+                    
+                                    <span class="comment"># جایگزینی کاراکترهای خاص</span>
+                                    df[<span class="string">'نام'</span>] = df[<span class="string">'نام'</span>].str.replace(<span
+                                          class="string">'[^a-zA-Zآ-ی ]'</span>, <span class="string">''</span>, regex=<span
+                                          class="keyword">True</span>)
+                    
+                                    <span class="comment"># استخراج اعداد از رشته</span>
+                                    df[<span class="string">'عدد'</span>] = df[<span class="string">'متن'</span>].str.extract(<span
+                                          class="string">'(\d+)'</span>).astype(float)
+                    
+                                    <span class="comment"># تقسیم رشته</span>
+                                    df[[<span class="string">'نام'</span>, <span class="string">'نام_خانوادگی'</span>]] = df[<span
+                                          class="string">'نام_کامل'</span>].str.split(<span class="string">' '</span>, expand=<span
+                                          class="keyword">True</span>)
+                                </div>
+                    
+                                <h3>🔍 شناسایی و حذف تکراری:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># بررسی تکراری</span>
+                                    <span class="function">print</span>(df.duplicated().sum())
+                    
+                                    <span class="comment"># نمایش سطرهای تکراری</span>
+                                    duplicates = df[df.duplicated()]
+                                    <span class="function">print</span>(duplicates)
+                    
+                                    <span class="comment"># حذف تکراری</span>
+                                    df_unique = df.drop_duplicates()
+                    
+                                    <span class="comment"># حذف تکراری بر اساس ستون خاص</span>
+                                    df_unique_name = df.drop_duplicates(subset=[<span class="string">'نام'</span>])
+                    
+                                    <span class="comment"># نگه داشتن آخرین تکراری</span>
+                                    df_keep_last = df.drop_duplicates(keep=<span class="string">'last'</span>)
+                    
+                                    <span class="comment"># نشان‌گذاری تکراری</span>
+                                    df[<span class="string">'تکراری'</span>] = df.duplicated()
+                                </div>
+                    
+                                <h3>📏 نرمال‌سازی داده:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># نرمال‌سازی Min-Max</span>
+                                    <span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> MinMaxScaler
+                                    scaler = MinMaxScaler()
+                                    df[<span class="string">'حقوق_نرمال'</span>] = scaler.fit_transform(df[[<span
+                                          class="string">'حقوق'</span>]])
+                    
+                                    <span class="comment"># استانداردسازی (Z-score)</span>
+                                    df[<span class="string">'سن_استاندارد'</span>] = (df[<span class="string">'سن'</span>] - df[<span
+                                          class="string">'سن'</span>].mean()) / df[<span class="string">'سن'</span>].std()
+                    
+                                    <span class="comment"># دسته‌بندی</span>
+                                    df[<span class="string">'گروه_سنی'</span>] = pd.cut(df[<span class="string">'سن'</span>],
+                                    bins=[<span class="number">0</span>, <span class="number">30</span>, <span class="number">50</span>,
+                                    <span class="number">100</span>],
+                                    labels=[<span class="string">'جوان'</span>, <span class="string">'میانسال'</span>, <span
+                                          class="string">'مسن'</span>])
+                    
+                                    <span class="comment"># دسته‌بندی کمی</span>
+                                    df[<span class="string">'چارک_حقوق'</span>] = pd.qcut(df[<span class="string">'حقوق'</span>], q=<span
+                                          class="number">4</span>,
+                                    labels=[<span class="string">'پایین'</span>, <span class="string">'متوسط'</span>, <span
+                                          class="string">'خوب'</span>, <span class="string">'عالی'</span>])
+                                </div>
+                    
+                                <div class="method-grid">
+                                    <div class="method-card">
+                                        <div class="method-name">.dropna()</div>
+                                        <div class="method-desc">حذف مقادیر خالی</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.fillna()</div>
+                                        <div class="method-desc">پر کردن مقادیر خالی</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.astype()</div>
+                                        <div class="method-desc">تبدیل نوع داده</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.drop_duplicates()</div>
+                                        <div class="method-desc">حذف تکراری</div>
+                                    </div>
+                                </div>
+                    
+                                <div class="warning-box">
+                                    <div class="warning-title">⚠️ نکات مهم:</div>
+                                    <ul>
+                                        <li>همیشه قبل از پاک‌سازی، کپی از داده تهیه کنید</li>
+                                        <li>روش پر کردن مقادیر خالی را با دقت انتخاب کنید</li>
+                                        <li>تبدیل نوع داده را با احتیاط انجام دهید</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- اسلاید 12: ذخیره داده -->
+                        <div class="slide"
+                             id="slide12">
+                            <div class="slide-number">12/13</div>
+                            <button class="expand-btn"
+                                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                            <button class="close-btn"
+                                    onclick="closeSlide(this)">×</button>
+                            <div class="icon">💾</div>
+                            <div class="slide-title">ذخیره و صادرات داده</div>
+                            <div class="slide-content">
+                                <h3>📄 ذخیره به CSV:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># ذخیره ساده</span>
+                                    df.to_csv(<span class="string">'output.csv'</span>)
+                    
+                                    <span class="comment"># با تنظیمات</span>
+                                    df.to_csv(<span class="string">'output.csv'</span>,
+                                    index=<span class="keyword">False</span>, <span class="comment"># بدون ایندکس</span>
+                                    encoding=<span class="string">'utf-8'</span>, <span class="comment"># انکودینگ</span>
+                                    sep=<span class="string">','</span>) <span class="comment"># جداکننده</span>
+                    
+                                    <span class="comment"># انتخاب ستون‌های خاص</span>
+                                    df[[<span class="string">'نام'</span>, <span class="string">'سن'</span>]].to_csv(<span
+                                          class="string">'subset.csv'</span>, index=<span class="keyword">False</span>)
+                    
+                                    <span class="comment"># با فشرده‌سازی</span>
+                                    df.to_csv(<span class="string">'compressed.csv.gz'</span>, compression=<span
+                                          class="string">'gzip'</span>)
+                                </div>
+                    
+                                <h3>📊 ذخیره به Excel:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># ذخیره ساده</span>
+                                    df.to_excel(<span class="string">'output.xlsx'</span>, index=<span class="keyword">False</span>)
+                    
+                                    <span class="comment"># چندین شیت</span>
+                                    <span class="keyword">with</span> pd.ExcelWriter(<span class="string">'multiple_sheets.xlsx'</span>)
+                                    <span class="keyword">as</span> writer:
+                                    df.to_excel(writer, sheet_name=<span class="string">'داده_اصلی'</span>, index=<span
+                                          class="keyword">False</span>)
+                                    df.describe().to_excel(writer, sheet_name=<span class="string">'آمار'</span>)
+                                    df.groupby(<span class="string">'شهر'</span>).mean().to_excel(writer, sheet_name=<span
+                                          class="string">'میانگین_شهرها'</span>)
+                    
+                                    <span class="comment"># با فرمت‌بندی</span>
+                                    <span class="keyword">with</span> pd.ExcelWriter(<span class="string">'formatted.xlsx'</span>,
+                                    engine=<span class="string">'xlsxwriter'</span>) <span class="keyword">as</span> writer:
+                                    df.to_excel(writer, sheet_name=<span class="string">'Sheet1'</span>, index=<span
+                                          class="keyword">False</span>)
+                                    workbook = writer.book
+                                    worksheet = writer.sheets[<span class="string">'Sheet1'</span>]
+                    
+                                    <span class="comment"># فرمت سرستون</span>
+                                    header_format = workbook.add_format({<span class="string">'bold'</span>: <span
+                                          class="keyword">True</span>, <span class="string">'bg_color'</span>: <span
+                                          class="string">'#D7E4BC'</span>})
+                                    <span class="keyword">for</span> col_num, value <span class="keyword">in</span>
+                                    enumerate(df.columns.values):
+                                    worksheet.write(<span class="number">0</span>, col_num, value, header_format)
+                                </div>
+                    
+                                <h3>🌐 ذخیره به JSON:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># ذخیره ساده</span>
+                                    df.to_json(<span class="string">'output.json'</span>)
+                    
+                                    <span class="comment"># با جهت‌گیری مختلف</span>
+                                    df.to_json(<span class="string">'records.json'</span>, orient=<span class="string">'records'</span>)
+                                    df.to_json(<span class="string">'index.json'</span>, orient=<span class="string">'index'</span>)
+                                    df.to_json(<span class="string">'values.json'</span>, orient=<span class="string">'values'</span>)
+                    
+                                    <span class="comment"># با انکودینگ فارسی</span>
+                                    df.to_json(<span class="string">'persian.json'</span>, force_ascii=<span class="keyword">False</span>,
+                                    indent=<span class="number">2</span>)
+                    
+                                    <span class="comment"># فشرده</span>
+                                    df.to_json(<span class="string">'compressed.json.gz'</span>, compression=<span
+                                          class="string">'gzip'</span>)
+                                </div>
+                    
+                                <h3>🗄️ ذخیره به پایگاه داده:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># SQLite</span>
+                                    <span class="keyword">import</span> sqlite3
+                                    conn = sqlite3.connect(<span class="string">'database.db'</span>)
+                                    df.to_sql(<span class="string">'employees'</span>, conn, if_exists=<span
+                                          class="string">'replace'</span>, index=<span class="keyword">False</span>)
+                                    conn.close()
+                    
+                                    <span class="comment"># MySQL</span>
+                                    <span class="keyword">from</span> sqlalchemy <span class="keyword">import</span> create_engine
+                                    engine = create_engine(<span class="string">'mysql://user:password@localhost/database'</span>)
+                                    df.to_sql(<span class="string">'employees'</span>, engine, if_exists=<span
+                                          class="string">'append'</span>, index=<span class="keyword">False</span>)
+                    
+                                    <span class="comment"># PostgreSQL</span>
+                                    engine = create_engine(<span class="string">'postgresql://user:password@localhost/database'</span>)
+                                    df.to_sql(<span class="string">'employees'</span>, engine, if_exists=<span
+                                          class="string">'replace'</span>, index=<span class="keyword">False</span>)
+                                </div>
+                    
+                                <h3>⚡ فرمت‌های سریع:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># Parquet (سریع و فشرده)</span>
+                                    df.to_parquet(<span class="string">'data.parquet'</span>)
+                    
+                                    <span class="comment"># Feather (سریع)</span>
+                                    df.to_feather(<span class="string">'data.feather'</span>)
+                    
+                                    <span class="comment"># HDF5 (برای داده‌های بزرگ)</span>
+                                    df.to_hdf(<span class="string">'data.h5'</span>, key=<span class="string">'df'</span>, mode=<span
+                                          class="string">'w'</span>)
+                    
+                                    <span class="comment"># Pickle (حفظ کامل ساختار)</span>
+                                    df.to_pickle(<span class="string">'data.pkl'</span>)
+                    
+                                    <span class="comment"># مقایسه سرعت خواندن</span>
+                                    <span class="keyword">import</span> time
+                    
+                                    <span class="comment"># CSV</span>
+                                    start = time.time()
+                                    df_csv = pd.read_csv(<span class="string">'data.csv'</span>)
+                                    csv_time = time.time() - start
+                    
+                                    <span class="comment"># Parquet</span>
+                                    start = time.time()
+                                    df_parquet = pd.read_parquet(<span class="string">'data.parquet'</span>)
+                                    parquet_time = time.time() - start
+                    
+                                    <span class="function">print</span>(<span class="string">f"CSV: {csv_time:.3f}s, Parquet:
+                                        {parquet_time:.3f}s"</span>)
+                                </div>
+                    
+                                <h3>📋 کپی به کلیپ‌بورد:</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># کپی کل DataFrame</span>
+                                    df.to_clipboard()
+                    
+                                    <span class="comment"># کپی بخش خاص</span>
+                                    df.head(<span class="number">10</span>).to_clipboard(index=<span class="keyword">False</span>)
+                    
+                                    <span class="comment"># خواندن از کلیپ‌بورد</span>
+                                    df_from_clipboard = pd.read_clipboard()
+                    
+                                    <span class="comment"># کپی آمار</span>
+                                    df.describe().to_clipboard()
+                                </div>
+                    
+                                <div class="comparison-grid">
+                                    <div class="comparison-item">
+                                        <div class="comparison-title">🐌 فرمت‌های کند</div>
+                                        <ul class="feature-list">
+                                            <li>CSV - متن ساده</li>
+                                            <li>Excel - فرمت‌بندی</li>
+                                            <li>JSON - وب سازگار</li>
+                                        </ul>
+                                    </div>
+                                    <div class="comparison-item">
+                                        <div class="comparison-title">⚡ فرمت‌های سریع</div>
+                                        <ul class="feature-list">
+                                            <li>Parquet - فشرده و سریع</li>
+                                            <li>Feather - خیلی سریع</li>
+                                            <li>HDF5 - داده بزرگ</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                    
+                                <div class="method-grid">
+                                    <div class="method-card">
+                                        <div class="method-name">.to_csv()</div>
+                                        <div class="method-desc">ذخیره CSV</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.to_excel()</div>
+                                        <div class="method-desc">ذخیره Excel</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.to_parquet()</div>
+                                        <div class="method-desc">ذخیره سریع</div>
+                                    </div>
+                                    <div class="method-card">
+                                        <div class="method-name">.to_sql()</div>
+                                        <div class="method-desc">ذخیره پایگاه داده</div>
+                                    </div>
+                                </div>
+                    
+                                <div class="tip-box">
+                                    <div class="tip-title">💡 توصیه:</div>
+                                    برای پروژه‌های بزرگ از Parquet استفاده کنید - سریع‌تر و کم‌حجم‌تر است
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- اسلاید 13: پروژه عملی -->
+                        <div class="slide"
+                             id="slide13">
+                            <div class="slide-number">13/13</div>
+                            <button class="expand-btn"
+                                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                            <button class="close-btn"
+                                    onclick="closeSlide(this)">×</button>
+                            <div class="icon">🚀</div>
+                            <div class="slide-title">پروژه عملی: تحلیل فروش فروشگاه</div>
+                            <div class="slide-content">
+                                <h3>📊 مرحله 1: تولید داده نمونه</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+                                    <span class="keyword">import</span> numpy <span class="keyword">as</span> np
+                                    <span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+                    
+                                    <span class="comment"># تنظیم seed</span>
+                                    np.random.seed(<span class="number">42</span>)
+                    
+                                    <span class="comment"># تولید داده فروش</span>
+                                    n_records = <span class="number">1000</span>
+                    
+                                    <span class="comment"># محصولات</span>
+                                    products = [<span class="string">'لپ‌تاپ'</span>, <span class="string">'موبایل'</span>, <span
+                                          class="string">'تبلت'</span>, <span class="string">'هدفون'</span>, <span
+                                          class="string">'کیبورد'</span>, <span class="string">'ماوس'</span>]
+                                    categories = [<span class="string">'کامپیوتر'</span>, <span class="string">'موبایل'</span>, <span
+                                          class="string">'کامپیوتر'</span>, <span class="string">'لوازم جانبی'</span>, <span
+                                          class="string">'لوازم جانبی'</span>, <span class="string">'لوازم جانبی'</span>]
+                    
+                                    <span class="comment"># شهرها</span>
+                                    cities = [<span class="string">'تهران'</span>, <span class="string">'اصفهان'</span>, <span
+                                          class="string">'شیراز'</span>, <span class="string">'مشهد'</span>, <span
+                                          class="string">'تبریز'</span>]
+                    
+                                    <span class="comment"># تولید داده</span>
+                                    data = {
+                                    <span class="string">'تاریخ'</span>: pd.date_range(start=<span class="string">'2023-01-01'</span>,
+                                    periods=n_records, freq=<span class="string">'H'</span>),
+                                    <span class="string">'محصول'</span>: np.random.choice(products, n_records),
+                                    <span class="string">'دسته_بندی'</span>: [categories[products.index(p)] <span class="keyword">for</span>
+                                    p <span class="keyword">in</span> np.random.choice(products, n_records)],
+                                    <span class="string">'تعداد'</span>: np.random.randint(<span class="number">1</span>, <span
+                                          class="number">10</span>, n_records),
+                                    <span class="string">'قیمت_واحد'</span>: np.random.randint(<span class="number">50000</span>, <span
+                                          class="number">5000000</span>, n_records),
+                                    <span class="string">'شهر'</span>: np.random.choice(cities, n_records),
+                                    <span class="string">'فروشنده'</span>: np.random.choice([<span class="string">'احمد'</span>, <span
+                                          class="string">'فاطمه'</span>, <span class="string">'علی'</span>, <span
+                                          class="string">'زهرا'</span>], n_records)
+                                    }
+                    
+                                    df = pd.DataFrame(data)
+                    
+                                    <span class="comment"># محاسبه مجموع فروش</span>
+                                    df[<span class="string">'مجموع_فروش'</span>] = df[<span class="string">'تعداد'</span>] * df[<span
+                                          class="string">'قیمت_واحد'</span>]
+                    
+                                    <span class="function">print</span>(<span class="string">f"تعداد رکورد: {len(df)}"</span>)
+                                    <span class="function">print</span>(df.head())
+                                </div>
+                    
+                                <h3>🔍 مرحله 2: بررسی اولیه داده</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># اطلاعات کلی</span>
+                                    <span class="function">print</span>(<span class="string">"=== اطلاعات کلی ==="</span>)
+                                    <span class="function">print</span>(df.info())
+                                    <span class="function">print</span>(<span class="string">f"\nشکل داده: {df.shape}"</span>)
+                    
+                                    <span class="comment"># آمار توصیفی</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== آمار توصیفی ==="</span>)
+                                    <span class="function">print</span>(df.describe())
+                    
+                                    <span class="comment"># بررسی مقادیر خالی</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== مقادیر خالی ==="</span>)
+                                    <span class="function">print</span>(df.isnull().sum())
+                    
+                                    <span class="comment"># بررسی تکراری</span>
+                                    <span class="function">print</span>(<span class="string">f"\nتعداد رکوردهای تکراری:
+                                        {df.duplicated().sum()}"</span>)
+                    
+                                    <span class="comment"># نمایش نمونه داده</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== نمونه داده ==="</span>)
+                                    <span class="function">print</span>(df.sample(<span class="number">5</span>))
+                                </div>
+                    
+                                <h3>📈 مرحله 3: تحلیل فروش</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># آمار کلی فروش</span>
+                                    <span class="function">print</span>(<span class="string">"=== آمار فروش ==="</span>)
+                                    total_sales = df[<span class="string">'مجموع_فروش'</span>].sum()
+                                    avg_sales = df[<span class="string">'مجموع_فروش'</span>].mean()
+                                    <span class="function">print</span>(<span class="string">f"مجموع فروش: {total_sales:,} تومان"</span>)
+                                    <span class="function">print</span>(<span class="string">f"میانگین فروش هر سفارش: {avg_sales:,.0f}
+                                        تومان"</span>)
+                    
+                                    <span class="comment"># فروش بر اساس محصول</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== فروش بر اساس محصول ==="</span>)
+                                    product_sales = df.groupby(<span class="string">'محصول'</span>).agg({
+                                    <span class="string">'مجموع_فروش'</span>: [<span class="string">'sum'</span>, <span
+                                          class="string">'mean'</span>, <span class="string">'count'</span>],
+                                    <span class="string">'تعداد'</span>: <span class="string">'sum'</span>
+                                    }).round(<span class="number">0</span>)
+                                    <span class="function">print</span>(product_sales)
+                    
+                                    <span class="comment"># فروش بر اساس شهر</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== فروش بر اساس شهر ==="</span>)
+                                    city_sales = df.groupby(<span class="string">'شهر'</span>)[<span
+                                          class="string">'مجموع_فروش'</span>].sum().sort_values(ascending=<span
+                                          class="keyword">False</span>)
+                                    <span class="function">print</span>(city_sales)
+                    
+                                    <span class="comment"># عملکرد فروشندگان</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== عملکرد فروشندگان ==="</span>)
+                                    seller_performance = df.groupby(<span class="string">'فروشنده'</span>).agg({
+                                    <span class="string">'مجموع_فروش'</span>: <span class="string">'sum'</span>,
+                                    <span class="string">'تاریخ'</span>: <span class="string">'count'</span> <span class="comment"># تعداد
+                                        فروش</span>
+                                    }).rename(columns={<span class="string">'تاریخ'</span>: <span class="string">'تعداد_فروش'</span>})
+                                    seller_performance[<span class="string">'میانگین_فروش'</span>] = seller_performance[<span
+                                          class="string">'مجموع_فروش'</span>] / seller_performance[<span class="string">'تعداد_فروش'</span>]
+                                    <span class="function">print</span>(seller_performance.sort_values(<span
+                                          class="string">'مجموع_فروش'</span>, ascending=<span class="keyword">False</span>))
+                                </div>
+                    
+                                <h3>📅 مرحله 4: تحلیل زمانی</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># اضافه کردن ستون‌های زمانی</span>
+                                    df[<span class="string">'سال'</span>] = df[<span class="string">'تاریخ'</span>].dt.year
+                                    df[<span class="string">'ماه'</span>] = df[<span class="string">'تاریخ'</span>].dt.month
+                                    df[<span class="string">'روز_هفته'</span>] = df[<span class="string">'تاریخ'</span>].dt.day_name()
+                                    df[<span class="string">'ساعت'</span>] = df[<span class="string">'تاریخ'</span>].dt.hour
+                    
+                                    <span class="comment"># فروش ماهانه</span>
+                                    <span class="function">print</span>(<span class="string">"=== فروش ماهانه ==="</span>)
+                                    monthly_sales = df.groupby(<span class="string">'ماه'</span>)[<span
+                                          class="string">'مجموع_فروش'</span>].sum()
+                                    <span class="function">print</span>(monthly_sales)
+                    
+                                    <span class="comment"># فروش در روزهای هفته</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== فروش روزهای هفته ==="</span>)
+                                    weekday_sales = df.groupby(<span class="string">'روز_هفته'</span>)[<span
+                                          class="string">'مجموع_فروش'</span>].mean()
+                                    <span class="function">print</span>(weekday_sales.sort_values(ascending=<span
+                                          class="keyword">False</span>))
+                    
+                                    <span class="comment"># فروش ساعتی</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== فروش بر اساس ساعت ==="</span>)
+                                    hourly_sales = df.groupby(<span class="string">'ساعت'</span>)[<span
+                                          class="string">'مجموع_فروش'</span>].mean()
+                                    peak_hour = hourly_sales.idxmax()
+                                    <span class="function">print</span>(<span class="string">f"ساعت پیک فروش: {peak_hour}:00"</span>)
+                                    <span class="function">print</span>(<span class="string">f"میانگین فروش در ساعت پیک:
+                                        {hourly_sales[peak_hour]:,.0f} تومان"</span>)
+                                </div>
+                    
+                                <h3>🎯 مرحله 5: تحلیل پیشرفته</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># محصولات پرفروش</span>
+                                    <span class="function">print</span>(<span class="string">"=== محصولات پرفروش ==="</span>)
+                                    top_products = df.groupby(<span class="string">'محصول'</span>)[<span
+                                          class="string">'تعداد'</span>].sum().sort_values(ascending=<span class="keyword">False</span>)
+                                    <span class="function">print</span>(top_products)
+                    
+                                    <span class="comment"># تحلیل سبد خرید</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== تحلیل سبد خرید ==="</span>)
+                                    avg_basket_size = df[<span class="string">'تعداد'</span>].mean()
+                                    avg_basket_value = df[<span class="string">'مجموع_فروش'</span>].mean()
+                                    <span class="function">print</span>(<span class="string">f"میانگین تعداد اقلام در سبد:
+                                        {avg_basket_size:.1f}"</span>)
+                                    <span class="function">print</span>(<span class="string">f"میانگین ارزش سبد خرید:
+                                        {avg_basket_value:,.0f} تومان"</span>)
+                    
+                                    <span class="comment"># تحلیل قیمت</span>
+                                    <span class="function">print</span>(<span class="string">"\n=== تحلیل قیمت ==="</span>)
+                                    price_analysis = df.groupby(<span class="string">'دسته_بندی'</span>)[<span
+                                          class="string">'قیمت_واحد'</span>].agg([<span class="string">'mean'</span>, <span
+                                          class="string">'min'</span>, <span class="string">'max'</span>])
+                                    <span class="function">print</span>(price_analysis)
+                    
+                                    <span class="comment"># شناسایی مشتریان VIP (فروش بالا)</span>
+                                    high_value_threshold = df[<span class="string">'مجموع_فروش'</span>].quantile(<span
+                                          class="number">0.9</span>)
+                                    vip_sales = df[df[<span class="string">'مجموع_فروش'</span>] > high_value_threshold]
+                                    <span class="function">print</span>(<span class="string">f"\nتعداد فروش‌های VIP (بالای
+                                        {high_value_threshold:,.0f}): {len(vip_sales)}"</span>)
+                                </div>
+                    
+                                <h3>📊 مرحله 6: گزارش نهایی</h3>
+                                <div class="code-block">
+                                    <button class="copy-btn"
+                                            onclick="copyCode(this)">کپی</button>
+                                    <span class="comment"># تولید گزارش کامل</span>
+                                    <span class="keyword">def</span> <span class="function">generate_sales_report</span>(df):
+                                    <span class="function">print</span>(<span class="string">"="</span>*<span class="number">60</span>)
+                                    <span class="function">print</span>(<span class="string">"📊 گزارش تحلیل فروش فروشگاه"</span>)
+                                    <span class="function">print</span>(<span class="string">"="</span>*<span class="number">60</span>)
+                    
+                                    <span class="comment"># آمار کلی</span>
+                                    <span class="function">print</span>(<span class="string">f"📈 مجموع فروش: {df['مجموع_فروش'].sum():,}
+                                        تومان"</span>)
+                                    <span class="function">print</span>(<span class="string">f"🛒 تعداد سفارشات: {len(df):,}"</span>)
+                                    <span class="function">print</span>(<span class="string">f"💰 میانگین ارزش سفارش:
+                                        {df['مجموع_فروش'].mean():,.0f} تومان"</span>)
+                    
+                                    <span class="comment"># بهترین‌ها</span>
+                                    best_product = df.groupby(<span class="string">'محصول'</span>)[<span
+                                          class="string">'مجموع_فروش'</span>].sum().idxmax()
+                                    best_city = df.groupby(<span class="string">'شهر'</span>)[<span
+                                          class="string">'مجموع_فروش'</span>].sum().idxmax()
+                                    best_seller = df.groupby(<span class="string">'فروشنده'</span>)[<span
+                                          class="string">'مجموع_فروش'</span>].sum().idxmax()
+                    
+                                    <span class="function">print</span>(<span class="string">f"\n🏆 محصول پرفروش: {best_product}"</span>)
+                                    <span class="function">print</span>(<span class="string">f"🏙️ شهر پرفروش: {best_city}"</span>)
+                                    <span class="function">print</span>(<span class="string">f"👤 فروشنده برتر: {best_seller}"</span>)
+                    
+                                    <span class="comment"># ذخیره گزارش</span>
+                                    summary = {
+                                    <span class="string">'کل_فروش'</span>: df[<span class="string">'مجموع_فروش'</span>].sum(),
+                                    <span class="string">'تعداد_سفارش'</span>: len(df),
+                                    <span class="string">'میانگین_سفارش'</span>: df[<span class="string">'مجموع_فروش'</span>].mean(),
+                                    <span class="string">'محصول_برتر'</span>: best_product,
+                                    <span class="string">'شهر_برتر'</span>: best_city,
+                                    <span class="string">'فروشنده_برتر'</span>: best_seller
+                                    }
+                    
+                                    <span class="keyword">return</span> summary
+                    
+                                    <span class="comment"># تولید و نمایش گزارش</span>
+                                    report = generate_sales_report(df)
+                    
+                                    <span class="comment"># ذخیره داده‌ها</span>
+                                    df.to_csv(<span class="string">'sales_data.csv'</span>, index=<span class="keyword">False</span>)
+                                    df.to_excel(<span class="string">'sales_report.xlsx'</span>, index=<span class="keyword">False</span>)
+                    
+                                    <span class="function">print</span>(<span class="string">f"\n💾 داده‌ها در فایل‌های CSV و Excel ذخیره
+                                        شد"</span>)
+                                </div>
+                    
+                                <div class="exercise-box">
+                                    <div class="exercise-title">💪 تمرین عملی:</div>
+                                    <p>این پروژه را در Google Colab اجرا کنید و سپس:</p>
+                                    <ul>
+                                        <li>محصول جدیدی اضافه کنید</li>
+                                        <li>تحلیل فصلی انجام دهید</li>
+                                        <li>نمودار فروش ماهانه رسم کنید</li>
+                                        <li>گزارش PDF تولید کنید</li>
+                                    </ul>
+                                </div>
+                    
+                                <div class="stats-grid">
+                                    <div class="stat-item">
+                                        <span class="stat-number">1000</span>
+                                        <span class="stat-label">رکورد فروش</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">6</span>
+                                        <span class="stat-label">محصول</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">5</span>
+                                        <span class="stat-label">شهر</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">4</span>
+                                        <span class="stat-label">فروشنده</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- اسلاید 14: جمع‌بندی -->
+                        <div class="slide intro"
+                             id="slide14">
+                            <div class="slide-number">14/13</div>
+                            <button class="expand-btn"
+                                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                            <button class="close-btn"
+                                    onclick="closeSlide(this)">×</button>
+                            <div class="icon">🎯</div>
+                            <div class="slide-title">جمع‌بندی جلسه چهارم</div>
+                            <div class="slide-content">
+                                <h3>✅ آنچه یاد گرفتیم:</h3>
+                                <ul>
+                                    <li>معرفی و نصب Pandas</li>
+                                    <li>Series و DataFrame</li>
+                                    <li>خواندن انواع فایل‌ها</li>
+                                    <li>انتخاب و فیلتر کردن داده</li>
+                                    <li>عملیات آماری پیشرفته</li>
+                                    <li>گروه‌بندی و تجمیع</li>
+                                    <li>تمیز کردن و آماده‌سازی داده</li>
+                                    <li>ذخیره و صادرات داده</li>
+                                    <li>پیاده‌سازی پروژه کامل</li>
+                                </ul>
+                    
+                                <h3>🎯 نکات کلیدی:</h3>
+                                <div class="stats-grid">
+                                    <div class="stat-item">
+                                        <span class="stat-number">2</span>
+                                        <span class="stat-label">ساختار اصلی</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">100+</span>
+                                        <span class="stat-label">متد کاربردی</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">10+</span>
+                                        <span class="stat-label">فرمت فایل</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span class="stat-number">∞</span>
+                                        <span class="stat-label">امکانات</span>
+                                    </div>
+                                </div>
+                    
+                                <h3>📚 جلسه بعد:</h3>
+                                <div class="example-box">
+                                    <div class="example-title">🔜 پیش‌نمایش جلسه پنجم:</div>
+                                    <ul>
+                                        <li>📊 مصورسازی داده با Matplotlib</li>
+                                        <li>📈 انواع نمودارها</li>
+                                        <li>🎨 سفارشی‌سازی نمودارها</li>
+                                        <li>📋 داشبوردهای تعاملی</li>
+                                    </ul>
+                                </div>
+                    
+                                <h3>💪 تمرین خانگی:</h3>
+                                <div class="exercise-box">
+                                    <div class="exercise-title">🏠 کار در منزل:</div>
+                                    <ol>
+                                        <li>پروژه فروش را با داده‌های بیشتر گسترش دهید</li>
+                                        <li>فایل CSV واقعی پیدا کنید و تحلیل کنید</li>
+                                        <li>عملیات GroupBy پیشرفته تمرین کنید</li>
+                                        <li>گزارش Excel فرمت‌بندی شده تولید کنید</li>
+                                    </ol>
+                                </div>
+                    
+                                <h3>🔗 منابع بیشتر:</h3>
+                                <ul>
+                                    <li>📖 Pandas Documentation</li>
+                                    <li>🎥 Pandas Tutorial Videos</li>
+                                    <li>💻 Real-world Datasets</li>
+                                    <li>📚 Data Analysis Books</li>
+                                </ul>
+                    
+                                <div style="margin-top: 30px; text-align: center; font-size: 18px;">
+                                    🎉 <strong>تبریک! شما Pandas را فتح کردید!</strong> 🎉
+                                </div>
+                            </div>
+                        </div>
+                    
+                        </div>
+                        </div>
+                    
+                        <script>
+                            function expandSlide(button) {
+                                const slide = button.parentElement;
+                                const overlay = document.getElementById('overlay');
+
+                                slide.classList.add('expanded');
+                                overlay.classList.add('active');
+                                document.body.style.overflow = 'hidden';
+                            }
+
+                            function closeSlide(button) {
+                                const slide = button.parentElement;
+                                const overlay = document.getElementById('overlay');
+
+                                slide.classList.remove('expanded');
+                                overlay.classList.remove('active');
+                                document.body.style.overflow = 'auto';
+                            }
+
+                            // بستن با کلیک روی overlay
+                            document.getElementById('overlay').addEventListener('click', function () {
+                                const expandedSlide = document.querySelector('.slide.expanded');
+                                if (expandedSlide) {
+                                    closeSlide(expandedSlide.querySelector('.close-btn'));
+                                }
+                            });
+
+                            // بستن با ESC
+                            document.addEventListener('keydown', function (e) {
+                                if (e.key === 'Escape') {
+                                    const expandedSlide = document.querySelector('.slide.expanded');
+                                    if (expandedSlide) {
+                                        closeSlide(expandedSlide.querySelector('.close-btn'));
+                                    }
+                                }
+                            });
+
+                            // Navigation
+                            document.querySelectorAll('.nav-item').forEach(item => {
+                                item.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    const targetId = this.getAttribute('href').substring(1);
+                                    const targetSlide = document.getElementById(targetId);
+                                    if (targetSlide) {
+                                        targetSlide.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                });
+                            });
+
+                            // کپی کردن کد
+                            function copyCode(button) {
+                                const codeBlock = button.parentElement;
+                                const code = codeBlock.textContent.replace('کپی', '').trim();
+
+                                navigator.clipboard.writeText(code).then(function () {
+                                    button.textContent = '✅ کپی شد';
+                                    button.style.background = '#48bb78';
+
+                                    setTimeout(function () {
+                                        button.textContent = 'کپی';
+                                        button.style.background = '#667eea';
+                                    }, 2000);
+                                });
+                            }
+
+                            // Intersection Observer برای highlight کردن navigation
+                            const observer = new IntersectionObserver((entries) => {
+                                entries.forEach(entry => {
+                                    if (entry.isIntersecting) {
+                                        const id = entry.target.id;
+                                        document.querySelectorAll('.nav-item').forEach(item => {
+                                            item.classList.remove('active');
+                                            if (item.getAttribute('href') === `#${id}`) {
+                                                item.classList.add('active');
+                                            }
+                                        });
+                                    }
+                                });
+                            }, { threshold: 0.5 });
+
+                            document.querySelectorAll('.slide').forEach(slide => {
+                                observer.observe(slide);
+                            });
+
+                            // اسکرول نرم
+                            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                                anchor.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    const target = document.querySelector(this.getAttribute('href'));
+                                    if (target) {
+                                        target.scrollIntoView({
+                                            behavior: 'smooth',
+                                            block: 'center'
+                                        });
+                                    }
+                                });
+                            });
+                        </script>
+                        </body>
+                    
+                        </html>

@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسه نهم: پروژه‌های عملی و کاربردی علم داده</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .slide {
+            display: none;
+            padding: 40px;
+            min-height: 600px;
+            position: relative;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .expand-btn, .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .expand-btn {
+            background: #27ae60;
+        }
+
+        .expand-btn:hover, .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .close-btn {
+            display: none;
+        }
+
+        .slide.expanded .close-btn {
+            display: block;
+        }
+
+        .slide.expanded .expand-btn {
+            display: none;
+        }
+
+        .icon {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .slide-title {
+            font-size: 2.5em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+        }
+
+        .slide-content {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .slide-content h3 {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+            border-right: 4px solid #3498db;
+            padding-right: 15px;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow-x: auto;
+            border-right: 5px solid #3498db;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .keyword { color: #e74c3c; font-weight: bold; }
+        .string { color: #2ecc71; }
+        .comment { color: #95a5a6; font-style: italic; }
+        .function { color: #f39c12; }
+        .number { color: #9b59b6; }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .method-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .method-desc {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-right: 5px solid #00b894;
+        }
+
+        .tip-title {
+            font-weight: bold;
+            color: #00695c;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .tip-box ul {
+            margin-right: 20px;
+        }
+
+        .tip-box li {
+            margin-bottom: 8px;
+            color: #004d40;
+        }
+
+        .navigation {
+            background: #34495e;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .navigation button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            margin: 0 10px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .navigation button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .navigation button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #slideInfo {
+            color: white;
+            font-size: 18px;
+            margin: 0 20px;
+        }
+
+        .slide-list {
+            background: #ecf0f1;
+            padding: 20px;
+        }
+
+        .slide-list h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .slide-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .slide-links a {
+            background: white;
+            color: #2c3e50;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-right: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .slide-links a:hover {
+            background: #3498db;
+            color: white;
+            transform: translateX(-5px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .project-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .project-desc {
+            text-align: center;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid #3498db;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .challenge-box {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .challenge-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .success-badge {
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: bold;
+            margin: 20px auto;
+            display: block;
+            width: fit-content;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .final-message {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .final-message h2 {
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .final-message p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 جلسه نهم: پروژه‌های عملی و کاربردی علم داده</h1>
+            <p>پیاده‌سازی پروژه‌های واقعی و حرفه‌ای در حوزه علم داده</p>
+        </div>
+
+        <div class="slides-container">
+            <!-- اسلاید 1: معرفی پروژه‌های عملی -->
+            <div class="slide" id="slide1">
+                <div class="slide-number">1/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🎯</div>
+                <div class="slide-title">معرفی پروژه‌های عملی علم داده</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">🌟 خوش آمدید به جلسه پروژه‌های عملی!</div>
+                        <div class="project-desc">
+                            در این جلسه، پروژه‌های واقعی و کاربردی در حوزه علم داده را پیاده‌سازی خواهیم کرد.
+                            هر پروژه شامل تحلیل کامل داده، مصورسازی و ارائه نتایج عملی است.
+                        </div>
+                    </div>
+
+                    <h3>🎯 اهداف جلسه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># اهداف جلسه نهم: پروژه‌های عملی علم داده</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+<span class="keyword">import</span> warnings
+warnings.filterwarnings(<span class="string">'ignore'</span>)
+
+<span class="function">print</span>(<span class="string">"""
+🎯 اهداف جلسه نهم:
+================
+
+1️⃣ پروژه تحلیل فروش فروشگاه آنلاین
+   - تحلیل روند فروش
+   - شناسایی بهترین محصولات
+   - تحلیل رفتار مشتریان
+
+2️⃣ پروژه تحلیل داده‌های املاک
+   - پیش‌بینی قیمت خانه
+   - تحلیل عوامل مؤثر بر قیمت
+   - نقشه‌برداری قیمت‌ها
+
+3️⃣ پروژه تحلیل شبکه‌های اجتماعی
+   - تحلیل پست‌ها و کامنت‌ها
+   - شناسایی ترندهای محبوب
+   - تحلیل احساسات
+
+4️⃣ پروژه تحلیل داده‌های مالی
+   - تحلیل سهام
+   - پیش‌بینی قیمت
+   - مدیریت ریسک
+
+5️⃣ پروژه تحلیل داده‌های سلامت
+   - تحلیل آمار بیماری‌ها
+   - پیش‌بینی اپیدمی
+   - بهینه‌سازی منابع درمانی
+
+💡 مهارت‌های کسب شده:
+- تحلیل داده‌های واقعی
+- ایجاد داشبوردهای تعاملی
+- پیاده‌سازی مدل‌های پیش‌بینی
+- ارائه نتایج به صورت حرفه‌ای
+- حل مسائل کسب‌وکار با داده
+"""</span>)
+
+<span class="comment"># تنظیمات اولیه برای پروژه‌ها</span>
+plt.style.use(<span class="string">'seaborn-v0_8'</span>)
+sns.set_palette(<span class="string">"husl"</span>)
+pd.set_option(<span class="string">'display.max_columns'</span>, <span class="keyword">None</span>)
+pd.set_option(<span class="string">'display.width'</span>, <span class="keyword">None</span>)
+
+<span class="function">print</span>(<span class="string">"✅ محیط آماده پروژه‌های عملی شد!"</span>)
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">پروژه عملی</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">15</div>
+                            <div class="stat-label">تکنیک تحلیل</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">10</div>
+                            <div class="stat-label">نوع مصورسازی</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">100%</div>
+                            <div class="stat-label">کاربردی</div>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات مهم پروژه‌های عملی:</div>
+                        <ul>
+                            <li><strong>Real Data:</strong> کار با داده‌های واقعی و پیچیده</li>
+                            <li><strong>Business Context:</strong> درک مسائل کسب‌وکار</li>
+                            <li><strong>End-to-End:</strong> پروژه‌های کامل از ابتدا تا انتها</li>
+                            <li><strong>Actionable Insights:</strong> نتایج قابل اجرا و عملی</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 2: پروژه اول - تحلیل فروش فروشگاه آنلاین -->
+            <div class="slide" id="slide2">
+                <div class="slide-number">2/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🛒</div>
+                <div class="slide-title">پروژه اول: تحلیل فروش فروشگاه آنلاین</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">🛒 سیستم تحلیل فروش E-Commerce</div>
+                        <div class="project-desc">
+                            تحلیل جامع داده‌های فروش یک فروشگاه آنلاین شامل بررسی روندها، 
+                            شناسایی محصولات پرفروش و تحلیل رفتار خریداران
+                        </div>
+                    </div>
+
+                    <h3>📊 مرحله 1: تولید و بارگذاری داده‌ها</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه 1: تحلیل فروش فروشگاه آنلاین</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+<span class="keyword">import</span> random
+
+<span class="function">print</span>(<span class="string">"🛒 پروژه 1: تحلیل فروش فروشگاه آنلاین"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">50</span>)
+
+<span class="comment"># تولید داده‌های واقعی فروشگاه آنلاین</span>
+np.random.seed(<span class="number">42</span>)
+
+<span class="comment"># 1. جدول محصولات</span>
+products_data = {
+    <span class="string">'product_id'</span>: <span class="function">range</span>(<span class="number">1</span>, <span class="number">51</span>),
+    <span class="string">'product_name'</span>: [
+        <span class="string">'لپ‌تاپ گیمینگ'</span>, <span class="string">'گوشی هوشمند'</span>, <span class="string">'هدفون بلوتوث'</span>, <span class="string">'کیبورد مکانیکی'</span>, <span class="string">'ماوس گیمینگ'</span>,
+        <span class="string">'مانیتور 4K'</span>, <span class="string">'دوربین دیجیتال'</span>, <span class="string">'اسپیکر بلوتوث'</span>, <span class="string">'پاوربانک'</span>, <span class="string">'کابل شارژ'</span>,
+        <span class="string">'کیف لپ‌تاپ'</span>, <span class="string">'استند لپ‌تاپ'</span>, <span class="string">'وب‌کم HD'</span>, <span class="string">'میکروفون USB'</span>, <span class="string">'هارد اکسترنال'</span>,
+        <span class="string">'فلش مموری'</span>, <span class="string">'کارت حافظه'</span>, <span class="string">'شارژر بی‌سیم'</span>, <span class="string">'پایه نگهدارنده گوشی'</span>, <span class="string">'محافظ صفحه'</span>,
+        <span class="string">'کاور گوشی'</span>, <span class="string">'ساعت هوشمند'</span>, <span class="string">'ایرپاد'</span>, <span class="string">'اسپیکر خانگی'</span>, <span class="string">'روتر وای‌فای'</span>,
+        <span class="string">'تبلت اندروید'</span>, <span class="string">'کیبورد بی‌سیم'</span>, <span class="string">'ماوس بی‌سیم'</span>, <span class="string">'پد ماوس'</span>, <span class="string">'لامپ LED'</span>,
+        <span class="string">'پنکه USB'</span>, <span class="string">'گرمکن USB'</span>, <span class="string">'هاب USB'</span>, <span class="string">'مبدل Type-C'</span>, <span class="string">'کابل HDMI'</span>,
+        <span class="string">'کابل VGA'</span>, <span class="string">'سوئیچ HDMI'</span>, <span class="string">'رم لپ‌تاپ'</span>, <span class="string">'SSD اینترنال'</span>, <span class="string">'کیس کامپیوتر'</span>,
+        <span class="string">'منبع تغذیه'</span>, <span class="string">'کارت گرافیک'</span>, <span class="string">'مادربرد'</span>, <span class="string">'پردازنده'</span>, <span class="string">'کولر CPU'</span>,
+        <span class="string">'فن کیس'</span>, <span class="string">'کابل برق'</span>, <span class="string">'محافظ برق'</span>, <span class="string">'UPS خانگی'</span>, <span class="string">'پرینتر لیزری'</span>
+    ],
+    <span class="string">'category'</span>: [
+        <span class="string">'لپ‌تاپ'</span>, <span class="string">'موبایل'</span>, <span class="string">'صوتی'</span>, <span class="string">'ورودی'</span>, <span class="string">'ورودی'</span>,
+        <span class="string">'نمایشگر'</span>, <span class="string">'عکاسی'</span>, <span class="string">'صوتی'</span>, <span class="string">'باتری'</span>, <span class="string">'کابل'</span>,
+        <span class="string">'لوازم جانبی'</span>, <span class="string">'لوازم جانبی'</span>, <span class="string">'عکاسی'</span>, <span class="string">'صوتی'</span>, <span class="string">'ذخیره‌سازی'</span>,
+        <span class="string">'ذخیره‌سازی'</span>, <span class="string">'ذخیره‌سازی'</span>, <span class="string">'شارژر'</span>, <span class="string">'لوازم جانبی'</span>, <span class="string">'لوازم جانبی'</span>,
+        <span class="string">'لوازم جانبی'</span>, <span class="string">'پوشیدنی'</span>, <span class="string">'صوتی'</span>, <span class="string">'صوتی'</span>, <span class="string">'شبکه'</span>,
+        <span class="string">'تبلت'</span>, <span class="string">'ورودی'</span>, <span class="string">'ورودی'</span>, <span class="string">'لوازم جانبی'</span>, <span class="string">'روشنایی'</span>,
+        <span class="string">'لوازم جانبی'</span>, <span class="string">'لوازم جانبی'</span>, <span class="string">'کابل'</span>, <span class="string">'کابل'</span>, <span class="string">'کابل'</span>,
+        <span class="string">'کابل'</span>, <span class="string">'کابل'</span>, <span class="string">'سخت‌افزار'</span>, <span class="string">'سخت‌افزار'</span>, <span class="string">'سخت‌افزار'</span>,
+        <span class="string">'سخت‌افزار'</span>, <span class="string">'سخت‌افزار'</span>, <span class="string">'سخت‌افزار'</span>, <span class="string">'سخت‌افزار'</span>, <span class="string">'سخت‌افزار'</span>,
+        <span class="string">'سخت‌افزار'</span>, <span class="string">'برق'</span>, <span class="string">'برق'</span>, <span class="string">'برق'</span>, <span class="string">'چاپگر'</span>
+    ],
+    <span class="string">'price'</span>: [
+        <span class="number">25000000</span>, <span class="number">8000000</span>, <span class="number">500000</span>, <span class="number">1200000</span>, <span class="number">800000</span>,
+        <span class="number">15000000</span>, <span class="number">12000000</span>, <span class="number">2000000</span>, <span class="number">400000</span>, <span class="number">50000</span>,
+        <span class="number">300000</span>, <span class="number">600000</span>, <span class="number">1500000</span>, <span class="number">700000</span>, <span class="number">3000000</span>,
+        <span class="number">200000</span>, <span class="number">150000</span>, <span class="number">800000</span>, <span class="number">100000</span>, <span class="number">80000</span>,
+        <span class="number">120000</span>, <span class="number">5000000</span>, <span class="number">3000000</span>, <span class="number">4000000</span>, <span class="number">2500000</span>,
+        <span class="number">6000000</span>, <span class="number">900000</span>, <span class="number">600000</span>, <span class="number">150000</span>, <span class="number">250000</span>,
+        <span class="number">180000</span>, <span class="number">200000</span>, <span class="number">300000</span>, <span class="number">180000</span>, <span class="number">250000</span>,
+        <span class="number">200000</span>, <span class="number">400000</span>, <span class="number">1800000</span>, <span class="number">2500000</span>, <span class="number">1200000</span>,
+        <span class="number">3500000</span>, <span class="number">18000000</span>, <span class="number">8000000</span>, <span class="number">15000000</span>, <span class="number">500000</span>,
+        <span class="number">150000</span>, <span class="number">80000</span>, <span class="number">600000</span>, <span class="number">4000000</span>, <span class="number">3500000</span>
+    ],
+    <span class="string">'cost'</span>: [p * <span class="number">0.65</span> <span class="keyword">for</span> p <span class="keyword">in</span> [
+        <span class="number">25000000</span>, <span class="number">8000000</span>, <span class="number">500000</span>, <span class="number">1200000</span>, <span class="number">800000</span>,
+        <span class="number">15000000</span>, <span class="number">12000000</span>, <span class="number">2000000</span>, <span class="number">400000</span>, <span class="number">50000</span>,
+        <span class="number">300000</span>, <span class="number">600000</span>, <span class="number">1500000</span>, <span class="number">700000</span>, <span class="number">3000000</span>,
+        <span class="number">200000</span>, <span class="number">150000</span>, <span class="number">800000</span>, <span class="number">100000</span>, <span class="number">80000</span>,
+        <span class="number">120000</span>, <span class="number">5000000</span>, <span class="number">3000000</span>, <span class="number">4000000</span>, <span class="number">2500000</span>,
+        <span class="number">6000000</span>, <span class="number">900000</span>, <span class="number">600000</span>, <span class="number">150000</span>, <span class="number">250000</span>,
+        <span class="number">180000</span>, <span class="number">200000</span>, <span class="number">300000</span>, <span class="number">180000</span>, <span class="number">250000</span>,
+        <span class="number">200000</span>, <span class="number">400000</span>, <span class="number">1800000</span>, <span class="number">2500000</span>, <span class="number">1200000</span>,
+        <span class="number">3500000</span>, <span class="number">18000000</span>, <span class="number">8000000</span>, <span class="number">15000000</span>, <span class="number">500000</span>,
+        <span class="number">150000</span>, <span class="number">80000</span>, <span class="number">600000</span>, <span class="number">4000000</span>, <span class="number">3500000</span>
+    ]]
+}
+
+products_df = pd.DataFrame(products_data)
+products_df[<span class="string">'profit_margin'</span>] = (products_df[<span class="string">'price'</span>] - products_df[<span class="string">'cost'</span>]) / products_df[<span class="string">'price'</span>]
+
+<span class="function">print</span>(<span class="string">f"📦 محصولات: {len(products_df)} عدد"</span>)
+<span class="function">print</span>(<span class="string">f"دسته‌بندی‌ها: {products_df['category'].nunique()} دسته"</span>)
+<span class="function">print</span>(<span class="string">f"محدوده قیمت: {products_df['price'].min():,} تا {products_df['price'].max():,} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"\nنمونه محصولات:\n{products_df[['product_name', 'category', 'price']].head()}"</span>)
+                    </div>
+
+                    <h3>👥 مرحله 2: تولید داده‌های مشتریان و فروش</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># 2. جدول مشتریان</span>
+customers_data = {
+    <span class="string">'customer_id'</span>: <span class="function">range</span>(<span class="number">1</span>, <span class="number">201</span>),
+    <span class="string">'name'</span>: [<span class="string">f'مشتری_{i}'</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">201</span>)],
+    <span class="string">'age'</span>: np.random.randint(<span class="number">18</span>, <span class="number">65</span>, <span class="number">200</span>),
+    <span class="string">'gender'</span>: np.random.choice([<span class="string">'مرد'</span>, <span class="string">'زن'</span>], <span class="number">200</span>),
+    <span class="string">'city'</span>: np.random.choice([<span class="string">'تهران'</span>, <span class="string">'اصفهان'</span>, <span class="string">'شیراز'</span>, <span class="string">'مشهد'</span>, <span class="string">'تبریز'</span>, <span class="string">'کرج'</span>, <span class="string">'اهواز'</span>], <span class="number">200</span>),
+    <span class="string">'registration_date'</span>: pd.date_range(<span class="string">'2023-01-01'</span>, periods=<span class="number">200</span>, freq=<span class="string">'2D'</span>),
+    <span class="string">'customer_type'</span>: np.random.choice([<span class="string">'عادی'</span>, <span class="string">'VIP'</span>, <span class="string">'طلایی'</span>], <span class="number">200</span>, p=[<span class="number">0.7</span>, <span class="number">0.2</span>, <span class="number">0.1</span>])
+}
+
+customers_df = pd.DataFrame(customers_data)
+
+<span class="comment"># 3. جدول فروش (6 ماه داده)</span>
+<span class="function">print</span>(<span class="string">f"\n🛍️ تولید داده‌های فروش..."</span>)
+
+<span class="comment"># تولید 5000 تراکنش فروش</span>
+n_sales = <span class="number">5000</span>
+sales_data = []
+
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(n_sales):
+    <span class="comment"># انتخاب تصادفی مشتری و محصول</span>
+    customer_id = np.random.choice(customers_df[<span class="string">'customer_id'</span>])
+    product_id = np.random.choice(products_df[<span class="string">'product_id'</span>])
+    
+    <span class="comment"># تاریخ فروش (6 ماه گذشته)</span>
+    start_date = datetime(<span class="number">2024</span>, <span class="number">3</span>, <span class="number">1</span>)
+    end_date = datetime(<span class="number">2024</span>, <span class="number">9</span>, <span class="number">1</span>)
+    sale_date = start_date + timedelta(
+        days=np.random.randint(<span class="number">0</span>, (end_date - start_date).days)
+    )
+    
+    <span class="comment"># تعداد و تخفیف</span>
+    quantity = np.random.randint(<span class="number">1</span>, <span class="number">4</span>)
+    
+    <span class="comment"># تخفیف بر اساس نوع مشتری</span>
+    customer_type = customers_df[customers_df[<span class="string">'customer_id'</span>] == customer_id][<span class="string">'customer_type'</span>].iloc[<span class="number">0</span>]
+    <span class="keyword">if</span> customer_type == <span class="string">'VIP'</span>:
+        discount = np.random.choice([<span class="number">10</span>, <span class="number">15</span>, <span class="number">20</span>], p=[<span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.3</span>])
+    <span class="keyword">elif</span> customer_type == <span class="string">'طلایی'</span>:
+        discount = np.random.choice([<span class="number">15</span>, <span class="number">20</span>, <span class="number">25</span>], p=[<span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.3</span>])
+    <span class="keyword">else</span>:
+        discount = np.random.choice([<span class="number">0</span>, <span class="number">5</span>, <span class="number">10</span>], p=[<span class="number">0.5</span>, <span class="number">0.3</span>, <span class="number">0.2</span>])
+    
+    <span class="comment"># امتیاز رضایت</span>
+    rating = np.random.choice([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>], p=[<span class="number">0.02</span>, <span class="number">0.05</span>, <span class="number">0.13</span>, <span class="number">0.35</span>, <span class="number">0.45</span>])
+    
+    sales_data.append({
+        <span class="string">'sale_id'</span>: i + <span class="number">1</span>,
+        <span class="string">'customer_id'</span>: customer_id,
+        <span class="string">'product_id'</span>: product_id,
+        <span class="string">'sale_date'</span>: sale_date,
+        <span class="string">'quantity'</span>: quantity,
+        <span class="string">'discount_percent'</span>: discount,
+        <span class="string">'rating'</span>: rating
+    })
+
+sales_df = pd.DataFrame(sales_data)
+
+<span class="comment"># ادغام داده‌ها</span>
+sales_detailed = sales_df.merge(products_df, on=<span class="string">'product_id'</span>).merge(customers_df, on=<span class="string">'customer_id'</span>)
+
+<span class="comment"># محاسبات مالی</span>
+sales_detailed[<span class="string">'unit_price_after_discount'</span>] = sales_detailed[<span class="string">'price'</span>] * (
+    <span class="number">1</span> - sales_detailed[<span class="string">'discount_percent'</span>] / <span class="number">100</span>
+)
+sales_detailed[<span class="string">'total_revenue'</span>] = sales_detailed[<span class="string">'quantity'</span>] * sales_detailed[<span class="string">'unit_price_after_discount'</span>]
+sales_detailed[<span class="string">'total_cost'</span>] = sales_detailed[<span class="string">'quantity'</span>] * sales_detailed[<span class="string">'cost'</span>]
+sales_detailed[<span class="string">'total_profit'</span>] = sales_detailed[<span class="string">'total_revenue'</span>] - sales_detailed[<span class="string">'total_cost'</span>]
+
+<span class="comment"># اضافه کردن ویژگی‌های زمانی</span>
+sales_detailed[<span class="string">'year'</span>] = sales_detailed[<span class="string">'sale_date'</span>].dt.year
+sales_detailed[<span class="string">'month'</span>] = sales_detailed[<span class="string">'sale_date'</span>].dt.month
+sales_detailed[<span class="string">'day_of_week'</span>] = sales_detailed[<span class="string">'sale_date'</span>].dt.day_name()
+sales_detailed[<span class="string">'is_weekend'</span>] = sales_detailed[<span class="string">'sale_date'</span>].dt.weekday >= <span class="number">5</span>
+
+<span class="function">print</span>(<span class="string">f"✅ داده‌های فروش آماده شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد فروش: {len(sales_detailed):,}"</span>)
+<span class="function">print</span>(<span class="string">f"مشتریان فعال: {sales_detailed['customer_id'].nunique()}"</span>)
+<span class="function">print</span>(<span class="string">f"محصولات فروخته شده: {sales_detailed['product_id'].nunique()}"</span>)
+<span class="function">print</span>(<span class="string">f"کل درآمد: {sales_detailed['total_revenue'].sum():,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"کل سود: {sales_detailed['total_profit'].sum():,.0f} تومان"</span>)
+                    </div>
+
+                    <h3>📈 مرحله 3: تحلیل اولیه و آمار توصیفی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل اولیه داده‌ها</span>
+<span class="function">print</span>(<span class="string">f"\n📊 تحلیل اولیه داده‌های فروش:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># آمار کلی</span>
+total_revenue = sales_detailed[<span class="string">'total_revenue'</span>].sum()
+total_profit = sales_detailed[<span class="string">'total_profit'</span>].sum()
+total_transactions = len(sales_detailed)
+unique_customers = sales_detailed[<span class="string">'customer_id'</span>].nunique()
+avg_order_value = total_revenue / total_transactions
+
+<span class="function">print</span>(<span class="string">f"💰 آمار مالی:"</span>)
+<span class="function">print</span>(<span class="string">f"کل درآمد: {total_revenue:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"کل سود: {total_profit:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"حاشیه سود: {(total_profit/total_revenue)*100:.1f}%"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین ارزش سفارش: {avg_order_value:,.0f} تومان"</span>)
+
+<span class="function">print</span>(<span class="string">f"\n👥 آمار مشتریان:"</span>)
+<span class="function">print</span>(<span class="string">f"کل تراکنش‌ها: {total_transactions:,}"</span>)
+<span class="function">print</span>(<span class="string">f"مشتریان فعال: {unique_customers} نفر"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین تراکنش هر مشتری: {total_transactions/unique_customers:.1f}"</span>)
+
+<span class="comment"># تحلیل دسته‌بندی محصولات</span>
+<span class="function">print</span>(<span class="string">f"\n📦 تحلیل دسته‌بندی محصولات:"</span>)
+category_analysis = sales_detailed.groupby(<span class="string">'category'</span>).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'total_profit'</span>: <span class="string">'sum'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'rating'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+category_analysis.columns = [<span class="string">'درآمد'</span>, <span class="string">'سود'</span>, <span class="string">'تعداد_فروش'</span>, <span class="string">'میانگین_امتیاز'</span>]
+category_analysis[<span class="string">'حاشیه_سود'</span>] = (category_analysis[<span class="string">'سود'</span>] / category_analysis[<span class="string">'درآمد'</span>] * <span class="number">100</span>).round(<span class="number">1</span>)
+category_analysis = category_analysis.sort_values(<span class="string">'درآمد'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="function">print</span>(category_analysis)
+
+<span class="comment"># تحلیل زمانی</span>
+<span class="function">print</span>(<span class="string">f"\n📅 تحلیل زمانی:"</span>)
+monthly_sales = sales_detailed.groupby(<span class="string">'month'</span>).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>
+}).round(<span class="number">0</span>)
+
+month_names = {<span class="number">3</span>: <span class="string">'اسفند'</span>, <span class="number">4</span>: <span class="string">'فروردین'</span>, <span class="number">5</span>: <span class="string">'اردیبهشت'</span>, 
+               <span class="number">6</span>: <span class="string">'خرداد'</span>, <span class="number">7</span>: <span class="string">'تیر'</span>, <span class="number">8</span>: <span class="string">'مرداد'</span>}
+monthly_sales.index = [month_names.get(i, <span class="string">f'ماه_{i}'</span>) <span class="keyword">for</span> i <span class="keyword">in</span> monthly_sales.index]
+monthly_sales.columns = [<span class="string">'درآمد'</span>, <span class="string">'تعداد_فروش'</span>]
+
+<span class="function">print</span>(monthly_sales)
+
+<span class="comment"># تحلیل مشتریان</span>
+<span class="function">print</span>(<span class="string">f"\n👤 تحلیل رفتار مشتریان:"</span>)
+customer_behavior = sales_detailed.groupby(<span class="string">'customer_id'</span>).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'rating'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+customer_behavior.columns = [<span class="string">'کل_خرید'</span>, <span class="string">'تعداد_خرید'</span>, <span class="string">'میانگین_امتیاز'</span>]
+customer_behavior[<span class="string">'متوسط_خرید'</span>] = (customer_behavior[<span class="string">'کل_خرید'</span>] / customer_behavior[<span class="string">'تعداد_خرید'</span>]).round(<span class="number">0</span>)
+
+<span class="comment"># دسته‌بندی مشتریان بر اساس ارزش</span>
+customer_behavior[<span class="string">'دسته_مشتری'</span>] = pd.cut(
+    customer_behavior[<span class="string">'کل_خرید'</span>],
+    bins=[<span class="number">0</span>, <span class="number">2000000</span>, <span class="number">5000000</span>, <span class="number">10000000</span>, np.inf],
+    labels=[<span class="string">'برنزی'</span>, <span class="string">'نقره‌ای'</span>, <span class="string">'طلایی'</span>, <span class="string">'پلاتینی'</span>]
+)
+
+customer_segments = customer_behavior[<span class="string">'دسته_مشتری'</span>].value_counts()
+<span class="function">print</span>(<span class="string">f"دسته‌بندی مشتریان:\n{customer_segments}"</span>)
+
+top_customers = customer_behavior.sort_values(<span class="string">'کل_خرید'</span>, ascending=<span class="keyword">False</span>).head(<span class="number">5</span>)
+<span class="function">print</span>(<span class="string">f"\n5 مشتری برتر:\n{top_customers[['کل_خرید', 'تعداد_خرید', 'متوسط_خرید']]}"</span>)
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">pd.DataFrame()</div>
+                            <div class="method-desc">ایجاد DataFrame</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.merge()</div>
+                            <div class="method-desc">ادغام جداول</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.groupby().agg()</div>
+                            <div class="method-desc">تجمیع داده</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">pd.cut()</div>
+                            <div class="method-desc">دسته‌بندی</div>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات تحلیل فروش:</div>
+                        <ul>
+                            <li><strong>Data Quality:</strong> همیشه کیفیت داده‌ها را بررسی کنید</li>
+                            <li><strong>Customer Segmentation:</strong> مشتریان را دسته‌بندی کنید</li>
+                            <li><strong>Trend Analysis:</strong> روندهای زمانی را بررسی کنید</li>
+                            <li><strong>Profit Focus:</strong> علاوه بر درآمد، روی سود تمرکز کنید</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 3: مصورسازی و داشبورد فروش -->
+            <div class="slide" id="slide3">
+                <div class="slide-number">3/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">📊</div>
+                <div class="slide-title">مصورسازی و داشبورد فروش</div>
+                <div class="slide-content">
+                    <h3>📈 ایجاد داشبورد جامع فروش</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># ایجاد داشبورد جامع فروش</span>
+<span class="function">print</span>(<span class="string">"📊 ایجاد داشبورد تحلیل فروش"</span>)
+
+<span class="comment"># تنظیمات نمودار</span>
+plt.style.use(<span class="string">'seaborn-v0_8'</span>)
+fig = plt.figure(figsize=(<span class="number">20</span>, <span class="number">16</span>))
+
+<span class="comment"># 1. روند فروش ماهانه</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>)
+monthly_revenue = sales_detailed.groupby(<span class="string">'month'</span>)[<span class="string">'total_revenue'</span>].sum() / <span class="number">1000000</span>
+monthly_revenue.plot(kind=<span class="string">'line'</span>, marker=<span class="string">'o'</span>, linewidth=<span class="number">3</span>, markersize=<span class="number">8</span>)
+plt.title(<span class="string">'روند درآمد ماهانه (میلیون تومان)'</span>, fontsize=<span class="number">12</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درآمد (میلیون تومان)'</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+<span class="comment"># 2. فروش به تفکیک دسته‌بندی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>)
+category_revenue = sales_detailed.groupby(<span class="string">'category'</span>)[<span class="string">'total_revenue'</span>].sum() / <span class="number">1000000</span>
+category_revenue.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'skyblue'</span>)
+plt.title(<span class="string">'درآمد به تفکیک دسته‌بندی'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درآمد (میلیون تومان)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 3. توزیع مشتریان در شهرها</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">3</span>)
+city_customers = sales_detailed.groupby(<span class="string">'city'</span>)[<span class="string">'customer_id'</span>].nunique()
+city_customers.plot(kind=<span class="string">'pie'</span>, autopct=<span class="string">'%1.1f%%'</span>)
+plt.title(<span class="string">'توزیع مشتریان در شهرها'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 4. حاشیه سود دسته‌بندی‌ها</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>)
+category_margin = sales_detailed.groupby(<span class="string">'category'</span>).apply(
+    <span class="keyword">lambda</span> x: (x[<span class="string">'total_profit'</span>].sum() / x[<span class="string">'total_revenue'</span>].sum()) * <span class="number">100</span>
+)
+category_margin.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'lightcoral'</span>)
+plt.title(<span class="string">'حاشیه سود دسته‌بندی‌ها (%)'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'حاشیه سود (%)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 5. فروش در روزهای هفته</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)
+weekday_sales = sales_detailed.groupby(<span class="string">'day_of_week'</span>)[<span class="string">'total_revenue'</span>].sum() / <span class="number">1000000</span>
+weekday_order = [<span class="string">'Monday'</span>, <span class="string">'Tuesday'</span>, <span class="string">'Wednesday'</span>, <span class="string">'Thursday'</span>, <span class="string">'Friday'</span>, <span class="string">'Saturday'</span>, <span class="string">'Sunday'</span>]
+weekday_sales = weekday_sales.reindex(weekday_order)
+weekday_sales.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'lightgreen'</span>)
+plt.title(<span class="string">'فروش در روزهای هفته'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درآمد (میلیون تومان)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 6. توزیع امتیازات رضایت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>)
+rating_dist = sales_detailed[<span class="string">'rating'</span>].value_counts().sort_index()
+rating_dist.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'gold'</span>)
+plt.title(<span class="string">'توزیع امتیازات رضایت'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'امتیاز'</span>)
+plt.ylabel(<span class="string">'تعداد'</span>)
+
+<span class="comment"># 7. پراکندگی قیمت و تعداد فروش</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">7</span>)
+product_sales = sales_detailed.groupby(<span class="string">'product_id'</span>).agg({
+    <span class="string">'price'</span>: <span class="string">'first'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>
+})
+plt.scatter(product_sales[<span class="string">'price'</span>] / <span class="number">1000000</span>, product_sales[<span class="string">'sale_id'</span>], alpha=<span class="number">0.6</span>, c=<span class="string">'purple'</span>)
+plt.xlabel(<span class="string">'قیمت (میلیون تومان)'</span>)
+plt.ylabel(<span class="string">'تعداد فروش'</span>)
+plt.title(<span class="string">'رابطه قیمت و تعداد فروش'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 8. مقایسه نوع مشتریان</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>)
+customer_type_revenue = sales_detailed.groupby(<span class="string">'customer_type'</span>)[<span class="string">'total_revenue'</span>].sum() / <span class="number">1000000</span>
+customer_type_revenue.plot(kind=<span class="string">'bar'</span>, color=[<span class="string">'lightblue'</span>, <span class="string">'orange'</span>, <span class="string">'pink'</span>])
+plt.title(<span class="string">'درآمد به تفکیک نوع مشتری'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درآمد (میلیون تومان)'</span>)
+plt.xticks(rotation=<span class="number">0</span>)
+
+<span class="comment"># 9. هیستوگرام ارزش سفارشات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>)
+plt.hist(sales_detailed[<span class="string">'total_revenue'</span>] / <span class="number">1000</span>, bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'teal'</span>)
+plt.title(<span class="string">'توزیع ارزش سفارشات'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'ارزش سفارش (هزار تومان)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+
+<span class="comment"># 10. تحلیل تخفیفات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">10</span>)
+discount_analysis = sales_detailed.groupby(<span class="string">'discount_percent'</span>)[<span class="string">'sale_id'</span>].count()
+discount_analysis.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'red'</span>)
+plt.title(<span class="string">'توزیع تخفیفات'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'درصد تخفیف'</span>)
+plt.ylabel(<span class="string">'تعداد فروش'</span>)
+
+<span class="comment"># 11. تحلیل سنی مشتریان</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">11</span>)
+age_revenue = sales_detailed.groupby(pd.cut(sales_detailed[<span class="string">'age'</span>], bins=<span class="number">5</span>))[<span class="string">'total_revenue'</span>].sum() / <span class="number">1000000</span>
+age_revenue.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'brown'</span>)
+plt.title(<span class="string">'درآمد به تفکیک گروه سنی'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درآمد (میلیون تومان)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 12. مقایسه جنسیت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">12</span>)
+gender_analysis = sales_detailed.groupby(<span class="string">'gender'</span>).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'customer_id'</span>: <span class="string">'nunique'</span>
+})
+gender_analysis[<span class="string">'avg_per_customer'</span>] = gender_analysis[<span class="string">'total_revenue'</span>] / gender_analysis[<span class="string">'customer_id'</span>] / <span class="number">1000</span>
+gender_analysis[<span class="string">'avg_per_customer'</span>].plot(kind=<span class="string">'bar'</span>, color=[<span class="string">'lightblue'</span>, <span class="string">'pink'</span>])
+plt.title(<span class="string">'میانگین خرید هر مشتری (هزار تومان)'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'میانگین خرید'</span>)
+plt.xticks(rotation=<span class="number">0</span>)
+
+plt.suptitle(<span class="string">'داشبورد جامع تحلیل فروش فروشگاه آنلاین'</span>, fontsize=<span class="number">18</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="function">print</span>(<span class="string">"✅ داشبورد تحلیل فروش ایجاد شد"</span>)
+                    </div>
+
+                    <h3>📋 گزارش‌های تخصصی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تولید گزارش‌های تخصصی</span>
+<span class="function">print</span>(<span class="string">f"\n📋 گزارش‌های تخصصی فروش:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># 1. گزارش محصولات پرفروش</span>
+<span class="function">print</span>(<span class="string">f"🏆 محصولات پرفروش:"</span>)
+top_products = sales_detailed.groupby([<span class="string">'product_name'</span>, <span class="string">'category'</span>]).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'quantity'</span>: <span class="string">'sum'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'rating'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+top_products.columns = [<span class="string">'درآمد'</span>, <span class="string">'تعداد_فروخته'</span>, <span class="string">'تعداد_سفارش'</span>, <span class="string">'میانگین_امتیاز'</span>]
+top_products = top_products.sort_values(<span class="string">'درآمد'</span>, ascending=<span class="keyword">False</span>).head(<span class="number">10</span>)
+
+<span class="function">print</span>(top_products)
+
+<span class="comment"># 2. گزارش مشتریان VIP</span>
+<span class="function">print</span>(<span class="string">f"\n👑 مشتریان VIP:"</span>)
+vip_customers = sales_detailed.merge(
+    customer_behavior.reset_index(), on=<span class="string">'customer_id'</span>
+)[sales_detailed.merge(customer_behavior.reset_index(), on=<span class="string">'customer_id'</span>)[<span class="string">'دسته_مشتری'</span>].isin([<span class="string">'طلایی'</span>, <span class="string">'پلاتینی'</span>])]
+
+vip_analysis = vip_customers.groupby([<span class="string">'name'</span>, <span class="string">'city'</span>, <span class="string">'customer_type'</span>]).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'rating'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+vip_analysis.columns = [<span class="string">'کل_خرید'</span>, <span class="string">'تعداد_سفارش'</span>, <span class="string">'میانگین_امتیاز'</span>]
+vip_analysis = vip_analysis.sort_values(<span class="string">'کل_خرید'</span>, ascending=<span class="keyword">False</span>).head(<span class="number">10</span>)
+
+<span class="function">print</span>(vip_analysis)
+
+<span class="comment"># 3. گزارش عملکرد شهرها</span>
+<span class="function">print</span>(<span class="string">f"\n🏙️ عملکرد شهرها:"</span>)
+city_performance = sales_detailed.groupby(<span class="string">'city'</span>).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'total_profit'</span>: <span class="string">'sum'</span>,
+    <span class="string">'customer_id'</span>: <span class="string">'nunique'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'rating'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+city_performance.columns = [<span class="string">'درآمد'</span>, <span class="string">'سود'</span>, <span class="string">'تعداد_مشتری'</span>, <span class="string">'تعداد_سفارش'</span>, <span class="string">'میانگین_امتیاز'</span>]
+city_performance[<span class="string">'درآمد_هر_مش
+    تری'</span>] = (city_performance[<span class="string">'درآمد'</span>] / city_performance[<span class="string">'تعداد_مشتری'</span>]).round(<span class="number">0</span>)
+city_performance[<span class="string">'حاشیه_سود'</span>] = (city_performance[<span class="string">'سود'</span>] / city_performance[<span class="string">'درآمد'</span>] * <span class="number">100</span>).round(<span class="number">1</span>)
+city_performance = city_performance.sort_values(<span class="string">'درآمد'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="function">print</span>(city_performance)
+
+<span class="comment"># 4. تحلیل فصلی</span>
+<span class="function">print</span>(<span class="string">f"\n🗓️ تحلیل فصلی:"</span>)
+<span class="comment"># تعریف فصل‌ها بر اساس ماه</span>
+season_map = {<span class="number">3</span>: <span class="string">'زمستان'</span>, <span class="number">4</span>: <span class="string">'بهار'</span>, <span class="number">5</span>: <span class="string">'بهار'</span>, <span class="number">6</span>: <span class="string">'تابستان'</span>, <span class="number">7</span>: <span class="string">'تابستان'</span>, <span class="number">8</span>: <span class="string">'تابستان'</span>}
+sales_detailed[<span class="string">'season'</span>] = sales_detailed[<span class="string">'month'</span>].map(season_map)
+
+seasonal_analysis = sales_detailed.groupby(<span class="string">'season'</span>).agg({
+    <span class="string">'total_revenue'</span>: <span class="string">'sum'</span>,
+    <span class="string">'total_profit'</span>: <span class="string">'sum'</span>,
+    <span class="string">'sale_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'rating'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+seasonal_analysis.columns = [<span class="string">'درآمد'</span>, <span class="string">'سود'</span>, <span class="string">'تعداد_فروش'</span>, <span class="string">'میانگین_امتیاز'</span>]
+seasonal_analysis[<span class="string">'متوسط_فروش_روزانه'</span>] = (seasonal_analysis[<span class="string">'درآمد'</span>] / <span class="number">90</span>).round(<span class="number">0</span>)  <span class="comment"># تقریبی</span>
+
+<span class="function">print</span>(seasonal_analysis)
+
+<span class="comment"># 5. تحلیل کوهورت مشتریان</span>
+<span class="function">print</span>(<span class="string">f"\n👥 تحلیل کوهورت مشتریان:"</span>)
+
+<span class="comment"># تعیین ماه اولین خرید هر مشتری</span>
+customer_first_purchase = sales_detailed.groupby(<span class="string">'customer_id'</span>)[<span class="string">'sale_date'</span>].min().reset_index()
+customer_first_purchase[<span class="string">'first_purchase_month'</span>] = customer_first_purchase[<span class="string">'sale_date'</span>].dt.to_period(<span class="string">'M'</span>)
+
+<span class="comment"># ادغام با داده‌های فروش</span>
+sales_cohort = sales_detailed.merge(customer_first_purchase[[<span class="string">'customer_id'</span>, <span class="string">'first_purchase_month'</span>]], on=<span class="string">'customer_id'</span>)
+sales_cohort[<span class="string">'purchase_period'</span>] = sales_cohort[<span class="string">'sale_date'</span>].dt.to_period(<span class="string">'M'</span>)
+
+<span class="comment"># محاسبه دوره نسبی</span>
+sales_cohort[<span class="string">'period_number'</span>] = (
+    sales_cohort[<span class="string">'purchase_period'</span>] - sales_cohort[<span class="string">'first_purchase_month'</span>]
+).apply(attrgetter(<span class="string">'n'</span>))
+
+<span class="comment"># تحلیل نرخ بازگشت</span>
+cohort_data = sales_cohort.groupby([<span class="string">'first_purchase_month'</span>, <span class="string">'period_number'</span>])[<span class="string">'customer_id'</span>].nunique().reset_index()
+cohort_counts = cohort_data.pivot(index=<span class="string">'first_purchase_month'</span>, columns=<span class="string">'period_number'</span>, values=<span class="string">'customer_id'</span>)
+
+<span class="comment"># محاسبه نرخ بازگشت</span>
+cohort_sizes = cohort_counts.iloc[:, <span class="number">0</span>]
+retention_table = cohort_counts.divide(cohort_sizes, axis=<span class="number">0</span>)
+
+<span class="function">print</span>(<span class="string">"نرخ بازگشت مشتریان (به درصد):"</span>)
+<span class="function">print</span>((retention_table * <span class="number">100</span>).round(<span class="number">1</span>))
+
+<span class="comment"># 6. پیش‌بینی فروش</span>
+<span class="function">print</span>(<span class="string">f"\n🔮 پیش‌بینی فروش:"</span>)
+
+<span class="comment"># محاسبه روند رشد ماهانه</span>
+monthly_growth = sales_detailed.groupby(<span class="string">'month'</span>)[<span class="string">'total_revenue'</span>].sum()
+growth_rate = monthly_growth.pct_change().mean()
+
+<span class="function">print</span>(<span class="string">f"نرخ رشد ماهانه: {growth_rate*100:.1f}%"</span>)
+
+<span class="comment"># پیش‌بینی 3 ماه آینده</span>
+last_month_revenue = monthly_growth.iloc[-<span class="number">1</span>]
+predictions = []
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, <span class="number">4</span>):
+    predicted_revenue = last_month_revenue * ((<span class="number">1</span> + growth_rate) ** i)
+    predictions.append(predicted_revenue)
+
+<span class="function">print</span>(<span class="string">f"پیش‌بینی درآمد ماه آینده: {predictions[0]:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"پیش‌بینی درآمد 2 ماه آینده: {predictions[1]:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"پیش‌بینی درآمد 3 ماه آینده: {predictions[2]:,.0f} تومان"</span>)
+                    </div>
+
+                    <h3>🎯 توصیه‌های استراتژیک</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تولید توصیه‌های استراتژیک</span>
+<span class="function">print</span>(<span class="string">f"\n🎯 توصیه‌های استراتژیک:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># شناسایی بهترین و بدترین عملکردها</span>
+best_category = category_analysis.index[<span class="number">0</span>]
+worst_category = category_analysis.index[-<span class="number">1</span>]
+best_city = city_performance.index[<span class="number">0</span>]
+highest_margin_category = category_analysis.sort_values(<span class="string">'حاشیه_سود'</span>, ascending=<span class="keyword">False</span>).index[<span class="number">0</span>]
+
+<span class="function">print</span>(<span class="string">f"📈 توصیه‌های رشد:"</span>)
+recommendations = [
+    <span class="string">f"1. تمرکز بر دسته '{best_category}' که بالاترین درآمد را دارد"</span>,
+    <span class="string">f"2. گسترش فعالیت در شهر '{best_city}' با بالاترین عملکرد"</span>,
+    <span class="string">f"3. بهبود دسته '{worst_category}' که پایین‌ترین درآمد را دارد"</span>,
+    <span class="string">f"4. تقویت دسته '{highest_margin_category}' با بالاترین حاشیه سود"</span>
+]
+
+<span class="keyword">for</span> rec <span class="keyword">in</span> recommendations:
+    <span class="function">print</span>(rec)
+
+<span class="function">print</span>(<span class="string">f"\n💰 توصیه‌های مالی:"</span>)
+financial_recommendations = [
+    <span class="string">f"1. میانگین تخفیف {sales_detailed['discount_percent'].mean():.1f}% است - بازنگری سیاست تخفیف"</span>,
+    <span class="string">f"2. حاشیه سود کلی {(total_profit/total_revenue)*100:.1f}% - هدف‌گذاری برای افزایش به 40%"</span>,
+    <span class="string">f"3. متوسط ارزش سفارش {avg_order_value:,.0f} تومان - تلاش برای افزایش"</span>,
+    <span class="string">f"4. تمرکز بر محصولات با قیمت بالا و فروش خوب"</span>
+]
+
+<span class="keyword">for</span> rec <span class="keyword">in</span> financial_recommendations:
+    <span class="function">print</span>(rec)
+
+<span class="function">print</span>(<span class="string">f"\n👥 توصیه‌های مشتری‌محوری:"</span>)
+customer_recommendations = [
+    <span class="string">f"1. برنامه وفاداری برای {len(vip_analysis)} مشتری VIP"</span>,
+    <span class="string">f"2. کمپین بازگشت برای مشتریان غیرفعال"</span>,
+    <span class="string">f"3. تحلیل عمیق‌تر رفتار مشتریان با امتیاز پایین"</span>,
+    <span class="string">f"4. ایجاد برنامه ارجاع مشتری در شهرهای پرمشتری"</span>
+]
+
+<span class="keyword">for</span> rec <span class="keyword">in</span> customer_recommendations:
+    <span class="function">print</span>(rec)
+
+<span class="comment"># محاسبه KPI های کلیدی</span>
+<span class="function">print</span>(<span class="string">f"\n📊 KPI های کلیدی:"</span>)
+kpis = {
+    <span class="string">'Customer Lifetime Value (CLV)'</span>: <span class="string">f"{(total_revenue / unique_customers):,.0f} تومان"</span>,
+    <span class="string">'Average Order Value (AOV)'</span>: <span class="string">f"{avg_order_value:,.0f} تومان"</span>,
+    <span class="string">'Customer Acquisition Cost (CAC)'</span>: <span class="string">"نیاز به داده‌های بازاریابی"</span>,
+    <span class="string">'Repeat Purchase Rate'</span>: <span class="string">f"{(customer_behavior[customer_behavior['تعداد_خرید'] > 1].shape[0] / len(customer_behavior) * 100):.1f}%"</span>,
+    <span class="string">'Net Promoter Score (NPS)'</span>: <span class="string">f"تخمینی بر اساس امتیاز: {((sales_detailed[sales_detailed['rating'] >= 4].shape[0] / len(sales_detailed)) * 100):.1f}%"</span>
+}
+
+<span class="keyword">for</span> kpi, value <span class="keyword">in</span> kpis.items():
+    <span class="function">print</span>(<span class="string">f"• {kpi}: {value}"</span>)
+
+<span class="function">print</span>(<span class="string">f"\n✅ تحلیل جامع فروش فروشگاه آنلاین تکمیل شد!"</span>)
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">plt.subplot()</div>
+                            <div class="method-desc">چندین نمودار</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.pivot()</div>
+                            <div class="method-desc">جدول محوری</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.pct_change()</div>
+                            <div class="method-desc">محاسبه رشد</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Cohort Analysis</div>
+                            <div class="method-desc">تحلیل کوهورت</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 4: پروژه دوم - تحلیل داده‌های املاک -->
+            <div class="slide" id="slide4">
+                <div class="slide-number">4/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🏠</div>
+                <div class="slide-title">پروژه دوم: تحلیل داده‌های املاک</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">🏠 سیستم تحلیل و پیش‌بینی قیمت املاک</div>
+                        <div class="project-desc">
+                            تحلیل عوامل مؤثر بر قیمت املاک و ایجاد مدل پیش‌بینی قیمت
+                            بر اساس ویژگی‌های ملک و موقعیت جغرافیایی
+                        </div>
+                    </div>
+
+                    <h3>🏗️ مرحله 1: تولید داده‌های املاک</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه 2: تحلیل داده‌های املاک</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split
+<span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression
+<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestRegressor
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_absolute_error, r2_score
+<span class="keyword">import</span> warnings
+warnings.filterwarnings(<span class="string">'ignore'</span>)
+
+<span class="function">print</span>(<span class="string">"🏠 پروژه 2: تحلیل داده‌های املاک"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">50</span>)
+
+<span class="comment"># تولید داده‌های واقعی املاک</span>
+np.random.seed(<span class="number">42</span>)
+
+<span class="comment"># تعریف مناطق و ضرایب قیمت</span>
+districts = {
+    <span class="string">'شمال تهران'</span>: <span class="number">1.8</span>, <span class="string">'غرب تهران'</span>: <span class="number">1.5</span>, <span class="string">'مرکز تهران'</span>: <span class="number">1.6</span>,
+    <span class="string">'شرق تهران'</span>: <span class="number">1.2</span>, <span class="string">'جنوب تهران'</span>: <span class="number">1.0</span>, <span class="string">'کرج'</span>: <span class="number">0.7</span>,
+    <span class="string">'اصفهان'</span>: <span class="number">0.6</span>, <span class="string">'شیراز'</span>: <span class="number">0.5</span>, <span class="string">'مشهد'</span>: <span class="number">0.6</span>, <span class="string">'تبریز'</span>: <span class="number">0.5</span>
+}
+
+property_types = {
+    <span class="string">'آپارتمان'</span>: <span class="number">1.0</span>, <span class="string">'ویلا'</span>: <span class="number">1.4</span>, <span class="string">'پنت‌هاوس'</span>: <span class="number">2.0</span>, 
+    <span class="string">'دوبلکس'</span>: <span class="number">1.6</span>, <span class="string">'تاون‌هاوس'</span>: <span class="number">1.3</span>
+}
+
+<span class="comment"># تولید 2000 رکورد املاک</span>
+n_properties = <span class="number">2000</span>
+properties_data = []
+
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(n_properties):
+    <span class="comment"># انتخاب منطقه و نوع ملک</span>
+    district = np.random.choice(<span class="function">list</span>(districts.keys()))
+    prop_type = np.random.choice(<span class="function">list</span>(property_types.keys()))
+    
+    <span class="comment"># ویژگی‌های ملک</span>
+    area = np.random.randint(<span class="number">50</span>, <span class="number">300</span>)  <span class="comment"># متراژ</span>
+    bedrooms = np.random.choice([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>], p=[<span class="number">0.1</span>, <span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.15</span>, <span class="number">0.05</span>])
+    bathrooms = <span class="function">min</span>(bedrooms, np.random.randint(<span class="number">1</span>, <span class="number">4</span>))
+    parking = np.random.choice([<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], p=[<span class="number">0.2</span>, <span class="number">0.5</span>, <span class="number">0.25</span>, <span class="number">0.05</span>])
+    age = np.random.randint(<span class="number">0</span>, <span class="number">30</span>)  <span class="comment"># سن بنا</span>
+    floor = np.random.randint(<span class="number">1</span>, <span class="number">15</span>)
+    
+    <span class="comment"># امکانات</span>
+    has_elevator = np.random.choice([<span class="number">0</span>, <span class="number">1</span>], p=[<span class="number">0.3</span>, <span class="number">0.7</span>])
+    has_balcony = np.random.choice([<span class="number">0</span>, <span class="number">1</span>], p=[<span class="number">0.4</span>, <span class="number">0.6</span>])
+    has_storage = np.random.choice([<span class="number">0</span>, <span class="number">1</span>], p=[<span class="number">0.5</span>, <span class="number">0.5</span>])
+    
+    <span class="comment"># محاسبه قیمت بر اساس فرمول پیچیده</span>
+    base_price = <span class="number">50000000</span>  <span class="comment"># قیمت پایه (50 میلیون تومان)</span>
+    
+    price = (base_price * 
+             area * districts[district] * property_types[prop_type] *
+             (<span class="number">1</span> + bedrooms * <span class="number">0.1</span>) * 
+             (<span class="number">1</span> + bathrooms * <span class="number">0.05</span>) *
+             (<span class="number">1</span> + parking * <span class="number">0.1</span>) *
+             (<span class="number">1</span> - age * <span class="number">0.02</span>) *
+             (<span class="number">1</span> + has_elevator * <span class="number">0.1</span>) *
+             (<span class="number">1</span> + has_balcony * <span class="number">0.05</span>) *
+             (<span class="number">1</span> + has_storage * <span class="number">0.03</span>))
+    
+    <span class="comment"># اضافه کردن نویز تصادفی</span>
+    price *= np.random.uniform(<span class="number">0.8</span>, <span class="number">1.2</span>)
+    
+    properties_data.append({
+        <span class="string">'property_id'</span>: i + <span class="number">1</span>,
+        <span class="string">'district'</span>: district,
+        <span class="string">'property_type'</span>: prop_type,
+        <span class="string">'area'</span>: area,
+        <span class="string">'bedrooms'</span>: bedrooms,
+        <span class="string">'bathrooms'</span>: bathrooms,
+        <span class="string">'parking'</span>: parking,
+        <span class="string">'age'</span>: age,
+        <span class="string">'floor'</span>: floor,
+        <span class="string">'has_elevator'</span>: has_elevator,
+        <span class="string">'has_balcony'</span>: has_balcony,
+        <span class="string">'has_storage'</span>: has_storage,
+        <span class="string">'price'</span>: <span class="function">int</span>(price)
+    })
+
+properties_df = pd.DataFrame(properties_data)
+
+<span class="comment"># محاسبه قیمت هر متر</span>
+properties_df[<span class="string">'price_per_sqm'</span>] = properties_df[<span class="string">'price'</span>] / properties_df[<span class="string">'area'</span>]
+
+<span class="function">print</span>(<span class="string">f"📊 داده‌های املاک تولید شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد املاک: {len(properties_df):,}"</span>)
+<span class="function">print</span>(<span class="string">f"محدوده قیمت: {properties_df['price'].min():,.0f} تا {properties_df['price'].max():,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین قیمت هر متر: {properties_df['price_per_sqm'].mean():,.0f} تومان"</span>)
+
+<span class="function">print</span>(<span class="string">f"\nنمونه داده‌ها:"</span>)
+<span class="function">print</span>(properties_df[[<span class="string">'district'</span>, <span class="string">'property_type'</span>, <span class="string">'area'</span>, <span class="string">'bedrooms'</span>, <span class="string">'price'</span>]].head())
+                    </div>
+
+                    <h3>📈 مرحله 2: تحلیل اکتشافی داده‌ها (EDA)</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل اکتشافی داده‌های املاک</span>
+<span class="function">print</span>(<span class="string">f"\n📈 تحلیل اکتشافی داده‌ها:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># آمار توصیفی</span>
+<span class="function">print</span>(<span class="string">"📊 آمار توصیفی:"</span>)
+<span class="function">print</span>(properties_df.describe())
+
+<span class="comment"># تحلیل قیمت به تفکیک منطقه</span>
+<span class="function">print</span>(<span class="string">f"\n🏙️ تحلیل قیمت به تفکیک منطقه:"</span>)
+district_analysis = properties_df.groupby(<span class="string">'district'</span>).agg({
+    <span class="string">'price'</span>: [<span class="string">'mean'</span>, <span class="string">'median'</span>, <span class="string">'count'</span>],
+    <span class="string">'price_per_sqm'</span>: <span class="string">'mean'</span>,
+    <span class="string">'area'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">0</span>)
+
+district_analysis.columns = [<span class="string">'میانگین_قیمت'</span>, <span class="string">'میانه_قیمت'</span>, <span class="string">'تعداد'</span>, <span class="string">'قیمت_هر_متر'</span>, <span class="string">'میانگین_متراژ'</span>]
+district_analysis = district_analysis.sort_values(<span class="string">'میانگین_قیمت'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="function">print</span>(district_analysis)
+
+<span class="comment"># تحلیل نوع ملک</span>
+<span class="function">print</span>(<span class="string">f"\n🏠 تحلیل نوع ملک:"</span>)
+type_analysis = properties_df.groupby(<span class="string">'property_type'</span>).agg({
+    <span class="string">'price'</span>: [<span class="string">'mean'</span>, <span class="string">'count'</span>],
+    <span class="string">'area'</span>: <span class="string">'mean'</span>,
+    <span class="string">'bedrooms'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">1</span>)
+
+type_analysis.columns = [<span class="string">'میانگین_قیمت'</span>, <span class="string">'تعداد'</span>, <span class="string">'میانگین_متراژ'</span>, <span class="string">'میانگین_اتاق'</span>]
+type_analysis = type_analysis.sort_values(<span class="string">'میانگین_قیمت'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="function">print</span>(type_analysis)
+
+<span class="comment"># همبستگی ویژگی‌ها</span>
+<span class="function">print</span>(<span class="string">f"\n🔗 ماتریس همبستگی:"</span>)
+correlation_matrix = properties_df[[<span class="string">'area'</span>, <span class="string">'bedrooms'</span>, <span class="string">'bathrooms'</span>, <span class="string">'parking'</span>, 
+                                   <span class="string">'age'</span>, <span class="string">'floor'</span>, <span class="string">'price'</span>]].corr()
+
+<span class="function">print</span>(correlation_matrix[<span class="string">'price'</span>].sort_values(ascending=<span class="keyword">False</span>))
+
+<span class="comment"># تحلیل تأثیر امکانات</span>
+<span class="function">print</span>(<span class="string">f"\n🏢 تأثیر امکانات بر قیمت:"</span>)
+
+amenities_impact = {}
+<span class="keyword">for</span> amenity <span class="keyword">in</span> [<span class="string">'has_elevator'</span>, <span class="string">'has_balcony'</span>, <span class="string">'has_storage'</span>]:
+    with_amenity = properties_df[properties_df[amenity] == <span class="number">1</span>][<span class="string">'price'</span>].mean()
+    without_amenity = properties_df[properties_df[amenity] == <span class="number">0</span>][<span class="string">'price'</span>].mean()
+    impact = ((with_amenity - without_amenity) / without_amenity) * <span class="number">100</span>
+    amenities_impact[amenity] = impact
+
+<span class="keyword">for</span> amenity, impact <span class="keyword">in</span> amenities_impact.items():
+    amenity_name = {<span class="string">'has_elevator'</span>: <span class="string">'آسانسور'</span>, <span class="string">'has_balcony'</span>: <span class="string">'بالکن'</span>, <span class="string">'has_storage'</span>: <span class="string">'انباری'</span>}
+    <span class="function">print</span>(<span class="string">f"{amenity_name[amenity]}: {impact:+.1f}% تأثیر بر قیمت"</span>)
+                    </div>
+
+                    <h3>📊 مرحله 3: مصورسازی داده‌های املاک</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مصورسازی جامع داده‌های املاک</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مصورسازی داده‌های املاک:"</span>)
+
+fig = plt.figure(figsize=(<span class="number">20</span>, <span class="number">16</span>))
+
+<span class="comment"># 1. توزیع قیمت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>)
+plt.hist(properties_df[<span class="string">'price'</span>] / <span class="number">1000000000</span>, bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'skyblue'</span>)
+plt.title(<span class="string">'توزیع قیمت املاک'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'قیمت (میلیارد تومان)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+
+<span class="comment"># 2. قیمت به تفکیک منطقه</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>)
+properties_df.boxplot(column=<span class="string">'price'</span>, by=<span class="string">'district'</span>, ax=plt.gca())
+plt.title(<span class="string">'قیمت به تفکیک منطقه'</span>)
+plt.suptitle(<span class="string">''</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+plt.ylabel(<span class="string">'قیمت (تومان)'</span>)
+
+<span class="comment"># 3. رابطه متراژ و قیمت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">3</span>)
+plt.scatter(properties_df[<span class="string">'area'</span>], properties_df[<span class="string">'price'</span>] / <span class="number">1000000000</span>, 
+           alpha=<span class="number">0.5</span>, c=<span class="string">'red'</span>)
+plt.xlabel(<span class="string">'متراژ'</span>)
+plt.ylabel(<span class="string">'قیمت (میلیارد تومان)'</span>)
+plt.title(<span class="string">'رابطه متراژ و قیمت'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 4. قیمت به تفکیک نوع ملک</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>)
+type_prices = properties_df.groupby(<span class="string">'property_type'</span>)[<span class="string">'price'</span>].mean() / <span class="number">1000000000</span>
+type_prices.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'lightgreen'</span>)
+plt.title(<span class="string">'میانگین قیمت به تفکیک نوع'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'قیمت (میلیارد تومان)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 5. تأثیر تعداد اتاق بر قیمت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)
+bedroom_prices = properties_df.groupby(<span class="string">'bedrooms'</span>)[<span class="string">'price'</span>].mean() / <span class="number">1000000000</span>
+bedroom_prices.plot(kind=<span class="string">'line'</span>, marker=<span class="string">'o'</span>, linewidth=<span class="number">3</span>, markersize=<span class="number">8</span>)
+plt.title(<span class="string">'تأثیر تعداد اتاق بر قیمت'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تعداد اتاق خواب'</span>)
+plt.ylabel(<span class="string">'میانگین قیمت (میلیارد تومان)'</span>)
+
+<span class="comment"># 6. تأثیر سن بنا بر قیمت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>)
+age_groups = pd.cut(properties_df[<span class="string">'age'</span>], bins=[<span class="number">0</span>, <span class="number">5</span>, <span class="number">10</span>, <span class="number">15</span>, <span class="number">20</span>, <span class="number">30</span>])
+age_prices = properties_df.groupby(age_groups)[<span class="string">'price'</span>].mean() / <span class="number">1000000000</span>
+age_prices.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'orange'</span>)
+plt.title(<span class="string">'تأثیر سن بنا بر قیمت'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'گروه سنی (سال)'</span>)
+plt.ylabel(<span class="string">'میانگین قیمت (میلیارد تومان)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 7. ماتریس همبستگی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">7</span>)
+sns.heatmap(correlation_matrix, annot=<span class="keyword">True</span>, cmap=<span class="string">'coolwarm'</span>, center=<span class="number">0</span>)
+plt.title(<span class="string">'ماتریس همبستگی'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 8. قیمت هر متر به تفکیک منطقه</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>)
+district_price_per_sqm = properties_df.groupby(<span class="string">'district'</span>)[<span class="string">'price_per_sqm'</span>].mean() / <span class="number">1000000</span>
+district_price_per_sqm.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'purple'</span>)
+plt.title(<span class="string">'قیمت هر متر به تفکیک منطقه'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'قیمت هر متر (میلیون تومان)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 9. توزیع پارکینگ</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>)
+parking_dist = properties_df[<span class="string">'parking'</span>].value_counts().sort_index()
+parking_dist.plot(kind=<span class="string">'pie'</span>, autopct=<span class="string">'%1.1f%%'</span>)
+plt.title(<span class="string">'توزیع تعداد پارکینگ'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 10. رابطه طبقه و قیمت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">10</span>)
+floor_groups = pd.cut(properties_df[<span class="string">'floor'</span>], bins=[<span class="number">0</span>, <span class="number">3</span>, <span class="number">7</span>, <span class="number">10</span>, <span class="number">15</span>])
+floor_prices = properties_df.groupby(floor_groups)[<span class="string">'price'</span>].mean() / <span class="number">1000000000</span>
+floor_prices.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'brown'</span>)
+plt.title(<span class="string">'تأثیر طبقه بر قیمت'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'میانگین قیمت (میلیارد تومان)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 11. مقایسه امکانات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">11</span>)
+amenities = [<span class="string">'has_elevator'</span>, <span class="string">'has_balcony'</span>, <span class="string">'has_storage'</span>]
+amenity_names = [<span class="string">'آسانسور'</span>, <span class="string">'بالکن'</span>, <span class="string">'انباری'</span>]
+amenity_impacts = [amenities_impact[amenity] <span class="keyword">for</span> amenity <span class="keyword">in</span> amenities]
+
+plt.bar(amenity_names, amenity_impacts, color=[<span class="string">'gold'</span>, <span class="string">'silver'</span>, <span class="string">'bronze'</span>])
+plt.title(<span class="string">'تأثیر امکانات بر قیمت (%)'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درصد تأثیر'</span>)
+
+<span class="comment"># 12. توزیع متراژ</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">12</span>)
+plt.hist(properties_df[<span class="string">'area'</span>], bins=<span class="number">25</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'teal'</span>)
+plt.title(<span class="string">'توزیع متراژ املاک'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'متراژ (متر مربع)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+
+plt.suptitle(<span class="string">'داشبورد جامع تحلیل املاک'</span>, fontsize=<span class="number">18</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="function">print</span>(<span class="string">"✅ داشبورد تحلیل املاک ایجاد شد"</span>)
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">pd.cut()</div>
+                            <div class="method-desc">گروه‌بندی داده</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">sns.heatmap()</div>
+                            <div class="method-desc">نقشه حرارتی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">.boxplot()</div>
+                            <div class="method-desc">نمودار جعبه‌ای</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Feature Engineering</div>
+                            <div class="method-desc">مهندسی ویژگی</div>
+                        </div>
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات تحلیل املاک:</div>
+                        <ul>
+                            <li><strong>Location Factor:</strong> موقعیت مهم‌ترین عامل قیمت‌گذاری است</li>
+                            <li><strong>Feature Engineering:</strong> ترکیب ویژگی‌ها برای بهبود مدل</li>
+                            <li><strong>Outlier Detection:</strong> شناسایی املاک با قیمت غیرعادی</li>
+                            <li><strong>Market Trends:</strong> در نظر گیری روندهای بازار</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 5: مدل‌سازی و پیش‌بینی قیمت املاک -->
+            <div class="slide" id="slide5">
+                <div class="slide-number">5/15</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🤖</div>
+                <div class="slide-title">مدل‌سازی و پیش‌بینی قیمت املاک</div>
+                <div class="slide-content">
+                    <h3>🤖 مرحله 4: ایجاد مدل پیش‌بینی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مدل‌سازی پیش‌بینی قیمت املاک</span>
+<span class="function">print</span>(<span class="string">f"\n🤖 مدل‌سازی پیش‌بینی قیمت:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># آماده‌سازی داده‌ها برای مدل‌سازی</span>
+<span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> LabelEncoder, StandardScaler
+
+<span class="comment"># کدگذاری متغیرهای کیفی</span>
+le_district = LabelEncoder()
+le_type = LabelEncoder()
+
+properties_model = properties_df.copy()
+properties_model[<span class="string">'district_encoded'</span>] = le_district.fit_transform(properties_df[<span class="string">'district'</span>])
+properties_model[<span class="string">'type_encoded'</span>] = le_type.fit_transform(properties_df[<span class="string">'property_type'</span>])
+
+<span class="comment"># انتخاب ویژگی‌ها</span>
+features = [<span class="string">'area'</span>, <span class="string">'bedrooms'</span>, <span class="string">'bathrooms'</span>, <span class="string">'parking'</span>, <span class="string">'age'</span>, <span class="string">'floor'</span>,
+           <span class="string">'has_elevator'</span>, <span class="string">'has_balcony'</span>, <span class="string">'has_storage'</span>, <span class="string">'district_encoded'</span>, <span class="string">'type_encoded'</span>]
+
+X = properties_model[features]
+y = properties_model[<span class="string">'price'</span>]
+
+<span class="comment"># تقسیم داده‌ها</span>
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.2</span>, random_state=<span class="number">42</span>)
+
+<span class="comment"># استانداردسازی داده‌ها</span>
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+<span class="function">print</span>(<span class="string">f"تعداد نمونه‌های آموزش: {len(X_train)}"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد نمونه‌های تست: {len(X_test)}"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد ویژگی‌ها: {len(features)}"</span>)
+
+<span class="comment"># مدل 1: رگرسیون خطی</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مدل 1: رگرسیون خطی"</span>)
+lr_model = LinearRegression()
+lr_model.fit(X_train_scaled, y_train)
+
+lr_pred = lr_model.predict(X_test_scaled)
+lr_mae = mean_absolute_error(y_test, lr_pred)
+lr_r2 = r2_score(y_test, lr_pred)
+
+<span class="function">print</span>(<span class="string">f"MAE: {lr_mae:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"R² Score: {lr_r2:.3f}"</span>)
+
+<span class="comment"># مدل 2: Random Forest</span>
+<span class="function">print</span>(<span class="string">f"\n🌳 مدل 2: Random Forest"</span>)
+rf_model = RandomForestRegressor(n_estimators=<span class="number">100</span>, random_state=<span class="number">42</span>)
+rf_model.fit(X_train, y_train)
+
+rf_pred = rf_model.predict(X_test)
+rf_mae = mean_absolute_error(y_test, rf_pred)
+rf_r2 = r2_score(y_test, rf_pred)
+
+<span class="function">print</span>(<span class="string">f"MAE: {rf_mae:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"R² Score: {rf_r2:.3f}"</span>)
+
+<span class="comment"># مقایسه مدل‌ها</span>
+<span class="function">print</span>(<span class="string">f"\n🏆 مقایسه مدل‌ها:"</span>)
+<span class="function">print</span>(<span class="string">f"{'مدل':<15} {'MAE':<15} {'R² Score':<10}"</span>)
+<span class="function">print</span>(<span class="string">"-"</span> * <span class="number">40</span>)
+<span class="function">print</span>(<span class="string">f"{'Linear Reg':<15} {lr_mae:<15,.0f} {lr_r2:<10.3f}"</span>)
+<span class="function">print</span>(<span class="string">f"{'Random Forest':<15} {rf_mae:<15,.0f} {rf_r2:<10.3f}"</span>)
+
+<span class="comment"># انتخاب بهترین مدل</span>
+best_model = rf_model <span class="keyword">if</span> rf_r2 > lr_r2 <span class="keyword">else</span> lr_model
+best_model_name = <span class="string">"Random Forest"</span> <span class="keyword">if</span> rf_r2 > lr_r2 <span class="keyword">else</span> <span class="string">"Linear Regression"</span>
+best_pred = rf_pred <span class="keyword">if</span> rf_r2 > lr_r2 <span class="keyword">else</span> lr_pred
+
+<span class="function">print</span>(<span class="string">f"\n🥇 بهترین مدل: {best_model_name}"</span>)
+                    </div>
+
+                    <h3>📊 تحلیل اهمیت ویژگی‌ها</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل اهمیت ویژگی‌ها</span>
+<span class="function">print</span>(<span class="string">f"\n📊 تحلیل اهمیت ویژگی‌ها:"</span>)
+
+<span class="comment"># اهمیت ویژگی‌ها در Random Forest</span>
+feature_importance = pd.DataFrame({
+    <span class="string">'feature'</span>: features,
+    <span class="string">'importance'</span>: rf_model.feature_importances_
+}).sort_values(<span class="string">'importance'</span>, ascending=<span class="keyword">False</span>)
+
+feature_names_fa = {
+    <span class="string">'area'</span>: <span class="string">'متراژ'</span>,
+    <span class="string">'district_encoded'</span>: <span class="string">'منطقه'</span>,
+    <span class="string">'type_encoded'</span>: <span class="string">'نوع ملک'</span>,
+    <span class="string">'bedrooms'</span>: <span class="string">'تعداد اتاق'</span>,
+    <span class="string">'age'</span>: <span class="string">'سن بنا'</span>,
+    <span class="string">'bathrooms'</span>: <span class="string">'سرویس'</span>,
+    <span class="string">'parking'</span>: <span class="string">'پارکینگ'</span>,
+    <span class="string">'floor'</span>: <span class="string">'طبقه'</span>,
+    <span class="string">'has_elevator'</span>: <span class="string">'آسانسور'</span>,
+    <span class="string">'has_balcony'</span>: <span class="string">'بالکن'</span>,
+    <span class="string">'has_storage'</span>: <span class="string">'انباری'</span>
+}
+
+feature_importance[<span class="string">'feature_fa'</span>] = feature_importance[<span class="string">'feature'</span>].map(feature_names_fa)
+
+<span class="function">print</span>(<span class="string">"رتبه‌بندی اهمیت ویژگی‌ها:"</span>)
+<span class="keyword">for</span> i, row <span class="keyword">in</span> feature_importance.iterrows():
+    <span class="function">print</span>(<span class="string">f"{row['feature_fa']}: {row['importance']:.3f}"</span>)
+
+<span class="comment"># مصورسازی اهمیت ویژگی‌ها</span>
+plt.figure(figsize=(<span class="number">12</span>, <span class="number">8</span>))
+plt.barh(feature_importance[<span class="string">'feature_fa'</span>], feature_importance[<span class="string">'importance'</span>])
+plt.title(<span class="string">'اهمیت ویژگی‌ها در پیش‌بینی قیمت املاک'</span>, fontsize=<span class="number">14</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'اهمیت'</span>)
+plt.tight_layout()
+plt.show()
+                    </div>
+
+                    <h3>🔍 ارزیابی و تست مدل</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># ارزیابی دقیق‌تر مدل</span>
+<span class="function">print</span>(<span class="string">f"\n🔍 ارزیابی دقیق مدل:"</span>)
+
+<span class="comment"># محاسبه خطاهای مختلف</span>
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error
+
+mse = mean_squared_error(y_test, best_pred)
+rmse = np.sqrt(mse)
+mape = np.mean(np.abs((y_test - best_pred) / y_test)) * <span class="number">100</span>
+
+<span class="function">print</span>(<span class="string">f"Mean Absolute Error (MAE): {mean_absolute_error(y_test, best_pred):,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"Root Mean Squared Error (RMSE): {rmse:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"Mean Absolute Percentage Error (MAPE): {mape:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"R² Score: {r2_score(y_test, best_pred):.3f}"</span>)
+
+<span class="comment"># مصورسازی نتایج پیش‌بینی</span>
+plt.figure(figsize=(<span class="number">15</span>, <span class="number">5</span>))
+
+<span class="comment"># نمودار 1: مقایسه قیمت واقعی و پیش‌بینی شده</span>
+plt.subplot(<span class="number">1</span>, <span class="number">3</span>, <span class="number">1</span>)
+plt.scatter(y_test / <span class="number">1000000000</span>, best_pred / <span class="number">1000000000</span>, alpha=<span class="number">0.5</span>)
+plt.plot([y_test.min() / <span class="number">1000000000</span>, y_test.max() / <span class="number">1000000000</span>], 
+         [y_test.min() / <span class="number">1000000000</span>, y_test.max() / <span class="number">1000000000</span>], 
+         <span class="string">'r--'</span>, lw=<span class="number">2</span>)
+plt.xlabel(<span class="string">'قیمت واقعی (میلیارد تومان)'</span>)
+plt.ylabel(<span class="string">'قیمت پیش‌بینی شده (میلیارد تومان)'</span>)
+plt.title(<span class="string">'مقایسه قیمت واقعی و پیش‌بینی'</span>)
+
+<span class="comment"># نمودار 2: توزیع خطاها</span>
+plt.subplot(<span class="number">1</span>, <span class="number">3</span>, <span class="number">2</span>)
+errors = (y_test - best_pred) / <span class="number">1000000</span>
+plt.hist(errors, bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>)
+plt.xlabel(<span class="string">'خطا (میلیون تومان)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+plt.title(<span class="string">'توزیع خطاهای پیش‌بینی'</span>)
+
+<span class="comment"># نمودار 3: خطاهای نسبی</span>
+plt.subplot(<span class="number">1</span>, <span class="number">3</span>, <span class="number">3</span>)
+relative_errors = np.abs((y_test - best_pred) / y_test) * <span class="number">100</span>
+plt.hist(relative_errors, bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>)
+plt.xlabel(<span class="string">'خطای نسبی (%)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+plt.title(<span class="string">'توزیع خطاهای نسبی'</span>)
+
+plt.tight_layout()
+plt.show()
+
+<span class="comment"># تست مدل با نمونه‌های جدید</span>
+<span class="function">print</span>(<span class="string">f"\n🧪 تست مدل با نمونه‌های جدید:"</span>)
+
+<span class="comment"># تعریف چند نمونه تست</span>
+test_samples = [
+    {<span class="string">'area'</span>: <span class="number">120</span>, <span class="string">'bedrooms'</span>: <span class="number">3</span>, <span class="string">'bathrooms'</span>: <span class="number">2</span>, <span class="string">'parking'</span>: <span class="number">1</span>, <span class="string">'age'</span>: <span class="number">5</span>, 
+     <span class="string">'floor'</span>: <span class="number">3</span>, <span class="string">'has_elevator'</span>: <span class="number">1</span>, <span class="string">'has_balcony'</span>: <span class="number">1</span>, <span class="string">'has_storage'</span>: <span class="number">1</span>,
+     <span class="string">'district'</span>: <span class="string">'شمال تهران'</span>, <span class="string">'property_type'</span>: <span class="string">'آپارتمان'</span>},
+    
+    {<span class="string">'area'</span>: <span class="number">200</span>, <span class="string">'bedrooms'</span>: <span class="number">4</span>, <span class="string">'bathrooms'</span>: <span class="number">3</span>, <span class="string">'parking'</span>: <span class="number">2</span>, <span class="string">'age'</span>: <span class="number">2</span>, 
+     <span class="string">'floor'</span>: <span class="number">1</span>, <span class="string">'has_elevator'</span>: <span class="number">0</span>, <span class="string">'has_balcony'</span>: <span class="number">1</span>, <span class="string">'has_storage'</span>: <span class="number">1</span>,
+     <span class="string">'district'</span>: <span class="string">'غرب تهران'</span>, <span class="string">'property_type'</span>: <span class="string">'ویلا'</span>},
+    
+    {<span class="string">'area'</span>: <span class="number">80</span>, <span class="string">'bedrooms'</span>: <span class="number">2</span>, <span class="string">'bathrooms'</span>: <span class="number">1</span>, <span class="string">'parking'</span>: <span class="number">1</span>, <span class="string">'age'</span>: <span class="number">10</span>, 
+     <span class="string">'floor'</span>: <span class="number">8</span>, <span class="string">'has_elevator'</span>: <span class="number">1</span>, <span class="string">'has_balcony'</span>: <span class="number">0</span>, <span class="string">'has_storage'</span>: <span class="number">0</span>,
+     <span class="string">'district'</span>: <span class="string">'جنوب تهران'</span>, <span class="string">'property_type'</span>: <span class="string">'آپارتمان'</span>}
+]
+
+<span class="keyword">for</span> i, sample <span class="keyword">in</span> <span class="function">enumerate</span>(test_samples, <span class="number">1</span>):
+    <span class="comment"># آماده‌سازی داده</span>
+    sample_data = sample.copy()
+    sample_data[<span class="string">'district_encoded'</span>] = le_district.transform([sample[<span class="string">'district'</span>]])[<span class="number">0</span>]
+    sample_data[<span class="string">'type_encoded'</span>] = le_type.transform([sample[<span class="string">'property_type'</span>]])[<span class="number">0</span>]
+    
+    <span class="comment"># پیش‌بینی</span>
+    X_sample = np.array([[sample_data[feature] <span class="keyword">for</span> feature <span class="keyword">in</span> features]])
+    predicted_price = rf_model.predict(X_sample)[<span class="number">0</span>]
+    
+    <span class="function">print</span>(<span class="string">f"\nنمونه {i}:"</span>)
+    <span class="function">print</span>(<span class="string">f"ملک {sample['area']} متری، {sample['bedrooms']} خواب در {sample['district']}"</span>)
+    <span class="function">print</span>(<span class="string">f"قیمت پیش‌بینی شده: {predicted_price:,.0f} تومان"</span>)
+    <span class="function">print</span>(<span class="string">f"قیمت هر متر: {predicted_price/sample['area']:,.0f} تومان"</span>)
+                    </div>
+
+                    <div class="challenge-box">
+                        <div class="challenge-title">🎯 چالش عملی: سیستم پیش‌بینی املاک</div>
+                        <p>یک سیستم کامل پیش‌بینی قیمت املاک ایجاد کردید که می‌تواند:</p>
+                        <ul>
+                            <li>✅ قیمت املاک را با دقت بالا پیش‌بینی کند</li>
+                            <li>✅ عوامل مؤثر بر قیمت را شناسایی کند</li>
+                            <li>✅ برای مشاوران املاک کاربرد داشته باشد</li>
+                            <li>✅ تصمیم‌گیری خرید و فروش را تسهیل کند</li>
+                        </ul>
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">train_test_split</div>
+                            <div class="method-desc">تقسیم داده</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">RandomForestRegressor</div>
+                            <div class="method-desc">مدل جنگل تصادفی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">feature_importances_</div>
+                            <div class="method-desc">اهمیت ویژگی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Model Evaluation</div>
+                            <div class="method-desc">ارزیابی مدل</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ادامه اسلایدها... -->
+            <!-- به دلیل محدودیت طول، بقیه اسلایدها در پاسخ بعدی ارسال خواهد شد -->
+
+        </div>
+
+        <!-- کنترل‌های ناوبری -->
+        <div class="navigation">
+            <button id="prevBtn" onclick="changeSlide(-1)">❮ قبلی</button>
+            <span id="slideInfo">1 / 15</span>
+            <button id="nextBtn" onclick="changeSlide(1)">بعدی ❯</button>
+        </div>
+
+        <!-- فهرست اسلایدها -->
+        <div class="slide-list">
+            <h3>📋 فهرست پروژه‌های عملی:</h3>
+            <div class="slide-links">
+                <a href="#" onclick="goToSlide(1)">1. معرفی پروژه‌ها</a>
+                <a href="#" onclick="goToSlide(2)">2. پروژه فروش آنلاین</a>
+                <a href="#" onclick="goToSlide(3)">3. داشبورد فروش</a>
+                <a href="#" onclick="goToSlide(4)">4. پروژه املاک</a>
+                <a href="#" onclick="goToSlide(5)">5. مدل‌سازی املاک</a>
+                <a href="#" onclick="goToSlide(6)">6. پروژه شبکه‌های اجتماعی</a>
+                <a href="#" onclick="goToSlide(7)">7. تحلیل احساسات</a>
+                <a href="#" onclick="goToSlide(8)">8. پروژه مالی</a>
+                <a href="#" onclick="goToSlide(9)">9. تحلیل سهام</a>
+                <a href="#" onclick="goToSlide(10)">10. پروژه سلامت</a>
+                <a href="#" onclick="goToSlide(11)">11. تحلیل اپیدمی</a>
+                <a href="#" onclick="goToSlide(12)">12. پروژه تجارت الکترونیک</a>
+                <a href="#" onclick="goToSlide(13)">13. سیستم توصیه</a>
+                <a href="#" onclick="goToSlide(14)">14. پروژه نهایی</a>
+                <a href="#" onclick="goToSlide(15)">15. جمع‌بندی و ارزیابی</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 15;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            
+            slides.forEach(slide => slide.style.display = 'none');
+            document.getElementById(`slide${currentSlide}`).style.display = 'block';
+            
+            document.getElementById('slideInfo').textContent = `${currentSlide} / ${totalSlides}`;
+            
+            document.getElementById('prevBtn').style.opacity = currentSlide === 1 ? '0.5' : '1';
+            document.getElementById('nextBtn').style.opacity = currentSlide === totalSlides ? '0.5' : '1';
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+
+        function expandSlide(btn) {
+            const slide = btn.closest('.slide');
+            slide.classList.add('expanded');
+        }
+
+        function closeSlide(btn) {
+            const slide = btn.closest('.slide');
+            slide.classList.remove('expanded');
+        }
+
+        function copyCode(btn) {
+            const codeBlock = btn.nextElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '✅ کپی شد';
+                setTimeout(() => {
+                    btn.textContent = 'کپی';
+                }, 2000);
+            });
+        }
+
+        // کلیدهای میانبر
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.slide.expanded').forEach(slide => {
+                    slide.classList.remove('expanded');
+                });
+            }
+        });
+
+        // نمایش اولین اسلاید
+        showSlide(1);
+    </script>
+
+    <!-- ادامه اسلایدها -->
+    <div class="slides-container" style="display: none;">
+        <!-- اسلاید 6: پروژه سوم - تحلیل شبکه‌های اجتماعی -->
+        <div class="slide" id="slide6">
+            <div class="slide-number">6/15</div>
+            <button class="expand-btn" onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+            <button class="close-btn" onclick="closeSlide(this)">×</button>
+            <div class="icon">📱</div>
+            <div class="slide-title">پروژه سوم: تحلیل شبکه‌های اجتماعی</div>
+            <div class="slide-content">
+                <div class="project-card">
+                    <div class="project-title">📱 سیستم تحلیل داده‌های شبکه‌های اجتماعی</div>
+                    <div class="project-desc">
+                        تحلیل پست‌ها، کامنت‌ها و تعاملات کاربران در شبکه‌های اجتماعی
+                        شامل تحلیل احساسات و شناسایی ترندهای محبوب
+                    </div>
+                </div>
+
+                <h3>📊 مرحله 1: تولید داده‌های شبکه اجتماعی</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه 3: تحلیل شبکه‌های اجتماعی</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+<span class="keyword">import</span> re
+<span class="keyword">import</span> random
+<span class="keyword">from</span> collections <span class="keyword">import</span> Counter
+
+<span class="function">print</span>(<span class="string">"📱 پروژه 3: تحلیل شبکه‌های اجتماعی"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">50</span>)
+
+<span class="comment"># تولید داده‌های واقعی شبکه اجتماعی</span>
+np.random.seed(<span class="number">42</span>)
+
+<span class="comment"># کاربران</span>
+n_users = <span class="number">500</span>
+users_data = {
+    <span class="string">'user_id'</span>: <span class="function">range</span>(<span class="number">1</span>, n_users + <span class="number">1</span>),
+    <span class="string">'username'</span>: [<span class="string">f'user_{i}'</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, n_users + <span class="number">1</span>)],
+    <span class="string">'followers_count'</span>: np.random.exponential(<span class="number">1000</span>, n_users).astype(<span class="function">int</span>),
+    <span class="string">'following_count'</span>: np.random.exponential(<span class="number">500</span>, n_users).astype(<span class="function">int</span>),
+    <span class="string">'account_age_days'</span>: np.random.randint(<span class="number">30</span>, <span class="number">2000</span>, n_users),
+    <span class="string">'is_verified'</span>: np.random.choice([<span class="number">0</span>, <span class="number">1</span>], n_users, p=[<span class="number">0.95</span>, <span class="number">0.05</span>]),
+    <span class="string">'location'</span>: np.random.choice([<span class="string">'تهران'</span>, <span class="string">'اصفهان'</span>, <span class="string">'شیراز'</span>, <span class="string">'مشهد'</span>, <span class="string">'تبریز'</span>, <span class="string">'کرج'</span>, <span class="string">'اهواز'</span>, <span class="string">'نامشخص'</span>], n_users)
+}
+
+users_df = pd.DataFrame(users_data)
+
+<span class="comment"># موضوعات و هشتگ‌های محبوب</span>
+popular_topics = [
+    <span class="string">'تکنولوژی'</span>, <span class="string">'ورزش'</span>, <span class="string">'سیاست'</span>, <span class="string">'هنر'</span>, <span class="string">'علم'</span>, 
+    <span class="string">'سرگرمی'</span>, <span class="string">'اقتصاد'</span>, <span class="string">'سلامت'</span>, <span class="string">'آشپزی'</span>, <span class="string">'سفر'</span>
+]
+
+hashtags = [
+    <span class="string">'#تکنولوژی'</span>, <span class="string">'#هوش_مصنوعی'</span>, <span class="string">'#برنامه_نویسی'</span>, <span class="string">'#فوتبال'</span>, <span class="string">'#پرسپولیس'</span>,
+    <span class="string">'#استقلال'</span>, <span class="string">'#سینما'</span>, <span class="string">'#موسیقی'</span>, <span class="string">'#کتاب'</span>, <span class="string">'#عکاسی'</span>,
+    <span class="string">'#سلامتی'</span>, <span class="string">'#ورزش'</span>, <span class="string">'#غذا'</span>, <span class="string">'#سفر'</span>, <span class="string">'#طبیعت'</span>
+]
+
+<span class="comment"># نمونه متن‌های پست</span>
+post_templates = [
+    <span class="string">"امروز روز فوق‌العاده‌ای بود! {hashtag}"</span>,
+    <span class="string">"نظرتون راجع به {topic} چیه؟"</span>,
+    <span class="string">"تازه این رو دیدم، خیلی جالب بود {hashtag}"</span>,
+    <span class="string">"کسی تجربه‌ای با {topic} داره؟"</span>,
+    <span class="string">"این عکس رو ببینید! {hashtag}"</span>,
+    <span class="string">"فردا قراره یه کار مهم انجام بدم {hashtag}"</span>,
+    <span class="string">"چه روز زیبایی! {hashtag}"</span>,
+    <span class="string">"دوستان نظرتون درباره {topic} چیه؟"</span>
+]
+
+<span class="comment"># تولید پست‌ها</span>
+n_posts = <span class="number">3000</span>
+posts_data = []
+
+<span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(n_posts):
+    user_id = np.random.choice(users_df[<span class="string">'user_id'</span>])
+    
+    <span class="comment"># تاریخ پست (3 ماه گذشته)</span>
+    post_date = datetime.now() - timedelta(days=np.random.randint(<span class="number">1</span>, <span class="number">90</span>))
+    
+    <span class="comment"># انتخاب موضوع و متن</span>
+    topic = np.random.choice(popular_topics)
+    hashtag = np.random.choice(hashtags)
+    template = np.random.choice(post_templates)
+    
+    <span class="comment"># ایجاد متن پست</span>
+    <span class="keyword">if</span> <span class="string">'{hashtag}'</span> <span class="keyword">in</span> template:
+        post_text = template.format(hashtag=hashtag)
+    <span class="keyword">elif</span> <span class="string">'{topic}'</span> <span class="keyword">in</span> template:
+        post_text = template.format(topic=topic)
+    <span class="keyword">else</span>:
+        post_text = template
+    
+    <span class="comment"># تعاملات (بر اساس تعداد فالوور)</span>
+    user_followers = users_df[users_df[<span class="string">'user_id'</span>] == user_id][<span class="string">'followers_count'</span>].iloc[<span class="number">0</span>]
+    engagement_rate = np.random.uniform(<span class="number">0.01</span>, <span class="number">0.1</span>)
+    
+    likes = <span class="function">int</span>(user_followers * engagement_rate * np.random.uniform(<span class="number">0.5</span>, <span class="number">2.0</span>))
+    comments = <span class="function">int</span>(likes * np.random.uniform(<span class="number">0.05</span>, <span class="number">0.2</span>))
+    shares = <span class="function">int</span>(likes * np.random.uniform(<span class="number">0.02</span>, <span class="number">0.1</span>))
+    
+    posts_data.append({
+        <span class="string">'post_id'</span>: i + <span class="number">1</span>,
+        <span class="string">'user_id'</span>: user_id,
+        <span class="string">'post_text'</span>: post_text,
+        <span class="string">'topic'</span>: topic,
+        <span class="string">'post_date'</span>: post_date,
+        <span class="string">'likes_count'</span>: likes,
+        <span class="string">'comments_count'</span>: comments,
+        <span class="string">'shares_count'</span>: shares,
+        <span class="string">'has_hashtag'</span>: <span class="number">1</span> <span class="keyword">if</span> <span class="string">'#'</span> <span class="keyword">in</span> post_text <span class="keyword">else</span> <span class="number">0</span>
+    })
+
+posts_df = pd.DataFrame(posts_data)
+
+<span class="comment"># محاسبه engagement rate</span>
+posts_df[<span class="string">'total_engagement'</span>] = (posts_df[<span class="string">'likes_count'</span>] + 
+                                     posts_df[<span class="string">'comments_count'</span>] + 
+                                     posts_df[<span class="string">'shares_count'</span>])
+
+<span class="comment"># ادغام با اطلاعات کاربران</span>
+posts_detailed = posts_df.merge(users_df, on=<span class="string">'user_id'</span>)
+posts_detailed[<span class="string">'engagement_rate'</span>] = (posts_detailed[<span class="string">'total_engagement'</span>] / 
+                                          posts_detailed[<span class="string">'followers_count'</span>]) * <span class="number">100</span>
+
+<span class="function">print</span>(<span class="string">f"📊 داده‌های شبکه اجتماعی تولید شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد کاربران: {len(users_df):,}"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد پست‌ها: {len(posts_df):,}"</span>)
+<span class="function">print</span>(<span class="string">f"کل لایک‌ها: {posts_df['likes_count'].sum():,}"</span>)
+<span class="function">print</span>(<span class="string">f"کل کامنت‌ها: {posts_df['comments_count'].sum():,}"</span>)
+
+<span class="function">print</span>(<span class="string">f"\nنمونه پست‌ها:"</span>)
+<span class="function">print</span>(posts_detailed[[<span class="string">'username'</span>, <span class="string">'post_text'</span>, <span class="string">'topic'</span>, <span class="string">'likes_count'</span>]].head())
+                </div>
+
+                <h3>📈 مرحله 2: تحلیل اکتشافی شبکه اجتماعی</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل اکتشافی داده‌های شبکه اجتماعی</span>
+<span class="function">print</span>(<span class="string">f"\n📈 تحلیل اکتشافی شبکه اجتماعی:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># آمار کلی کاربران</span>
+<span class="function">print</span>(<span class="string">f"👥 آمار کاربران:"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین فالوور: {users_df['followers_count'].mean():,.0f}"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین فالووینگ: {users_df['following_count'].mean():,.0f}"</span>)
+<span class="function">print</span>(<span class="string">f"کاربران تأیید شده: {users_df['is_verified'].sum()} نفر ({users_df['is_verified'].mean()*100:.1f}%)"</span>)
+
+<span class="comment"># تحلیل موضوعات</span>
+<span class="function">print</span>(<span class="string">f"\n📊 تحلیل موضوعات:"</span>)
+topic_analysis = posts_detailed.groupby(<span class="string">'topic'</span>).agg({
+    <span class="string">'post_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'likes_count'</span>: [<span class="string">'sum'</span>, <span class="string">'mean'</span>],
+    <span class="string">'comments_count'</span>: <span class="string">'sum'</span>,
+    <span class="string">'shares_count'</span>: <span class="string">'sum'</span>,
+    <span class="string">'engagement_rate'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+topic_analysis.columns = [<span class="string">'تعداد_پست'</span>, <span class="string">'کل_لایک'</span>, <span class="string">'میانگین_لایک'</span>, 
+                          <span class="string">'کل_کامنت'</span>, <span class="string">'کل_اشتراک'</span>, <span class="string">'نرخ_تعامل'</span>]
+topic_analysis = topic_analysis.sort_values(<span class="string">'کل_لایک'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="function">print</span>(topic_analysis)
+
+<span class="comment"># تحلیل زمانی</span>
+<span class="function">print</span>(<span class="string">f"\n📅 تحلیل زمانی:"</span>)
+posts_detailed[<span class="string">'hour'</span>] = posts_detailed[<span class="string">'post_date'</span>].dt.hour
+posts_detailed[<span class="string">'day_of_week'</span>] = posts_detailed[<span class="string">'post_date'</span>].dt.day_name()
+
+<span class="comment"># بهترین ساعات برای پست</span>
+hourly_engagement = posts_detailed.groupby(<span class="string">'hour'</span>)[<span class="string">'engagement_rate'</span>].mean().sort_values(ascending=<span class="keyword">False</span>)
+<span class="function">print</span>(<span class="string">f"بهترین ساعت برای پست: {hourly_engagement.index[0]}:00 (نرخ تعامل: {hourly_engagement.iloc[0]:.2f}%)"</span>)
+
+<span class="comment"># بهترین روزهای هفته</span>
+daily_engagement = posts_detailed.groupby(<span class="string">'day_of_week'</span>)[<span class="string">'engagement_rate'</span>].mean().sort_values(ascending=<span class="keyword">False</span>)
+<span class="function">print</span>(<span class="string">f"بهترین روز هفته: {daily_engagement.index[0]} (نرخ تعامل: {daily_engagement.iloc[0]:.2f}%)"</span>)
+
+<span class="comment"># تحلیل هشتگ‌ها</span>
+<span class="function">print</span>(<span class="string">f"\n🏷️ تحلیل هشتگ‌ها:"</span>)
+hashtag_posts = posts_detailed[posts_detailed[<span class="string">'has_hashtag'</span>] == <span class="number">1</span>]
+non_hashtag_posts = posts_detailed[posts_detailed[<span class="string">'has_hashtag'</span>] == <span class="number">0</span>]
+
+hashtag_engagement = hashtag_posts[<span class="string">'engagement_rate'</span>].mean()
+non_hashtag_engagement = non_hashtag_posts[<span class="string">'engagement_rate'</span>].mean()
+
+<span class="function">print</span>(<span class="string">f"نرخ تعامل با هشتگ: {hashtag_engagement:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"نرخ تعامل بدون هشتگ: {non_hashtag_engagement:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"تأثیر هشتگ: {((hashtag_engagement - non_hashtag_engagement) / non_hashtag_engagement * 100):+.1f}%"</span>)
+
+<span class="comment"># تحلیل کاربران پرفالوور</span>
+<span class="function">print</span>(<span class="string">f"\n⭐ تحلیل اینفلوئنسرها:"</span>)
+influencers = users_df[users_df[<span class="string">'followers_count'</span>] > users_df[<span class="string">'followers_count'</span>].quantile(<span class="number">0.95</span>)]
+<span class="function">print</span>(<span class="string">f"تعداد اینفلوئنسرها (5% برتر): {len(influencers)} نفر"</span>)
+<span class="function">print</span>(<span class="string">f"میانگین فالوور اینفلوئنسرها: {influencers['followers_count'].mean():,.0f}"</span>)
+
+<span class="comment"># تحلیل شهرها</span>
+<span class="function">print</span>(<span class="string">f"\n🏙️ تحلیل جغرافیایی:"</span>)
+city_analysis = posts_detailed.groupby(<span class="string">'location'</span>).agg({
+    <span class="string">'user_id'</span>: <span class="string">'nunique'</span>,
+    <span class="string">'post_id'</span>: <span class="string">'count'</span>,
+    <span class="string">'total_engagement'</span>: <span class="string">'sum'</span>
+}).round(<span class="number">0</span>)
+
+city_analysis.columns = [<span class="string">'تعداد_کاربر'</span>, <span class="string">'تعداد_پست'</span>, <span class="string">'کل_تعامل'</span>]
+city_analysis[<span class="string">'متوسط_پست_کاربر'</span>] = (city_analysis[<span class="string">'تعداد_پست'</span>] / city_analysis[<span class="string">'تعداد_کاربر'</span>]).round(<span class="number">1</span>)
+city_analysis = city_analysis.sort_values(<span class="string">'کل_تعامل'</span>, ascending=<span class="keyword">False</span>)
+
+<span class="function">print</span>(city_analysis)
+                </div>
+
+                <h3>📊 مصورسازی داده‌های شبکه اجتماعی</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مصورسازی جامع شبکه اجتماعی</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مصورسازی داده‌های شبکه اجتماعی:"</span>)
+
+fig = plt.figure(figsize=(<span class="number">20</span>, <span class="number">16</span>))
+
+<span class="comment"># 1. توزیع فالوورها</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>)
+plt.hist(np.log10(users_df[<span class="string">'followers_count'</span>] + <span class="number">1</span>), bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'skyblue'</span>)
+plt.title(<span class="string">'توزیع فالوورها (مقیاس لگاریتمی)'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'لگاریتم تعداد فالوور'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+
+<span class="comment"># 2. محبوبیت موضوعات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>)
+topic_posts = posts_detailed[<span class="string">'topic'</span>].value_counts()
+topic_posts.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'lightgreen'</span>)
+plt.title(<span class="string">'تعداد پست به تفکیک موضوع'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'تعداد پست'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 3. نرخ تعامل در ساعات مختلف</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">3</span>)
+hourly_engagement.plot(kind=<span class="string">'line'</span>, marker=<span class="string">'o'</span>, linewidth=<span class="number">3</span>, markersize=<span class="number">6</span>)
+plt.title(<span class="string">'نرخ تعامل در ساعات مختلف'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'ساعت روز'</span>)
+plt.ylabel(<span class="string">'نرخ تعامل (%)'</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+<span class="comment"># 4. مقایسه لایک، کامنت و اشتراک</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>)
+engagement_types = [<span class="string">'likes_count'</span>, <span class="string">'comments_count'</span>, <span class="string">'shares_count'</span>]
+engagement_totals = [posts_df[col].sum() <span class="keyword">for</span> col <span class="keyword">in</span> engagement_types]
+engagement_labels = [<span class="string">'لایک'</span>, <span class="string">'کامنت'</span>, <span class="string">'اشتراک'</span>]
+
+plt.pie(engagement_totals, labels=engagement_labels, autopct=<span class="string">'%1.1f%%'</span>)
+plt.title(<span class="string">'توزیع انواع تعامل'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 5. رابطه فالوور و تعامل</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)
+sample_posts = posts_detailed.sample(<span class="number">500</span>)  <span class="comment"># نمونه‌گیری برای سرعت</span>
+plt.scatter(np.log10(sample_posts[<span class="string">'followers_count'</span>] + <span class="number">1</span>), 
+           np.log10(sample_posts[<span class="string">'total_engagement'</span>] + <span class="number">1</span>), 
+           alpha=<span class="number">0.6</span>, c=<span class="string">'red'</span>)
+plt.xlabel(<span class="string">'لگاریتم فالوور'</span>)
+plt.ylabel(<span class="string">'لگاریتم تعامل'</span>)
+plt.title(<span class="string">'رابطه فالوور و تعامل'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 6. تأثیر هشتگ</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>)
+hashtag_comparison = [non_hashtag_engagement, hashtag_engagement]
+hashtag_labels = [<span class="string">'بدون هشتگ'</span>, <span class="string">'با هشتگ'</span>]
+plt.bar(hashtag_labels, hashtag_comparison, color=[<span class="string">'lightcoral'</span>, <span class="string">'lightgreen'</span>])
+plt.title(<span class="string">'تأثیر هشتگ بر نرخ تعامل'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'نرخ تعامل (%)'</span>)
+
+<span class="comment"># 7. فعالیت روزانه</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">7</span>)
+weekday_order = [<span class="string">'Monday'</span>, <span class="string">'Tuesday'</span>, <span class="string">'Wednesday'</span>, <span class="string">'Thursday'</span>, <span class="string">'Friday'</span>, <span class="string">'Saturday'</span>, <span class="string">'Sunday'</span>]
+daily_posts = posts_detailed[<span class="string">'day_of_week'</span>].value_counts().reindex(weekday_order)
+daily_posts.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'orange'</span>)
+plt.title(<span class="string">'تعداد پست در روزهای هفته'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'تعداد پست'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 8. توزیع کاربران تأیید شده</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>)
+verified_counts = users_df[<span class="string">'is_verified'</span>].value_counts()
+verified_labels = [<span class="string">'عادی'</span>, <span class="string">'تأیید شده'</span>]
+plt.pie(verified_counts.values, labels=verified_labels, autopct=<span class="string">'%1.1f%%'</span>)
+plt.title(<span class="string">'توزیع کاربران تأیید شده'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 9. توزیع جغرافیایی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>)
+location_counts = users_df[<span class="string">'location'</span>].value_counts()
+location_counts.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'purple'</span>)
+plt.title(<span class="string">'توزیع کاربران در شهرها'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'تعداد کاربر'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 10. نرخ تعامل موضوعات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">10</span>)
+topic_engagement = posts_detailed.groupby(<span class="string">'topic'</span>)[<span class="string">'engagement_rate'</span>].mean().sort_values(ascending=<span class="keyword">False</span>)
+topic_engagement.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'teal'</span>)
+plt.title(<span class="string">'نرخ تعامل به تفکیک موضوع'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'نرخ تعامل (%)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 11. سن حساب کاربری</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">11</span>)
+plt.hist(users_df[<span class="string">'account_age_days'</span>] / <span class="number">365</span>, bins=<span class="number">20</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'brown'</span>)
+plt.title(<span class="string">'توزیع سن حساب کاربری'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'سن حساب (سال)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+
+<span class="comment"># 12. رابطه فالوور و فالووینگ</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">12</span>)
+sample_users = users_df.sample(<span class="number">200</span>)
+plt.scatter(np.log10(sample_users[<span class="string">'following_count'</span>] + <span class="number">1</span>), 
+           np.log10(sample_users[<span class="string">'followers_count'</span>] + <span class="number">1</span>), 
+           alpha=<span class="number">0.6</span>, c=<span class="string">'gold'</span>)
+plt.xlabel(<span class="string">'لگاریتم فالووینگ'</span>)
+plt.ylabel(<span class="string">'لگاریتم فالوور'</span>)
+plt.title(<span class="string">'رابطه فالوور و فالووینگ'</span>, fontweight=<span class="string">'bold'</span>)
+
+plt.suptitle(<span class="string">'داشبورد جامع تحلیل شبکه اجتماعی'</span>, fontsize=<span class="number">18</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="function">print</span>(<span class="string">"✅ داشبورد تحلیل شبکه اجتماعی ایجاد شد"</span>)
+                </div>
+
+                <div class="method-grid">
+                    <div class="method-card">
+                        <div class="method-name">Text Analysis</div>
+                        <div class="method-desc">تحلیل متن</div>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-name">Engagement Rate</div>
+                        <div class="method-desc">نرخ تعامل</div>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-name">Time Series</div>
+                        <div class="method-desc">سری زمانی</div>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-name">Social Analytics</div>
+                        <div class="method-desc">تحلیل اجتماعی</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: تحلیل احساسات -->
+        <div class="slide" id="slide7">
+            <div class="slide-number">7/15</div>
+            <button class="expand-btn" onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+            <button class="close-btn" onclick="closeSlide(this)">×</button>
+            <div class="icon">😊</div>
+            <div class="slide-title">تحلیل احساسات و ترندیابی</div>
+            <div class="slide-content">
+                <h3>😊 مرحله 3: تحلیل احساسات متن‌ها</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل احساسات و ترندیابی</span>
+<span class="function">print</span>(<span class="string">f"\n😊 تحلیل احساسات متن‌ها:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># تحلیل ساده احساسات (شبیه‌سازی)</span>
+positive_words = [<span class="string">'عالی'</span>, <span class="string">'فوق‌العاده'</span>, <span class="string">'خوب'</span>, <span class="string">'جالب'</span>, <span class="string">'زیبا'</span>, <span class="string">'مفید'</span>, <span class="string">'خوشحال'</span>, <span class="string">'موفق'</span>]
+negative_words = [<span class="string">'بد'</span>, <span class="string">'افتضاح'</span>, <span class="string">'ناراحت'</span>, <span class="string">'مشکل'</span>, <span class="string">'غمگین'</span>, <span class="string">'عصبانی'</span>]
+neutral_words = [<span class="string">'عادی'</span>, <span class="string">'معمولی'</span>, <span class="string">'نظر'</span>, <span class="string">'فکر'</span>, <span class="string">'گفت'</span>]
+
+<span class="keyword">def</span> <span class="function">analyze_sentiment</span>(text):
+    text = text.lower()
+    positive_score = <span class="function">sum</span>(<span class="number">1</span> <span class="keyword">for</span> word <span class="keyword">in</span> positive_words <span class="keyword">if</span> word <span class="keyword">in</span> text)
+    negative_score = <span class="function">sum</span>(<span class="number">1</span> <span class="keyword">for</span> word <span class="keyword">in</span> negative_words <span class="keyword">if</span> word <span class="keyword">in</span> text)
+    
+    <span class="keyword">if</span> positive_score > negative_score:
+        <span class="keyword">return</span> <span class="string">'مثبت'</span>
+    <span class="keyword">elif</span> negative_score > positive_score:
+        <span class="keyword">return</span> <span class="string">'منفی'</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">'خنثی'</span>
+
+<span class="comment"># اعمال تحلیل احساسات</span>
+posts_detailed[<span class="string">'sentiment'</span>] = posts_detailed[<span class="string">'post_text'</span>].apply(analyze_sentiment)
+
+<span class="comment"># آمار احساسات</span>
+sentiment_counts = posts_detailed[<span class="string">'sentiment'</span>].value_counts()
+<span class="function">print</span>(<span class="string">f"توزیع احساسات:"</span>)
+<span class="keyword">for</span> sentiment, count <span class="keyword">in</span> sentiment_counts.items():
+    percentage = (count / len(posts_detailed)) * <span class="number">100</span>
+    <span class="function">print</span>(<span class="string">f"{sentiment}: {count:,} پست ({percentage:.1f}%)"</span>)
+
+<span class="comment"># رابطه احساسات و تعامل</span>
+<span class="function">print</span>(<span class="string">f"\n📊 رابطه احساسات و تعامل:"</span>)
+sentiment_engagement = posts_detailed.groupby(<span class="string">'sentiment'</span>).agg({
+    <span class="string">'likes_count'</span>: <span class="string">'mean'</span>,
+    <span class="string">'comments_count'</span>: <span class="string">'mean'</span>,
+    <span class="string">'shares_count'</span>: <span class="string">'mean'</span>,
+    <span class="string">'engagement_rate'</span>: <span class="string">'mean'</span>
+}).round(<span class="number">2</span>)
+
+sentiment_engagement.columns = [<span class="string">'میانگین_لایک'</span>, <span class="string">'میانگین_کامنت'</span>, <span class="string">'میانگین_اشتراک'</span>, <span class="string">'نرخ_تعامل'</span>]
+<span class="function">print</span>(sentiment_engagement)
+
+<span class="comment"># تحلیل احساسات به تفکیک موضوع</span>
+<span class="function">print</span>(<span class="string">f"\n📈 احساسات به تفکیک موضوع:"</span>)
+topic_sentiment = pd.crosstab(posts_detailed[<span class="string">'topic'</span>], posts_detailed[<span class="string">'sentiment'</span>], normalize=<span class="string">'index'</span>) * <span class="number">100</span>
+<span class="function">print</span>(topic_sentiment.round(<span class="number">1</span>))
+
+<span class="comment"># شناسایی ترندهای زمانی</span>
+<span class="function">print</span>(<span class="string">f"\n📅 ترندهای زمانی:"</span>)
+posts_detailed[<span class="string">'date'</span>] = posts_detailed[<span class="string">'post_date'</span>].dt.date
+daily_trends = posts_detailed.groupby([<span class="string">'date'</span>, <span class="string">'topic'</span>]).size().reset_index(name=<span class="string">'count'</span>)
+
+<span class="comment"># محبوب‌ترین موضوع هر روز</span>
+daily_top_topics = daily_trends.loc[daily_trends.groupby(<span class="string">'date'</span>)[<span class="string">'count'</span>].idxmax()]
+<span class="function">print</span>(<span class="string">"محبوب‌ترین موضوعات روزانه (5 روز اخیر):"</span>)
+<span class="function">print</span>(daily_top_topics.tail()[<span class="string">'topic'</span>].value_counts())
+
+<span class="comment"># تحلیل هشتگ‌های محبوب</span>
+<span class="function">print</span>(<span class="string">f"\n🏷️ تحلیل هشتگ‌های محبوب:"</span>)
+<span class="keyword">import</span> re
+
+<span class="keyword">def</span> <span class="function">extract_hashtags</span>(text):
+    <span class="keyword">return</span> re.findall(<span class="string">r'#\w+'</span>, text)
+
+<span class="comment"># استخراج همه هشتگ‌ها</span>
+all_hashtags = []
+<span class="keyword">for</span> text <span class="keyword">in</span> posts_detailed[<span class="string">'post_text'</span>]:
+    hashtags = extract_hashtags(text)
+    all_hashtags.extend(hashtags)
+
+hashtag_counts = Counter(all_hashtags)
+<span class="function">print</span>(<span class="string">"محبوب‌ترین هشتگ‌ها:"</span>)
+<span class="keyword">for</span> hashtag, count <span class="keyword">in</span> hashtag_counts.most_common(<span class="number">10</span>):
+    <span class="function">print</span>(<span class="string">f"{hashtag}: {count} بار"</span>)
+                </div>
+
+                <h3>📊 مصورسازی تحلیل احساسات</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مصورسازی تحلیل احساسات</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مصورسازی تحلیل احساسات:"</span>)
+
+fig = plt.figure(figsize=(<span class="number">16</span>, <span class="number">12</span>))
+
+<span class="comment"># 1. توزیع احساسات</span>
+plt.subplot(<span class="number">2</span>, <span class="number">3</span>, <span class="number">1</span>)
+sentiment_counts.plot(kind=<span class="string">'pie'</span>, autopct=<span class="string">'%1.1f%%'</span>, colors=[<span class="string">'lightgreen'</span>, <span class="string">'lightcoral'</span>, <span class="string">'lightblue'</span>])
+plt.title(<span class="string">'توزیع احساسات در پست‌ها'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 2. نرخ تعامل بر اساس احساسات</span>
+plt.subplot(<span class="number">2</span>, <span class="number">3</span>, <span class="number">2</span>)
+sentiment_engagement[<span class="string">'نرخ_تعامل'</span>].plot(kind=<span class="string">'bar'</span>, color=[<span class="string">'green'</span>, <span class="string">'red'</span>, <span class="string">'blue'</span>])
+plt.title(<span class="string">'نرخ تعامل بر اساس احساسات'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'نرخ تعامل (%)'</span>)
+plt.xticks(rotation=<span class="number">0</span>)
+
+<span class="comment"># 3. احساسات به تفکیک موضوع</span>
+plt.subplot(<span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>)
+topic_sentiment.plot(kind=<span class="string">'bar'</span>, stacked=<span class="keyword">True</span>, 
+                    color=[<span class="string">'lightgreen'</span>, <span class="string">'lightcoral'</span>, <span class="string">'lightblue'</span>])
+plt.title(<span class="string">'احساسات به تفکیک موضوع'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درصد'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+plt.legend(title=<span class="string">'احساسات'</span>)
+
+<span class="comment"># 4. روند احساسات در زمان</span>
+plt.subplot(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)
+daily_sentiment = posts_detailed.groupby([posts_detailed[<span class="string">'post_date'</span>].dt.date, <span class="string">'sentiment'</span>]).size().unstack(fill_value=<span class="number">0</span>)
+daily_sentiment_pct = daily_sentiment.div(daily_sentiment.sum(axis=<span class="number">1</span>), axis=<span class="number">0</span>) * <span class="number">100</span>
+
+<span class="comment"># نمایش 30 روز اخیر</span>
+recent_sentiment = daily_sentiment_pct.tail(<span class="number">30</span>)
+recent_sentiment.plot(kind=<span class="string">'area'</span>, stacked=<span class="keyword">True</span>, 
+                     color=[<span class="string">'lightgreen'</span>, <span class="string">'lightcoral'</span>, <span class="string">'lightblue'</span>])
+plt.title(<span class="string">'روند احساسات در 30 روز اخیر'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'درصد احساسات'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 5. محبوب‌ترین هشتگ‌ها</span>
+plt.subplot(<span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>)
+top_hashtags = dict(hashtag_counts.most_common(<span class="number">10</span>))
+plt.barh(<span class="function">list</span>(top_hashtags.keys()), <span class="function">list</span>(top_hashtags.values()), color=<span class="string">'orange'</span>)
+plt.title(<span class="string">'محبوب‌ترین هشتگ‌ها'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تعداد استفاده'</span>)
+
+<span class="comment"># 6. مقایسه انواع تعامل بر اساس احساسات</span>
+plt.subplot(<span class="number">2</span>, <span class="number">3</span>, <span class="number">6</span>)
+engagement_comparison = sentiment_engagement[[<span class="string">'میانگین_لایک'</span>, <span class="string">'میانگین_کامنت'</span>, <span class="string">'میانگین_اشتراک'</span>]]
+engagement_comparison.plot(kind=<span class="string">'bar'</span>)
+plt.title(<span class="string">'مقایسه انواع تعامل بر اساس احساسات'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'میانگین تعامل'</span>)
+plt.xticks(rotation=<span class="number">0</span>)
+plt.legend(title=<span class="string">'نوع تعامل'</span>)
+
+plt.suptitle(<span class="string">'داشبورد تحلیل احساسات و ترندیابی'</span>, fontsize=<span class="number">16</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="function">print</span>(<span class="string">"✅ داشبورد تحلیل احساسات ایجاد شد"</span>)
+                </div>
+
+                <h3>🎯 توصیه‌های استراتژیک شبکه اجتماعی</h3>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تولید توصیه‌های استراتژیک</span>
+<span class="function">print</span>(<span class="string">f"\n🎯 توصیه‌های استراتژیک شبکه اجتماعی:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">50</span>)
+
+<span class="comment"># شناسایی بهترین زمان‌ها</span>
+best_hour = hourly_engagement.index[<span class="number">0</span>]
+best_day = daily_engagement.index[<span class="number">0</span>]
+best_topic = topic_engagement.index[<span class="number">0</span>]
+most_engaging_sentiment = sentiment_engagement[<span class="string">'نرخ_تعامل'</span>].idxmax()
+
+<span class="function">print</span>(<span class="string">f"📈 توصیه‌های بهینه‌سازی محتوا:"</span>)
+content_recommendations = [
+    <span class="string">f"1. بهترین زمان انتشار: ساعت {best_hour}:00"</span>,
+    <span class="string">f"2. بهترین روز هفته: {best_day}"</span>,
+    <span class="string">f"3. محبوب‌ترین موضوع: {best_topic}"</span>,
+    <span class="string">f"4. احساسات پرتعامل: {most_engaging_sentiment}"</span>,
+    <span class="string">f"5. استفاده از هشتگ {hashtag_engagement - non_hashtag_engagement:+.1f}% تعامل بیشتر دارد"</span>
+]
+
+<span class="keyword">for</span> rec <span class="keyword">in</span> content_recommendations:
+    <span class="function">print</span>(rec)
+
+<span class="function">print</span>(<span class="string">f"\n👥 توصیه‌های مدیریت اجتماع:"</span>)
+community_recommendations = [
+    <span class="string">f"1. تمرکز بر {len(influencers)} اینفلوئنسر برتر"</span>,
+    <span class="string">f"2. توسعه محتوا برای شهر {city_analysis.index[0]} (بیشترین فعالیت)"</span>,
+    <span class="string">f"3. ایجاد کمپین‌های مثبت (احساسات مثبت {sentiment_counts['مثبت']/len(posts_detailed)*100:.1f}%)"</span>,
+    <span class="string">f"4. استراتژی هشتگ‌گذاری حرفه‌ای"</span>,
+    <span class="string">f"5. تعامل بیشتر در ساعات پیک"</span>
+]
+
+<span class="keyword">for</span> rec <span class="keyword">in</span> community_recommendations:
+    <span class="function">print</span>(rec)
+
+<span class="function">print</span>(<span class="string">f"\n📊 KPI های شبکه اجتماعی:"</span>)
+social_kpis = {
+    <span class="string">'میانگین نرخ تعامل'</span>: <span class="string">f"{posts_detailed['engagement_rate'].mean():.2f}%"</span>,
+    <span class="string">'نسبت احساسات مثبت'</span>: <span class="string">f"{sentiment_counts['مثبت']/len(posts_detailed)*100:.1f}%"</span>,
+    <span class="string">'تأثیر هشتگ'</span>: <span class="string">f"+{hashtag_engagement - non_hashtag_engagement:.1f}%"</span>,
+    <span class="string">'کاربران فعال روزانه'</span>: <span class="string">f"{len(posts_detailed)/90:.0f} نفر"</span>,  <span class="comment"># تخمینی</span>
+    <span class="string">'محبوب‌ترین موضوع'</span>: <span class="string">f"{best_topic}"</span>,
+    <span class="string">'بهترین زمان انتشار'</span>: <span class="string">f"{best_hour}:00"</span>
+}
+
+<span class="keyword">for</span> kpi, value <span class="keyword">in</span> social_kpis.items():
+    <span class="function">print</span>(<span class="string">f"• {kpi}: {value}"</span>)
+
+<span class="function">print</span>(<span class="string">f"\n✅ تحلیل جامع شبکه اجتماعی تکمیل شد!"</span>)
+                </div>
+
+                <div class="challenge-box">
+                    <div class="challenge-title">🎯 چالش عملی: سیستم تحلیل شبکه اجتماعی</div>
+                    <p>یک سیستم کامل تحلیل شبکه اجتماعی ایجاد کردید که می‌تواند:</p>
+                    <ul>
+                        <li>✅ احساسات کاربران را تحلیل کند</li>
+                        <li>✅ ترندهای محبوب را شناسایی کند</li>
+                        <li>✅ بهترین زمان انتشار را تعیین کند</li>
+                        <li>✅ استراتژی محتوا را بهینه‌سازی کند</li>
+                    </ul>
+                </div>
+
+                <div class="method-grid">
+                    <div class="method-card">
+                        <div class="method-name">Sentiment Analysis</div>
+                        <div class="method-desc">تحلیل احساسات</div>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-name">Hashtag Analysis</div>
+                        <div class="method-desc">تحلیل هشتگ</div>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-name">Trend Detection</div>
+                        <div class="method-desc">شناسایی ترند</div>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-name">Engagement Metrics</div>
+                        <div class="method-desc">متریک‌های تعامل</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

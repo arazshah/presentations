@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="fa"
+      dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>جلسه اول: مقدمه علم داده - آراز شاه کرمی</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%, #f093fb 150%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .presentation-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .slides-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            width: 90vw;
+            max-width: 1200px;
+            min-height: 80vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: hidden;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .slide.prev {
+            transform: translate(-150%, -50%);
+            opacity: 0;
+        }
+
+        .slide.next {
+            transform: translate(50%, -50%);
+            opacity: 0;
+        }
+
+        /* Navigation Arrows */
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .nav-arrow:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-arrow.prev {
+            left: 30px;
+        }
+
+        .nav-arrow.next {
+            right: 30px;
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .nav-arrow:disabled:hover {
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+            background-size: 300% 300%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.05));
+            color: #666;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .slide-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            margin-top: 25px;
+            border-right: 4px solid #3498db;
+            padding-right: 15px;
+            line-height: 1.3;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide-content {
+            font-size: 15px;
+            line-height: 1.9;
+            color: #34495e;
+        }
+
+        .slide-content h3 {
+            color: #2980b9;
+            font-size: 16px;
+            margin: 15px 0 10px 0;
+            font-weight: 600;
+        }
+
+        .slide-content ul {
+            margin: 15px 0;
+            padding-right: 20px;
+        }
+
+        .slide-content li {
+            margin: 8px 0;
+            position: relative;
+        }
+
+        .slide-content li::before {
+            content: '✓';
+            position: absolute;
+            right: -20px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%, #d299c2 200%);
+            background-size: 200% 200%;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            animation: highlightShift 2s ease infinite;
+        }
+
+        @keyframes highlightShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .code-block {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin: 20px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e74c3c;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .icon {
+            font-size: 40px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            border-radius: 4px;
+            transition: width 2s ease;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .tool-item {
+            background: #f1c40f;
+            color: #2c3e50;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            z-index: 1000;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-title {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 18px;
+            margin: 8px 0;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 13px;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .nav-item:hover {
+            background: #2980b9;
+            transform: translateX(-5px);
+        }
+
+        .slide.intro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%, #f093fb 150%);
+            color: white;
+            text-align: center;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .slide.intro .slide-title {
+            color: white;
+            border-right: 4px solid white;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .slide.code {
+            background: #2c3e50;
+            color: #ecf0f1;
+        }
+
+        .slide.code .slide-title {
+            color: #3498db;
+            border-right: 4px solid #3498db;
+        }
+
+        /* استایل‌های Modal و Fullscreen */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            backdrop-filter: blur(8px);
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            pointer-events: none;
+        }
+
+        .modal-overlay.active {
+            pointer-events: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 90vw;
+            max-width: 1200px;
+            height: 90vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 50px;
+            overflow-y: auto;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3), 0 20px 40px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-overlay.active .modal-content {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .modal-close:hover {
+            background: #c0392b;
+            transform: rotate(90deg);
+        }
+
+        .modal-slide {
+            width: 100%;
+            min-height: auto;
+            background: white;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+            cursor: default;
+        }
+
+        .modal-slide .slide-title {
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .modal-slide .slide-content {
+            font-size: 18px;
+            line-height: 2;
+        }
+
+        .modal-slide .slide-content h3 {
+            font-size: 24px;
+            margin: 25px 0 15px 0;
+        }
+
+        .modal-slide .code-block {
+            font-size: 16px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .modal-slide .icon {
+            font-size: 80px;
+            margin-bottom: 25px;
+        }
+
+        .modal-slide .stat-number {
+            font-size: 36px;
+        }
+
+        .modal-slide .stat-label {
+            font-size: 16px;
+        }
+
+        .modal-slide.intro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        .modal-slide.intro .slide-title {
+            color: white;
+            border-right: 6px solid white;
+            font-size: 42px;
+        }
+
+        .modal-slide.code {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 40px;
+            border-radius: 20px;
+        }
+
+        .modal-slide.code .slide-title {
+            color: #3498db;
+            border-right: 6px solid #3498db;
+        }
+
+        /* کلیدهای میانبر */
+        .keyboard-shortcuts {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            font-size: 13px;
+            color: #666;
+            z-index: 1500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .keyboard-shortcuts h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            align-items: center;
+        }
+
+        .shortcut-key {
+            background: #34495e;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        /* انیمیشن کلیک */
+        .slide-click-effect {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-click-effect::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(52, 152, 219, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.6s ease;
+            pointer-events: none;
+        }
+
+        .slide-click-effect.clicked::after {
+            width: 200%;
+            height: 200%;
+        }
+
+        @media (max-width: 768px) {
+            .presentation-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .navigation {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .slides-container {
+                justify-content: center;
+            }
+
+            .slide {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .modal-content {
+                width: 95vw;
+                height: 95vh;
+                padding: 20px;
+            }
+
+            .keyboard-shortcuts {
+                display: none;
+            }
+        }
+
+        .timeline {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-right: 4px solid #3498db;
+        }
+
+        .timeline-time {
+            background: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 15px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .example-box {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .example-title {
+            color: #27ae60;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .warning-title {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        /* افکت hover بهتر */
+        .slide {
+            transform-style: preserve-3d;
+        }
+
+        .slide:hover {
+            transform: translateY(-12px) scale(1.02) rotateX(2deg);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Modal Overlay -->
+    <div class="modal-overlay"
+         id="modalOverlay">
+        <button class="modal-close"
+                id="modalClose">×</button>
+        <div class="modal-content"
+             id="modalContent">
+            <!-- محتوای اسلاید بزرگ شده اینجا قرار می‌گیرد -->
+        </div>
+    </div>
+
+    <!-- راهنمای کلیدهای میانبر -->
+    <div class="keyboard-shortcuts">
+        <h4>⌨️ کلیدهای میانبر</h4>
+        <div class="shortcut-item">
+            <span>بزرگنمایی اسلاید</span>
+            <span class="shortcut-key">کلیک</span>
+        </div>
+        <div class="shortcut-item">
+            <span>بستن بزرگنمایی</span>
+            <span class="shortcut-key">ESC</span>
+        </div>
+        <div class="shortcut-item">
+            <span>اسلاید بعدی</span>
+            <span class="shortcut-key">→</span>
+        </div>
+        <div class="shortcut-item">
+            <span>اسلاید قبلی</span>
+            <span class="shortcut-key">←</span>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <div class="nav-title">🧭 راهنمای جلسه</div>
+        <a href="#slide1"
+           class="nav-item">معرفی دوره</a>
+        <a href="#slide2"
+           class="nav-item">علم داده چیست؟</a>
+        <a href="#slide3"
+           class="nav-item">کاربردها</a>
+        <a href="#slide4"
+           class="nav-item">چرخه علم داده</a>
+        <a href="#slide5"
+           class="nav-item">ابزارها</a>
+        <a href="#slide6"
+           class="nav-item">نصب محیط</a>
+        <a href="#slide7"
+           class="nav-item">Google Colab</a>
+        <a href="#slide8"
+           class="nav-item">تمرین عملی</a>
+        <a href="#slide9"
+           class="nav-item">مثال کاربردی</a>
+        <a href="#slide10"
+           class="nav-item">تحلیل داده</a>
+        <a href="#slide11"
+           class="nav-item">جمع‌بندی</a>
+        <a href="#slide12"
+           class="nav-item">پایان</a>
+
+        <div class="presentation-container">
+            <div class="slides-container" id="slidesContainer">
+                <!-- اسلایدها اینجا قرار می‌گیرند -->
+                <div class="slide intro slide-click-effect active"
+                     id="slide1"
+                     data-slide="1">
+                    <div class="slide-number">1/12</div>
+                    <div class="icon">🎓</div>
+                    <div class="slide-title">دوره جامع علم داده با پایتون</div>
+                    <div class="slide-content">
+                        <h3>👨‍🏫 مدرس: آراز شاه کرمی</h3>
+                        <h3>📅 جلسه اول: مقدمه و آشنایی</h3>
+                        <h3>⏱️ مدت: 120 دقیقه</h3>
+                        <h3>🎯 هدف: آشنایی با مفاهیم پایه</h3>
+                        <div style="margin-top: 30px; font-size: 16px;">
+                            🚀 <strong>شروع سفر به دنیای علم داده</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 2: علم داده چیست؟ -->
+                <div class="slide slide-click-effect"
+                     id="slide2"
+                     data-slide="2">
+                    <div class="slide-number">2/12</div>
+                    <div class="icon">🔬</div>
+                    <div class="slide-title">علم داده چیست؟</div>
+                    <div class="slide-content">
+                        <h3>📊 تعریف علم داده:</h3>
+                        <p>علم داده ترکیبی از <span class="highlight">ریاضیات</span>، <span class="highlight">آمار</span>،
+                            <span class="highlight">برنامه‌نویسی</span> و <span class="highlight">دانش تخصصی</span> است که
+                            برای استخراج بینش از داده‌ها استفاده می‌شود.</p>
+
+                        <h3>🎯 اهداف علم داده:</h3>
+                        <ul>
+                            <li>کشف الگوها و روندهای پنهان</li>
+                            <li>پیش‌بینی رفتارهای آینده</li>
+                            <li>بهینه‌سازی فرآیندهای کسب‌وکار</li>
+                            <li>تصمیم‌گیری مبتنی بر داده</li>
+                        </ul>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number">2.5</span>
+                            <span class="stat-label">کوینتیلیون بایت داده روزانه</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">90%</span>
+                            <span class="stat-label">داده‌های جهان در 2 سال اخیر</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 3: چرخه علم داده -->
+                <div class="slide slide-click-effect"
+                     id="slide3"
+                     data-slide="3">
+                    <div class="slide-number">3/12</div>
+                    <div class="icon">🔄</div>
+                    <div class="slide-title">چرخه علم داده</div>
+                    <div class="slide-content">
+                        <h3>🔄 مراحل چرخه علم داده:</h3>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-time">1</div>
+                                <div><strong>جمع‌آوری داده</strong> - جمع‌آوری اطلاعات از منابع مختلف</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">2</div>
+                                <div><strong>پاک‌سازی داده</strong> - حذف نویز و خطاها</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">3</div>
+                                <div><strong>تحلیل داده</strong> - کشف الگوها و روندها</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">4</div>
+                                <div><strong>مدل‌سازی</strong> - ساخت مدل‌های پیش‌بینی</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">5</div>
+                                <div><strong>ارائه نتایج</strong> - مصورسازی و گزارش‌دهی</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 4: ابزارهای علم داده -->
+                <div class="slide slide-click-effect"
+                     id="slide4"
+                     data-slide="4">
+                    <div class="slide-number">4/12</div>
+                    <div class="icon">🛠️</div>
+                    <div class="slide-title">ابزارهای علم داده</div>
+                    <div class="slide-content">
+                        <h3>🛠️ ابزارهای اصلی:</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">🐍</span>
+                                <span class="stat-label">پایتون</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">📊</span>
+                                <span class="stat-label">Pandas</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">📈</span>
+                                <span class="stat-label">Matplotlib</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">🤖</span>
+                                <span class="stat-label">Scikit-learn</span>
+                            </div>
+                        </div>
+                        <div class="example-box">
+                            <div class="example-title">مثال: کتابخانه‌های پایتون</div>
+                            <ul>
+                                <li><strong>Pandas:</strong> دستکاری و تحلیل داده‌ها</li>
+                                <li><strong>NumPy:</strong> محاسبات عددی</li>
+                                <li><strong>Matplotlib:</strong> مصورسازی داده‌ها</li>
+                                <li><strong>Scikit-learn:</strong> یادگیری ماشین</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 5: انواع داده‌ها -->
+                <div class="slide slide-click-effect"
+                     id="slide5"
+                     data-slide="5">
+                    <div class="slide-number">5/12</div>
+                    <div class="icon">📊</div>
+                    <div class="slide-title">انواع داده‌ها</div>
+                    <div class="slide-content">
+                        <h3>📊 انواع داده‌ها در علم داده:</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">🔢</span>
+                                <span class="stat-label">داده‌های عددی</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">📝</span>
+                                <span class="stat-label">داده‌های متنی</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">🖼️</span>
+                                <span class="stat-label">داده‌های تصویری</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">🎵</span>
+                                <span class="stat-label">داده‌های صوتی</span>
+                            </div>
+                        </div>
+                        <h3>📋 دسته‌بندی داده‌ها:</h3>
+                        <ul>
+                            <li><strong>ساختاریافته:</strong> داده‌های جدولی (CSV, Excel)</li>
+                            <li><strong>نیمه‌ساختاریافته:</strong> JSON, XML</li>
+                            <li><strong>غیرساختاریافته:</strong> متن، تصویر، صدا</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- اسلاید 6: پاک‌سازی داده -->
+                <div class="slide slide-click-effect"
+                     id="slide6"
+                     data-slide="6">
+                    <div class="slide-number">6/12</div>
+                    <div class="icon">🧹</div>
+                    <div class="slide-title">پاک‌سازی داده</div>
+                    <div class="slide-content">
+                        <h3>🧹 اهمیت پاک‌سازی داده:</h3>
+                        <p>پاک‌سازی داده یکی از مهم‌ترین و زمان‌برترین مراحل علم داده است.</p>
+                        
+                        <h3>🔧 مراحل پاک‌سازی:</h3>
+                        <ul>
+                            <li><strong>شناسایی مقادیر گمشده:</strong> پیدا کردن null و NaN</li>
+                            <li><strong>حذف یا جایگزینی:</strong> پر کردن مقادیر خالی</li>
+                            <li><strong>حذف داده‌های تکراری:</strong> شناسایی و حذف رکوردهای تکراری</li>
+                            <li><strong>اصلاح فرمت‌ها:</strong> یکسان‌سازی فرمت‌های داده</li>
+                            <li><strong>شناسایی داده‌های پرت:</strong> پیدا کردن مقادیر غیرعادی</li>
+                        </ul>
+                        
+                        <div class="warning-box">
+                            <div class="warning-title">⚠️ نکته مهم</div>
+                            <p>80% زمان یک دانشمند داده صرف پاک‌سازی و آماده‌سازی داده می‌شود!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 7: تحلیل اکتشافی داده -->
+                <div class="slide slide-click-effect"
+                     id="slide7"
+                     data-slide="7">
+                    <div class="slide-number">7/12</div>
+                    <div class="icon">🔍</div>
+                    <div class="slide-title">تحلیل اکتشافی داده</div>
+                    <div class="slide-content">
+                        <h3>🔍 تحلیل اکتشافی داده (EDA):</h3>
+                        <p>EDA اولین قدم در تحلیل داده برای درک بهتر مجموعه داده است.</p>
+                        
+                        <h3>📊 تکنیک‌های EDA:</h3>
+                        <ul>
+                            <li><strong>آمار توصیفی:</strong> میانگین، میانه، انحراف معیار</li>
+                            <li><strong>مصورسازی داده:</strong> نمودارها و گراف‌ها</li>
+                            <li><strong>تحلیل همبستگی:</strong> رابطه بین متغیرها</li>
+                            <li><strong>توزیع داده:</strong> شکل توزیع متغیرها</li>
+                        </ul>
+                        
+                        <div class="example-box">
+                            <div class="example-title">مثال: نمودارها</div>
+                            <ul>
+                                <li><strong>هیستوگرام:</strong> توزیع یک متغیر</li>
+                                <li><strong>نمودار پراکندگی:</strong> رابطه دو متغیر</li>
+                                <li><strong>نمودار جعبه‌ای:</strong> مقادیر پرت و توزیع</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 8: یادگیری ماشین -->
+                <div class="slide slide-click-effect"
+                     id="slide8"
+                     data-slide="8">
+                    <div class="slide-number">8/12</div>
+                    <div class="icon">🤖</div>
+                    <div class="slide-title">یادگیری ماشین</div>
+                    <div class="slide-content">
+                        <h3>🤖 یادگیری ماشین در علم داده:</h3>
+                        <p>یادگیری ماشین شاخه‌ای از هوش مصنوعی است که به کامپیوترها اجازه می‌دهد بدون برنامه‌ریزی صریح یاد بگیرند.</p>
+                        
+                        <h3>📋 انواع یادگیری ماشین:</h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-number">👨‍🏫</span>
+                                <span class="stat-label">نظارتی</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">🧠</span>
+                                <span class="stat-label">بدون نظارت</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">🎯</span>
+                                <span class="stat-label">تقویتی</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">🔀</span>
+                                <span class="stat-label">نیمه نظارتی</span>
+                            </div>
+                        </div>
+                        
+                        <h3>🎯 کاربردها:</h3>
+                        <ul>
+                            <li><strong>دسته‌بندی:</strong> ایمیل اسپم یا غیراسپم</li>
+                            <li><strong>پیش‌بینی:</strong> پیش‌بینی فروش</li>
+                            <li><strong>خوشه‌بندی:</strong> تقسیم‌بندی مشتریان</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- اسلاید 9: مصورسازی داده -->
+                <div class="slide slide-click-effect"
+                     id="slide9"
+                     data-slide="9">
+                    <div class="slide-number">9/12</div>
+                    <div class="icon">📈</div>
+                    <div class="slide-title">مصورسازی داده</div>
+                    <div class="slide-content">
+                        <h3>📈 اهمیت مصورسازی داده:</h3>
+                        <p>مصورسازی داده به ما کمک می‌کند الگوها و روندها را بهتر درک کنیم و نتایج را به‌طور مؤثرتر ارائه دهیم.</p>
+                        
+                        <h3>🎨 انواع نمودارها:</h3>
+                        <ul>
+                            <li><strong>نمودار خطی:</strong> نمایش تغییرات در زمان</li>
+                            <li><strong>نمودار میله‌ای:</strong> مقایسه دسته‌ها</li>
+                            <li><strong>نمودار دایره‌ای:</strong> نمایش سهم اجزا</li>
+                            <li><strong>نمودار حرارتی:</strong> نمایش همبستگی</li>
+                            <li><strong>نقشه:</strong> داده‌های مکانی</li>
+                        </ul>
+                        
+                        <div class="example-box">
+                            <div class="example-title">اصول مصورسازی خوب:</div>
+                            <ul>
+                                <li>سادگی و وضوح</li>
+                                <li>انتخاب نمودار مناسب</li>
+                                <li>استفاده از رنگ‌های معنادار</li>
+                                <li>اضافه کردن عنوان و برچسب</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 10: پروژه عملی -->
+                <div class="slide slide-click-effect"
+                     id="slide10"
+                     data-slide="10">
+                    <div class="slide-number">10/12</div>
+                    <div class="icon">💼</div>
+                    <div class="slide-title">پروژه عملی</div>
+                    <div class="slide-content">
+                        <h3>💼 مراحل انجام یک پروژه علم داده:</h3>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-time">1</div>
+                                <div><strong>تعریف مسئله</strong> - مشخص کردن هدف پروژه</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">2</div>
+                                <div><strong>جمع‌آوری داده</strong> - پیدا کردن منابع داده</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">3</div>
+                                <div><strong>پاک‌سازی و آماده‌سازی</strong> - آماده کردن داده‌ها</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">4</div>
+                                <div><strong>تحلیل و مدل‌سازی</strong> - ساخت مدل‌ها</div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-time">5</div>
+                                <div><strong>ارائه نتایج</strong> - گزارش و مصورسازی</div>
+                            </div>
+                        </div>
+                        
+                        <div class="example-box">
+                            <div class="example-title">مثال پروژه:</div>
+                            <p><strong>پیش‌بینی قیمت مسکن:</strong> استفاده از ویژگی‌هایی مانند متراژ، تعداد اتاق، موقعیت مکانی برای پیش‌بینی قیمت خانه‌ها.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اسلاید 11: منابع یادگیری -->
+                <div class="slide slide-click-effect"
+                     id="slide11"
+                     data-slide="11">
+                    <div class="slide-number">11/12</div>
+                    <div class="icon">📚</div>
+                    <div class="slide-title">منابع یادگیری</div>
+                    <div class="slide-content">
+                        <h3>📚 منابع برای یادگیری علم داده:</h3>
+                        
+                        <h3>🌐 دوره‌های آنلاین:</h3>
+                        <ul>
+                            <li><strong>Coursera:</strong> Data Science Specialization</li>
+                            <li><strong>edX:</strong> Microsoft Professional Program</li>
+                            <li><strong>Udemy:</strong> Complete Data Science Bootcamp</li>
+                        </ul>
+                        
+                        <h3>📖 کتاب‌ها:</h3>
+                        <ul>
+                            <li><strong>Python for Data Analysis</strong> - Wes McKinney</li>
+                            <li><strong>Hands-On Machine Learning</strong> - Aurélien Géron</li>
+                            <li><strong>Practical Statistics for Data Scientists</strong></li>
+                        </ul>
+                        
+                        <h3>🔧 پلتفرم‌های تمرین:</h3>
+                        <ul>
+                            <li><strong>Kaggle:</strong> مسابقات و مجموعه‌های داده</li>
+                            <li><strong>GitHub:</strong> پروژه‌های متن‌باز</li>
+                            <li><strong>Colab:</strong> محیط برنامه‌نویسی آنلاین</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- اسلاید 12: جمع‌بندی -->
+                <div class="slide slide-click-effect"
+                     id="slide12"
+                     data-slide="12">
+                    <div class="slide-number">12/12</div>
+                    <div class="icon">🎯</div>
+                    <div class="slide-title">جمع‌بندی</div>
+                    <div class="slide-content">
+                        <h3>🎯 نکات کلیدی جلسه:</h3>
+                        <ul>
+                            <li>علم داده ترکیبی از ریاضیات، آمار و برنامه‌نویسی است</li>
+                            <li>چرخه علم داده شامل 5 مرحله اصلی است</li>
+                            <li>پایتون مهم‌ترین ابزار در علم داده است</li>
+                            <li>پاک‌سازی داده 80% زمان یک پروژه را می‌گیرد</li>
+                            <li>تحلیل اکتشافی اولین قدم در تحلیل داده است</li>
+                            <li>یادگیری ماشین برای پیش‌بینی و طبقه‌بندی استفاده می‌شود</li>
+                            <li>مصورسازی داده برای درک بهتر الگوها ضروری است</li>
+                        </ul>
+                        
+                        <div class="example-box">
+                            <div class="example-title">🚀 قدم‌های بعدی:</div>
+                            <ul>
+                                <li>یادگیری عمیق‌تر پایتون</li>
+                                <li>تمرین با مجموعه‌های داده واقعی</li>
+                                <li>انجام پروژه‌های عملی</li>
+                                <li>مشارکت در مسابقات Kaggle</li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-top: 30px; text-align: center; font-size: 18px;">
+                            <strong>🙏 سپاس از توجه شما</strong><br>
+                            <span style="font-size: 14px;">آراز شاه کرمی</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Arrows -->
+            <button class="nav-arrow prev" id="prevArrow">‹</button>
+            <button class="nav-arrow next" id="nextArrow">›</button>
+        </div>
+    </div>
+
+    <script>
+        // Wait for DOM to be fully loaded before executing JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Slide navigation functionality
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const totalSlides = slides.length;
+            const prevArrow = document.getElementById('prevArrow');
+            const nextArrow = document.getElementById('nextArrow');
+        
+        function showSlide(index) {
+            // Hide all slides
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Show current slide
+            if (slides[index]) {
+                slides[index].classList.add('active');
+                currentSlide = index;
+            }
+            
+            // Update navigation arrows
+            updateNavigationArrows();
+        }
+        
+        function updateNavigationArrows() {
+            // Disable prev arrow on first slide
+            if (currentSlide === 0) {
+                prevArrow.classList.add('disabled');
+            } else {
+                prevArrow.classList.remove('disabled');
+            }
+            
+            // Disable next arrow on last slide
+            if (currentSlide === totalSlides - 1) {
+                nextArrow.classList.add('disabled');
+            } else {
+                nextArrow.classList.remove('disabled');
+            }
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+        
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+        
+        // Add event listeners for navigation arrows
+        if (prevArrow) {
+            prevArrow.addEventListener('click', prevSlide);
+        }
+        
+        if (nextArrow) {
+            nextArrow.addEventListener('click', nextSlide);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        });
+        
+        // Initialize first slide
+        showSlide(0);
+        
+        // Modal functionality
+        function openSlideModal(slideElement) {
+            const modal = document.getElementById('modalOverlay');
+            const modalContent = document.getElementById('modalContent');
+            const slideClone = slideElement.cloneNode(true);
+            slideClone.classList.add('modal-slide');
+            slideClone.classList.remove('slide-click-effect');
+            slideClone.style.cursor = 'default';
+            modalContent.innerHTML = '';
+            modalContent.appendChild(slideClone);
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                modal.classList.add('active');
+                modal.style.opacity = '1';
+            }, 10);
+        }
+        
+        function closeSlideModal() {
+            const modal = document.getElementById('modalOverlay');
+            modal.classList.remove('active');
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+        
+        // Add click event to slides for modal
+        slides.forEach(slide => {
+            slide.addEventListener('click', function() {
+                openSlideModal(this);
+            });
+            
+            // Add keyboard accessibility
+            slide.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+        
+        // Modal close events
+        const modal = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+        
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeSlideModal();
+                }
+            });
+        }
+        
+        if (modalClose) {
+            modalClose.addEventListener('click', closeSlideModal);
+        }
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeSlideModal();
+            }
+        });
+        
+        // Mobile menu toggle functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const navigation = document.querySelector('.navigation');
+        
+        if (menuToggle && navigation) {
+            menuToggle.addEventListener('click', function() {
+                navigation.classList.toggle('active');
+                this.classList.toggle('active');
+                
+                // Change icon based on menu state
+                const menuIcon = this.querySelector('.menu-icon');
+                if (navigation.classList.contains('active')) {
+                    menuIcon.textContent = '✕';
+                } else {
+                    menuIcon.textContent = '☰';
+                }
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!navigation.contains(e.target) && !menuToggle.contains(e.target)) {
+                    navigation.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    menuToggle.querySelector('.menu-icon').textContent = '☰';
+                }
+            });
+            
+            // Close menu when clicking on navigation items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navigation.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    menuToggle.querySelector('.menu-icon').textContent = '☰';
+                });
+            });
+            
+            // Handle window resize for mobile menu
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    navigation.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    menuToggle.querySelector('.menu-icon').textContent = '☰';
+                }
+            });
+        }
+        });
+    </script>
+</body>
+</html>

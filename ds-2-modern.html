@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسه دوم: پایتون پیشرفته برای علم داده - آراز شاه کرمی</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        
+        body {
+            overflow-y: auto !important;
+            scroll-behavior: smooth;
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+        }
+        
+        .animated-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: visible;
+            min-height: auto;
+            height: auto;
+            max-height: none;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .slide-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .slide-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-item:hover {
+            transform: translateX(-10px);
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-right: 30px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #3b82f6;
+            border-radius: 50%;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Ensure slides are visible and scrollable */
+        .slide-container {
+            min-height: auto;
+            padding: 2rem 0;
+            height: auto;
+            width: 100%;
+            overflow: visible;
+            max-height: none;
+        }
+        
+        /* Hide all slides except current one */
+        .slide-card {
+            display: none;
+            min-height: auto;
+            height: auto;
+            max-height: none;
+            overflow-y: visible !important;
+            overflow-x: visible !important;
+            width: 100%;
+            padding-bottom: 2rem;
+            position: relative;
+        }
+        
+        .slide-card.active {
+            display: block;
+            min-height: auto;
+            height: auto;
+            max-height: none;
+            overflow: visible !important;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .slide-container {
+                padding: 1rem 0;
+            }
+            
+            .slide-card {
+                margin-bottom: 2rem;
+            }
+        }
+        
+        /* Force scrolling to work */
+        html, body {
+            overflow-y: auto !important;
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+        }
+        
+        .container {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+        
+        .max-w-6xl {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+        
+        /* Ensure all content is scrollable */
+        .p-8 {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+        
+        .mb-8 {
+            max-height: none !important;
+            overflow: visible !important;
+        }
+    </style>
+</head>
+<body class="animated-bg">
+    <!-- Animated Background -->
+    <div class="floating-shape w-64 h-64 top-10 left-10" style="animation-delay: 0s;"></div>
+    <div class="floating-shape w-48 h-48 top-1/2 right-20" style="animation-delay: 2s;"></div>
+    <div class="floating-shape w-32 h-32 bottom-20 left-1/3" style="animation-delay: 4s;"></div>
+    
+    <!-- Progress Bar -->
+    <div class="fixed top-0 left-0 right-0 h-2 bg-gray-200 z-50">
+        <div class="progress-fill h-full w-0" id="progressBar"></div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="fixed right-0 top-0 h-full w-80 bg-white/10 backdrop-blur-lg shadow-2xl z-40 transform translate-x-full transition-transform duration-300" id="sidebar">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-white">🧭 جلسه دوم</h2>
+                <button onclick="toggleSidebar()" class="text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <nav class="space-y-3">
+                <a href="#" onclick="goToSlide(1); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-home ml-2"></i>معرفی جلسه
+                </a>
+                <a href="#" onclick="goToSlide(2); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-book ml-2"></i>مرور جلسه قبل
+                </a>
+                <a href="#" onclick="goToSlide(3); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-code ml-2"></i>متغیرها و انواع
+                </a>
+                <a href="#" onclick="goToSlide(4); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-project-diagram ml-2"></i>ساختارهای کنترل
+                </a>
+                <a href="#" onclick="goToSlide(5); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-cogs ml-2"></i>توابع پیشرفته
+                </a>
+                <a href="#" onclick="goToSlide(6); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-file ml-2"></i>کار با فایل‌ها
+                </a>
+                <a href="#" onclick="goToSlide(7); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-shield-alt ml-2"></i>مدیریت خطا
+                </a>
+                <a href="#" onclick="goToSlide(8); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-box ml-2"></i>کتابخانه‌های مفید
+                </a>
+                <a href="#" onclick="goToSlide(9); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-project ml-2"></i>پروژه عملی
+                </a>
+                <a href="#" onclick="goToSlide(10); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-rocket ml-2"></i>بهینه‌سازی کد
+                </a>
+                <a href="#" onclick="goToSlide(11); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-dumbbell ml-2"></i>تمرین کاربردی
+                </a>
+                <a href="#" onclick="goToSlide(12); return false;" class="sidebar-item block p-3 rounded-lg bg-white/20 text-white hover:bg-white/30 transition-all">
+                    <i class="fas fa-check-circle ml-2"></i>جمع‌بندی
+                </a>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Mobile Menu Button -->
+    <button onclick="toggleSidebar()" class="fixed top-4 right-4 z-50 bg-white/20 backdrop-blur-lg text-white p-3 rounded-full shadow-lg hover:bg-white/30 transition-all">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+    
+    <!-- Navigation Arrows -->
+    <button onclick="previousSlide()" class="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 backdrop-blur-lg text-white p-4 rounded-full shadow-lg hover:bg-white/30 transition-all">
+        <i class="fas fa-chevron-right text-xl"></i>
+    </button>
+    <button onclick="nextSlide()" class="fixed right-20 top-1/2 transform -translate-y-1/2 z-30 bg-white/20 backdrop-blur-lg text-white p-4 rounded-full shadow-lg hover:bg-white/30 transition-all">
+        <i class="fas fa-chevron-left text-xl"></i>
+    </button>
+    
+    <!-- Main Content -->
+    <div class="slide-container">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-6xl mx-auto">
+            
+            <!-- Slide 1: Introduction -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide1">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">🐍</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-2">جلسه دوم: پایتون پیشرفته برای علم داده</h1>
+                    <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto mb-6"></div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-user-tie ml-2 text-blue-600"></i>مدرس
+                        </h3>
+                        <p class="text-gray-700">آراز شاه کرمی</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-money-bill-wave ml-2 text-green-600"></i>هزینه
+                        </h3>
+                        <p class="text-gray-700">100,000 تومان</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-clock ml-2 text-purple-600"></i>مدت
+                        </h3>
+                        <p class="text-gray-700">120 دقیقه</p>
+                    </div>
+                    <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-bullseye ml-2 text-orange-600"></i>هدف
+                        </h3>
+                        <p class="text-gray-700">تسلط بر پایتون برای پروژه‌های داده</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold">
+                        🚀 از مبتدی تا حرفه‌ای در یک جلسه
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-6 mt-8">
+                    <div class="stat-card text-center p-6">
+                        <div class="text-4xl font-bold mb-2">8</div>
+                        <div class="text-sm opacity-90">مفهوم کلیدی</div>
+                    </div>
+                    <div class="stat-card text-center p-6">
+                        <div class="text-4xl font-bold mb-2">15</div>
+                        <div class="text-sm opacity-90">تمرین عملی</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 2: Review Previous Session -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide2">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">📚</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">مرور سریع جلسه قبل</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-check-circle ml-2 text-green-600"></i>آنچه در جلسه اول یاد گرفتیم:
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-green-50 border-r-4 border-green-500 p-4 rounded-lg">
+                            <i class="fas fa-chart-line text-green-600 ml-2"></i>مفهوم علم داده و کاربردها
+                        </div>
+                        <div class="bg-blue-50 border-r-4 border-blue-500 p-4 rounded-lg">
+                            <i class="fas fa-sync text-blue-600 ml-2"></i>چرخه کامل علم داده
+                        </div>
+                        <div class="bg-purple-50 border-r-4 border-purple-500 p-4 rounded-lg">
+                            <i class="fas fa-laptop text-purple-600 ml-2"></i>آشنایی با Google Colab
+                        </div>
+                        <div class="bg-orange-50 border-r-4 border-orange-500 p-4 rounded-lg">
+                            <i class="fas fa-table text-orange-600 ml-2"></i>اولین تحلیل با Pandas
+                        </div>
+                        <div class="bg-pink-50 border-r-4 border-pink-500 p-4 rounded-lg">
+                            <i class="fas fa-chart-bar text-pink-600 ml-2"></i>مصورسازی ساده
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-code ml-2 text-blue-600"></i>مرور کد جلسه قبل:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        import pandas as pd<br>
+                        import numpy as np<br><br>
+                        # تولید داده نمونه<br>
+                        data = {'روز': ['شنبه', 'یکشنبه'],<br>
+                        'فروش': [850000, 920000]}<br>
+                        df = pd.DataFrame(data)<br>
+                        print(df['فروش'].mean())
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-blue-800 mb-2">
+                            <i class="fas fa-question-circle ml-2"></i>سوال: چرا Python برای علم داده؟
+                        </h4>
+                        <p class="text-blue-700">ساده، قدرتمند، کتابخانه‌های فراوان، جامعه بزرگ</p>
+                    </div>
+                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-yellow-800 mb-2">
+                            <i class="fas fa-exclamation-triangle ml-2"></i>نکته مهم:
+                        </h4>
+                        <p class="text-yellow-700">امروز روی مهارت‌های عملی پایتون تمرکز می‌کنیم</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 3: Advanced Variables and Data Types -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up bg-gradient-to-br from-gray-900 to-gray-700 text-white" id="slide3">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">🔢</div>
+                    <h2 class="text-3xl font-bold mb-2">متغیرها و انواع داده پیشرفته</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">
+                        <i class="fas fa-database ml-2 text-blue-400"></i>انواع داده در Python:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # انواع داده عددی<br>
+                        price = 150000 # int<br>
+                        rating = 4.5 # float<br>
+                        complex_num = 3+4j # complex<br><br>
+                        # رشته‌ها و متن<br>
+                        name = "علی احمدی"<br>
+                        description = """این یک متن<br>
+                        چند خطی است"""<br><br>
+                        # ساختارهای داده<br>
+                        numbers = [1, 2, 3, 4, 5] # list<br>
+                        coordinates = (35.6892, 51.3890) # tuple<br>
+                        user_info = {"name": "علی", "age": 25} # dict<br>
+                        unique_items = {1, 2, 3, 4} # set<br><br>
+                        # بررسی نوع<br>
+                        print(type(price)) # <class 'int'><br>
+                        print(isinstance(rating, float)) # True
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">
+                        <i class="fas fa-exchange-alt ml-2 text-green-400"></i>تبدیل انواع داده:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # تبدیلات مفید برای علم داده<br>
+                        text_number = "123.45"<br>
+                        number = float(text_number) # 123.45<br><br>
+                        # کار با لیست‌ها<br>
+                        prices = ["100", "200", "300"]<br>
+                        numeric_prices = [int(p) for p in prices]<br><br>
+                        # تبدیل dict به list<br>
+                        data = {"a": 1, "b": 2}<br>
+                        keys = list(data.keys()) # ['a', 'b']<br>
+                        values = list(data.values()) # [1, 2]
+                    </div>
+                </div>
+                
+                <div class="bg-blue-900/50 border-2 border-blue-400 rounded-xl p-6">
+                    <h4 class="font-semibold text-blue-300 mb-2">
+                        <i class="fas fa-dumbbell ml-2"></i>تمرین فوری:
+                    </h4>
+                    <p class="text-blue-200">یک لیست از قیمت‌های رشته‌ای بسازید و آن‌ها را به عدد تبدیل کنید</p>
+                </div>
+            </div>
+            
+            <!-- Slide 4: Advanced Control Structures -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide4">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">🔀</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">ساختارهای کنترل پیشرفته</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-code-branch ml-2 text-blue-600"></i>شرط‌های پیچیده:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # شرط‌های چندگانه برای تحلیل داده<br>
+                        def analyze_score(score):<br>
+                        &nbsp;&nbsp;if score >= 90:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return "عالی"<br>
+                        &nbsp;&nbsp;elif score >= 80:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return "خوب"<br>
+                        &nbsp;&nbsp;elif score >= 70:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return "متوسط"<br>
+                        &nbsp;&nbsp;else:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return "ضعیف"<br><br>
+                        # استفاده از and, or, not<br>
+                        age = 25<br>
+                        income = 50000<br><br>
+                        if age >= 18 and income > 30000:<br>
+                        &nbsp;&nbsp;print("واجد شرایط وام")<br>
+                        elif age >= 18 or income > 100000:<br>
+                        &nbsp;&nbsp;print("نیاز به بررسی بیشتر")<br>
+                        else:<br>
+                        &nbsp;&nbsp;print("غیرواجد شرایط")
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-sync-alt ml-2 text-green-600"></i>حلقه‌های بهینه:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # حلقه for پیشرفته<br>
+                        data = [{"name": "علی", "score": 85},<br>
+                        {"name": "سارا", "score": 92}]<br><br>
+                        # استفاده از enumerate<br>
+                        for index, student in enumerate(data):<br>
+                        &nbsp;&nbsp;print(f"{index+1}. {student['name']}: {student['score']}")<br><br>
+                        # List comprehension قدرتمند<br>
+                        high_scores = [s['score'] for s in data if s['score'] > 80]<br>
+                        names = [s['name'] for s in data]<br><br>
+                        # Dictionary comprehension<br>
+                        score_dict = {s['name']: s['score'] for s in data}<br><br>
+                        # حلقه while برای پردازش داده<br>
+                        i = 0<br>
+                        while i < len(data) and data[i]['score'] < 90:<br>
+                        &nbsp;&nbsp;print(f"بررسی {data[i]['name']}")<br>
+                        &nbsp;&nbsp;i += 1
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                    <h4 class="font-semibold text-green-800 mb-2">
+                        <i class="fas fa-lightbulb ml-2"></i>نکته کارآمد:
+                    </h4>
+                    <p class="text-green-700">List comprehension سریع‌تر از حلقه معمولی است</p>
+                </div>
+            </div>
+            
+            <!-- Slide 5: Advanced Functions -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up bg-gradient-to-br from-gray-900 to-gray-700 text-white" id="slide5">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">⚙️</div>
+                    <h2 class="text-3xl font-bold mb-2">توابع پیشرفته برای علم داده</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">
+                        <i class="fas fa-tools ml-2 text-blue-400"></i>تعریف توابع حرفه‌ای:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # تابع با پارامترهای پیش‌فرض<br>
+                        def calculate_stats(data, method="mean", precision=2):<br>
+                        &nbsp;&nbsp;"""محاسبه آمار توصیفی داده‌ها"""<br>
+                        &nbsp;&nbsp;if method == "mean":<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;result = sum(data) / len(data)<br>
+                        &nbsp;&nbsp;elif method == "median":<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sorted_data = sorted(data)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;n = len(sorted_data)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;if n % 2 == 0:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = (sorted_data[n//2-1] + sorted_data[n//2]) / 2<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;else:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = sorted_data[n//2]<br>
+                        &nbsp;&nbsp;return round(result, precision)<br><br>
+                        # استفاده از تابع<br>
+                        scores = [85, 92, 78, 96, 88]<br>
+                        print(calculate_stats(scores)) # میانگین<br>
+                        print(calculate_stats(scores, "median")) # میانه
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">
+                        <i class="fas fa-magic ml-2 text-purple-400"></i>توابع لامبدا و کاربردی:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # توابع لامبدا برای تحلیل سریع<br>
+                        square = lambda x: x ** 2<br>
+                        is_even = lambda x: x % 2 == 0<br><br>
+                        # توابع کاربردی با map, filter, reduce<br>
+                        numbers = [1, 2, 3, 4, 5]<br>
+                        squares = list(map(lambda x: x**2, numbers))<br>
+                        evens = list(filter(lambda x: x % 2 == 0, numbers))<br><br>
+                        # توابع تو در تو<br>
+                        def create_multiplier(factor):<br>
+                        &nbsp;&nbsp;def multiplier(x):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return x * factor<br>
+                        &nbsp;&nbsp;return multiplier<br><br>
+                        double = create_multiplier(2)<br>
+                        triple = create_multiplier(3)<br>
+                        print(double(5)) # 10<br>
+                        print(triple(5)) # 15
+                    </div>
+                </div>
+                
+                <div class="bg-blue-900/50 border-2 border-blue-400 rounded-xl p-6">
+                    <h4 class="font-semibold text-blue-300 mb-2">
+                        <i class="fas fa-star ml-2"></i>نکته حرفه‌ای:
+                    </h4>
+                    <p class="text-blue-200">از توابع برای کدنویسی تمیز و قابل استفاده مجدد استفاده کنید</p>
+                </div>
+            </div>
+            
+            <!-- Slide 6: File Handling -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide6">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">📁</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">کار با فایل‌ها</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-file-alt ml-2 text-blue-600"></i>خواندن و نوشتن فایل‌ها:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # خواندن فایل متنی<br>
+                        with open('data.txt', 'r', encoding='utf-8') as file:<br>
+                        &nbsp;&nbsp;content = file.read()<br>
+                        &nbsp;&nbsp;print(content)<br><br>
+                        # نوشتن در فایل<br>
+                        data = "نام،سن،شهر\nعلی،25،تهران\nسارا،30،اصفهان"<br>
+                        with open('output.csv', 'w', encoding='utf-8') as file:<br>
+                        &nbsp;&nbsp;file.write(data)<br><br>
+                        # خواندن خط به خط<br>
+                        with open('data.txt', 'r', encoding='utf-8') as file:<br>
+                        &nbsp;&nbsp;for line in file:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;print(line.strip())
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-csv ml-2 text-green-600"></i>کار با فایل‌های CSV و JSON:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        import csv<br>
+                        import json<br><br>
+                        # کار با CSV<br>
+                        with open('data.csv', 'r', encoding='utf-8') as file:<br>
+                        &nbsp;&nbsp;reader = csv.DictReader(file)<br>
+                        &nbsp;&nbsp;for row in reader:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;print(f"{row['name']}: {row['age']}")<br><br>
+                        # نوشتن CSV<br>
+                        data = [{'name': 'علی', 'age': 25}, {'name': 'سارا', 'age': 30}]<br>
+                        with open('output.csv', 'w', encoding='utf-8', newline='') as file:<br>
+                        &nbsp;&nbsp;writer = csv.DictWriter(file, fieldnames=['name', 'age'])<br>
+                        &nbsp;&nbsp;writer.writeheader()<br>
+                        &nbsp;&nbsp;writer.writerows(data)<br><br>
+                        # کار با JSON<br>
+                        data = {'users': [{'name': 'علی', 'age': 25}, {'name': 'سارا', 'age': 30}]}<br>
+                        with open('data.json', 'w', encoding='utf-8') as file:<br>
+                        &nbsp;&nbsp;json.dump(data, file, ensure_ascii=False, indent=2)
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-yellow-800 mb-2">
+                            <i class="fas fa-exclamation-triangle ml-2"></i>نکته امنیتی:
+                        </h4>
+                        <p class="text-yellow-700">همیشه از with برای کار با فایل‌ها استفاده کنید</p>
+                    </div>
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-green-800 mb-2">
+                            <i class="fas fa-globe ml-2"></i>نکته بین‌المللی:
+                        </h4>
+                        <p class="text-green-700">برای متن فارسی حتماً از encoding='utf-8' استفاده کنید</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 7: Error Handling -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide7">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">🛡️</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">مدیریت خطا</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-shield-alt ml-2 text-blue-600"></i>مدیریت استثناها:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # مدیریت خطاهای رایج<br>
+                        try:<br>
+                        &nbsp;&nbsp;number = int(input("عدد وارد کنید: "))<br>
+                        &nbsp;&nbsp;result = 100 / number<br>
+                        &nbsp;&nbsp;print(f"نتیجه: {result}")<br>
+                        except ValueError:<br>
+                        &nbsp;&nbsp;print("خطا: لطفاً یک عدد معتبر وارد کنید")<br>
+                        except ZeroDivisionError:<br>
+                        &nbsp;&nbsp;print("خطا: تقسیم بر صفر ممکن نیست")<br>
+                        except Exception as e:<br>
+                        &nbsp;&nbsp;print(f"خطای ناشناخته: {e}")<br>
+                        else:<br>
+                        &nbsp;&nbsp;print("محاسبه با موفقیت انجام شد")<br>
+                        finally:<br>
+                        &nbsp;&nbsp;print("پایان محاسبات")
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-bug ml-2 text-red-600"></i>خطاهای سفارشی برای علم داده:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # تعریف خطای سفارشی<br>
+                        class DataValidationError(Exception):<br>
+                        &nbsp;&nbsp;pass<br><br>
+                        class EmptyDataError(Exception):<br>
+                        &nbsp;&nbsp;pass<br><br>
+                        def validate_data(data):<br>
+                        &nbsp;&nbsp;if not data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;raise EmptyDataError("داده‌ها خالی هستند")<br>
+                        &nbsp;&nbsp;if not isinstance(data, list):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;raise DataValidationError("داده‌ها باید لیست باشند")<br>
+                        &nbsp;&nbsp;return True<br><br>
+                        # استفاده از خطاهای سفارشی<br>
+                        try:<br>
+                        &nbsp;&nbsp;validate_data([])<br>
+                        except EmptyDataError as e:<br>
+                        &nbsp;&nbsp;print(f"خطای داده: {e}")<br>
+                        except DataValidationError as e:<br>
+                        &nbsp;&nbsp;print(f"خطای اعتبارسنجی: {e}")
+                    </div>
+                </div>
+                
+                <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6">
+                    <h4 class="font-semibold text-red-800 mb-2">
+                        <i class="fas fa-heart ml-2"></i>بهترین شیوه‌ها:
+                    </h4>
+                    <ul class="text-red-700 space-y-1">
+                        <li>• همیشه خطاهای احتمالی را پیش‌بینی کنید</li>
+                        <li>• از پیام‌های خطای واضح استفاده کنید</li>
+                        <li>• منابع را در بلوک finally آزاد کنید</li>
+                        <li>• برای خطاهای منطقی، خطای سفارشی تعریف کنید</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Slide 8: Useful Libraries -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide8">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">📦</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">کتابخانه‌های مفید</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-calendar-alt ml-2 text-blue-600"></i>کار با تاریخ و زمان:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        import datetime<br>
+                        import time<br><br>
+                        # تاریخ و زمان فعلی<br>
+                        now = datetime.datetime.now()<br>
+                        print(f"اکنون: {now}")<br><br>
+                        # فرمت‌بندی تاریخ<br>
+                        formatted_date = now.strftime("%Y-%m-%d %H:%M:%S")<br>
+                        print(f"تاریخ فرمت شده: {formatted_date}")<br><br>
+                        # محاسبه تفاوت زمانی<br>
+                        start_date = datetime.datetime(2024, 1, 1)<br>
+                        days_passed = (now - start_date).days<br>
+                        print(f"روزهای گذشته: {days_passed}")<br><br>
+                        # کار با timestamp<br>
+                        timestamp = time.time()<br>
+                        print(f"Timestamp: {timestamp}")<br>
+                        readable_time = time.ctime(timestamp)<br>
+                        print(f"زمان قابل خواندن: {readable_time}")
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-random ml-2 text-green-600"></i>تولید اعداد تصادفی و آمار:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        import random<br>
+                        import statistics<br><br>
+                        # تولید اعداد تصادفی<br>
+                        random_number = random.randint(1, 100)<br>
+                        random_float = random.random()<br>
+                        random_choice = random.choice(["علی", "سارا", "رضا"])<br><br>
+                        # نمونه‌گیری از داده‌ها<br>
+                        data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]<br>
+                        sample = random.sample(data, 3)<br>
+                        print(f"نمونه: {sample}")<br><br>
+                        # محاسبات آماری<br>
+                        numbers = [2, 4, 4, 4, 5, 5, 7, 9]<br>
+                        mean = statistics.mean(numbers)<br>
+                        median = statistics.median(numbers)<br>
+                        mode = statistics.mode(numbers)<br>
+                        stdev = statistics.stdev(numbers)<br>
+                        print(f"میانگین: {mean}, میانه: {median}, مد: {mode}, انحراف معیار: {stdev}")
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-dice text-blue-600 text-2xl mb-2"></i>
+                        <h4 class="font-semibold text-blue-800">Random</h4>
+                        <p class="text-blue-700 text-sm">تولید اعداد تصادفی</p>
+                    </div>
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-chart-line text-green-600 text-2xl mb-2"></i>
+                        <h4 class="font-semibold text-green-800">Statistics</h4>
+                        <p class="text-green-700 text-sm">محاسبات آماری</p>
+                    </div>
+                    <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-4 text-center">
+                        <i class="fas fa-clock text-purple-600 text-2xl mb-2"></i>
+                        <h4 class="font-semibold text-purple-800">Datetime</h4>
+                        <p class="text-purple-700 text-sm">کار با زمان</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 9: Practical Project -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up bg-gradient-to-br from-gray-900 to-gray-700 text-white" id="slide9">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">🎯</div>
+                    <h2 class="text-3xl font-bold mb-2">پروژه عملی</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-400 to-purple-400 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">
+                        <i class="fas fa-bullseye ml-2 text-blue-400"></i>هدف پروژه:
+                    </h3>
+                    <p class="mb-6 text-gray-200">ایجاد سیستم ساده برای مدیریت داده‌های فروش یک فروشگاه</p>
+                    
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        class SalesManager:<br>
+                        &nbsp;&nbsp;def __init__(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;self.sales_data = []<br><br>
+                        &nbsp;&nbsp;def add_sale(self, product, price, quantity):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"""اضافه کردن فروش جدید"""<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;sale = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'product': product,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'price': price,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'quantity': quantity,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'total': price * quantity,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'date': datetime.datetime.now()<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;self.sales_data.append(sale)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return f"فروش {product} اضافه شد"<br><br>
+                        &nbsp;&nbsp;def get_total_sales(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"""محاسبه مجموع فروش"""<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return sum(sale['total'] for sale in self.sales_data)<br><br>
+                        &nbsp;&nbsp;def get_best_selling_product(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"""پرفروش‌ترین محصول"""<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;if not self.sales_data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return None<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;product_totals = {}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;for sale in self.sales_data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product = sale['product']<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;product_totals[product] = product_totals.get(product, 0) + sale['quantity']<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return max(product_totals, key=product_totals.get)<br><br>
+                        &nbsp;&nbsp;def save_to_file(self, filename):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"""ذخیره داده‌ها در فایل"""<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;try:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with open(filename, 'w', encoding='utf-8') as file:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;json.dump(self.sales_data, file, ensure_ascii=False, indent=2, default=str)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "داده‌ها با موفقیت ذخیره شدند"<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;except Exception as e:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return f"خطا در ذخیره‌سازی: {e}"<br><br>
+                        # استفاده از کلاس<br>
+                        manager = SalesManager()<br>
+                        manager.add_sale("لپتاپ", 25000000, 2)<br>
+                        manager.add_sale("موس", 500000, 5)<br>
+                        print(f"مجموع فروش: {manager.get_total_sales()}")<br>
+                        print(f"پرفروش‌ترین محصول: {manager.get_best_selling_product()}")
+                    </div>
+                </div>
+                
+                <div class="bg-blue-900/50 border-2 border-blue-400 rounded-xl p-6">
+                    <h4 class="font-semibold text-blue-300 mb-2">
+                        <i class="fas fa-tasks ml-2"></i>مراحل انجام پروژه:
+                    </h4>
+                    <div class="space-y-2 text-blue-200">
+                        <div class="timeline-item">تعریف کلاس SalesManager</div>
+                        <div class="timeline-item">پیاده‌سازی متدهای افزودن فروش</div>
+                        <div class="timeline-item">محاسبه آمار فروش</div>
+                        <div class="timeline-item">ذخیره‌سازی داده‌ها</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 10: Code Optimization -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide10">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">🚀</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">بهینه‌سازی کد</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        <i class="fas fa-rocket ml-2 text-blue-600"></i>تکنیک‌های بهینه‌سازی:
+                    </h3>
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        # روش کند (غیربهینه)<br>
+                        def slow_method(data):<br>
+                        &nbsp;&nbsp;result = []<br>
+                        &nbsp;&nbsp;for item in data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;if item % 2 == 0:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result.append(item * 2)<br>
+                        &nbsp;&nbsp;return result<br><br>
+                        # روش سریع (بهینه)<br>
+                        def fast_method(data):<br>
+                        &nbsp;&nbsp;return [item * 2 for item in data if item % 2 == 0]<br><br>
+                        # استفاده از توابع داخلی بهینه<br>
+                        numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]<br>
+                        # بهینه: استفاده از sum()<br>
+                        total = sum(numbers)<br>
+                        # غیربهینه: حلقه دستی<br>
+                        total = 0<br>
+                        for num in numbers:<br>
+                        &nbsp;&nbsp;total += num<br><br>
+                        # بهینه‌سازی حافظه با generator<br>
+                        def large_data_generator():<br>
+                        &nbsp;&nbsp;for i in range(1000000):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;yield i * 2<br><br>
+                        # استفاده از generator به جای لیست بزرگ<br>
+                        # بهینه: مصرف حافظه کم<br>
+                        gen = large_data_generator()<br>
+                        # غیربهینه: مصرف حافظه زیاد<br>
+                        large_list = [i * 2 for i in range(1000000)]
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+                    <h4 class="font-semibold text-green-800 mb-2">
+                        <i class="fas fa-lightbulb ml-2"></i>نکات بهینه‌سازی:
+                    </h4>
+                    <ul class="text-green-700 space-y-1">
+                        <li>• از built-in functions استفاده کنید</li>
+                        <li>• List comprehension سریع‌تر از حلقه است</li>
+                        <li>• از generator برای داده‌های بزرگ استفاده کنید</li>
+                        <li>• از الگوریتم‌های بهینه با پیچیدگی زمانی مناسب استفاده کنید</li>
+                    </ul>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-red-800 mb-2">
+                            <i class="fas fa-tachometer-alt ml-2"></i>پیچیدگی زمانی:
+                        </h4>
+                        <p class="text-red-700">O(1) > O(log n) > O(n) > O(n log n) > O(n²)</p>
+                    </div>
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-blue-800 mb-2">
+                            <i class="fas fa-memory ml-2"></i>پیچیدگی حافظه:
+                        </h4>
+                        <p class="text-blue-700">Generator ها حافظه کمتری مصرف می‌کنند</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 11: Practical Exercise -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up" id="slide11">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">💪</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">تمرین کاربردی</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto"></div>
+                </div>
+                
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-8">
+                    <h3 class="text-xl font-semibold text-blue-800 mb-4">
+                        <i class="fas fa-tasks ml-2"></i>تمرین: ایجاد تحلیل‌گر فایل CSV
+                    </h3>
+                    <p class="text-blue-700 mb-4">یک برنامه بنویسید که فایل CSV بخواند و آمار آن را نمایش دهد</p>
+                    
+                    <div class="code-block p-4 text-sm">
+                        <button class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 transition-colors" onclick="copyCode(this)">
+                            <i class="fas fa-copy ml-1"></i>کپی
+                        </button>
+                        import csv<br>
+                        import statistics<br><br>
+                        class CSVAnalyzer:<br>
+                        &nbsp;&nbsp;def __init__(self, filename):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;self.filename = filename<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;self.data = []<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;self.headers = []<br><br>
+                        &nbsp;&nbsp;def load_data(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"""بارگذاری داده‌ها از فایل CSV"""<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;try:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with open(self.filename, 'r', encoding='utf-8') as file:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reader = csv.DictReader(file)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.headers = reader.fieldnames<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.data = list(reader)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return True<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;except FileNotFoundError:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"فایل {self.filename} یافت نشد")<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return False<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;except Exception as e:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"خطا در خواندن فایل: {e}")<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return False<br><br>
+                        &nbsp;&nbsp;def get_summary(self):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"""گزارش خلاصه از داده‌ها"""<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;if not self.data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "داده‌ای برای تحلیل وجود ندارد"<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;summary = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'total_rows': len(self.data),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'columns': self.headers,<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'column_stats': {}<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;}<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;for column in self.headers:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;summary['column_stats'][column] = self.analyze_column(column)<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return summary<br><br>
+                        &nbsp;&nbsp;def analyze_column(self, column_name):<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;"""تحلیل یک ستون خاص"""<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;if column_name not in self.headers:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return f"ستون {column_name} وجود ندارد"<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;values = []<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;numeric_values = []<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;for row in self.data:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;value = row[column_name]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values.append(value)<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# تلاش برای تبدیل به عدد<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num = float(value)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numeric_values.append(num)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;except ValueError:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pass<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;result = {<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'total_values': len(values),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'unique_values': len(set(values)),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'is_numeric': len(numeric_values) > 0<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;}<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;if result['is_numeric']:<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result.update({<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'mean': statistics.mean(numeric_values),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'median': statistics.median(numeric_values),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'min': min(numeric_values),<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'max': max(numeric_values)<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})<br><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;return result<br><br>
+                        # استفاده از تحلیل‌گر<br>
+                        analyzer = CSVAnalyzer('sales_data.csv')<br>
+                        if analyzer.load_data():<br>
+                        &nbsp;&nbsp;summary = analyzer.get_summary()<br>
+                        &nbsp;&nbsp;print(f"تعداد ردیف‌ها: {summary['total_rows']}")<br>
+                        &nbsp;&nbsp;print(f"ستون‌ها: {summary['columns']}")
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-green-800 mb-2">
+                            <i class="fas fa-check-circle ml-2"></i>ویژگی‌های مورد انتظار:
+                        </h4>
+                        <ul class="text-green-700 space-y-1">
+                            <li>• خواندن فایل CSV</li>
+                            <li>• تحلیل ستون‌های عددی</li>
+                            <li>• محاسبه آمار توصیفی</li>
+                            <li>• مدیریت خطاها</li>
+                        </ul>
+                    </div>
+                    <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6">
+                        <h4 class="font-semibold text-purple-800 mb-2">
+                            <i class="fas fa-trophy ml-2"></i>نکات امتیازی:
+                        </h4>
+                        <ul class="text-purple-700 space-y-1">
+                            <li>• پشتیبانی از فایل‌های بزرگ</li>
+                            <li>• مصورسازی نتایج</li>
+                            <li>• خروجی PDF</li>
+                            <li>• رابط کاربری گرافیکی</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 12: Summary -->
+            <div class="slide-card p-8 mb-8 animate-fade-in-up bg-gradient-to-br from-blue-600 to-purple-700 text-white" id="slide12">
+                <div class="text-center mb-6">
+                    <div class="text-5xl mb-4">✅</div>
+                    <h2 class="text-3xl font-bold mb-2">جمع‌بندی</h2>
+                    <div class="w-20 h-1 bg-white mx-auto"></div>
+                </div>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-6 text-center">
+                        <i class="fas fa-star ml-2"></i>آنچه امروز یاد گرفتیم:
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                            <i class="fas fa-code text-3xl mb-2"></i>
+                            <h4 class="font-semibold mb-1">متغیرها و انواع داده</h4>
+                            <p class="text-sm opacity-90">انواع داده پیشرفته و تبدیل آن‌ها</p>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                            <i class="fas fa-project-diagram text-3xl mb-2"></i>
+                            <h4 class="font-semibold mb-1">ساختارهای کنترل</h4>
+                            <p class="text-sm opacity-90">شرط‌های پیچیده و حلقه‌های بهینه</p>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                            <i class="fas fa-cogs text-3xl mb-2"></i>
+                            <h4 class="font-semibold mb-1">توابع پیشرفته</h4>
+                            <p class="text-sm opacity-90">توابع لامبدا و توابع تو در تو</p>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                            <i class="fas fa-file text-3xl mb-2"></i>
+                            <h4 class="font-semibold mb-1">کار با فایل‌ها</h4>
+                            <p class="text-sm opacity-90">CSV، JSON و مدیریت فایل‌ها</p>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                            <i class="fas fa-shield-alt text-3xl mb-2"></i>
+                            <h4 class="font-semibold mb-1">مدیریت خطا</h4>
+                            <p class="text-sm opacity-90">استثناها و خطاهای سفارشی</p>
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
+                            <i class="fas fa-box text-3xl mb-2"></i>
+                            <h4 class="font-semibold mb-1">کتابخانه‌های مفید</h4>
+                            <p class="text-sm opacity-90">Datetime، Random، Statistics</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6 mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-center">
+                        <i class="fas fa-rocket ml-2"></i>مراحل بعدی برای شما:
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 ml-3"></i>
+                            <span>تمرین روزانه با پروژه‌های واقعی</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 ml-3"></i>
+                            <span>یادگیری کتابخانه‌های علم داده (Pandas, NumPy)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 ml-3"></i>
+                            <span>کار با مصورسازی داده‌ها (Matplotlib, Seaborn)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-400 ml-3"></i>
+                            <span>ساخت پورتفولیو از پروژه‌های عملی</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="inline-block bg-white text-blue-600 px-8 py-4 rounded-full text-lg font-semibold mb-4">
+                        🎉 به پایان جلسه دوم رسیدیم!
+                    </div>
+                    <p class="text-lg opacity-90">سوالات خود را بپرسید و برای جلسه بعد آماده شوید</p>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+        
+        // Initialize slides
+        document.addEventListener('DOMContentLoaded', function() {
+            showSlide(currentSlide);
+            updateProgress();
+        });
+        
+        function showSlide(slideNumber) {
+            // Hide all slides
+            const slides = document.querySelectorAll('.slide-card');
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+            });
+            
+            // Show current slide
+            const currentSlideElement = document.getElementById(`slide${slideNumber}`);
+            if (currentSlideElement) {
+                currentSlideElement.classList.add('active');
+                // Don't force scroll to top - let user scroll naturally within the slide
+            }
+        }
+        
+        function updateProgress() {
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                showSlide(currentSlide);
+                updateProgress();
+            }
+        }
+        
+        function previousSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                showSlide(currentSlide);
+                updateProgress();
+            }
+        }
+        
+        function goToSlide(slideNumber) {
+            if (slideNumber >= 1 && slideNumber <= totalSlides) {
+                currentSlide = slideNumber;
+                showSlide(currentSlide);
+                updateProgress();
+                // Close sidebar after navigation
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.add('translate-x-full');
+            }
+        }
+        
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.innerText.replace('کپی', '').trim();
+            navigator.clipboard.writeText(code).then(() => {
+                button.innerHTML = '<i class="fas fa-check ml-1"></i>کپی شد';
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy ml-1"></i>کپی';
+                }, 2000);
+            });
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') previousSlide();
+            if (e.key === 'ArrowLeft') nextSlide();
+            if (e.key === 'Escape') toggleSidebar();
+        });
+        
+        // Initialize progress
+        updateProgress();
+        
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    currentSlide = parseInt(this.getAttribute('href').replace('#slide', ''));
+                    updateProgress();
+                    toggleSidebar(); // Close sidebar on mobile
+                }
+            });
+        });
+    </script>
+</body>
+</html>

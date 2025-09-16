@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسه دهم: پروژه‌های تخصصی علم داده - مالی و سلامت</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .slides-container {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            padding: 40px;
+            min-height: 80vh;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide.expanded {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            background: white;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .expand-btn, .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn {
+            right: 80px;
+            background: #e74c3c;
+            display: none;
+        }
+
+        .slide.expanded .close-btn {
+            display: block;
+        }
+
+        .expand-btn:hover, .close-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .icon {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .slide-title {
+            font-size: 2.5rem;
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .slide-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #34495e;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .project-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .project-desc {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #3182ce;
+        }
+
+        .keyword {
+            color: #f093fb;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #68d391;
+        }
+
+        .number {
+            color: #fbb6ce;
+        }
+
+        .comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .function {
+            color: #63b3ed;
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .method-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .method-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .method-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 5px solid #e17055;
+        }
+
+        .tip-title {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .tip-box ul {
+            margin-right: 20px;
+        }
+
+        .tip-box li {
+            margin-bottom: 8px;
+            color: #2d3436;
+        }
+
+        .challenge-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid #00cec9;
+        }
+
+        .challenge-title {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .challenge-box ul {
+            margin-right: 20px;
+        }
+
+        .challenge-box li {
+            margin-bottom: 10px;
+            color: #2d3436;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .slide-info {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .slide-list {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .slide-list h3 {
+            color: white;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .slide-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .slide-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .slide-links a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        h3 {
+            color: #2c3e50;
+            margin: 25px 0 15px 0;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .slide-title {
+                font-size: 2rem;
+            }
+            
+            .slide-content {
+                font-size: 1rem;
+            }
+            
+            .code-block {
+                font-size: 0.85rem;
+                padding: 15px;
+            }
+            
+            .method-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 جلسه دهم: پروژه‌های تخصصی علم داده</h1>
+            <p>تحلیل داده‌های مالی، سلامت و سیستم‌های توصیه‌گر</p>
+        </div>
+
+        <div class="slides-container">
+            <!-- اسلاید 1: معرفی پروژه‌های تخصصی -->
+            <div class="slide active" id="slide1">
+                <div class="slide-number">1/12</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">🎯</div>
+                <div class="slide-title">پروژه‌های تخصصی علم داده</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">🏦 پروژه‌های حرفه‌ای و کاربردی</div>
+                        <div class="project-desc">
+                            در این جلسه با پروژه‌های تخصصی در حوزه‌های مالی، سلامت و سیستم‌های توصیه‌گر آشنا می‌شوید
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">4</div>
+                            <div class="stat-label">پروژه تخصصی</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">15+</div>
+                            <div class="stat-label">الگوریتم پیشرفته</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">50K+</div>
+                            <div class="stat-label">رکورد داده</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">مدل یادگیری ماشین</div>
+                        </div>
+                    </div>
+
+                    <h3>📋 فهرست پروژه‌های این جلسه:</h3>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">🏦 پروژه مالی</div>
+                            <div class="method-desc">تحلیل پرتفولیو سرمایه‌گذاری و پیش‌بینی قیمت سهام</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🏥 پروژه سلامت</div>
+                            <div class="method-desc">تحلیل داده‌های بیمارستان و پیش‌بینی بیماری</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🛒 سیستم توصیه‌گر</div>
+                            <div class="method-desc">سیستم توصیه محصول و فیلتر مشارکتی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">🌐 تحلیل شبکه</div>
+                            <div class="method-desc">تحلیل شبکه‌های پیچیده و تشخیص انجمن</div>
+                        </div>
+                    </div>
+
+                    <h3>🎯 اهداف یادگیری:</h3>
+                    <ul>
+                        <li>✅ تسلط بر تحلیل داده‌های مالی و محاسبه ریسک</li>
+                        <li>✅ پیاده‌سازی مدل‌های پیش‌بینی در حوزه سلامت</li>
+                        <li>✅ ایجاد سیستم‌های توصیه‌گر هوشمند</li>
+                        <li>✅ تحلیل شبکه‌های پیچیده و گراف‌ها</li>
+                        <li>✅ کار با داده‌های زمان-واقعی</li>
+                        <li>✅ بهینه‌سازی مدل‌ها برای عملکرد بالا</li>
+                    </ul>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات مهم این جلسه:</div>
+                        <ul>
+                            <li><strong>Real-World Applications:</strong> پروژه‌های واقعی و کاربردی</li>
+                            <li><strong>Advanced Algorithms:</strong> الگوریتم‌های پیشرفته یادگیری ماشین</li>
+                            <li><strong>Big Data Processing:</strong> کار با حجم بالای داده</li>
+                            <li><strong>Performance Optimization:</strong> بهینه‌سازی سرعت و دقت</li>
+                        </ul>
+                    </div>
+
+                    <h3>🛠️ ابزارها و کتابخانه‌های مورد استفاده:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># کتابخانه‌های مورد نیاز برای پروژه‌های تخصصی</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+
+<span class="comment"># کتابخانه‌های یادگیری ماشین</span>
+<span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestRegressor, GradientBoostingClassifier
+<span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split, GridSearchCV
+<span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score, precision_score, recall_score
+<span class="keyword">from</span> sklearn.preprocessing <span class="keyword">import</span> StandardScaler, LabelEncoder
+
+<span class="comment"># کتابخانه‌های تخصصی</span>
+<span class="keyword">from</span> scipy <span class="keyword">import</span> stats
+<span class="keyword">from</span> scipy.optimize <span class="keyword">import</span> minimize
+<span class="keyword">import</span> networkx <span class="keyword">as</span> nx  <span class="comment"># تحلیل شبکه</span>
+<span class="keyword">from</span> surprise <span class="keyword">import</span> Dataset, Reader, SVD  <span class="comment"># سیستم توصیه‌گر</span>
+
+<span class="comment"># کتابخانه‌های مالی</span>
+<span class="keyword">import</span> yfinance <span class="keyword">as</span> yf  <span class="comment"># داده‌های مالی</span>
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+
+<span class="function">print</span>(<span class="string">"🚀 محیط آماده برای پروژه‌های تخصصی!"</span>)
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 2: پروژه چهارم - تحلیل مالی -->
+            <div class="slide" id="slide2">
+                <div class="slide-number">2/12</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">📈</div>
+                <div class="slide-title">پروژه چهارم: تحلیل مالی و سرمایه‌گذاری</div>
+                <div class="slide-content">
+                    <div class="project-card">
+                        <div class="project-title">📈 سیستم تحلیل پرتفولیو و پیش‌بینی سهام</div>
+                        <div class="project-desc">
+                            تحلیل عملکرد سهام، محاسبه ریسک، بهینه‌سازی پرتفولیو و پیش‌بینی قیمت
+                            با استفاده از مدل‌های پیشرفته یادگیری ماشین
+                        </div>
+                    </div>
+
+                    <h3>📊 مرحله 1: تولید داده‌های مالی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># پروژه 4: تحلیل مالی و سرمایه‌گذاری</span>
+<span class="keyword">import</span> pandas <span class="keyword">as</span> pd
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+<span class="keyword">from</span> scipy.optimize <span class="keyword">import</span> minimize
+<span class="keyword">import</span> warnings
+warnings.filterwarnings(<span class="string">'ignore'</span>)
+
+<span class="function">print</span>(<span class="string">"📈 پروژه 4: تحلیل مالی و سرمایه‌گذاری"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">50</span>)
+
+np.random.seed(<span class="number">42</span>)
+
+<span class="comment"># تولید داده‌های قیمت سهام (شبیه‌سازی)</span>
+<span class="function">print</span>(<span class="string">"📊 تولید داده‌های مالی..."</span>)
+
+<span class="comment"># لیست نمادهای سهام</span>
+stock_symbols = [
+    <span class="string">'فولاد'</span>, <span class="string">'پتروشیمی'</span>, <span class="string">'بانک_ملت'</span>, <span class="string">'ایران_خودرو'</span>, <span class="string">'تلکام'</span>,
+    <span class="string">'دارو'</span>, <span class="string">'سیمان'</span>, <span class="string">'نفت'</span>, <span class="string">'طلا'</span>, <span class="string">'بیمه'</span>
+]
+
+<span class="comment"># پارامترهای شبیه‌سازی</span>
+n_days = <span class="number">365</span>  <span class="comment"># یک سال</span>
+start_date = datetime.now() - timedelta(days=n_days)
+dates = pd.date_range(start=start_date, periods=n_days, freq=<span class="string">'D'</span>)
+
+<span class="comment"># تولید قیمت‌های سهام با Random Walk</span>
+stock_data = {}
+initial_prices = {
+    <span class="string">'فولاد'</span>: <span class="number">15000</span>, <span class="string">'پتروشیمی'</span>: <span class="number">8500</span>, <span class="string">'بانک_ملت'</span>: <span class="number">12000</span>, 
+    <span class="string">'ایران_خودرو'</span>: <span class="number">6000</span>, <span class="string">'تلکام'</span>: <span class="number">25000</span>, <span class="string">'دارو'</span>: <span class="number">18000</span>,
+    <span class="string">'سیمان'</span>: <span class="number">9000</span>, <span class="string">'نفت'</span>: <span class="number">30000</span>, <span class="string">'طلا'</span>: <span class="number">45000</span>, <span class="string">'بیمه'</span>: <span class="number">7500</span>
+}
+
+<span class="comment"># ویژگی‌های ریسک برای هر سهم</span>
+volatility = {
+    <span class="string">'فولاد'</span>: <span class="number">0.25</span>, <span class="string">'پتروشیمی'</span>: <span class="number">0.30</span>, <span class="string">'بانک_ملت'</span>: <span class="number">0.20</span>, 
+    <span class="string">'ایران_خودرو'</span>: <span class="number">0.35</span>, <span class="string">'تلکام'</span>: <span class="number">0.15</span>, <span class="string">'دارو'</span>: <span class="number">0.18</span>,
+    <span class="string">'سیمان'</span>: <span class="number">0.22</span>, <span class="string">'نفت'</span>: <span class="number">0.40</span>, <span class="string">'طلا'</span>: <span class="number">0.12</span>, <span class="string">'بیمه'</span>: <span class="number">0.28</span>
+}
+
+<span class="keyword">for</span> symbol <span class="keyword">in</span> stock_symbols:
+    prices = [initial_prices[symbol]]
+    
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="number">1</span>, n_days):
+        <span class="comment"># Random Walk با drift</span>
+        drift = <span class="number">0.0005</span>  <span class="comment"># روند صعودی ملایم</span>
+        shock = np.random.normal(<span class="number">0</span>, volatility[symbol] / np.sqrt(<span class="number">252</span>))  <span class="comment"># نوسانات روزانه</span>
+        
+        price_change = prices[-<span class="number">1</span>] * (drift + shock)
+        new_price = <span class="function">max</span>(prices[-<span class="number">1</span>] + price_change, <span class="number">100</span>)  <span class="comment"># حداقل قیمت</span>
+        prices.append(new_price)
+    
+    stock_data[symbol] = prices
+
+<span class="comment"># ایجاد DataFrame</span>
+stock_df = pd.DataFrame(stock_data, index=dates)
+
+<span class="comment"># محاسبه بازدهی روزانه</span>
+returns_df = stock_df.pct_change().dropna()
+
+<span class="comment"># محاسبه حجم معاملات (شبیه‌سازی)</span>
+volume_data = {}
+<span class="keyword">for</span> symbol <span class="keyword">in</span> stock_symbols:
+    base_volume = np.random.randint(<span class="number">100000</span>, <span class="number">1000000</span>)
+    volumes = []
+    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(n_days):
+        <span class="comment"># حجم بیشتر در روزهای با نوسان بالا</span>
+        price_volatility = <span class="function">abs</span>(returns_df.iloc[i-<span class="number">1</span>][symbol]) <span class="keyword">if</span> i > <span class="number">0</span> <span class="keyword">else</span> <span class="number">0</span>
+        volume_multiplier = <span class="number">1</span> + price_volatility * <span class="number">5</span>
+        volume = <span class="function">int</span>(base_volume * volume_multiplier * np.random.uniform(<span class="number">0.5</span>, <span class="number">2.0</span>))
+        volumes.append(volume)
+    volume_data[symbol] = volumes
+
+volume_df = pd.DataFrame(volume_data, index=dates)
+
+<span class="function">print</span>(<span class="string">f"✅ داده‌های مالی تولید شد:"</span>)
+<span class="function">print</span>(<span class="string">f"تعداد سهام: {len(stock_symbols)}"</span>)
+<span class="function">print</span>(<span class="string">f"دوره زمانی: {n_days} روز"</span>)
+<span class="function">print</span>(<span class="string">f"محدوده قیمت: {stock_df.min().min():,.0f} تا {stock_df.max().max():,.0f} تومان"</span>)
+
+<span class="function">print</span>(<span class="string">f"\nنمونه قیمت‌های اخیر:"</span>)
+<span class="function">print</span>(stock_df.tail().round(<span class="number">0</span>))
+                    </div>
+
+                    <h3>📊 مرحله 2: تحلیل عملکرد و ریسک</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># تحلیل عملکرد و ریسک سهام</span>
+<span class="function">print</span>(<span class="string">f"\n📊 تحلیل عملکرد و ریسک:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># محاسبه آمارهای کلیدی</span>
+<span class="function">print</span>(<span class="string">"📈 آمارهای عملکرد:"</span>)
+
+<span class="comment"># بازدهی سالانه</span>
+annual_returns = ((stock_df.iloc[-<span class="number">1</span>] / stock_df.iloc[<span class="number">0</span>]) - <span class="number">1</span>) * <span class="number">100</span>
+
+<span class="comment"># نوسانات (انحراف معیار بازدهی)</span>
+annual_volatility = returns_df.std() * np.sqrt(<span class="number">252</span>) * <span class="number">100</span>  <span class="comment"># 252 روز کاری</span>
+
+<span class="comment"># نسبت شارپ (بازدهی تعدیل شده برای ریسک)</span>
+risk_free_rate = <span class="number">15</span>  <span class="comment"># نرخ بدون ریسک (درصد)</span>
+sharpe_ratio = (annual_returns - risk_free_rate) / annual_volatility
+
+<span class="comment"># حداکثر افت (Maximum Drawdown)</span>
+<span class="keyword">def</span> <span class="function">calculate_max_drawdown</span>(price_series):
+    cumulative = (price_series / price_series.iloc[<span class="number">0</span>])
+    running_max = cumulative.expanding().max()
+    drawdown = (cumulative - running_max) / running_max
+    <span class="keyword">return</span> drawdown.min() * <span class="number">100</span>
+
+max_drawdowns = {}
+<span class="keyword">for</span> symbol <span class="keyword">in</span> stock_symbols:
+    max_drawdowns[symbol] = calculate_max_drawdown(stock_df[symbol])
+
+<span class="comment"># ایجاد جدول تحلیل</span>
+performance_analysis = pd.DataFrame({
+    <span class="string">'بازدهی_سالانه'</span>: annual_returns,
+    <span class="string">'نوسانات_سالانه'</span>: annual_volatility,
+    <span class="string">'نسبت_شارپ'</span>: sharpe_ratio,
+    <span class="string">'حداکثر_افت'</span>: pd.Series(max_drawdowns),
+    <span class="string">'قیمت_فعلی'</span>: stock_df.iloc[-<span class="number">1</span>],
+    <span class="string">'میانگین_حجم'</span>: volume_df.mean()
+}).round(<span class="number">2</span>)
+
+performance_analysis = performance_analysis.sort_values(<span class="string">'نسبت_شارپ'</span>, ascending=<span class="keyword">False</span>)
+<span class="function">print</span>(performance_analysis)
+
+<span class="comment"># تحلیل همبستگی</span>
+<span class="function">print</span>(<span class="string">f"\n🔗 ماتریس همبستگی بازدهی‌ها:"</span>)
+correlation_matrix = returns_df.corr()
+<span class="function">print</span>(correlation_matrix.round(<span class="number">3</span>))
+
+<span class="comment"># شناسایی بهترین و بدترین سهام</span>
+best_stock = performance_analysis.index[<span class="number">0</span>]
+worst_stock = performance_analysis.index[-<span class="number">1</span>]
+
+<span class="function">print</span>(<span class="string">f"\n🏆 بهترین سهم: {best_stock}"</span>)
+<span class="function">print</span>(<span class="string">f"   بازدهی: {performance_analysis.loc[best_stock, 'بازدهی_سالانه']:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"   نسبت شارپ: {performance_analysis.loc[best_stock, 'نسبت_شارپ']:.2f}"</span>)
+
+<span class="function">print</span>(<span class="string">f"\n📉 ضعیف‌ترین سهم: {worst_stock}"</span>)
+<span class="function">print</span>(<span class="string">f"   بازدهی: {performance_analysis.loc[worst_stock, 'بازدهی_سالانه']:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"   نسبت شارپ: {performance_analysis.loc[worst_stock, 'نسبت_شارپ']:.2f}"</span>)
+
+<span class="comment"># تحلیل سکتوری</span>
+<span class="function">print</span>(<span class="string">f"\n🏭 تحلیل سکتوری:"</span>)
+sectors = {
+    <span class="string">'صنعتی'</span>: [<span class="string">'فولاد'</span>, <span class="string">'پتروشیمی'</span>, <span class="string">'ایران_خودرو'</span>, <span class="string">'سیمان'</span>],
+    <span class="string">'خدماتی'</span>: [<span class="string">'بانک_ملت'</span>, <span class="string">'تلکام'</span>, <span class="string">'بیمه'</span>],
+    <span class="string">'کالایی'</span>: [<span class="string">'نفت'</span>, <span class="string">'طلا'</span>],
+    <span class="string">'دارویی'</span>: [<span class="string">'دارو'</span>]
+}
+
+sector_performance = {}
+<span class="keyword">for</span> sector, stocks <span class="keyword">in</span> sectors.items():
+    sector_returns = performance_analysis.loc[stocks, <span class="string">'بازدهی_سالانه'</span>].mean()
+    sector_volatility = performance_analysis.loc[stocks, <span class="string">'نوسانات_سالانه'</span>].mean()
+    sector_performance[sector] = {
+        <span class="string">'بازدهی'</span>: sector_returns,
+        <span class="string">'نوسانات'</span>: sector_volatility,
+        <span class="string">'تعداد_سهم'</span>: <span class="function">len</span>(stocks)
+    }
+
+sector_df = pd.DataFrame(sector_performance).T.round(<span class="number">2</span>)
+<span class="function">print</span>(sector_df)
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">pct_change()</div>
+                            <div class="method-desc">محاسبه بازدهی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Sharpe Ratio</div>
+                            <div class="method-desc">نسبت شارپ</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Max Drawdown</div>
+                            <div class="method-desc">حداکثر افت</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Correlation Matrix</div>
+                            <div class="method-desc">ماتریس همبستگی</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 3: بهینه‌سازی پرتفولیو -->
+            <div class="slide" id="slide3">
+                <div class="slide-number">3/12</div>
+                <button class="expand-btn" onclick="expandSlide(this)">🔍</button>
+                <button class="close-btn" onclick="closeSlide(this)">×</button>
+                <div class="icon">⚖️</div>
+                <div class="slide-title">بهینه‌سازی پرتفولیو و مدیریت ریسک</div>
+                <div class="slide-content">
+                    <h3>⚖️ مرحله 3: بهینه‌سازی پرتفولیو</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># بهینه‌سازی پرتفولیو با استفاده از تئوری مدرن پرتفولیو</span>
+<span class="function">print</span>(<span class="string">f"\n⚖️ بهینه‌سازی پرتفولیو:"</span>)
+<span class="function">print</span>(<span class="string">"="</span> * <span class="number">40</span>)
+
+<span class="comment"># محاسبه ماتریس کوواریانس</span>
+cov_matrix = returns_df.cov() * <span class="number">252</span>  <span class="comment"># سالانه</span>
+mean_returns = returns_df.mean() * <span class="number">252</span>  <span class="comment"># بازدهی متوسط سالانه</span>
+
+<span class="function">print</span>(<span class="string">f"بازدهی متوسط سالانه:"</span>)
+<span class="function">print</span>((mean_returns * <span class="number">100</span>).round(<span class="number">2</span>))
+
+<span class="comment"># تابع بهینه‌سازی پرتفولیو</span>
+<span class="keyword">def</span> <span class="function">portfolio_stats</span>(weights, mean_returns, cov_matrix):
+    <span class="string">"""محاسبه آمارهای پرتفولیو"""</span>
+    portfolio_return = np.sum(mean_returns * weights)
+    portfolio_std = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
+    <span class="keyword">return</span> portfolio_return, portfolio_std
+
+<span class="keyword">def</span> <span class="function">negative_sharpe</span>(weights, mean_returns, cov_matrix, risk_free_rate):
+    <span class="string">"""تابع هدف برای بیشینه‌سازی نسبت شارپ"""</span>
+    p_ret, p_std = portfolio_stats(weights, mean_returns, cov_matrix)
+    <span class="keyword">return</span> -(p_ret - risk_free_rate) / p_std
+
+<span class="comment"># محدودیت‌ها</span>
+<span class="keyword">def</span> <span class="function">check_sum</span>(weights):
+    <span class="string">"""مجموع وزن‌ها باید 1 باشد"""</span>
+    <span class="keyword">return</span> np.sum(weights) - <span class="number">1</span>
+
+n_assets = <span class="function">len</span>(stock_symbols)
+constraints = ({<span class="string">'type'</span>: <span class="string">'eq'</span>, <span class="string">'fun'</span>: check_sum})
+bounds = <span class="function">tuple</span>((<span class="number">0</span>, <span class="number">0.4</span>) <span class="keyword">for</span> asset <span class="keyword">in</span> <span class="function">range</span>(n_assets))  <span class="comment"># حداکثر 40% در هر سهم</span>
+
+<span class="comment"># وزن‌های اولیه (توزیع مساوی)</span>
+init_guess = np.array([<span class="number">1</span>/n_assets] * n_assets)
+
+<span class="comment"># بهینه‌سازی برای حداکثر نسبت شارپ</span>
+<span class="function">print</span>(<span class="string">f"\n🎯 بهینه‌سازی برای حداکثر نسبت شارپ..."</span>)
+opt_results = minimize(negative_sharpe, init_guess,
+                      args=(mean_returns, cov_matrix, risk_free_rate/<span class="number">100</span>),
+                      method=<span class="string">'SLSQP'</span>, bounds=bounds, constraints=constraints)
+
+optimal_weights = opt_results.x
+opt_return, opt_std = portfolio_stats(optimal_weights, mean_returns, cov_matrix)
+opt_sharpe = (opt_return - risk_free_rate/<span class="number">100</span>) / opt_std
+
+<span class="function">print</span>(<span class="string">f"✅ بهینه‌سازی تکمیل شد!"</span>)
+<span class="function">print</span>(<span class="string">f"بازدهی بهینه: {opt_return*100:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"ریسک بهینه: {opt_std*100:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"نسبت شارپ بهینه: {opt_sharpe:.3f}"</span>)
+
+<span class="comment"># نمایش ترکیب بهینه</span>
+<span class="function">print</span>(<span class="string">f"\n📊 ترکیب بهینه پرتفولیو:"</span>)
+portfolio_composition = pd.DataFrame({
+    <span class="string">'سهم'</span>: stock_symbols,
+    <span class="string">'وزن'</span>: optimal_weights * <span class="number">100</span>,
+    <span class="string">'مبلغ_سرمایه_گذاری'</span>: optimal_weights * <span class="number">1000000000</span>  <span class="comment"># برای 1 میلیارد تومان</span>
+}).round(<span class="number">2</span>)
+
+portfolio_composition = portfolio_composition[portfolio_composition[<span class="string">'وزن'</span>] > <span class="number">1</span>]  <span class="comment"># فقط وزن‌های بالای 1%</span>
+portfolio_composition = portfolio_composition.sort_values(<span class="string">'وزن'</span>, ascending=<span class="keyword">False</span>)
+<span class="function">print</span>(portfolio_composition)
+
+<span class="comment"># مقایسه با پرتفولیو مساوی الوزن</span>
+equal_weights = np.array([<span class="number">1</span>/n_assets] * n_assets)
+equal_return, equal_std = portfolio_stats(equal_weights, mean_returns, cov_matrix)
+equal_sharpe = (equal_return - risk_free_rate/<span class="number">100</span>) / equal_std
+
+<span class="function">print</span>(<span class="string">f"\n📈 مقایسه استراتژی‌ها:"</span>)
+comparison = pd.DataFrame({
+    <span class="string">'استراتژی'</span>: [<span class="string">'مساوی‌الوزن'</span>, <span class="string">'بهینه‌شده'</span>],
+    <span class="string">'بازدهی'</span>: [equal_return*<span class="number">100</span>, opt_return*<span class="number">100</span>],
+    <span class="string">'ریسک'</span>: [equal_std*<span class="number">100</span>, opt_std*<span class="number">100</span>],
+    <span class="string">'نسبت_شارپ'</span>: [equal_sharpe, opt_sharpe]
+}).round(<span class="number">3</span>)
+
+<span class="function">print</span>(comparison)
+
+<span class="comment"># محاسبه Value at Risk (VaR)</span>
+<span class="function">print</span>(<span class="string">f"\n⚠️ تحلیل ریسک:"</span>)
+
+<span class="comment"># VaR روزانه با سطح اطمینان 95%</span>
+portfolio_daily_returns = returns_df.dot(optimal_weights)
+var_95 = np.percentile(portfolio_daily_returns, <span class="number">5</span>) * <span class="number">100</span>
+var_99 = np.percentile(portfolio_daily_returns, <span class="number">1</span>) * <span class="number">100</span>
+
+<span class="function">print</span>(<span class="string">f"VaR روزانه (95%): {var_95:.2f}%"</span>)
+<span class="function">print</span>(<span class="string">f"VaR روزانه (99%): {var_99:.2f}%"</span>)
+
+<span class="comment"># Expected Shortfall (CVaR)</span>
+cvar_95 = portfolio_daily_returns[portfolio_daily_returns <= np.percentile(portfolio_daily_returns, <span class="number">5</span>)].mean() * <span class="number">100</span>
+<span class="function">print</span>(<span class="string">f"CVaR (95%): {cvar_95:.2f}%"</span>)
+
+<span class="comment"># برای سرمایه 1 میلیارد تومان</span>
+capital = <span class="number">1000000000</span>
+<span class="function">print</span>(<span class="string">f"\nبرای سرمایه {capital:,} تومان:"</span>)
+<span class="function">print</span>(<span class="string">f"حداکثر زیان روزانه (95%): {abs(var_95) * capital / 100:,.0f} تومان"</span>)
+<span class="function">print</span>(<span class="string">f"حداکثر زیان روزانه (99%): {abs(var_99) * capital / 100:,.0f} تومان"</span>)
+                    </div>
+
+                    <h3>📊 مصورسازی تحلیل مالی</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">کپی</button>
+<span class="comment"># مصورسازی جامع تحلیل مالی</span>
+<span class="function">print</span>(<span class="string">f"\n📊 مصورسازی تحلیل مالی:"</span>)
+
+fig = plt.figure(figsize=(<span class="number">20</span>, <span class="number">16</span>))
+
+<span class="comment"># 1. نمودار قیمت سهام</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">1</span>)
+<span class="keyword">for</span> symbol <span class="keyword">in</span> stock_symbols[:5]:  <span class="comment"># نمایش 5 سهم اول</span>
+    normalized_prices = stock_df[symbol] / stock_df[symbol].iloc[<span class="number">0</span>]
+    plt.plot(stock_df.index, normalized_prices, label=symbol, linewidth=<span class="number">2</span>)
+plt.title(<span class="string">'روند قیمت سهام (نرمال‌شده)'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تاریخ'</span>)
+plt.ylabel(<span class="string">'قیمت نرمال‌شده'</span>)
+plt.legend()
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+<span class="comment"># 2. نسبت شارپ</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">2</span>)
+performance_analysis[<span class="string">'نسبت_شارپ'</span>].plot(kind=<span class="string">'bar'</span>, color=<span class="string">'skyblue'</span>)
+plt.title(<span class="string">'نسبت شارپ سهام'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'نسبت شارپ'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 3. ریسک vs بازدهی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">3</span>)
+plt.scatter(performance_analysis[<span class="string">'نوسانات_سالانه'</span>], 
+           performance_analysis[<span class="string">'بازدهی_سالانه'</span>], 
+           s=<span class="number">100</span>, alpha=<span class="number">0.7</span>, c=<span class="string">'red'</span>)
+
+<span class="keyword">for</span> i, symbol <span class="keyword">in</span> <span class="function">enumerate</span>(performance_analysis.index):
+    plt.annotate(symbol, 
+                (performance_analysis.iloc[i][<span class="string">'نوسانات_سالانه'</span>], 
+                 performance_analysis.iloc[i][<span class="string">'بازدهی_سالانه'</span>]),
+                fontsize=<span class="number">8</span>)
+
+plt.xlabel(<span class="string">'ریسک (نوسانات %)'</span>)
+plt.ylabel(<span class="string">'بازدهی (%)'</span>)
+plt.title(<span class="string">'نمودار ریسک-بازدهی'</span>, fontweight=<span class="string">'bold'</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+<span class="comment"># 4. ترکیب پرتفولیو بهینه</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">4</span>)
+significant_weights = portfolio_composition[portfolio_composition[<span class="string">'وزن'</span>] > <span class="number">2</span>]
+plt.pie(significant_weights[<span class="string">'وزن'</span>], labels=significant_weights[<span class="string">'سهم'</span>], 
+        autopct=<span class="string">'%1.1f%%'</span>, startangle=<span class="number">90</span>)
+plt.title(<span class="string">'ترکیب پرتفولیو بهینه'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 5. ماتریس همبستگی</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>)
+sns.heatmap(correlation_matrix, annot=<span class="keyword">True</span>, cmap=<span class="string">'coolwarm'</span>, center=<span class="number">0</span>, 
+            fmt=<span class="string">'.2f'</span>, square=<span class="keyword">True</span>)
+plt.title(<span class="string">'ماتریس همبستگی'</span>, fontweight=<span class="string">'bold'</span>)
+
+<span class="comment"># 6. توزیع بازدهی پرتفولیو</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">6</span>)
+plt.hist(portfolio_daily_returns * <span class="number">100</span>, bins=<span class="number">30</span>, alpha=<span class="number">0.7</span>, color=<span class="string">'green'</span>)
+plt.axvline(var_95, color=<span class="string">'red'</span>, linestyle=<span class="string">'--'</span>, label=<span class="string">f'VaR 95%: {var_95:.2f}%'</span>)
+plt.axvline(var_99, color=<span class="string">'darkred'</span>, linestyle=<span class="string">'--'</span>, label=<span class="string">f'VaR 99%: {var_99:.2f}%'</span>)
+plt.title(<span class="string">'توزیع بازدهی روزانه پرتفولیو'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'بازدهی روزانه (%)'</span>)
+plt.ylabel(<span class="string">'فراوانی'</span>)
+plt.legend()
+
+<span class="comment"># 7. حجم معاملات</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">7</span>)
+volume_df.mean().plot(kind=<span class="string">'bar'</span>, color=<span class="string">'orange'</span>)
+plt.title(<span class="string">'میانگین حجم معاملات'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'حجم'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 8. مقایسه استراتژی‌ها</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">8</span>)
+strategies = [<span class="string">'مساوی‌الوزن'</span>, <span class="string">'بهینه‌شده'</span>]
+returns_comp = [equal_return*<span class="number">100</span>, opt_return*<span class="number">100</span>]
+risks_comp = [equal_std*<span class="number">100</span>, opt_std*<span class="number">100</span>]
+
+x = np.arange(<span class="function">len</span>(strategies))
+width = <span class="number">0.35</span>
+
+plt.bar(x - width/<span class="number">2</span>, returns_comp, width, label=<span class="string">'بازدهی'</span>, color=<span class="string">'lightblue'</span>)
+plt.bar(x + width/<span class="number">2</span>, risks_comp, width, label=<span class="string">'ریسک'</span>, color=<span class="string">'lightcoral'</span>)
+
+plt.xlabel(<span class="string">'استراتژی'</span>)
+plt.ylabel(<span class="string">'درصد'</span>)
+plt.title(<span class="string">'مقایسه استراتژی‌های سرمایه‌گذاری'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xticks(x, strategies)
+plt.legend()
+
+<span class="comment"># 9. عملکرد سکتوری</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">9</span>)
+sector_df[<span class="string">'بازدهی'</span>].plot(kind=<span class="string">'bar'</span>, color=<span class="string">'purple'</span>)
+plt.title(<span class="string">'عملکرد سکتورها'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'بازدهی (%)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 10. حداکثر افت</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">10</span>)
+max_dd_series = pd.Series(max_drawdowns)
+max_dd_series.plot(kind=<span class="string">'bar'</span>, color=<span class="string">'red'</span>)
+plt.title(<span class="string">'حداکثر افت سهام'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'حداکثر افت (%)'</span>)
+plt.xticks(rotation=<span class="number">45</span>)
+
+<span class="comment"># 11. نوسانات در زمان</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">11</span>)
+rolling_vol = returns_df.rolling(window=<span class="number">30</span>).std() * np.sqrt(<span class="number">252</span>) * <span class="number">100</span>
+rolling_vol.mean(axis=<span class="number">1</span>).plot(color=<span class="string">'brown'</span>, linewidth=<span class="number">2</span>)
+plt.title(<span class="string">'نوسانات 30 روزه بازار'</span>, fontweight=<span class="string">'bold'</span>)
+plt.ylabel(<span class="string">'نوسانات (%)'</span>)
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+<span class="comment"># 12. بازدهی تجمعی پرتفولیو</span>
+plt.subplot(<span class="number">3</span>, <span class="number">4</span>, <span class="number">12</span>)
+portfolio_cumulative = ((<span class="number">1</span> + portfolio_daily_returns).cumprod() - <span class="number">1</span>) * <span class="number">100</span>
+equal_portfolio_returns = returns_df.mean(axis=<span class="number">1</span>)
+equal_cumulative = ((<span class="number">1</span> + equal_portfolio_returns).cumprod() - <span class="number">1</span>) * <span class="number">100</span>
+
+plt.plot(portfolio_cumulative.index, portfolio_cumulative, 
+         label=<span class="string">'پرتفولیو بهینه'</span>, linewidth=<span class="number">3</span>, color=<span class="string">'green'</span>)
+plt.plot(equal_cumulative.index, equal_cumulative, 
+         label=<span class="string">'پرتفولیو مساوی‌الوزن'</span>, linewidth=<span class="number">2</span>, color=<span class="string">'blue'</span>)
+
+plt.title(<span class="string">'مقایسه بازدهی تجمعی'</span>, fontweight=<span class="string">'bold'</span>)
+plt.xlabel(<span class="string">'تاریخ'</span>)
+plt.ylabel(<span class="string">'بازدهی تجمعی (%)'</span>)
+plt.legend()
+plt.grid(<span class="keyword">True</span>, alpha=<span class="number">0.3</span>)
+
+plt.suptitle(<span class="string">'داشبورد جامع تحلیل مالی و بهینه‌سازی پرتفولیو'</span>, fontsize=<span class="number">18</span>, fontweight=<span class="string">'bold'</span>)
+plt.tight_layout()
+plt.show()
+
+<span class="function">print</span>(<span class="string">"✅ داشبورد تحلیل مالی ایجاد شد"</span>)
+                    </div>
+
+                    <div class="tip-box">
+                        <div class="tip-title">💡 نکات مهم تحلیل مالی:</div>
+                        <ul>
+                            <li><strong>Diversification:</strong> تنوع‌بخشی کلید کاهش ریسک است</li>
+                            <li><strong>Risk-Return Trade-off:</strong> توازن بین ریسک و بازدهی</li>
+                            <li><strong>Sharpe Ratio:</strong> معیار مهم ارزیابی عملکرد</li>
+                            <li><strong>VaR Analysis:</strong> محاسبه حداکثر زیان احتمالی</li>
+                        </ul>
+                    </div>
+
+                    <div class="method-grid">
+                        <div class="method-card">
+                            <div class="method-name">scipy.optimize</div>
+                            <div class="method-desc">بهینه‌سازی</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Portfolio Theory</div>
+                            <div class="method-desc">تئوری پرتفولیو</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Risk Management</div>
+                            <div class="method-desc">مدیریت ریسک</div>
+                        </div>
+                        <div class="method-card">
+                            <div class="method-name">Monte Carlo</div>
+                            <div class="method-desc">شبیه‌سازی</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ادامه اسلایدها در پاسخ بعدی... -->
+        </div>
+
+        <!-- کنترل‌های ناوبری -->
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">❮ قبلی</button>
+            <span class="slide-info" id="slideInfo">1 / 12</span>
+            <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">بعدی ❯</button>
+        </div>
+
+        <!-- فهرست اسلایدها -->
+        <div class="slide-list">
+            <h3>📋 فهرست جلسه دهم:</h3>
+            <div class="slide-links">
+                <a href="#" onclick="goToSlide(1)">1. معرفی پروژه‌های تخصصی</a>
+                <a href="#" onclick="goToSlide(2)">2. پروژه مالی - تحلیل سهام</a>
+                <a href="#" onclick="goToSlide(3)">3. بهینه‌سازی پرتفولیو</a>
+                <a href="#" onclick="goToSlide(4)">4. پیش‌بینی قیمت سهام</a>
+                <a href="#" onclick="goToSlide(5)">5. پروژه سلامت - داده‌های بیمارستان</a>
+                <a href="#" onclick="goToSlide(6)">6. تحلیل بیماری‌ها</a>
+                <a href="#" onclick="goToSlide(7)">7. پیش‌بینی بیماری</a>
+                <a href="#" onclick="goToSlide(8)">8. سیستم توصیه‌گر محصول</a>
+                <a href="#" onclick="goToSlide(9)">9. فیلتر مشارکتی</a>
+                <a href="#" onclick="goToSlide(10)">10. تحلیل شبکه اجتماعی</a>
+                <a href="#" onclick="goToSlide(11)">11. تشخیص انجمن</a>
+                <a href="#" onclick="goToSlide(12)">12. جمع‌بندی و ارزیابی</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            
+            if (n > totalSlides) currentSlide = 1;
+            if (n < 1) currentSlide = totalSlides;
+            
+            slides.forEach(slide => {
+                slide.classList.remove('active');
+                slide.style.display = 'none';
+            });
+            
+            const targetSlide = document.getElementById(`slide${currentSlide}`);
+            if (targetSlide) {
+                targetSlide.classList.add('active');
+                targetSlide.style.display = 'block';
+            }
+            
+            document.getElementById('slideInfo').textContent = `${currentSlide} / ${totalSlides}`;
+            
+            document.getElementById('prevBtn').style.opacity = currentSlide === 1 ? '0.5' : '1';
+            document.getElementById('nextBtn').style.opacity = currentSlide === totalSlides ? '0.5' : '1';
+        }
+
+        function changeSlide(n) {
+            currentSlide += n;
+            showSlide(currentSlide);
+        }
+
+        function goToSlide(n) {
+            currentSlide = n;
+            showSlide(currentSlide);
+        }
+
+        function expandSlide(btn) {
+            const slide = btn.closest('.slide');
+            slide.classList.add('expanded');
+        }
+
+        function closeSlide(btn) {
+            const slide = btn.closest('.slide');
+            slide.classList.remove('expanded');
+        }
+
+        function copyCode(btn) {
+            const codeBlock = btn.nextElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '✅ کپی شد';
+                setTimeout(() => {
+                    btn.textContent = 'کپی';
+                }, 2000);
+            });
+        }
+
+        // کلیدهای میانبر
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.slide.expanded').forEach(slide => {
+                    slide.classList.remove('expanded');
+                });
+            }
+        });
+
+        // نمایش اولین اسلاید
+        showSlide(1);
+    </script>
+</body>
+</html>

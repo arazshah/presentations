@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="fa"
+      dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>جلسه سوم: NumPy و محاسبات علمی - آراز شاه کرمی</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+            color: #fff;
+        }
+
+        .presentation-container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .slides-container {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            align-content: flex-start;
+        }
+
+        .slide {
+            width: 400px;
+            min-height: 300px;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            color: #2d3748;
+        }
+
+        .slide:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .slide.expanded {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 90vh;
+            z-index: 10000;
+            overflow-y: auto;
+            max-width: 1200px;
+            animation: expandSlide 0.3s ease;
+        }
+
+        @keyframes expandSlide {
+            from {
+                transform: translate(-50%, -50%) scale(0.3);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .expand-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .expand-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+        }
+
+        .slide.expanded .close-btn {
+            display: flex;
+        }
+
+        .slide.expanded .expand-btn {
+            display: none;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        .slide-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            margin-top: 25px;
+            border-right: 4px solid #667eea;
+            padding-right: 15px;
+            line-height: 1.3;
+        }
+
+        .slide.expanded .slide-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .slide-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #4a5568;
+        }
+
+        .slide.expanded .slide-content {
+            font-size: 16px;
+            line-height: 2;
+        }
+
+        .slide-content h3 {
+            color: #667eea;
+            font-size: 18px;
+            margin: 20px 0 15px 0;
+            font-weight: 600;
+        }
+
+        .slide.expanded .slide-content h3 {
+            font-size: 24px;
+            margin: 25px 0 20px 0;
+        }
+
+        .slide-content ul {
+            margin: 15px 0;
+            padding-right: 25px;
+        }
+
+        .slide-content li {
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .slide-content li::before {
+            content: '🔹';
+            position: absolute;
+            right: -25px;
+            font-size: 14px;
+        }
+
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 13px;
+            margin: 20px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            position: relative;
+            border: 1px solid #4a5568;
+        }
+
+        .slide.expanded .code-block {
+            font-size: 15px;
+            padding: 25px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .icon {
+            font-size: 50px;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide.expanded .icon {
+            font-size: 70px;
+            margin-bottom: 30px;
+        }
+
+        .navigation {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-title {
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 16px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            margin: 8px 0;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 13px;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            transform: translateX(-8px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .slide.intro {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide.intro .slide-title {
+            color: white;
+            border-right: 4px solid white;
+            font-size: 24px;
+            margin-bottom: 25px;
+        }
+
+        .slide.numpy {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .slide.numpy .slide-title {
+            color: white;
+            border-right: 4px solid white;
+        }
+
+        .slide.numpy .slide-content {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .slide.numpy .slide-content h3 {
+            color: white;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e8, #f0fff0);
+            border: 2px solid #68d391;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .example-title {
+            color: #2f855a;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #f6ad55;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-title {
+            color: #c05621;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .exercise-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border: 2px solid #42a5f5;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .exercise-title {
+            color: #1565c0;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .performance-box {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            border: 2px solid #ab47bc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .performance-title {
+            color: #7b1fa2;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .price-tag {
+            position: absolute;
+            top: -12px;
+            right: 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(238, 90, 82, 0.4);
+        }
+
+        .matrix-visual {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin: 15px 0;
+            max-width: 200px;
+        }
+
+        .matrix-cell {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .array-visual {
+            display: flex;
+            gap: 5px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .array-cell {
+            background: #4facfe;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .benchmark-chart {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .chart-label {
+            width: 80px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .chart-fill {
+            height: 20px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+            margin: 0 10px;
+            transition: width 2s ease;
+        }
+
+        .chart-value {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        @media (max-width: 768px) {
+            .presentation-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+
+            .navigation {
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .slides-container {
+                justify-content: center;
+            }
+
+            .slide {
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .slide.expanded {
+                width: 95vw;
+                height: 95vh;
+                padding: 15px;
+            }
+        }
+
+        /* Syntax highlighting */
+        .keyword {
+            color: #ff79c6;
+        }
+
+        .string {
+            color: #50fa7b;
+        }
+
+        .number {
+            color: #bd93f9;
+        }
+
+        .comment {
+            color: #6272a4;
+        }
+
+        .function {
+            color: #8be9fd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"
+         id="overlay"></div>
+
+    <div class="navigation">
+        <div class="nav-title">🧮 جلسه سوم - NumPy</div>
+        <a href="#slide1"
+           class="nav-item">معرفی NumPy</a>
+        <a href="#slide2"
+           class="nav-item">نصب و import</a>
+        <a href="#slide3"
+           class="nav-item">آرایه‌ها</a>
+        <a href="#slide4"
+           class="nav-item">ایجاد آرایه</a>
+        <a href="#slide5"
+           class="nav-item">ویژگی‌ها</a>
+        <a href="#slide6"
+           class="nav-item">indexing</a>
+        <a href="#slide7"
+           class="nav-item">عملیات ریاضی</a>
+        <a href="#slide8"
+           class="nav-item">توابع آماری</a>
+        <a href="#slide9"
+           class="nav-item">reshape</a>
+        <a href="#slide10"
+           class="nav-item">عملکرد</a>
+        <a href="#slide11"
+           class="nav-item">پروژه عملی</a>
+        <a href="#slide12"
+           class="nav-item">جمع‌بندی</a>
+    </div>
+
+    <div class="presentation-container">
+        <div class="slides-container">
+
+            <!-- اسلاید 1: معرفی NumPy -->
+            <div class="slide intro"
+                 id="slide1">
+                <div class="price-tag">💰 100,000 تومان</div>
+                <div class="slide-number">1/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🧮</div>
+                <div class="slide-title">جلسه سوم: NumPy و محاسبات علمی</div>
+                <div class="slide-content">
+                    <h3>👨‍🏫 مدرس: آراز شاه کرمی</h3>
+                    <h3>📅 جلسه سوم از 12 جلسه</h3>
+                    <h3>⏱️ مدت: 120 دقیقه</h3>
+                    <h3>🎯 هدف: تسلط بر محاسبات عددی با NumPy</h3>
+                    <div style="margin-top: 30px; font-size: 18px;">
+                        🚀 <strong>از آرایه‌های ساده تا محاسبات پیشرفته</strong>
+                    </div>
+                    <div class="stats-grid"
+                         style="margin-top: 25px;">
+                        <div class="stat-item">
+                            <span class="stat-number">50x</span>
+                            <span class="stat-label">سرعت بیشتر</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">10+</span>
+                            <span class="stat-label">تابع آماری</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">∞</span>
+                            <span class="stat-label">ابعاد آرایه</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 2: چرا NumPy؟ -->
+            <div class="slide numpy"
+                 id="slide2">
+                <div class="slide-number">2/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">⚡</div>
+                <div class="slide-title">چرا NumPy؟</div>
+                <div class="slide-content">
+                    <h3>🎯 NumPy چیست؟</h3>
+                    <p><strong>Numerical Python</strong> - کتابخانه محاسبات عددی قدرتمند</p>
+
+                    <h3>💪 مزایای NumPy:</h3>
+                    <ul>
+                        <li>سرعت بالا (تا 50 برابر سریع‌تر از Python خالص)</li>
+                        <li>مصرف حافظه کمتر</li>
+                        <li>عملیات برداری (Vectorization)</li>
+                        <li>پشتیبانی از آرایه‌های چندبعدی</li>
+                        <li>توابع ریاضی و آماری فراوان</li>
+                    </ul>
+
+                    <table class="comparison-table">
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>Python List</th>
+                            <th>NumPy Array</th>
+                        </tr>
+                        <tr>
+                            <td>سرعت</td>
+                            <td>کند</td>
+                            <td>سریع ⚡</td>
+                        </tr>
+                        <tr>
+                            <td>حافظه</td>
+                            <td>زیاد</td>
+                            <td>کم 💾</td>
+                        </tr>
+                        <tr>
+                            <td>عملیات ریاضی</td>
+                            <td>محدود</td>
+                            <td>کامل 🧮</td>
+                        </tr>
+                        <tr>
+                            <td>ابعاد</td>
+                            <td>1 بعد</td>
+                            <td>چندبعدی 📐</td>
+                        </tr>
+                    </table>
+                    <div class="warning-box">
+                        <div class="warning-title">💡 نکته مهم:</div>
+                        NumPy پایه و اساس تمام کتابخانه‌های علم داده در Python است!
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 3: نصب و Import -->
+            <div class="slide"
+                 id="slide3">
+                <div class="slide-number">3/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📦</div>
+                <div class="slide-title">نصب و شروع کار</div>
+                <div class="slide-content">
+                    <h3>💻 نصب NumPy:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        # نصب با pip
+                        pip install numpy
+
+                        # نصب با conda
+                        conda install numpy
+
+                        # در Google Colab (از قبل نصب است)
+                        import numpy as np
+                    </div>
+
+                    <h3>📥 Import کردن:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="keyword">import</span> <span class="string">numpy</span> <span
+                              class="keyword">as</span> <span class="string">np</span>
+
+                        <span class="comment"># بررسی نسخه</span>
+                        <span class="function">print</span>(np.__version__)
+
+                        <span class="comment"># اطلاعات کامل</span>
+                        np.show_config()
+
+                        <span class="comment"># راهنمای سریع</span>
+                        <span class="function">help</span>(np)
+                    </div>
+
+                    <h3>🔍 اولین آرایه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># ایجاد آرایه ساده</span>
+                        arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>])
+                        <span class="function">print</span>(arr)
+                        <span class="function">print</span>(<span class="function">type</span>(arr))
+
+                        <span class="comment"># نتیجه:</span>
+                        <span class="comment"># [1 2 3 4 5]</span>
+                        <span class="comment"># <class 'numpy.ndarray'></span>
+                    </div>
+
+                    <div class="example-box">
+                        <div class="example-title">💡 کنوانسیون:</div>
+                        همیشه NumPy را با نام مستعار <code>np</code> import کنید - این استاندارد جهانی است
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 4: ایجاد آرایه‌ها -->
+            <div class="slide"
+                 id="slide4">
+                <div class="slide-number">4/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🔨</div>
+                <div class="slide-title">روش‌های ایجاد آرایه</div>
+                <div class="slide-content">
+                    <h3>📝 از لیست Python:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># آرایه یک‌بعدی</span>
+                        arr_1d = np.array([<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>, <span class="number">4</span>])
+
+                        <span class="comment"># آرایه دوبعدی (ماتریس)</span>
+                        arr_2d = np.array([[<span class="number">1</span>, <span class="number">2</span>], [<span
+                              class="number">3</span>, <span class="number">4</span>]])
+
+                        <span class="comment"># آرایه سه‌بعدی</span>
+                        arr_3d = np.array([[[<span class="number">1</span>, <span class="number">2</span>], [<span
+                              class="number">3</span>, <span class="number">4</span>]],
+                        [[<span class="number">5</span>, <span class="number">6</span>], [<span class="number">7</span>,
+                        <span class="number">8</span>]]])
+                    </div>
+
+                    <h3>🎯 توابع ایجاد آرایه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># آرایه صفر</span>
+                        zeros = np.zeros((<span class="number">3</span>, <span class="number">4</span>)) <span
+                              class="comment"># 3×4 پر از صفر</span>
+
+                        <span class="comment"># آرایه یک</span>
+                        ones = np.ones((<span class="number">2</span>, <span class="number">3</span>)) <span
+                              class="comment"># 2×3 پر از یک</span>
+
+                        <span class="comment"># آرایه خالی</span>
+                        empty = np.empty((<span class="number">2</span>, <span class="number">2</span>)) <span
+                              class="comment"># مقادیر تصادفی</span>
+
+                        <span class="comment"># آرایه با مقدار مشخص</span>
+                        full = np.full((<span class="number">3</span>, <span class="number">3</span>), <span
+                              class="number">7</span>) <span class="comment"># پر از عدد 7</span>
+
+                        <span class="comment"># ماتریس واحد</span>
+                        identity = np.eye(<span class="number">4</span>) <span class="comment"># ماتریس واحد
+                            4×4</span>
+                    </div>
+
+                    <h3>📊 دنباله‌های عددی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># دنباله با گام مشخص</span>
+                        range_arr = np.arange(<span class="number">0</span>, <span class="number">10</span>, <span
+                              class="number">2</span>) <span class="comment"># [0, 2, 4, 6, 8]</span>
+
+                        <span class="comment"># تقسیم بازه به قطعات مساوی</span>
+                        linspace_arr = np.linspace(<span class="number">0</span>, <span class="number">1</span>,
+                        <span class="number">5</span>) <span class="comment"># 5 نقطه بین 0 و 1</span>
+
+                        <span class="comment"># دنباله لگاریتمی</span>
+                        logspace_arr = np.logspace(<span class="number">0</span>, <span class="number">2</span>,
+                        <span class="number">3</span>) <span class="comment"># [1, 10, 100]</span>
+                    </div>
+
+                    <div class="array-visual">
+                        <div class="array-cell">1</div>
+                        <div class="array-cell">2</div>
+                        <div class="array-cell">3</div>
+                        <div class="array-cell">4</div>
+                        <div class="array-cell">5</div>
+                    </div>
+                    <p style="text-align: center; font-size: 12px; color: #666;">نمایش بصری آرایه یک‌بعدی</p>
+                </div>
+            </div>
+
+            <!-- اسلاید 5: ویژگی‌های آرایه -->
+            <div class="slide"
+                 id="slide5">
+                <div class="slide-number">5/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🔍</div>
+                <div class="slide-title">ویژگی‌های آرایه</div>
+                <div class="slide-content">
+                    <h3>📏 اطلاعات آرایه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr = np.array([[<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>],
+                        [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]])
+
+                        <span class="comment"># شکل آرایه (ابعاد)</span>
+                        <span class="function">print</span>(arr.shape) <span class="comment"># (2, 3)</span>
+
+                        <span class="comment"># تعداد ابعاد</span>
+                        <span class="function">print</span>(arr.ndim) <span class="comment"># 2</span>
+
+                        <span class="comment"># تعداد کل عناصر</span>
+                        <span class="function">print</span>(arr.size) <span class="comment"># 6</span>
+
+                        <span class="comment"># نوع داده</span>
+                        <span class="function">print</span>(arr.dtype) <span class="comment"># int64</span>
+
+                        <span class="comment"># حجم هر عنصر (بایت)</span>
+                        <span class="function">print</span>(arr.itemsize) <span class="comment"># 8</span>
+                    </div>
+
+                    <h3>🎭 انواع داده:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># مشخص کردن نوع داده</span>
+                        int_arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>], dtype=np.int32)
+                        float_arr = np.array([<span class="number">1.5</span>, <span class="number">2.5</span>],
+                        dtype=np.float64)
+                        bool_arr = np.array([<span class="keyword">True</span>, <span class="keyword">False</span>],
+                        dtype=np.bool_)
+
+                        <span class="comment"># تبدیل نوع داده</span>
+                        arr_float = arr.astype(np.float32)
+                        arr_str = arr.astype(str)
+
+                        <span class="comment"># انواع داده رایج:</span>
+                        <span class="comment"># int8, int16, int32, int64</span>
+                        <span class="comment"># float16, float32, float64</span>
+                        <span class="comment"># bool, complex64, complex128</span>
+                    </div>
+
+                    <h3>📐 شکل آرایه:</h3>
+                    <div class="matrix-visual">
+                        <div class="matrix-cell">1</div>
+                        <div class="matrix-cell">2</div>
+                        <div class="matrix-cell">3</div>
+                        <div class="matrix-cell">4</div>
+                        <div class="matrix-cell">5</div>
+                        <div class="matrix-cell">6</div>
+                    </div>
+                    <p style="text-align: center; font-size: 12px; color: #666;">ماتریس 2×3</p>
+
+                    <div class="example-box">
+                        <div class="example-title">💡 نکته مهم:</div>
+                        انتخاب نوع داده مناسب می‌تواند حافظه و سرعت را بهبود دهد
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 6: Indexing و Slicing -->
+            <div class="slide"
+                 id="slide6">
+                <div class="slide-number">6/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🎯</div>
+                <div class="slide-title">Indexing و Slicing</div>
+                <div class="slide-content">
+                    <h3>🎯 دسترسی به عناصر:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr_1d = np.array([<span class="number">10</span>, <span class="number">20</span>, <span
+                              class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>])
+
+                        <span class="comment"># دسترسی به عنصر اول</span>
+                        <span class="function">print</span>(arr_1d[<span class="number">0</span>]) <span
+                              class="comment"># 10</span>
+
+                        <span class="comment"># دسترسی به عنصر آخر</span>
+                        <span class="function">print</span>(arr_1d[<span class="number">-1</span>]) <span
+                              class="comment"># 50</span>
+
+                        <span class="comment"># تغییر مقدار</span>
+                        arr_1d[<span class="number">2</span>] = <span class="number">99</span>
+                        <span class="function">print</span>(arr_1d) <span class="comment"># [10 20 99 40 50]</span>
+                    </div>
+
+                    <h3>🔪 Slicing (برش):</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># برش ساده</span>
+                        <span class="function">print</span>(arr_1d[<span class="number">1</span>:<span
+                              class="number">4</span>]) <span class="comment"># [20 99 40]</span>
+
+                        <span class="comment"># برش با گام</span>
+                        <span class="function">print</span>(arr_1d[::<span class="number">2</span>]) <span
+                              class="comment"># [10 99 50]</span>
+
+                        <span class="comment"># برش معکوس</span>
+                        <span class="function">print</span>(arr_1d[::<span class="number">-1</span>]) <span
+                              class="comment"># [50 40 99 20 10]</span>
+
+                        <span class="comment"># کپی کردن</span>
+                        copy_arr = arr_1d[<span class="number">1</span>:<span class="number">3</span>].copy()
+                    </div>
+
+                    <h3>🏢 آرایه‌های دوبعدی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr_2d = np.array([[<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>],
+                        [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>],
+                        [<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]])
+
+                        <span class="comment"># دسترسی به عنصر</span>
+                        <span class="function">print</span>(arr_2d[<span class="number">1</span>, <span
+                              class="number">2</span>]) <span class="comment"># 6</span>
+
+                        <span class="comment"># دسترسی به سطر</span>
+                        <span class="function">print</span>(arr_2d[<span class="number">0</span>]) <span
+                              class="comment"># [1 2 3]</span>
+
+                        <span class="comment"># دسترسی به ستون</span>
+                        <span class="function">print</span>(arr_2d[:, <span class="number">1</span>]) <span
+                              class="comment"># [2 5 8]</span>
+
+                        <span class="comment"># برش دوبعدی</span>
+                        <span class="function">print</span>(arr_2d[<span class="number">0</span>:<span
+                              class="number">2</span>, <span class="number">1</span>:<span class="number">3</span>])
+                        <span class="comment"># [[2 3] [5 6]]</span>
+                    </div>
+
+                    <h3>🎭 Boolean Indexing:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr = np.array([<span class="number">1</span>, <span class="number">5</span>, <span
+                              class="number">3</span>, <span class="number">8</span>, <span class="number">2</span>])
+
+                        <span class="comment"># شرط</span>
+                        mask = arr > <span class="number">3</span>
+                        <span class="function">print</span>(mask) <span class="comment"># [False True False True
+                            False]</span>
+
+                        <span class="comment"># فیلتر کردن</span>
+                        <span class="function">print</span>(arr[mask]) <span class="comment"># [5 8]</span>
+
+                        <span class="comment"># یک خطی</span>
+                        <span class="function">print</span>(arr[arr > <span class="number">3</span>]) <span
+                              class="comment"># [5 8]</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 7: عملیات ریاضی -->
+            <div class="slide"
+                 id="slide7">
+                <div class="slide-number">7/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">➕</div>
+                <div class="slide-title">عملیات ریاضی</div>
+                <div class="slide-content">
+                    <h3>🧮 عملیات پایه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr1 = np.array([<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>, <span class="number">4</span>])
+                        arr2 = np.array([<span class="number">5</span>, <span class="number">6</span>, <span
+                              class="number">7</span>, <span class="number">8</span>])
+
+                        <span class="comment"># جمع</span>
+                        <span class="function">print</span>(arr1 + arr2) <span class="comment"># [6 8 10 12]</span>
+
+                        <span class="comment"># تفریق</span>
+                        <span class="function">print</span>(arr2 - arr1) <span class="comment"># [4 4 4 4]</span>
+
+                        <span class="comment"># ضرب</span>
+                        <span class="function">print</span>(arr1 * arr2) <span class="comment"># [5 12 21 32]</span>
+
+                        <span class="comment"># تقسیم</span>
+                        <span class="function">print</span>(arr2 / arr1) <span class="comment"># [5. 3. 2.33
+                            2.]</span>
+
+                        <span class="comment"># توان</span>
+                        <span class="function">print</span>(arr1 ** <span class="number">2</span>) <span
+                              class="comment"># [1 4 9 16]</span>
+                    </div>
+
+                    <h3>🔢 عملیات با اسکالر:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr = np.array([<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>, <span class="number">4</span>])
+
+                        <span class="comment"># جمع با عدد</span>
+                        <span class="function">print</span>(arr + <span class="number">10</span>) <span
+                              class="comment"># [11 12 13 14]</span>
+
+                        <span class="comment"># ضرب در عدد</span>
+                        <span class="function">print</span>(arr * <span class="number">3</span>) <span class="comment">#
+                            [3 6 9 12]</span>
+
+                        <span class="comment"># تقسیم بر عدد</span>
+                        <span class="function">print</span>(arr / <span class="number">2</span>) <span class="comment">#
+                            [0.5 1. 1.5 2.]</span>
+                    </div>
+
+                    <h3>📐 توابع ریاضی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr = np.array([<span class="number">1</span>, <span class="number">4</span>, <span
+                              class="number">9</span>, <span class="number">16</span>])
+
+                        <span class="comment"># جذر</span>
+                        <span class="function">print</span>(np.sqrt(arr)) <span class="comment"># [1. 2. 3.
+                            4.]</span>
+
+                        <span class="comment"># لگاریتم</span>
+                        <span class="function">print</span>(np.log(arr)) <span class="comment"># [0. 1.39 2.20
+                            2.77]</span>
+
+                        <span class="comment"># نمایی</span>
+                        <span class="function">print</span>(np.exp(arr)) <span class="comment"># [2.72 54.6 8103
+                            8.9e+6]</span>
+
+                        <span class="comment"># مثلثاتی</span>
+                        angles = np.array([<span class="number">0</span>, np.pi/<span class="number">2</span>,
+                        np.pi])
+                        <span class="function">print</span>(np.sin(angles)) <span class="comment"># [0. 1.
+                            0.]</span>
+                        <span class="function">print</span>(np.cos(angles)) <span class="comment"># [1. 0.
+                            -1.]</span>
+                    </div>
+
+                    <h3>🎯 عملیات مقایسه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr1 = np.array([<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>])
+                        arr2 = np.array([<span class="number">1</span>, <span class="number">4</span>, <span
+                              class="number">2</span>])
+
+                        <span class="comment"># مقایسه</span>
+                        <span class="function">print</span>(arr1 == arr2) <span class="comment"># [True False
+                            False]</span>
+                        <span class="function">print</span>(arr1 > arr2) <span class="comment"># [False False
+                            True]</span>
+                        <span class="function">print</span>(arr1 < arr2)
+                          <span
+                          class="comment"># [False True False]</span>
+
+                            <span class="comment"># توابع منطقی</span>
+                            <span class="function">print</span>(np.logical_and(arr1 > <span class="number">1</span>,
+                            arr1 < <span
+                              class="number">3</span>)) <span class="comment"># [False True False]</span>
+                    </div>
+
+                    <div class="performance-box">
+                        <div class="performance-title">⚡ مزیت Vectorization:</div>
+                        عملیات روی کل آرایه بدون حلقه - سریع‌تر و خواناتر!
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 8: توابع آماری -->
+            <div class="slide"
+                 id="slide8">
+                <div class="slide-number">8/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">📊</div>
+                <div class="slide-title">توابع آماری</div>
+                <div class="slide-content">
+                    <h3>📈 آمار توصیفی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        data = np.array([<span class="number">1</span>, <span class="number">5</span>, <span
+                              class="number">3</span>, <span class="number">8</span>, <span class="number">2</span>,
+                        <span class="number">7</span>, <span class="number">4</span>, <span class="number">6</span>])
+
+                        <span class="comment"># میانگین</span>
+                        <span class="function">print</span>(np.mean(data)) <span class="comment"># 4.5</span>
+
+                        <span class="comment"># میانه</span>
+                        <span class="function">print</span>(np.median(data)) <span class="comment"># 4.5</span>
+
+                        <span class="comment"># انحراف معیار</span>
+                        <span class="function">print</span>(np.std(data)) <span class="comment"># 2.29</span>
+
+                        <span class="comment"># واریانس</span>
+                        <span class="function">print</span>(np.var(data)) <span class="comment"># 5.25</span>
+
+                        <span class="comment"># حداقل و حداکثر</span>
+                        <span class="function">print</span>(np.min(data)) <span class="comment"># 1</span>
+                        <span class="function">print</span>(np.max(data)) <span class="comment"># 8</span>
+                    </div>
+
+                    <h3>🎯 موقعیت‌ها:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># موقعیت حداقل</span>
+                        <span class="function">print</span>(np.argmin(data)) <span class="comment"># 0</span>
+
+                        <span class="comment"># موقعیت حداکثر</span>
+                        <span class="function">print</span>(np.argmax(data)) <span class="comment"># 3</span>
+
+                        <span class="comment"># مرتب‌سازی</span>
+                        <span class="function">print</span>(np.sort(data)) <span class="comment"># [1 2 3 4 5 6 7
+                            8]</span>
+
+                        <span class="comment"># ایندکس‌های مرتب</span>
+                        <span class="function">print</span>(np.argsort(data)) <span class="comment"># [0 4 2 6 1 7 5
+                            3]</span>
+                    </div>
+
+                    <h3>🔢 آمار پیشرفته:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># مجموع</span>
+                        <span class="function">print</span>(np.sum(data)) <span class="comment"># 36</span>
+
+                        <span class="comment"># مجموع تجمعی</span>
+                        <span class="function">print</span>(np.cumsum(data)) <span class="comment"># [1 6 9 17 19 26
+                            30 36]</span>
+
+                        <span class="comment"># ضرب تجمعی</span>
+                        <span class="function">print</span>(np.cumprod(data)) <span class="comment"># [1 5 15 120
+                            240 1680 6720 40320]</span>
+
+                        <span class="comment"># صدک‌ها</span>
+                        <span class="function">print</span>(np.percentile(data, <span class="number">25</span>))
+                        <span class="comment"># 2.75</span>
+                        <span class="function">print</span>(np.percentile(data, <span class="number">75</span>))
+                        <span class="comment"># 6.25</span>
+                    </div>
+
+                    <h3>📐 آمار چندبعدی:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        matrix = np.array([[<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>],
+                        [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]])
+
+                        <span class="comment"># میانگین کل</span>
+                        <span class="function">print</span>(np.mean(matrix)) <span class="comment"># 3.5</span>
+
+                        <span class="comment"># میانگین هر ستون (axis=0)</span>
+                        <span class="function">print</span>(np.mean(matrix, axis=<span class="number">0</span>))
+                        <span class="comment"># [2.5 3.5 4.5]</span>
+
+                        <span class="comment"># میانگین هر سطر (axis=1)</span>
+                        <span class="function">print</span>(np.mean(matrix, axis=<span class="number">1</span>))
+                        <span class="comment"># [2. 5.]</span>
+
+                        <span class="comment"># مجموع هر ستون</span>
+                        <span class="function">print</span>(np.sum(matrix, axis=<span class="number">0</span>))
+                        <span class="comment"># [5 7 9]</span>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-number">4.5</span>
+                            <span class="stat-label">میانگین</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">2.29</span>
+                            <span class="stat-label">انحراف معیار</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">حداکثر</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">1</span>
+                            <span class="stat-label">حداقل</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اسلاید 9: Reshape و تغییر شکل -->
+            <div class="slide"
+                 id="slide9">
+                <div class="slide-number">9/12</div>
+                <button class="expand-btn"
+                        onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+                <button class="close-btn"
+                        onclick="closeSlide(this)">×</button>
+                <div class="icon">🔄</div>
+                <div class="slide-title">Reshape و تغییر شکل</div>
+                <div class="slide-content">
+                    <h3>🔄 تغییر شکل آرایه:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># آرایه اولیه</span>
+                        arr = np.arange(<span class="number">12</span>) <span class="comment"># [0 1 2 3 4 5 6 7 8 9
+                            10 11]</span>
+                        <span class="function">print</span>(arr.shape) <span class="comment"># (12,)</span>
+
+                        <span class="comment"># تبدیل به ماتریس 3×4</span>
+                        matrix_3x4 = arr.reshape(<span class="number">3</span>, <span class="number">4</span>)
+                        <span class="function">print</span>(matrix_3x4)
+                        <span class="comment"># [[ 0 1 2 3]</span>
+                        <span class="comment"># [ 4 5 6 7]</span>
+                        <span class="comment"># [ 8 9 10 11]]</span>
+
+                        <span class="comment"># تبدیل به ماتریس 2×6</span>
+                        matrix_2x6 = arr.reshape(<span class="number">2</span>, <span class="number">6</span>)
+
+                        <span class="comment"># تبدیل به مکعب 2×2×3</span>
+                        cube = arr.reshape(<span class="number">2</span>, <span class="number">2</span>, <span
+                              class="number">3</span>)
+                    </div>
+
+                    <h3>🎯 Reshape هوشمند:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        <span class="comment"># -1 برای محاسبه خودکار</span>
+                        auto_reshape = arr.reshape(<span class="number">3</span>, <span class="number">-1</span>)
+                        <span class="comment"># 3×4</span>
+                        <span class="function">print</span>(auto_reshape.shape)
+
+                        <span class="comment"># تبدیل به آرایه یک‌بعدی</span>
+                        flattened = matrix_3x4.flatten()
+                        <span class="function">print</span>(flattened) <span class="comment"># [0 1 2 3 4 5 6 7 8 9
+                            10 11]</span>
+
+                        <span class="comment"># ravel (نسخه سریع‌تر)</span>
+                        raveled = matrix_3x4.ravel()
+                    </div>
+
+                    <h3>🔀 تبدیلات پیشرفته:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        matrix = np.array([[<span class="number">1</span>, <span class="number">2</span>, <span
+                              class="number">3</span>],
+                        [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]])
+
+                        <span class="comment"># ترانهاده (transpose)</span>
+                        transposed = matrix.T
+                        <span class="function">print</span>(transposed)
+                        <span class="comment"># [[1 4]</span>
+                        <span class="comment"># [2 5]</span>
+                        <span class="comment"># [3 6]]</span>
+
+                        <span class="comment"># تعویض محورها</span>
+                        swapped = np.swapaxes(matrix, <span class="number">0</span>, <span class="number">1</span>)
+
+                        <span class="comment"># اضافه کردن بعد</span>
+                        expanded = np.expand_dims(matrix, axis=<span class="number">0</span>)
+                        <span class="function">print</span>(expanded.shape) <span class="comment"># (1, 2, 3)</span>
+
+                        <span class="comment"># حذف بعد</span>
+                        squeezed = np.squeeze(expanded)
+                        <span class="function">print</span>(squeezed.shape) <span class="comment"># (2, 3)</span>
+                    </div>
+
+                    <h3>🔗 ترکیب آرایه‌ها:</h3>
+                    <div class="code-block">
+                        <button class="copy-btn"
+                                onclick="copyCode(this)">کپی</button>
+                        arr1 = np.array([[<span class="number">1</span>, <span class="number">2</span>], [<span
+                              class="number">3</span>, <span class="number">4</span>]])
+                        arr2 = np.array([[<span class="number">5</span>, <span class="number">6</span>], [<span
+                              class="number">7</span>, <span class="number">8</span>]])
+
+                        <span class="comment"># ترکیب عمودی</span>
+                        vertical = np.vstack((arr1, arr2))
+                        <span class="comment"># یا</span>
+                        vertical = np.concatenate((arr1, arr2), axis=<span class="number">0</span>)
+
+                        <span class="comment"># ترکیب افقی</span>
+                        horizontal = np.hstack((arr1, arr2))
+                        <span class="comment"># یا</span>
+                        horizontal = np.concatenate((arr1, arr2), axis=<span class="number">1</span>)
+
+                        <span class="comment"># تقسیم آرایه</span>
+                        split_arrays = np.split(np.arange(<span class="number">8</span>), <span class="number">4</span>)
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-title">⚠️ نکته مهم:</div>
+                    reshape فقط زمانی کار می‌کند که تعداد کل عناصر تغییر نکند
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: مقایسه عملکرد -->
+        <div class="slide"
+             id="slide10">
+            <div class="slide-number">10/12</div>
+            <button class="expand-btn"
+                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+            <button class="close-btn"
+                    onclick="closeSlide(this)">×</button>
+            <div class="icon">⚡</div>
+            <div class="slide-title">مقایسه عملکرد NumPy</div>
+            <div class="slide-content">
+                <h3>🏃‍♂️ تست سرعت:</h3>
+                <div class="code-block">
+                    <button class="copy-btn"
+                            onclick="copyCode(this)">کپی</button>
+                    <span class="keyword">import</span> time
+
+                    <span class="comment"># تست با Python خالص</span>
+                    <span class="keyword">def</span> <span class="function">python_sum</span>(n):
+                    start = time.time()
+                    python_list = list(range(n))
+                    result = sum([x**<span class="number">2</span> <span class="keyword">for</span> x <span
+                          class="keyword">in</span> python_list])
+                    end = time.time()
+                    <span class="keyword">return</span> result, end - start
+
+                    <span class="comment"># تست با NumPy</span>
+                    <span class="keyword">def</span> <span class="function">numpy_sum</span>(n):
+                    start = time.time()
+                    numpy_array = np.arange(n)
+                    result = np.sum(numpy_array**<span class="number">2</span>)
+                    end = time.time()
+                    <span class="keyword">return</span> result, end - start
+
+                    <span class="comment"># مقایسه</span>
+                    n = <span class="number">1000000</span>
+                    py_result, py_time = python_sum(n)
+                    np_result, np_time = numpy_sum(n)
+
+                    <span class="function">print</span>(<span class="string">f"Python: {py_time:.4f}
+                        ثانیه"</span>)
+                    <span class="function">print</span>(<span class="string">f"NumPy: {np_time:.4f}
+                        ثانیه"</span>)
+                    <span class="function">print</span>(<span class="string">f"سرعت:
+                        {py_time/np_time:.1f}x"</span>)
+                </div>
+
+                <div class="benchmark-chart">
+                    <h4>📊 نتایج تست عملکرد (1 میلیون عنصر):</h4>
+                    <div class="chart-bar">
+                        <div class="chart-label">Python</div>
+                        <div class="chart-fill"
+                             style="width: 100%;"></div>
+                        <div class="chart-value">0.245s</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">NumPy</div>
+                        <div class="chart-fill"
+                             style="width: 8%;"></div>
+                        <div class="chart-value">0.019s</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">سرعت</div>
+                        <div class="chart-fill"
+                             style="width: 80%; background: linear-gradient(45deg, #ff6b6b, #ee5a52);"></div>
+                        <div class="chart-value">13x سریع‌تر</div>
+                    </div>
+                </div>
+
+                <h3>💾 مقایسه حافظه:</h3>
+                <div class="code-block">
+                    <button class="copy-btn"
+                            onclick="copyCode(this)">کپی</button>
+                    <span class="keyword">import</span> sys
+
+                    <span class="comment"># حافظه Python list</span>
+                    python_list = [<span class="number">1</span>] * <span class="number">1000</span>
+                    py_memory = sys.getsizeof(python_list)
+
+                    <span class="comment"># حافظه NumPy array</span>
+                    numpy_array = np.ones(<span class="number">1000</span>, dtype=np.int32)
+                    np_memory = numpy_array.nbytes
+
+                    <span class="function">print</span>(<span class="string">f"Python List: {py_memory}
+                        bytes"</span>)
+                    <span class="function">print</span>(<span class="string">f"NumPy Array: {np_memory}
+                        bytes"</span>)
+                    <span class="function">print</span>(<span class="string">f"صرفه‌جویی:
+                        {py_memory/np_memory:.1f}x"</span>)
+                </div>
+
+                <h3>🎯 نکات بهینه‌سازی:</h3>
+                <div class="example-box">
+                    <div class="example-title">✅ بهترین روش‌ها:</div>
+                    <ul>
+                        <li>از Vectorization استفاده کنید</li>
+                        <li>نوع داده مناسب انتخاب کنید</li>
+                        <li>از حلقه‌های Python اجتناب کنید</li>
+                        <li>از توابع داخلی NumPy استفاده کنید</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-title">❌ اجتناب کنید:</div>
+                    <ul>
+                        <li>حلقه روی آرایه‌های بزرگ</li>
+                        <li>تبدیل مکرر بین list و array</li>
+                        <li>استفاده از append در حلقه</li>
+                        <li>کپی غیرضروری آرایه‌ها</li>
+                    </ul>
+                </div>
+
+                <div class="performance-box">
+                    <div class="performance-title">🚀 چرا NumPy سریع است؟</div>
+                    <ul>
+                        <li>نوشته شده با C</li>
+                        <li>حافظه پیوسته</li>
+                        <li>عملیات برداری</li>
+                        <li>بهینه‌سازی‌های پیشرفته</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: پروژه عملی -->
+        <div class="slide"
+             id="slide11">
+            <div class="slide-number">11/12</div>
+            <button class="expand-btn"
+                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+            <button class="close-btn"
+                    onclick="closeSlide(this)">×</button>
+            <div class="icon">🚀</div>
+            <div class="slide-title">پروژه عملی: تحلیل نمرات دانشجویان</div>
+            <div class="slide-content">
+                <h3>📊 مرحله 1: تولید داده نمونه</h3>
+                <div class="code-block">
+                    <button class="copy-btn"
+                            onclick="copyCode(this)">کپی</button>
+                    <span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+                    <span class="comment"># تنظیم seed برای تکرارپذیری</span>
+                    np.random.seed(<span class="number">42</span>)
+
+                    <span class="comment"># تولید نمرات 100 دانشجو در 5 درس</span>
+                    num_students = <span class="number">100</span>
+                    num_subjects = <span class="number">5</span>
+
+                    <span class="comment"># نمرات تصادفی (0 تا 20)</span>
+                    grades = np.random.normal(<span class="number">15</span>, <span class="number">3</span>,
+                    (num_students, num_subjects))
+                    grades = np.clip(grades, <span class="number">0</span>, <span class="number">20</span>)
+                    <span class="comment"># محدود به 0-20</span>
+
+                    <span class="comment"># نام درس‌ها</span>
+                    subjects = np.array([<span class="string">'ریاضی'</span>, <span class="string">'فیزیک'</span>, <span
+                          class="string">'شیمی'</span>, <span class="string">'زبان'</span>, <span
+                          class="string">'ادبیات'</span>])
+
+                    <span class="function">print</span>(<span class="string">f"شکل آرایه نمرات:
+                        {grades.shape}"</span>)
+                    <span class="function">print</span>(<span class="string">f"نمونه نمرات اولین دانشجو:
+                        {grades[0]}"</span>)
+                </div>
+
+                <h3>📈 مرحله 2: آمار توصیفی</h3>
+                <div class="code-block">
+                    <button class="copy-btn"
+                            onclick="copyCode(this)">کپی</button>
+                    <span class="comment"># آمار کلی</span>
+                    <span class="function">print</span>(<span class="string">"=== آمار کلی ==="</span>)
+                    <span class="function">print</span>(<span class="string">f"میانگین کل:
+                        {np.mean(grades):.2f}"</span>)
+                    <span class="function">print</span>(<span class="string">f"انحراف معیار کل:
+                        {np.std(grades):.2f}"</span>)
+                    <span class="function">print</span>(<span class="string">f"حداقل نمره:
+                        {np.min(grades):.2f}"</span>)
+                    <span class="function">print</span>(<span class="string">f"حداکثر نمره:
+                        {np.max(grades):.2f}"</span>)
+
+                    <span class="comment"># آمار هر درس</span>
+                    <span class="function">print</span>(<span class="string">"\n=== آمار هر درس ==="</span>)
+                    subject_means = np.mean(grades, axis=<span class="number">0</span>)
+                    subject_stds = np.std(grades, axis=<span class="number">0</span>)
+
+                    <span class="keyword">for</span> i, subject <span class="keyword">in</span>
+                    enumerate(subjects):
+                    <span class="function">print</span>(<span class="string">f"{subject}:
+                        میانگین={subject_means[i]:.2f}, انحراف معیار={subject_stds[i]:.2f}"</span>)
+
+                    <span class="comment"># آمار هر دانشجو</span>
+                    student_averages = np.mean(grades, axis=<span class="number">1</span>)
+                    <span class="function">print</span>(<span class="string">f"\nبهترین دانشجو:
+                        {np.max(student_averages):.2f}"</span>)
+                    <span class="function">print</span>(<span class="string">f"ضعیف‌ترین دانشجو:
+                        {np.min(student_averages):.2f}"</span>)
+                </div>
+
+                <h3>🎯 مرحله 3: تحلیل پیشرفته</h3>
+                <div class="code-block">
+                    <button class="copy-btn"
+                            onclick="copyCode(this)">کپی</button>
+                    <span class="comment"># دانشجویان برتر (میانگین > 17)</span>
+                    top_students = student_averages > <span class="number">17</span>
+                    <span class="function">print</span>(<span class="string">f"تعداد دانشجویان برتر:
+                        {np.sum(top_students)}"</span>)
+
+                    <span class="comment"># درس سخت‌ترین (کمترین میانگین)</span>
+                    hardest_subject_idx = np.argmin(subject_means)
+                    <span class="function">print</span>(<span class="string">f"سخت‌ترین درس:
+                        {subjects[hardest_subject_idx]} با میانگین
+                        {subject_means[hardest_subject_idx]:.2f}"</span>)
+
+                    <span class="comment"># درس آسان‌ترین (بیشترین میانگین)</span>
+                    easiest_subject_idx = np.argmax(subject_means)
+                    <span class="function">print</span>(<span class="string">f"آسان‌ترین درس:
+                        {subjects[easiest_subject_idx]} با میانگین
+                        {subject_means[easiest_subject_idx]:.2f}"</span>)
+
+                    <span class="comment"># همبستگی بین درس‌ها</span>
+                    correlation_matrix = np.corrcoef(grades.T)
+                    <span class="function">print</span>(<span class="string">f"\nماتریس
+                        همبستگی:\n{correlation_matrix}"</span>)
+
+                    <span class="comment"># رتبه‌بندی دانشجویان</span>
+                    student_ranks = np.argsort(student_averages)[::-<span class="number">1</span>] <span
+                          class="comment"># نزولی</span>
+                    <span class="function">print</span>(<span class="string">f"\nرتبه اول: دانشجو {student_ranks[0]+1}
+                        با میانگین
+                        {student_averages[student_ranks[0]]:.2f}"</span>)
+                </div>
+
+                <h3>🏆 مرحله 4: گزارش نهایی</h3>
+                <div class="code-block">
+                    <button class="copy-btn"
+                            onclick="copyCode(this)">کپی</button>
+                    <span class="comment"># تولید گزارش کامل</span>
+                    <span class="keyword">def</span> <span class="function">generate_report</span>(grades, subjects):
+                    <span class="function">print</span>(<span class="string">"="</span>*<span class="number">50</span>)
+                    <span class="function">print</span>(<span class="string">"📊 گزارش تحلیل نمرات دانشجویان"</span>)
+                    <span class="function">print</span>(<span class="string">"="</span>*<span class="number">50</span>)
+
+                    <span class="comment"># آمار کلی</span>
+                    total_students = grades.shape[<span class="number">0</span>]
+                    total_subjects = grades.shape[<span class="number">1</span>]
+
+                    <span class="function">print</span>(<span class="string">f"📚 تعداد دانشجویان:
+                        {total_students}"</span>)
+                    <span class="function">print</span>(<span class="string">f"📖 تعداد درس‌ها:
+                        {total_subjects}"</span>)
+                    <span class="function">print</span>(<span class="string">f"📊 میانگین کل:
+                        {np.mean(grades):.2f}"</span>)
+
+                    <span class="comment"># رتبه‌بندی درس‌ها</span>
+                    subject_means = np.mean(grades, axis=<span class="number">0</span>)
+                    sorted_subjects = np.argsort(subject_means)[::-<span class="number">1</span>]
+
+                    <span class="function">print</span>(<span class="string">f"\n🥇 رتبه‌بندی درس‌ها (بر اساس
+                        میانگین):"</span>)
+                    <span class="keyword">for</span> i, idx <span class="keyword">in</span> enumerate(sorted_subjects):
+                    <span class="function">print</span>(<span class="string">f"{i+1}. {subjects[idx]}:
+                        {subject_means[idx]:.2f}"</span>)
+
+                    <span class="comment"># توزیع نمرات</span>
+                    excellent = np.sum(grades >= <span class="number">18</span>)
+                    good = np.sum((grades >= <span class="number">15</span>) & (grades < <span
+                      class="number">18</span>))
+                        average = np.sum((grades >= <span class="number">12</span>) & (grades < <span
+                          class="number">15</span>))
+                            poor = np.sum(grades < <span
+                              class="number">12</span>)
+
+                                <span class="function">print</span>(<span class="string">f"\n📈 توزیع نمرات:"</span>)
+                                <span class="function">print</span>(<span class="string">f"عالی (18-20): {excellent}
+                                    نمره"</span>)
+                                <span class="function">print</span>(<span class="string">f"خوب (15-18): {good}
+                                    نمره"</span>)
+                                <span class="function">print</span>(<span class="string">f"متوسط (12-15): {average}
+                                    نمره"</span>)
+                                <span class="function">print</span>(<span class="string">f"ضعیف (0-12): {poor}
+                                    نمره"</span>)
+
+                                <span class="comment"># اجرای گزارش</span>
+                                generate_report(grades, subjects)
+                </div>
+
+                <div class="exercise-box">
+                    <div class="exercise-title">💪 تمرین عملی:</div>
+                    <p>این کد را در Google Colab اجرا کنید و نتایج را بررسی کنید. سپس:</p>
+                    <ul>
+                        <li>تعداد دانشجویان را به 200 تغییر دهید</li>
+                        <li>درس جدیدی اضافه کنید</li>
+                        <li>گزارش جدیدی برای دانشجویان مردود (میانگین < 10)
+                              بنویسید</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: جمع‌بندی -->
+        <div class="slide intro"
+             id="slide12">
+            <div class="slide-number">12/12</div>
+            <button class="expand-btn"
+                    onclick="expandSlide(this)">🔍 بزرگنمایی</button>
+            <button class="close-btn"
+                    onclick="closeSlide(this)">×</button>
+            <div class="icon">🎯</div>
+            <div class="slide-title">جمع‌بندی جلسه سوم</div>
+            <div class="slide-content">
+                <h3>✅ آنچه یاد گرفتیم:</h3>
+                <ul>
+                    <li>معرفی و نصب NumPy</li>
+                    <li>ایجاد و مدیریت آرایه‌ها</li>
+                    <li>Indexing و Slicing پیشرفته</li>
+                    <li>عملیات ریاضی و آماری</li>
+                    <li>Reshape و تغییر شکل آرایه‌ها</li>
+                    <li>مقایسه عملکرد با Python خالص</li>
+                    <li>پیاده‌سازی پروژه عملی</li>
+                </ul>
+
+                <h3>🎯 نکات کلیدی:</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">50x</span>
+                        <span class="stat-label">سرعت بیشتر</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">80%</span>
+                        <span class="stat-label">کمتر حافظه</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">تابع آماده</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">∞</span>
+                        <span class="stat-label">قابلیت</span>
+                    </div>
+                </div>
+
+                <h3>📚 جلسه بعد:</h3>
+                <div class="example-box">
+                    <div class="example-title">🔜 پیش‌نمایش جلسه چهارم:</div>
+                    <ul>
+                        <li>📊 آشنایی با Pandas</li>
+                        <li>📋 DataFrame و Series</li>
+                        <li>🔍 تحلیل داده‌های جدولی</li>
+                        <li>📈 خواندن فایل‌های CSV و Excel</li>
+                    </ul>
+                </div>
+
+                <h3>💪 تمرین خانگی:</h3>
+                <div class="exercise-box">
+                    <div class="exercise-title">🏠 کار در منزل:</div>
+                    <ol>
+                        <li>پروژه نمرات را با داده‌های واقعی تست کنید</li>
+                        <li>ماتریس 10×10 تصادفی بسازید و آمار آن را محاسبه کنید</li>
+                        <li>عملیات ماتریسی (ضرب، جمع، ترانهاده) تمرین کنید</li>
+                        <li>کدهای سرعت را با اندازه‌های مختلف تست کنید</li>
+                    </ol>
+                </div>
+
+                <h3>🔗 منابع بیشتر:</h3>
+                <ul>
+                    <li>📖 NumPy Documentation</li>
+                    <li>🎥 NumPy Tutorial Videos</li>
+                    <li>💻 NumPy Exercises</li>
+                    <li>📚 Scientific Python Ecosystem</li>
+                </ul>
+
+                <div style="margin-top: 30px; text-align: center; font-size: 18px;">
+                    🎉 <strong>تبریک! شما NumPy را فتح کردید!</strong> 🎉
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+
+    <script>
+        function expandSlide(button) {
+            const slide = button.parentElement;
+            const overlay = document.getElementById('overlay');
+
+            slide.classList.add('expanded');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSlide(button) {
+            const slide = button.parentElement;
+            const overlay = document.getElementById('overlay');
+
+            slide.classList.remove('expanded');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // بستن با کلیک روی overlay
+        document.getElementById('overlay').addEventListener('click', function () {
+            const expandedSlide = document.querySelector('.slide.expanded');
+            if (expandedSlide) {
+                closeSlide(expandedSlide.querySelector('.close-btn'));
+            }
+        });
+
+        // بستن با ESC
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                const expandedSlide = document.querySelector('.slide.expanded');
+                if (expandedSlide) {
+                    closeSlide(expandedSlide.querySelector('.close-btn'));
+                }
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSlide = document.getElementById(targetId);
+                if (targetSlide) {
+                    targetSlide.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+        });
+
+        // کپی کردن کد
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.textContent.replace('کپی', '').trim();
+
+            navigator.clipboard.writeText(code).then(function () {
+                button.textContent = '✅ کپی شد';
+                button.style.background = '#48bb78';
+
+                setTimeout(function () {
+                    button.textContent = 'کپی';
+                    button.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        // انیمیشن نمودار عملکرد
+        window.addEventListener('load', function () {
+            const chartFills = document.querySelectorAll('.chart-fill');
+            chartFills.forEach(fill => {
+                const width = fill.style.width;
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.width = width;
+                }, 1000);
+            });
+        });
+
+        // اسکرول نرم برای navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer برای highlight کردن navigation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                        if (item.getAttribute('href') === `#${id}`) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.slide').forEach(slide => {
+            observer.observe(slide);
+        });
+    </script>
+
+    <style>
+        .nav-item.active {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52) !important;
+            transform: translateX(-8px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+    </style>
+</body>
+
+</html>
