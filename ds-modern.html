@@ -732,6 +732,92 @@
             height: 25px;
         }
 
+        /* Tooltip Styles */
+        .indicator {
+            position: relative;
+        }
+
+        .indicator .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+            margin-bottom: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .indicator .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .indicator:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .indicator.active .tooltip {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .indicator.active .tooltip::after {
+            border-top-color: #667eea;
+        }
+
+        /* Slide Indicators Container */
+        .slide-indicators {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8));
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .slide-indicators {
+                bottom: 20px;
+                gap: 8px;
+                padding: 12px 20px;
+            }
+            
+            .indicator {
+                width: 10px;
+                height: 10px;
+            }
+            
+            .indicator.active {
+                transform: scale(1.3);
+            }
+        }
+
         /* Enhanced Animations */
         .slide {
             animation-duration: 0.8s;
@@ -1083,13 +1169,15 @@
 
         /* Special Slide Styles */
         .slide.intro {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
             color: white;
             text-align: center;
         }
 
         .slide.intro .slide-title {
-            color: white;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 900;
         }
 
         .slide.intro .slide-title::after {
@@ -1097,11 +1185,14 @@
         }
 
         .slide.intro .slide-content {
-            color: rgba(255, 255, 255, 0.9);
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         }
 
         .slide.intro .slide-content h3 {
-            color: rgba(255, 255, 255, 0.9);
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-weight: 800;
         }
 
         /* Animations */
@@ -1737,6 +1828,22 @@
             const slideIndicators = document.getElementById('slideIndicators');
             let isTransitioning = false;
             let slideDirection = 'right';
+            
+            // Slide names for tooltips
+            const slideNames = [
+                'معرفی دوره',
+                'علم داده چیست؟',
+                'چرخه علم داده',
+                'ابزارهای علم داده',
+                'انواع داده‌ها',
+                'پاک‌سازی داده',
+                'تحلیل اکتشافی',
+                'یادگیری ماشین',
+                'مصورسازی داده',
+                'پروژه عملی',
+                'منابع یادگیری',
+                'جمع‌بندی'
+            ];
 
             // Generate slide indicators
             function generateSlideIndicators() {
@@ -1747,8 +1854,15 @@
                     if (i === 0) indicator.classList.add('active');
                     indicator.setAttribute('role', 'button');
                     indicator.setAttribute('tabindex', '0');
-                    indicator.setAttribute('aria-label', `اسلاید ${i + 1}`);
+                    indicator.setAttribute('aria-label', `اسلاید ${i + 1}: ${slideNames[i]}`);
                     indicator.setAttribute('aria-current', i === 0 ? 'true' : 'false');
+                    indicator.setAttribute('title', slideNames[i]);
+                
+                    // Create tooltip element
+                    const tooltip = document.createElement('div');
+                    tooltip.classList.add('tooltip');
+                    tooltip.textContent = slideNames[i];
+                    indicator.appendChild(tooltip);
                 
                     // Click handler
                     indicator.addEventListener('click', () => {
@@ -1820,6 +1934,12 @@
                     // Focus management for accessibility
                     slides[index].focus();
                     
+                    // Auto-scroll to top of screen when slide loads
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                    
                     // Announce slide change to screen readers
                     announceSlideChange(index);
                     
@@ -1862,7 +1982,6 @@
                         element.style.transform = 'translateY(0)';
                     }, index * 100);
                 });
-                updateProgressBar();
             }
 
             function updateNavigation() {
@@ -1918,6 +2037,17 @@
                             showSlide(index);
                         }
                     }
+                });
+            });
+
+            // Add hover effect to navigation links with enhanced feedback
+            navLinks.forEach(link => {
+                link.addEventListener('mouseenter', function(e) {
+                    createParticle(
+                        e.clientX,
+                        e.clientY,
+                        document.body
+                    );
                 });
             });
 
@@ -1990,8 +2120,7 @@
                 }, 600);
             }
 
-            prevArrow.addEventListener('click', createRipple);
-            nextArrow.addEventListener('click', createRipple);
+            // Note: Ripple effects are already handled by the CSS classes
 
             // Add smooth scroll behavior to sidebar
             sidebar.addEventListener('wheel', function(e) {
@@ -2047,35 +2176,7 @@
                 }
             });
 
-            // Sidebar navigation
-            navLinks.forEach((link, index) => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    showSlide(index);
-                    // Close mobile menu
-                    sidebar.classList.remove('active');
-                });
-            });
-
-            // Mobile menu toggle
-            mobileMenuToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('active');
-            });
-
-            // Keyboard navigation
-            document.addEventListener('keydown', (e) => {
-                switch(e.key) {
-                    case 'ArrowLeft':
-                        nextSlide();
-                        break;
-                    case 'ArrowRight':
-                        prevSlide();
-                        break;
-                    case 'Escape':
-                        sidebar.classList.remove('active');
-                        break;
-                }
-            });
+            // Note: Sidebar navigation and mobile menu toggle are already handled above with proper event listeners
 
             // Initialize the application
             generateSlideIndicators();
@@ -2244,37 +2345,7 @@
             // Initialize reveal animations
             setTimeout(addRevealAnimation, 500);
 
-            // Add smooth scrolling
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-            
-            // Add hover effect to navigation links with enhanced feedback
-            navLinks.forEach(link => {
-                link.addEventListener('mouseenter', function() {
-                    createParticle(
-                        event.clientX,
-                        event.clientY,
-                        document.body
-                    );
-                });
-            });
-            
-            // Add keyboard shortcut help
-            document.addEventListener('keydown', function(e) {
-                if (e.key === '?' && e.ctrlKey) {
-                    e.preventDefault();
-                    showKeyboardShortcuts();
-                }
-            });
+            // Note: Smooth scrolling and hover effects are already handled above with proper event listeners
             
             // Show keyboard shortcuts help
             function showKeyboardShortcuts() {
@@ -2307,91 +2378,22 @@
                 document.body.insertAdjacentHTML('beforeend', helpHTML);
             }
             
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
+            // Add smooth scrolling (exclude navigation links)
+            document.querySelectorAll('a[href^="#"]:not(.nav-link)').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
                     }
-                }, {
-                    threshold: 0.1
                 });
-            
-            const animatedElements = document.querySelectorAll('.interactive-element');
-            animatedElements.forEach(element => {
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(20px)';
-                element.style.transition = 'all 0.6s ease';
-                observer.observe(element);
             });
+            
+            // Initialize reveal animations
+            setTimeout(addRevealAnimation, 500);
         }
-        
-        // Initialize reveal animations
-        setTimeout(addRevealAnimation, 500);
-
-        // Add smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-        
-        // Add hover effect to navigation links with enhanced feedback
-        navLinks.forEach(link => {
-            link.addEventListener('mouseenter', function() {
-                createParticle(
-                    event.clientX,
-                    event.clientY,
-                    document.body
-                );
-            });
-        });
-        
-        // Add keyboard shortcut help
-        document.addEventListener('keydown', function(e) {
-            if (e.key === '?' && e.ctrlKey) {
-                e.preventDefault();
-                showKeyboardShortcuts();
-            }
-        });
-        
-        // Show keyboard shortcuts help
-        function showKeyboardShortcuts() {
-            const shortcuts = [
-                { key: '←', action: 'اسلاید بعدی' },
-                { key: '→', action: 'اسلاید قبلی' },
-                { key: 'Home', action: 'اولین اسلاید' },
-                { key: 'End', action: 'آخرین اسلاید' },
-                { key: 'Page Up', action: 'اسلاید قبلی' },
-                { key: 'Page Down', action: 'اسلاید بعدی' },
-                { key: 'Esc', action: 'بستن منوی موبایل' },
-                { key: 'Ctrl + ?', action: 'نمایش راهنما' }
-            ];
-            
-            let helpHTML = '<div class="keyboard-help" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85)); backdrop-filter: blur(15px); padding: 2rem; border-radius: 16px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2); z-index: 1000; max-width: 400px; direction: rtl;">';
-            helpHTML += '<h3 style="margin: 0 0 1rem 0; color: #2d3748;">راهنمای کلیدهای میانبر</h3>';
-            helpHTML += '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
-            
-            shortcuts.forEach(shortcut => {
-                helpHTML += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">`;
-                helpHTML += `<span style="font-weight: 600; color: #667eea;">${shortcut.key}</span>`;
-                helpHTML += `<span style="color: #4a5568;">${shortcut.action}</span>`;
-                helpHTML += '</div>';
-            });
-            
-            helpHTML += '</div>';
-            helpHTML += '<button onclick="this.parentElement.remove()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">بستن</button>';
-            helpHTML += '</div>';
-            
-            document.body.insertAdjacentHTML('beforeend', helpHTML);
-        }
-    }
     
     // Initialize the application when DOM is loaded
     document.addEventListener('DOMContentLoaded', initApp);
