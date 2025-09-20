@@ -418,7 +418,7 @@
 
       <!-- Slide Indicators -->
       <div class="flex space-x-2 mx-4">
-        <template x-for="(slide, index) in totalSlides" :key="index">
+        <template x-for="(slide, index) in 10" :key="index">
           <button 
             class="slide-indicator w-3 h-3 rounded-full bg-white/40 hover:bg-white/60"
             :class="{ 'active': currentSlide === index }"
@@ -431,7 +431,7 @@
       <button 
         class="nav-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg"
         @click="nextSlide()"
-        :disabled="currentSlide === totalSlides.length - 1"
+        :disabled="currentSlide === 9"
       >
         بعدی →
       </button>
@@ -440,7 +440,7 @@
     <!-- Slide Counter -->
     <div class="text-center mt-4">
       <span class="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-white font-semibold">
-        <span x-text="currentSlide + 1"></span> از <span x-text="totalSlides.length"></span>
+        <span x-text="currentSlide + 1"></span> از 10
       </span>
     </div>
   </div>
@@ -449,10 +449,10 @@
     function presentationData() {
       return {
         currentSlide: 0,
-        totalSlides: Array.from({length: 10}, (_, i) => i),
+        totalSlides: [0,1,2,3,4,5,6,7,8,9],
         
         nextSlide() {
-          if (this.currentSlide < this.totalSlides.length - 1) {
+          if (this.currentSlide < 9) {
             this.currentSlide++;
           }
         },
@@ -464,54 +464,44 @@
         },
         
         goToSlide(index) {
-          if (index >= 0 && index < this.totalSlides.length) {
+          if (index >= 0 && index <= 9) {
             this.currentSlide = index;
           }
-        }
-      }
-    }
+        },
 
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-      const presentation = Alpine.store ? Alpine.store('presentation') : null;
-      
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        const event = new CustomEvent('previous-slide');
-        document.dispatchEvent(event);
-      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        e.preventDefault();
-        const event = new CustomEvent('next-slide');
-        document.dispatchEvent(event);
-      }
-    });
+        init() {
+          // Handle keyboard events
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+              e.preventDefault();
+              this.previousSlide();
+            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+              e.preventDefault();
+              this.nextSlide();
+            }
+          });
 
-    // Add swipe support for mobile
-    let touchStartX = 0;
-    let touchEndX = 0;
+          // Handle swipe events
+          let touchStartX = 0;
+          let touchEndX = 0;
 
-    document.addEventListener('touchstart', function(e) {
-      touchStartX = e.changedTouches[0].screenX;
-    });
+          document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+          });
 
-    document.addEventListener('touchend', function(e) {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    });
-
-    function handleSwipe() {
-      const swipeThreshold = 50;
-      const diff = touchStartX - touchEndX;
-      
-      if (Math.abs(diff) > swipeThreshold) {
-        if (diff > 0) {
-          // Swipe left (next slide)
-          const event = new CustomEvent('next-slide');
-          document.dispatchEvent(event);
-        } else {
-          // Swipe right (previous slide)
-          const event = new CustomEvent('previous-slide');
-          document.dispatchEvent(event);
+          document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            const swipeThreshold = 50;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+              if (diff > 0) {
+                this.nextSlide();
+              } else {
+                this.previousSlide();
+              }
+            }
+          });
         }
       }
     }
