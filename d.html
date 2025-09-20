@@ -6,505 +6,591 @@
   <title>ارائه جامع بیمه درمان گروهی - شرکت بیمه البرز</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
     body {
       font-family: 'Vazirmatn', sans-serif;
       direction: rtl;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      overflow-x: hidden;
     }
-    .slide-transition {
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    .slide-container {
+      transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      width: 1000%;
+    }
+    .slide {
+      width: 10%;
+      min-height: 75vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      position: relative;
     }
     .fade-in {
-      animation: fadeIn 0.8s ease-in-out;
+      animation: fadeIn 0.8s ease-out;
     }
     @keyframes fadeIn {
       0% { opacity: 0; transform: translateY(20px); }
       100% { opacity: 1; transform: translateY(0); }
     }
     .glass-effect {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
     }
-    .slide-indicator {
+    .header-icon {
+      font-size: 3rem;
+      margin-bottom: 1.5rem;
+      color: #4f46e5;
+      opacity: 0.9;
+    }
+    .content-card {
+      padding: 2rem;
+      border-radius: 20px;
+      transition: transform 0.3s ease;
+    }
+    .content-card:hover {
+      transform: translateY(-5px);
+    }
+    .nav-btn {
       transition: all 0.3s ease;
+      border-radius: 50px;
+      font-weight: 500;
+      background: #4f46e5;
+      padding: 0.75rem 2rem;
     }
-    .slide-indicator.active {
-      background: #3b82f6;
-      transform: scale(1.2);
-    }
-    .nav-button {
-      transition: all 0.3s ease;
-    }
-    .nav-button:hover:not(:disabled) {
+    .nav-btn:hover {
+      background: #7c3aed;
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    .progress-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #4f46e5;
+      transition: width 0.7s ease;
+    }
+    .slide-number {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .list-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+    }
+    .list-item i {
+      margin-left: 0.75rem;
+      margin-top: 0.25rem;
+      width: 1.25rem;
+      color: #4f46e5;
+    }
+    h1 {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    .section-title {
+      color: #1f2937;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      font-size: 1.25rem;
+    }
+    .section-title i {
+      margin-left: 0.5rem;
+      color: #4f46e5;
+    }
+    .highlight {
+      background: rgba(234, 179, 8, 0.2);
+      padding: 0.5rem;
+      border-radius: 8px;
     }
   </style>
 </head>
-<body x-data="presentationData()" class="min-h-screen flex items-center justify-center p-4">
-  <div class="w-full max-w-5xl mx-auto">
-    <!-- Main Presentation Container -->
-    <div class="glass-effect rounded-2xl shadow-2xl overflow-hidden mb-6">
-      <div class="relative">
-        <!-- Slides Container -->
-        <div class="overflow-hidden">
-          <div class="flex slide-transition" :style="'transform: translateX(' + (currentSlide * -100) + '%)'">
-            
-            <!-- Slide 1: تعاریف و کلیات -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">🏢 تعاریف و کلیات بیمه</h1>
-                <div class="grid md:grid-cols-2 gap-8">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                      📋 تعاریف اصلی
-                    </h2>
-                    <ul class="space-y-3 text-lg">
-                      <li><strong>بیمه‌گر:</strong> شرکت بیمه البرز (سهامی عام)</li>
-                      <li><strong>بیمه‌گذار:</strong> شخص حقیقی یا حقوقی متعهد</li>
-                      <li><strong>بیمه‌شدگان:</strong> کارکنان و افراد تحت تکفل</li>
-                      <li><strong>موضوع بیمه:</strong> جبران هزینه‌های درمانی</li>
-                    </ul>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h2 class="text-2xl font-semibold mb-4 flex items-center">
-                      ✅ شرایط پوشش
-                    </h2>
-                    <ul class="space-y-3 text-lg">
-                      <li>حداقل 50% کارکنان تحت پوشش</li>
-                      <li>پوشش بیمه‌گر اول الزامی</li>
-                      <li>مدت بیمه: یکسال کامل شمسی</li>
-                    </ul>
-                  </div>
+<body x-data="{ currentSlide: 0 }" class="min-h-screen flex flex-col items-center justify-center">
+  <!-- Header -->
+  <div class="w-full max-w-6xl mb-8 text-center">
+    <h2 class="text-4xl font-bold text-white mb-2">
+      <i class="fas fa-shield-alt mr-2"></i>شرکت بیمه البرز (سهامی عام)
+    </h2>
+    <p class="text-xl text-white/80">ارائه جامع بیمه درمان گروهی</p>
+    <div class="mt-4 mx-auto w-3/4 progress-bar">
+      <div class="progress-fill" :style="'width: ' + ((currentSlide + 1) / 10 * 100) + '%'"></div>
+    </div>
+  </div>
+
+  <!-- Slides Container -->
+  <div class="relative w-full max-w-6xl">
+    <div class="slide-number" x-text="'اسلاید ' + (currentSlide + 1) + ' از 10'"></div>
+    
+    <div class="slide-container overflow-hidden rounded-3xl">
+      <!-- Slide 1 -->
+      <div class="slide bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-info-circle header-icon"></i>
+            <h1 class="text-3xl mb-2">تعاریف و کلیات بیمه</h1>
+          </div>
+          <div class="grid md:grid-cols-2 gap-8">
+            <div class="space-y-4">
+              <h2 class="section-title">
+                <i class="fas fa-building"></i>تعاریف اصلی
+              </h2>
+              <ul class="space-y-2 text-sm">
+                <li class="list-item"><i class="fas fa-shield-alt"></i><strong>بیمه‌گر:</strong> شرکت بیمه البرز (سهامی عام) دارای مجوز فعالیت</li>
+                <li class="list-item"><i class="fas fa-user-tie"></i><strong>بیمه‌گذار:</strong> شخص حقیقی یا حقوقی متعهد به پرداخت حق بیمه</li>
+                <li class="list-item"><i class="fas fa-users"></i><strong>بیمه‌شدگان:</strong> کارکنان رسمی، پیمانی، قراردادی و افراد تحت تکفل</li>
+                <li class="list-item"><i class="fas fa-heartbeat"></i><strong>موضوع بیمه:</strong> جبران هزینه‌های درمانی ناشی از بیماری یا حادثه</li>
+              </ul>
+            </div>
+            <div class="space-y-4">
+              <h2 class="section-title">
+                <i class="fas fa-clipboard-check"></i>شرایط پوشش
+              </h2>
+              <ul class="space-y-2 text-sm">
+                <li class="list-item"><i class="fas fa-percentage"></i>حداقل 50% کارکنان باید تحت پوشش قرار گیرند</li>
+                <li class="list-item"><i class="fas fa-exclamation-circle"></i>پوشش بیمه‌ای نزد بیمه‌گر اول الزامی است</li>
+                <li class="list-item"><i class="fas fa-calendar-alt"></i>مدت بیمه: یکسال کامل شمسی</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 2 -->
+      <div class="slide bg-gradient-to-br from-green-500 via-green-600 to-green-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-user-friends header-icon"></i>
+            <h1 class="text-3xl mb-2">افراد تحت تکفل و شرایط پوشش</h1>
+          </div>
+          <div class="space-y-6">
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-heart"></i>همسر</h2>
+              <p class="text-sm">همسر دائم بیمه‌شده اصلی</p>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-child"></i>فرزندان</h2>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h3 class="font-semibold mb-2">پسران:</h3>
+                  <ul class="space-y-1 text-sm">
+                    <li class="list-item"><i class="fas fa-user-graduate"></i>حداکثر تا 22 سالگی تمام</li>
+                    <li class="list-item"><i class="fas fa-graduation-cap"></i>در صورت تحصیل دانشگاهی: تا 25 سالگی</li>
+                    <li class="list-item"><i class="fas fa-stethoscope"></i>دانشجویان پزشکی: تا 26 سالگی</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 class="font-semibold mb-2">دختران:</h3>
+                  <p class="text-sm">تا زمان اولین ازدواج (مشروط به عدم اشتغال به کار)</p>
                 </div>
               </div>
             </div>
+            <div class="bg-white/10 rounded-2xl p-6 highlight">
+              <h2 class="section-title"><i class="fas fa-user-shield"></i>والدین</h2>
+              <ul class="space-y-2 text-sm">
+                <li class="list-item"><i class="fas fa-gavel"></i>با شرط تحت تکفل قانونی قرار گیرند</li>
+                <li class="list-item"><i class="fas fa-id-card"></i>یا دارای دفترچه بیمه از سازمان تأمین اجتماعی باشند</li>
+                <li class="list-item"><i class="fas fa-lightbulb"></i><strong>نکته مهم:</strong> پوشش والدین باید بطور همزمان اقدام شود</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Slide 2: افراد تحت تکفل -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-green-600 to-green-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">👥 افراد تحت تکفل</h1>
-                <div class="grid md:grid-cols-3 gap-6">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">💑 همسر</h3>
-                    <p class="text-lg">همسر دائم بیمه‌شده اصلی</p>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">👶 فرزندان</h3>
-                    <ul class="text-lg space-y-2">
-                      <li><strong>پسران:</strong> تا 22 سالگی</li>
-                      <li><strong>دانشجویان:</strong> تا 25 سالگی</li>
-                      <li><strong>پزشکی:</strong> تا 26 سالگی</li>
-                      <li><strong>دختران:</strong> تا اولین ازدواج</li>
-                    </ul>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">👴 والدین</h3>
-                    <ul class="text-lg space-y-2">
-                      <li>تحت تکفل قانونی</li>
-                      <li>دارای دفترچه تأمین اجتماعی</li>
-                      <li><strong>نکته:</strong> پوشش همزمان</li>
-                    </ul>
-                  </div>
+      <!-- Slide 3 -->
+      <div class="slide bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-hospital-user header-icon"></i>
+            <h1 class="text-3xl mb-2">پوشش‌های اصلی بیمه</h1>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-bed-pulse"></i>بستری و جراحی</h2>
+              <ul class="space-y-2 text-sm">
+                <li class="list-item"><i class="fas fa-hospital"></i>جبران هزینه‌های بستری در بیمارستان</li>
+                <li class="list-item"><i class="fas fa-scalpel"></i>اعمال جراحی و Day Care</li>
+                <li class="list-item"><i class="fas fa-ambulance"></i>هزینه آمبولانس در صورت بستری</li>
+              </ul>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-user-nurse"></i>همراه بیمار</h2>
+              <p class="text-sm">برای بیماران زیر 10 سال یا بالای 70 سال</p>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-chart-line"></i>سقف تعهدات</h2>
+              <ul class="space-y-2 text-sm">
+                <li class="list-item"><i class="fas fa-file-contract"></i>حداکثر سقف ریالی باید در بیمه‌نامه درج شود</li>
+                <li class="list-item"><i class="fas fa-calculator"></i>تمامی هزینه‌ها مطابق تعرفه‌های بیمه‌گر پرداخت می‌گردد</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 4 -->
+      <div class="slide bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-plus-circle header-icon"></i>
+            <h1 class="text-3xl mb-2">پوشش‌های اضافی بیمه</h1>
+          </div>
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-arrow-up"></i>افزایش سقف تعهدات</h2>
+              <p class="text-sm mb-2">تا دو برابر سقف پوشش‌های اصلی برای:</p>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-vial"></i>شیمی‌درمانی، رادیوتراپی</li>
+                <li class="list-item"><i class="fas fa-heartbeat"></i>جراحی سرطان، قلب، مغز و اعصاب</li>
+                <li class="list-item"><i class="fas fa-hand-holding-heart"></i>پیوند اعضا، آنژیوپلاستی</li>
+              </ul>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-baby"></i>زایمان</h2>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-percentage"></i>تا 50% سقف تعهد سالیانه</li>
+                <li class="list-item"><i class="fas fa-clock"></i>دوره انتظار: 9 ماه (6 ماه برای گروه‌های بالای 250 نفر)</li>
+              </ul>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-seedling"></i>درمان ناباروری</h2>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-flask"></i>IVF، IUI و سایر روش‌ها</li>
+                <li class="list-item"><i class="fas fa-percentage"></i>تا 50% سقف تعهد سالیانه</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 5 -->
+      <div class="slide bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-x-ray header-icon"></i>
+            <h1 class="text-3xl mb-2">هزینه‌های پاراکلینیکی (جزییات کامل)</h1>
+          </div>
+          <div class="space-y-6">
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title">
+                <i class="fas fa-camera"></i>بخش 4-1: تصویربرداری
+                <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full ml-2">تا 20% سقف سالیانه</span>
+              </h2>
+              <ul class="space-y-1 text-sm columns-2">
+                <li class="list-item"><i class="fas fa-image"></i>رادیوگرافی، آنژیوگرافی عروق محیطی و چشم</li>
+                <li class="list-item"><i class="fas fa-ultrasound"></i>سونوگرافی، ماموگرافی، انواع اسکن</li>
+                <li class="list-item"><i class="fas fa-brain"></i>MRI، پزشکی هسته‌ای (اسکن هسته‌ای و درمان رادیوایزوتوپ)</li>
+                <li class="list-item"><i class="fas fa-bone"></i>دانسیتومتری</li>
+              </ul>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title">
+                <i class="fas fa-search"></i>بخش 4-2: خدمات تشخیصی
+                <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full ml-2">تا 20% سقف سالیانه</span>
+              </h2>
+              <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <h3 class="font-semibold mb-2 flex items-center"><i class="fas fa-eye mr-2"></i>آندوسکوپی</h3>
+                  <p>انواع آندوسکوپی‌ها</p>
+                </div>
+                <div>
+                  <h3 class="font-semibold mb-2 flex items-center"><i class="fas fa-heartbeat mr-2"></i>قلبی-عروقی</h3>
+                  <p>ECG، Echo، هولتر مانیتورینگ، تست ورزش، آنالیز پیس‌میکر</p>
+                </div>
+                <div>
+                  <h3 class="font-semibold mb-2 flex items-center"><i class="fas fa-lungs mr-2"></i>تنفسی</h3>
+                  <p>اسپیرومتری، PFT</p>
+                </div>
+                <div>
+                  <h3 class="font-semibold mb-2 flex items-center"><i class="fas fa-brain mr-2"></i>عصبی</h3>
+                  <p>EMG, NCV, EEG</p>
+                </div>
+                <div>
+                  <h3 class="font-semibold mb-2 flex items-center"><i class="fas fa-eye mr-2"></i>چشم</h3>
+                  <p>اپتومتری، پریمتری، بیومتری، پنتاکم</p>
+                </div>
+                <div>
+                  <h3 class="font-semibold mb-2 flex items-center"><i class="fas fa-volume-up mr-2"></i>شنوایی‌سنجی</h3>
+                  <p>انواع ادیومتری</p>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Slide 3: پوشش‌های اصلی -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-purple-600 to-purple-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">🏥 پوشش‌های اصلی</h1>
-                <div class="space-y-6">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-2xl font-semibold mb-4">1️⃣ بستری و جراحی</h3>
-                    <ul class="text-lg space-y-2">
-                      <li>• جبران هزینه‌های بستری در بیمارستان</li>
-                      <li>• اعمال جراحی و Day Care</li>
-                      <li>• هزینه آمبولانس در صورت بستری</li>
-                    </ul>
-                  </div>
-                  <div class="grid md:grid-cols-2 gap-6">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">2️⃣ همراه بیمار</h3>
-                      <p class="text-lg">برای بیماران زیر 10 سال یا بالای 70 سال</p>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">3️⃣ سقف تعهدات</h3>
-                      <p class="text-lg">مطابق تعرفه‌های بیمه‌گر و سقف ریالی بیمه‌نامه</p>
-                    </div>
-                  </div>
-                </div>
+      <!-- Slide 6 -->
+      <div class="slide bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-flask header-icon"></i>
+            <h1 class="text-3xl mb-2">هزینه‌های پاراکلینیکی (ادامه) و سایر پوشش‌ها</h1>
+          </div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="bg-white/10 rounded-2xl p-4">
+                <h2 class="section-title">
+                  <i class="fas fa-vial"></i>بخش 4-3: آزمایشگاه
+                  <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full ml-2">تا 10% سقف سالیانه</span>
+                </h2>
+                <ul class="space-y-1 text-sm">
+                  <li class="list-item"><i class="fas fa-dna"></i>پاتولوژی و ژنتیک پزشکی</li>
+                  <li class="list-item"><i class="fas fa-allergies"></i>تست‌های آلرژیک</li>
+                </ul>
+              </div>
+              <div class="bg-white/10 rounded-2xl p-4">
+                <h2 class="section-title">
+                  <i class="fas fa-baby-carriage"></i>بخش 4-4: غربالگری جنین
+                  <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full ml-2">تا 10% سقف سالیانه</span>
+                </h2>
+                <ul class="space-y-1 text-sm">
+                  <li class="list-item"><i class="fas fa-chart-line"></i>مارکرهای جنینی</li>
+                  <li class="list-item"><i class="fas fa-dna"></i>آزمایشات ژنتیک جنین</li>
+                </ul>
               </div>
             </div>
-
-            <!-- Slide 4: پوشش‌های اضافی -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-indigo-600 to-indigo-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">✨ پوشش‌های اضافی</h1>
-                <div class="space-y-6">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-2xl font-semibold mb-4">🔝 افزایش سقف تعهدات (تا 2 برابر)</h3>
-                    <div class="grid md:grid-cols-2 gap-4">
-                      <ul class="text-lg space-y-2">
-                        <li>• شیمی‌درمانی، رادیوتراپی</li>
-                        <li>• جراحی سرطان، قلب</li>
-                      </ul>
-                      <ul class="text-lg space-y-2">
-                        <li>• جراحی مغز و اعصاب</li>
-                        <li>• پیوند اعضا، آنژیوپلاستی</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div class="grid md:grid-cols-2 gap-6">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">🤱 زایمان</h3>
-                      <ul class="text-lg space-y-2">
-                        <li>تا 50% سقف سالیانه</li>
-                        <li>دوره انتظار: 9-6 ماه</li>
-                      </ul>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">👶 درمان ناباروری</h3>
-                      <ul class="text-lg space-y-2">
-                        <li>IVF، IUI و سایر روش‌ها</li>
-                        <li>تا 50% سقف سالیانه</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+            <div class="space-y-4">
+              <div class="bg-white/10 rounded-2xl p-4">
+                <h2 class="section-title">
+                  <i class="fas fa-wheelchair"></i>بخش 4-5: توان‌بخشی
+                  <span class="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded-full ml-2">تا 10% سقف سالیانه</span>
+                </h2>
+                <ul class="space-y-1 text-sm">
+                  <li class="list-item"><i class="fas fa-walking"></i>فیزیوتراپی (PT)</li>
+                  <li class="list-item"><i class="fas fa-comments"></i>گفتار درمانی (ST)</li>
+                  <li class="list-item"><i class="fas fa-hands-helping"></i>کار درمانی (OT)</li>
+                </ul>
+              </div>
+              <div class="bg-yellow-200/20 border border-yellow-300/30 rounded-2xl p-4 highlight">
+                <h2 class="section-title text-yellow-800"><i class="fas fa-exclamation-circle"></i>نکته مهم</h2>
+                <p class="text-sm text-yellow-800">سقف تجمیعی بندهای 4-1 تا 4-5 نباید از 50% سقف تعهدات سالیانه بیشتر باشد.</p>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Slide 5: تصویربرداری و تشخیصی -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-teal-600 to-teal-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">🔬 خدمات پاراکلینیکی</h1>
-                <div class="grid md:grid-cols-2 gap-6">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">📸 تصویربرداری (20% سقف)</h3>
-                    <ul class="text-lg space-y-2">
-                      <li>• رادیوگرافی، آنژیوگرافی</li>
-                      <li>• سونوگرافی، ماموگرافی</li>
-                      <li>• MRI، انواع اسکن</li>
-                      <li>• پزشکی هسته‌ای</li>
-                      <li>• دانسیتومتری</li>
-                    </ul>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">🔍 تشخیصی (20% سقف)</h3>
-                    <ul class="text-lg space-y-2">
-                      <li>• آندوسکوپی</li>
-                      <li>• قلبی-عروقی: ECG، Echo، هولتر</li>
-                      <li>• تنفسی: اسپیرومتری، PFT</li>
-                      <li>• عصبی: EMG, NCV, EEG</li>
-                      <li>• چشم: اپتومتری، پریمتری</li>
-                      <li>• شنوایی‌سنجی</li>
-                    </ul>
-                  </div>
-                </div>
+      <!-- Slide 7 -->
+      <div class="slide bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-tools header-icon"></i>
+            <h1 class="text-3xl mb-2">سایر پوشش‌های اضافی</h1>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4">
+            <ul class="space-y-2 text-sm">
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-user-md"></i><strong>ویزیت و دارو:</strong> تا 5% سقف سالیانه (مازاد بر سهم بیمه‌گر اول)</li>
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-tooth"></i><strong>دندانپزشکی:</strong> تا 15% سقف سالیانه</li>
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-glasses"></i><strong>عینک طبی:</strong> تا 2% سقف سالیانه</li>
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-eye-dropper"></i><strong>جراحی عیوب انکساری چشم:</strong> تا 15% سقف سالیانه (برای نقص 3 دیوپتر و بالاتر)</li>
+            </ul>
+            <ul class="space-y-2 text-sm">
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-volume-up"></i><strong>سمعک:</strong> تا 10% سقف سالیانه</li>
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-bandage"></i><strong>اعمال سرپایی مجاز:</strong> تا 10% سقف سالیانه</li>
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-prosthesis"></i><strong>اروتز:</strong> تا 2% سقف سالیانه</li>
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-hand-holding-medical"></i><strong>اعضای طبیعی بدن:</strong> تا معادل سقف تعهد سالیانه</li>
+              <li class="list-item bg-white/10 rounded-lg p-2"><i class="fas fa-head-side-virus"></i><strong>بیماری‌های روان‌پریشی:</strong> تا 50% سقف سالیانه</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 8 -->
+      <div class="slide bg-gradient-to-br from-red-500 via-red-600 to-red-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-ban header-icon"></i>
+            <h1 class="text-3xl mb-2">استثنائات بیمه (موارد عدم پوشش)</h1>
+          </div>
+          <div class="space-y-6">
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-user-times"></i>مربوط به فرد</h2>
+              <ul class="space-y-1 text-sm columns-1 md:columns-2">
+                <li class="list-item"><i class="fas fa-cut"></i>جراحی‌های زیبایی (مگر ناشی از حادثه)</li>
+                <li class="list-item"><i class="fas fa-baby"></i>عیوب مادرزادی (مگر جنبه درمانی داشته باشد)</li>
+                <li class="list-item"><i class="fas fa-thermometer-half"></i>سقط جنین (مگر موارد قانونی)</li>
+                <li class="list-item"><i class="fas fa-smoking-ban"></i>ترک اعتیاد</li>
+                <li class="list-item"><i class="fas fa-pills"></i>عوارض مواد مخدر، روان‌گردان و الکل</li>
+                <li class="list-item"><i class="fas fa-skull-crossbones"></i>خودکشی و اعمال مجرمانه</li>
+              </ul>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-exclamation-triangle"></i>مربوط به حوادث</h2>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-flood"></i>حوادث طبیعی (سیل، زلزله، آتشفشان)</li>
+                <li class="list-item"><i class="fas fa-fire"></i>جنگ، شورش، کودتا</li>
+                <li class="list-item"><i class="fas fa-radiation"></i>فعل و انفعالات هسته‌ای</li>
+              </ul>
+            </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-times-circle"></i>مربوط به خدمات</h2>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-bed"></i>اتاق خصوصی (مگر ضروری باشد)</li>
+                <li class="list-item"><i class="fas fa-user-slash"></i>همراه بیمار 10-70 سال (مگر ضروری)</li>
+                <li class="list-item"><i class="fas fa-stethoscope"></i>چکاپ گروهی و طب کار</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slide 9 -->
+      <div class="slide bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-cog header-icon"></i>
+            <h1 class="text-3xl mb-2">شرایط خصوصی مهم</h1>
+          </div>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div class="bg-white/10 rounded-2xl p-4">
+                <h2 class="section-title"><i class="fas fa-handshake"></i>تعهدات بیمه‌گذار</h2>
+                <ul class="space-y-1 text-sm">
+                  <li class="list-item"><i class="fas fa-user-check"></i>ارائه مشخصات کامل بیمه‌شدگان در شروع بیمه‌نامه</li>
+                  <li class="list-item"><i class="fas fa-edit"></i>اعلام تغییرات حداکثر تا 3 ماه بعد از وقوع</li>
+                  <li class="list-item"><i class="fas fa-file-upload"></i>ارائه مدارک مرتبط در صورت تقاضای بیمه‌گر</li>
+                  <li class="list-item"><i class="fas fa-phone"></i>اعلام بستری همزمان با بستری شدن</li>
+                </ul>
+              </div>
+              <div class="bg-white/10 rounded-2xl p-4">
+                <h2 class="section-title"><i class="fas fa-percentage"></i>فرانشیز</h2>
+                <ul class="space-y-1 text-sm">
+                  <li class="list-item"><i class="fas fa-exclamation-triangle"></i>عدم استفاده از بیمه‌گر پایه: حداقل 30%</li>
+                  <li class="list-item"><i class="fas fa-check"></i>استفاده از بیمه‌گر پایه: مطابق بندهای تعیین شده</li>
+                </ul>
               </div>
             </div>
-
-            <!-- Slide 6: سایر خدمات پاراکلینیکی -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-cyan-600 to-cyan-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">🧪 سایر خدمات پاراکلینیکی</h1>
-                <div class="grid md:grid-cols-3 gap-6">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">🧪 آزمایشگاه (10%)</h3>
-                    <ul class="text-base space-y-1">
-                      <li>• پاتولوژی</li>
-                      <li>• ژنتیک پزشکی</li>
-                      <li>• تست‌های آلرژیک</li>
-                    </ul>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">🤰 غربالگری جنین (10%)</h3>
-                    <ul class="text-base space-y-1">
-                      <li>• مارکرهای جنینی</li>
-                      <li>• آزمایشات ژنتیک جنین</li>
-                    </ul>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-lg font-semibold mb-3">🏃 توان‌بخشی (10%)</h3>
-                    <ul class="text-base space-y-1">
-                      <li>• فیزیوتراپی (PT)</li>
-                      <li>• گفتار درمانی (ST)</li>
-                      <li>• کار درمانی (OT)</li>
-                    </ul>
-                  </div>
-                </div>
-                <div class="mt-6 bg-yellow-500/30 backdrop-blur-sm rounded-xl p-4">
-                  <p class="text-xl font-semibold text-center">
-                    📝 سقف تجمیعی بندهای فوق: حداکثر 50% سقف سالیانه
-                  </p>
-                </div>
+            <div class="space-y-4">
+              <div class="bg-white/10 rounded-2xl p-4">
+                <h2 class="section-title"><i class="fas fa-clock"></i>دوره انتظار</h2>
+                <ul class="space-y-1 text-sm">
+                  <li class="list-item"><i class="fas fa-baby"></i><strong>زایمان:</strong> 9 ماه (گروه‌های زیر 250 نفر)، 6 ماه (سایر گروه‌ها)</li>
+                  <li class="list-item"><i class="fas fa-clipboard-list"></i><strong>بیماری‌های خاص:</strong> 3 ماه (فتق، لوزه، گواتر، پولیپ، دیسک و...)</li>
+                </ul>
+              </div>
+              <div class="bg-white/10 rounded-2xl p-4">
+                <h2 class="section-title"><i class="fas fa-file-alt"></i>مدت ارائه اسناد</h2>
+                <p class="text-sm">حداکثر 9 ماه از تاریخ انجام هزینه</p>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Slide 7: سایر پوشش‌ها -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-blue-700 to-blue-900 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">💊 سایر پوشش‌های اضافی</h1>
-                <div class="grid md:grid-cols-2 gap-6">
-                  <div class="space-y-4">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>ویزیت و دارو:</strong> تا 5% سقف سالیانه
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>دندانپزشکی:</strong> تا 15% سقف سالیانه
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>عینک طبی:</strong> تا 2% سقف سالیانه
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>جراحی عیوب انکساری:</strong> تا 15% سقف
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>سمعک:</strong> تا 10% سقف سالیانه
-                    </div>
-                  </div>
-                  <div class="space-y-4">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>اعمال سرپایی:</strong> تا 10% سقف سالیانه
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>اروتز:</strong> تا 2% سقف سالیانه
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>اعضای طبیعی بدن:</strong> تا معادل سقف سالیانه
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-4">
-                      <strong>بیماری‌های روان‌پریشی:</strong> تا 50% سقف
-                    </div>
-                  </div>
-                </div>
-              </div>
+      <!-- Slide 10 -->
+      <div class="slide bg-gradient-to-br from-gray-500 via-gray-600 to-gray-700 text-white fade-in">
+        <div class="w-full max-w-4xl mx-auto glass-effect content-card">
+          <div class="text-center mb-8">
+            <i class="fas fa-lightbulb header-icon"></i>
+            <h1 class="text-3xl mb-2">شرایط خاص و نکات پایانی</h1>
+          </div>
+          <div class="space-y-6">
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-key"></i>شرایط خاص (نیاز به موافقت کتبی بیمه‌گر)</h2>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-hand-holding-medical"></i>جبران هزینه تهیه اعضای طبیعی بدن</li>
+                <li class="list-item"><i class="fas fa-shield-halved"></i>پوشش بیمه‌ای جهت خطرات طبیعی</li>
+                <li class="list-item"><i class="fas fa-earth-americas"></i>حوادث طبیعی (سیل، زلزله، آتشفشان)</li>
+                <li class="list-item"><i class="fas fa-home"></i>بیمه‌نامه درمان خانواده و گروه‌های کمتر از 50 نفر</li>
+              </ul>
             </div>
-
-            <!-- Slide 8: استثنائات -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-red-600 to-red-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">❌ استثنائات بیمه</h1>
-                <div class="grid md:grid-cols-3 gap-6">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">👤 مربوط به فرد</h3>
-                    <ul class="text-base space-y-2">
-                      <li>• جراحی‌های زیبایی</li>
-                      <li>• عیوب مادرزادی</li>
-                      <li>• سقط جنین</li>
-                      <li>• ترک اعتیاد</li>
-                      <li>• عوارض مواد مخدر</li>
-                      <li>• خودکشی و اعمال مجرمانه</li>
-                    </ul>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">🌊 حوادث طبیعی</h3>
-                    <ul class="text-base space-y-2">
-                      <li>• سیل، زلزله</li>
-                      <li>• آتشفشان</li>
-                      <li>• جنگ، شورش</li>
-                      <li>• کودتا</li>
-                      <li>• فعل و انفعالات هسته‌ای</li>
-                    </ul>
-                  </div>
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-xl font-semibold mb-4">🏥 خدمات</h3>
-                    <ul class="text-base space-y-2">
-                      <li>• اتاق خصوصی</li>
-                      <li>• همراه بیمار 10-70 سال</li>
-                      <li>• چکاپ گروهی</li>
-                      <li>• طب کار</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-gavel"></i>فسخ بیمه‌نامه</h2>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-exclamation-triangle"></i>عدم پرداخت حق بیمه در موعد مقرر</li>
+                <li class="list-item"><i class="fas fa-calendar-check"></i>تسویه حساب ظرف 7 روز از تاریخ صدور الحاقیه فسخ</li>
+              </ul>
             </div>
-
-            <!-- Slide 9: شرایط خصوصی -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-orange-600 to-orange-800 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">📋 شرایط خصوصی</h1>
-                <div class="grid md:grid-cols-2 gap-6">
-                  <div class="space-y-4">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">📝 تعهدات بیمه‌گذار</h3>
-                      <ul class="space-y-2">
-                        <li>• ارائه مشخصات کامل بیمه‌شدگان</li>
-                        <li>• اعلام تغییرات تا 3 ماه</li>
-                        <li>• اعلام بستری همزمان</li>
-                      </ul>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">⏰ دوره انتظار</h3>
-                      <ul class="space-y-2">
-                        <li>• زایمان: 9-6 ماه</li>
-                        <li>• بیماری‌های خاص: 3 ماه</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div class="space-y-4">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">💰 فرانشیز</h3>
-                      <ul class="space-y-2">
-                        <li>• عدم استفاده از بیمه‌گر پایه: 30%</li>
-                        <li>• استفاده از بیمه‌گر پایه: طبق بندها</li>
-                      </ul>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">📄 مدت ارائه اسناد</h3>
-                      <p class="text-lg">حداکثر 9 ماه از تاریخ انجام هزینه</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-sync-alt"></i>تجدید خودکار</h2>
+              <p class="text-sm">چنانچه هیچ یک از طرفین یک ماه قبل از انقضا اعلام عدم تمایل نکنند، بیمه‌نامه برای یکسال دیگر تمدید می‌گردد</p>
             </div>
-
-            <!-- Slide 10: نکات پایانی -->
-            <div class="w-full flex-shrink-0 min-h-[600px] bg-gradient-to-br from-gray-700 to-gray-900 text-white">
-              <div class="p-8 h-full flex flex-col justify-center fade-in">
-                <h1 class="text-4xl font-bold mb-8 text-center">🔚 نکات پایانی</h1>
-                <div class="space-y-6">
-                  <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                    <h3 class="text-2xl font-semibold mb-4">🔐 شرایط خاص (نیاز به موافقت کتبی)</h3>
-                    <div class="grid md:grid-cols-2 gap-4">
-                      <ul class="space-y-2">
-                        <li>• جبران اعضای طبیعی بدن</li>
-                        <li>• پوشش خطرات طبیعی</li>
-                      </ul>
-                      <ul class="space-y-2">
-                        <li>• بیمه خانواده</li>
-                        <li>• گروه‌های کمتر از 50 نفر</li>
-                      </ul>
-                    </div>
-                  </div>
-                  <div class="grid md:grid-cols-3 gap-6">
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">⚖️ فسخ بیمه‌نامه</h3>
-                      <p>عدم پرداخت حق بیمه در موعد مقرر</p>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">🔄 تجدید خودکار</h3>
-                      <p>بدون اعلام مخالفت یک ماه قبل از انقضا</p>
-                    </div>
-                    <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6">
-                      <h3 class="text-xl font-semibold mb-4">📞 رفع اختلاف</h3>
-                      <p>مذاکره → کارشناس → مراجع قانونی</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div class="bg-white/10 rounded-2xl p-6">
+              <h2 class="section-title"><i class="fas fa-balance-scale"></i>رفع اختلاف</h2>
+              <ul class="space-y-1 text-sm">
+                <li class="list-item"><i class="fas fa-comments"></i>اولویت با مذاکرات اصلاحی</li>
+                <li class="list-item"><i class="fas fa-user-check"></i>در صورت عدم حصول نتیجه: کارشناس مرضی‌الطرفین</li>
+                <li class="list-item"><i class="fas fa-building-columns"></i>در نهایت: مراجع قانونی ذی‌صلاح</li>
+              </ul>
             </div>
-
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Navigation Controls -->
-    <div class="flex items-center justify-between bg-white/20 backdrop-blur-sm rounded-xl p-4">
-      <!-- Previous Button -->
-      <button 
-        class="nav-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg"
-        @click="previousSlide()"
-        :disabled="currentSlide === 0"
-      >
-        ← قبلی
-      </button>
-
-      <!-- Slide Indicators -->
-      <div class="flex space-x-2 mx-4">
-        <template x-for="(slide, index) in 10" :key="index">
-          <button 
-            class="slide-indicator w-3 h-3 rounded-full bg-white/40 hover:bg-white/60"
-            :class="{ 'active': currentSlide === index }"
-            @click="currentSlide = index"
-          ></button>
-        </template>
-      </div>
-
-      <!-- Next Button -->
-      <button 
-        class="nav-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed font-semibold shadow-lg"
-        @click="nextSlide()"
-        :disabled="currentSlide === 9"
-      >
-        بعدی →
-      </button>
-    </div>
-
-    <!-- Slide Counter -->
-    <div class="text-center mt-4">
-      <span class="bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 text-white font-semibold">
-        <span x-text="currentSlide + 1"></span> از 10
-      </span>
-    </div>
   </div>
 
+  <!-- Navigation -->
+  <div class="flex justify-center space-x-4 mt-8 space-x-reverse">
+    <button 
+      class="nav-btn text-white disabled:opacity-50 disabled:cursor-not-allowed" 
+      @click="currentSlide = currentSlide > 0 ? currentSlide - 1 : 0"
+      :disabled="currentSlide === 0"
+    >
+      <i class="fas fa-chevron-right mr-2"></i>قبلی
+    </button>
+    
+    <div class="flex space-x-2 space-x-reverse">
+      <template x-for="slide in 10" :key="slide">
+        <button 
+          class="w-3 h-3 rounded-full transition-all duration-300" 
+          :class="currentSlide === (slide - 1) ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/70'"
+          @click="currentSlide = slide - 1"
+        ></button>
+      </template>
+    </div>
+    
+    <button 
+      class="nav-btn text-white disabled:opacity-50 disabled:cursor-not-allowed" 
+      @click="currentSlide = currentSlide < 9 ? currentSlide + 1 : 9"
+      :disabled="currentSlide === 9"
+    >
+      بعدی<i class="fas fa-chevron-left ml-2"></i>
+    </button>
+  </div>
+
+  <!-- Keyboard Navigation and Slide Setup -->
   <script>
-    function presentationData() {
-      return {
-        currentSlide: 0,
-        totalSlides: [0,1,2,3,4,5,6,7,8,9],
-        
-        nextSlide() {
-          if (this.currentSlide < 9) {
-            this.currentSlide++;
-          }
-        },
-        
-        previousSlide() {
-          if (this.currentSlide > 0) {
-            this.currentSlide--;
-          }
-        },
-        
-        goToSlide(index) {
-          if (index >= 0 && index <= 9) {
-            this.currentSlide = index;
-          }
-        },
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.querySelector('.slide-container');
+      container.style.display = 'flex';
+      container.style.width = `${10 * 100}%`;
+      
+      document.querySelectorAll('.slide').forEach(slide => {
+        slide.style.width = `${100 / 10}%`;
+      });
 
-        init() {
-          // Handle keyboard events
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-              e.preventDefault();
-              this.previousSlide();
-            } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-              e.preventDefault();
-              this.nextSlide();
-            }
-          });
-
-          // Handle swipe events
-          let touchStartX = 0;
-          let touchEndX = 0;
-
-          document.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-          });
-
-          document.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
-            const swipeThreshold = 50;
-            
-            if (Math.abs(diff) > swipeThreshold) {
-              if (diff > 0) {
-                this.nextSlide();
-              } else {
-                this.previousSlide();
-              }
-            }
-          });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+          Alpine.store('slides', { currentSlide: Math.max(0, Alpine.store('slides')?.currentSlide - 1 || 0) });
+        } else if (e.key === 'ArrowLeft') {
+          Alpine.store('slides', { currentSlide: Math.min(9, Alpine.store('slides')?.currentSlide + 1 || 1) });
         }
-      }
-    }
+      });
+    });
   </script>
 </body>
 </html>
