@@ -127,7 +127,7 @@
         </style>
     </head>
     <body
-        x-data="{ currentSlide: 0 }"
+        x-data="$store.slides"
         class="min-h-screen flex flex-col items-center justify-center">
         <!-- Header -->
         <div class="w-full max-w-6xl mb-8 text-center">
@@ -796,20 +796,23 @@
 
         <!-- Keyboard Navigation -->
         <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.store('slides', {
+                    currentSlide: 0
+                });
+            });
+
             document.addEventListener('DOMContentLoaded', () => {
                 // Keyboard navigation
                 document.addEventListener('keydown', (e) => {
-                    const {currentSlide} = Alpine.store('slides') || {
-                        currentSlide: 0
-                    };
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    const store = Alpine.store('slides');
+                    if (!store) return;
+                    const { currentSlide } = store;
                     if (e.key === 'ArrowRight') {
-                        Alpine.store('slides', {
-                            currentSlide: Math.max(0, currentSlide - 1)
-                        });
+                        store.currentSlide = Math.max(0, currentSlide - 1);
                     } else if (e.key === 'ArrowLeft') {
-                        Alpine.store('slides', {
-                            currentSlide: Math.min(9, currentSlide + 1)
-                        });
+                        store.currentSlide = Math.min(9, currentSlide + 1);
                     }
                 });
             });
