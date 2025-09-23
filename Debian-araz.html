@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <title>کارگاه عملی: راه‌اندازی Tile Server</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap"
+          rel="stylesheet">
+    <style>
+        /* General Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+            direction: rtl;
+            min-height: 100vh;
+        }
+
+        .slide {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 40px 80px 40px;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .slide h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide h2 {
+            font-size: 2.5em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .slide h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .slide h3 {
+            font-size: 1.8em;
+            font-weight: 500;
+            color: #34495e;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .slide p {
+            font-size: 1.3em;
+            margin: 20px 0;
+            text-align: center;
+            max-width: 800px;
+            line-height: 1.8;
+        }
+
+        .slide ul {
+            list-style: none;
+            margin: 25px auto;
+            padding: 0;
+            max-width: 900px;
+            text-align: right;
+        }
+
+        .slide ul li {
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            line-height: 1.7;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            border-right: 4px solid #3498db;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .slide ul li:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide ul li::before {
+            content: '✓';
+            position: absolute;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #3498db;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+            font-size: 1.1em;
+            width: 95%;
+            max-width: 1000px;
+            text-align: left;
+            direction: ltr;
+            overflow-x: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid #333;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: #333;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid #555;
+        }
+
+        .code-block::after {
+            content: '● ● ●';
+            position: absolute;
+            top: 8px;
+            left: 15px;
+            color: #ff5f56;
+            font-size: 12px;
+            letter-spacing: 3px;
+        }
+
+        .code-block pre {
+            margin: 20px 0 0 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            border: 1px solid #ff6b6b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #721c24;
+            font-weight: 500;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            border: 1px solid #17a2b8;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #0c5460;
+            font-weight: 500;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #d4fc79, #96e6a1);
+            border: 1px solid #28a745;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #155724;
+            font-weight: 500;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+        }
+
+        .navigation button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .navigation button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .navigation button:active {
+            transform: translateY(0);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            padding: 15px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .footer a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .indicator {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            z-index: 1001;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            width: 100%;
+            max-width: 1200px;
+            align-items: start;
+        }
+
+        .command-output {
+            background: #0d1117;
+            color: #58a6ff;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            margin: 15px 0;
+            border: 1px solid #30363d;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .slide h1 {
+                font-size: 2.5em;
+            }
+            
+            .slide h2 {
+                font-size: 2em;
+            }
+            
+            .two-column {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .navigation {
+                bottom: 20px;
+                left: 20px;
+            }
+            
+            .indicator {
+                top: 20px;
+                right: 20px;
+                font-size: 1em;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progress-bar"></div>
+    
+    <!-- Navigation Indicators -->
+    <div class="indicator">
+        <span id="current-slide">1</span> / 13
+    </div>
+    
+    <!-- Slide Counter -->
+    <div class="slide-counter">
+        کارگاه عملی Tile Server
+    </div>
+
+    <!-- Slide 1: Introduction -->
+    <section class="slide active" id="slide1">
+        <h1>🗺️ کارگاه عملی: راه‌اندازی Tile Server</h1>
+        <p class="highlight">ساخت سرور کاشی‌های نقشه با Debian 13 و ابزارهای آزاد</p>
+        <h3>🎯 هدف: ایجاد یک سرویس نقشه کامل و حرفه‌ای</h3>
+        
+        <div class="info-box">
+            <strong>مدت زمان کارگاه:</strong> 45 دقیقه<br>
+            <strong>سطح:</strong> متوسط تا پیشرفته<br>
+            <strong>پیش‌نیاز:</strong> آشنایی با Linux و Docker
+        </div>
+        
+        <div class="two-column">
+            <div>
+                <h4>🛠️ ابزارهای مورد استفاده:</h4>
+                <ul>
+                    <li>Debian 13 (Trixie)</li>
+                    <li>Docker & Docker Compose</li>
+                    <li>TileServer GL</li>
+                    <li>PostGIS & PostgreSQL</li>
+                    <li>Nginx</li>
+                </ul>
+            </div>
+            <div>
+                <h4>📋 خروجی کارگاه:</h4>
+                <ul>
+                    <li>سرور کاشی‌های نقشه فعال</li>
+                    <li>رابط وب تعاملی</li>
+                    <li>API کامل برای توسعه</li>
+                    <li>مستندات پیکربندی</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: چرا Tile Server؟ -->
+    <section class="slide" id="slide2">
+        <h2>🤔 چرا به Tile Server نیاز داریم؟</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>🌍 وضعیت فعلی نقشه‌ها</h3>
+                <div class="warning-box">
+                    <strong>مشکلات موجود:</strong>
+                    <ul>
+                        <li>وابستگی به سرویس‌های خارجی (Google Maps، OSM)</li>
+                        <li>محدودیت‌های API و هزینه‌های بالا</li>
+                        <li>کنترل محدود بر داده‌ها و استایل</li>
+                        <li>مشکلات حریم خصوصی و امنیت</li>
+                        <li>قطعی اینترنت = قطعی نقشه</li>
+                    </ul>
+                </div>
+                
+                <h3>💡 راه‌حل: Tile Server محلی</h3>
+                <div class="success-box">
+                    <ul>
+                        <li>استقلال کامل از سرویس‌های خارجی</li>
+                        <li>کنترل کامل بر داده‌ها</li>
+                        <li>عملکرد بهتر و سریع‌تر</li>
+                        <li>امنیت و حریم خصوصی بالا</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🎯 کاربردهای عملی</h3>
+                <ul>
+                    <li><strong>سازمان‌های دولتی:</strong> نقشه‌های داخلی و محرمانه</li>
+                    <li><strong>شرکت‌های حمل‌ونقل:</strong> سیستم‌های ناوبری اختصاصی</li>
+                    <li><strong>شهرداری‌ها:</strong> مدیریت شهری و خدمات عمومی</li>
+                    <li><strong>صنایع:</strong> نقشه‌های تخصصی و مونیتورینگ</li>
+                    <li><strong>آموزش:</strong> نقشه‌های تعاملی و آموزشی</li>
+                </ul>
+                
+                <div class="info-box">
+                    <strong>💰 صرفه‌جویی:</strong><br>
+                    هزینه سالانه Google Maps API: $2000+<br>
+                    هزینه Tile Server محلی: تقریباً رایگان!
+                </div>
+                
+                <div class="code-block">
+                    <pre>مثال: درخواست روزانه 100,000 کاشی
+Google Maps: $500/ماه
+Tile Server محلی: فقط هزینه سرور</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: مفاهیم کلیدی -->
+    <section class="slide" id="slide3">
+        <h2>🧠 مفاهیم کلیدی Tile Server</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>🔍 Tile Server چیست؟</h3>
+                <div class="info-box">
+                    سرویسی که نقشه‌ها را به صورت کاشی‌های کوچک (256x256 پیکسل) تقسیم کرده و بر اساس درخواست کاربران ارائه می‌دهد
+                </div>
+                
+                <h4>🎨 نحوه کار:</h4>
+                <ul>
+                    <li>نقشه به کاشی‌های کوچک تقسیم می‌شود</li>
+                    <li>هر کاشی مختصات Z/X/Y دارد</li>
+                    <li>Z = سطح زوم (0 تا 18+)</li>
+                    <li>X,Y = موقعیت کاشی در شبکه</li>
+                </ul>
+                
+                <div class="code-block">
+                    <pre>نمونه URL کاشی:
+/tiles/12/2048/1536.png
+↑     ↑   ↑    ↑
+style zoom x   y</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🏗️ معماری سیستم ما</h3>
+                <div class="code-block">
+                    <pre>
+🌐 کاربر (مرورگر/اپ)
+        ↓
+🔒 Nginx (SSL + Cache)
+        ↓
+🗺️ TileServer GL
+        ↓
+📊 PostgreSQL/PostGIS
+        ↓
+💾 فایل‌های MBTiles
+                    </pre>
+                </div>
+                
+                <h4>🔧 اجزای سیستم:</h4>
+                <ul>
+                    <li><strong>TileServer GL:</strong> موتور اصلی سرو کاشی‌ها</li>
+                    <li><strong>MBTiles:</strong> فرمت فشرده ذخیره کاشی‌ها</li>
+                    <li><strong>PostGIS:</strong> پایگاه داده مکانی</li>
+                    <li><strong>Nginx:</strong> پروکسی و کش</li>
+                </ul>
+                
+                <div class="success-box">
+                    <strong>✨ نتیجه:</strong> سرویس نقشه سریع، مقیاس‌پذیر و مستقل
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: آماده‌سازی محیط -->
+    <section class="slide" id="slide4">
+        <h2>🔧 آماده‌سازی محیط Debian 13</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>📋 پیش‌نیازهای سیستم</h3>
+                <ul>
+                    <li>Debian 13 (Trixie) - حداقل 2GB RAM</li>
+                    <li>فضای دیسک: حداقل 10GB</li>
+                    <li>دسترسی root یا sudo</li>
+                    <li>اتصال اینترنت پایدار</li>
+                </ul>
+                
+                <div class="success-box">
+                    <strong>✅ بررسی نسخه سیستم:</strong>
+                </div>
+                <div class="code-block">
+                    <pre>cat /etc/debian_version
+lsb_release -a</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🔄 به‌روزرسانی سیستم</h3>
+                <div class="code-block">
+                    <pre># به‌روزرسانی فهرست بسته‌ها
+sudo apt update
+
+# ارتقاء سیستم
+sudo apt upgrade -y
+
+# نصب ابزارهای ضروری
+sudo apt install -y \
+    curl \
+    wget \
+    git \
+    htop \
+    nano \
+    unzip</pre>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 نکته:</strong> پس از ارتقاء، سیستم را ری‌استارت کنید
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: نصب Docker -->
+    <section class="slide" id="slide5">
+        <h2>🐳 نصب و پیکربندی Docker</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>📦 نصب Docker از مخزن رسمی</h3>
+                <div class="code-block">
+                    <pre># حذف نسخه‌های قدیمی
+sudo apt remove docker docker-engine docker.io
+
+# نصب وابستگی‌ها
+sudo apt install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+# اضافه کردن کلید GPG
+curl -fsSL https://download.docker.com/linux/debian/gpg | \
+sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# اضافه کردن مخزن Docker
+echo "deb [arch=$(dpkg --print-architecture) \
+signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+https://download.docker.com/linux/debian \
+$(lsb_release -cs) stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>⚙️ نصب و راه‌اندازی</h3>
+                <div class="code-block">
+                    <pre># به‌روزرسانی و نصب
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# فعال‌سازی سرویس
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# اضافه کردن کاربر به گروه docker
+sudo usermod -aG docker $USER
+
+# تست نصب
+docker --version
+docker compose version</pre>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ تست عملکرد:</strong>
+                </div>
+                <div class="code-block">
+                    <pre>docker run hello-world</pre>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ مهم:</strong> پس از اضافه کردن کاربر به گروه docker، خروج و ورود مجدد ضروری است
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: راه‌اندازی TileServer GL -->
+    <section class="slide" id="slide6">
+        <h2>🚀 راه‌اندازی TileServer GL</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>📁 ایجاد ساختار پروژه</h3>
+                <div class="code-block">
+                    <pre># ایجاد دایرکتوری پروژه
+mkdir ~/tileserver-project
+cd ~/tileserver-project
+
+# ایجاد ساختار فولدرها
+mkdir -p {data,config,styles,fonts}
+
+# دانلود TileServer GL
+git clone https://github.com/maptiler/tileserver-gl.git
+cd tileserver-gl</pre>
+                </div>
+                
+                <h3>🔧 فایل Docker Compose</h3>
+                <div class="code-block">
+                    <pre># docker-compose.yml
+version: '3.8'
+services:
+  tileserver:
+    image: maptiler/tileserver-gl:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+      - ./config:/config
+    environment:
+      - MBTILES_DIR=/data
+    restart: unless-stopped</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🎯 راه‌اندازی سرویس</h3>
+                <div class="code-block">
+                    <pre># اجرای سرویس
+docker compose up -d
+
+# بررسی وضعیت
+docker compose ps
+docker compose logs tileserver</pre>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ تست دسترسی:</strong><br>
+                    مرورگر: <code>http://localhost:8080</code>
+                </div>
+                
+                <h3>📊 مانیتورینگ</h3>
+                <div class="command-output">
+                    <pre>$ curl -I http://localhost:8080
+HTTP/1.1 200 OK
+Content-Type: text/html
+Server: TileServer GL</pre>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 نکته:</strong> در صورت خطا، لاگ‌ها را با <code>docker compose logs -f</code> بررسی کنید
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: مدیریت داده‌های نقشه -->
+    <section class="slide" id="slide7">
+        <h2>🗺️ مدیریت داده‌های نقشه</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>📥 دانلود داده‌های OpenStreetMap</h3>
+                <div class="code-block">
+                    <pre># دانلود داده‌های ایران
+wget https://download.geofabrik.de/asia/iran-latest.osm.pbf
+
+# یا استفاده از Overpass API برای منطقه خاص
+curl -o tehran.osm "[out:xml][timeout:25];
+(relation[\"name\"=\"تهران\"][\"admin_level\"=\"4\"];);
+(._;>;);
+out meta;"</pre>
+                </div>
+                
+                <h3>🔄 تبدیل به MBTiles</h3>
+                <div class="code-block">
+                    <pre># نصب tippecanoe
+sudo apt install -y tippecanoe
+
+# تبدیل GeoJSON به MBTiles
+tippecanoe -o iran.mbtiles \
+    --maximum-zoom=14 \
+    --minimum-zoom=0 \
+    --drop-densest-as-needed \
+    --extend-zooms-if-still-dropping \
+    iran.geojson</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>⚙️ پیکربندی TileServer</h3>
+                <div class="code-block">
+                    <pre># config.json
+{
+  "options": {
+    "paths": {
+      "root": "/data",
+      "fonts": "/fonts",
+      "styles": "/styles"
+    }
+  },
+  "styles": {
+    "basic": {
+      "style": "basic.json",
+      "tilejson": {
+        "bounds": [44.0, 25.0, 63.0, 40.0]
+      }
+    }
+  },
+  "data": {
+    "iran": {
+      "mbtiles": "iran.mbtiles"
+    }
+  }
+}</pre>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ کپی فایل‌ها:</strong>
+                </div>
+                <div class="code-block">
+                    <pre># کپی فایل‌ها به دایرکتوری data
+cp iran.mbtiles ~/tileserver-project/data/
+cp config.json ~/tileserver-project/config/
+
+# ری‌استارت سرویس
+docker compose restart</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: پیکربندی Nginx و SSL -->
+    <section class="slide" id="slide8">
+        <h2>🔒 پیکربندی Nginx و SSL</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>📦 نصب Nginx</h3>
+                <div class="code-block">
+                    <pre># نصب Nginx
+sudo apt install -y nginx
+
+# فعال‌سازی سرویس
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+# بررسی وضعیت
+sudo systemctl status nginx</pre>
+                </div>
+                
+                <h3>⚙️ پیکربندی Reverse Proxy</h3>
+                <div class="code-block">
+                    <pre># /etc/nginx/sites-available/tileserver
+server {
+    listen 80;
+    server_name your-domain.com;
+    
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+    # کش کردن کاشی‌ها
+    location ~* \.(png|jpg|jpeg|gif|ico|svg)$ {
+        proxy_pass http://localhost:8080;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+}</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🔐 راه‌اندازی SSL با Let's Encrypt</h3>
+                <div class="code-block">
+                    <pre># نصب Certbot
+sudo apt install -y certbot python3-certbot-nginx
+
+# دریافت گواهی SSL
+sudo certbot --nginx -d your-domain.com
+
+# تست تمدید خودکار
+sudo certbot renew --dry-run</pre>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ فعال‌سازی سایت:</strong>
+                </div>
+                <div class="code-block">
+                    <pre># فعال‌سازی پیکربندی
+sudo ln -s /etc/nginx/sites-available/tileserver \
+           /etc/nginx/sites-enabled/
+
+# تست پیکربندی
+sudo nginx -t
+
+# ری‌استارت Nginx
+sudo systemctl restart nginx</pre>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 نکته امنیتی:</strong> همیشه از HTTPS استفاده کنید و فایروال را پیکربندی کنید
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: بهینه‌سازی و مانیتورینگ -->
+    <section class="slide" id="slide9">
+        <h2>⚡ بهینه‌سازی و مانیتورینگ</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>🚀 بهینه‌سازی عملکرد</h3>
+                <div class="code-block">
+                    <pre># تنظیمات کش در Nginx
+location /tiles/ {
+    proxy_pass http://localhost:8080;
+    proxy_cache tiles_cache;
+    proxy_cache_valid 200 30d;
+    proxy_cache_valid 404 1m;
+    add_header X-Cache-Status $upstream_cache_status;
+}
+
+# تعریف کش
+proxy_cache_path /var/cache/nginx/tiles 
+    levels=1:2 
+    keys_zone=tiles_cache:10m 
+    max_size=1g 
+    inactive=30d;</pre>
+                </div>
+                
+                <h3>📊 مانیتورینگ با Prometheus</h3>
+                <div class="code-block">
+                    <pre># docker-compose.yml اضافه کردن
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🔍 لاگ‌گذاری و عیب‌یابی</h3>
+                <div class="code-block">
+                    <pre># بررسی لاگ‌های سیستم
+sudo journalctl -u nginx -f
+docker compose logs -f tileserver
+
+# مانیتورینگ منابع
+htop
+docker stats
+
+# بررسی فضای دیسک
+df -h
+du -sh ~/tileserver-project/data/</pre>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>⚠️ نکات مهم:</strong>
+                    <ul>
+                        <li>حداکثر اندازه فایل MBTiles: 2GB</li>
+                        <li>تنظیم محدودیت حافظه Docker</li>
+                        <li>پشتیبان‌گیری منظم از داده‌ها</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ اسکریپت پشتیبان‌گیری:</strong>
+                </div>
+                <div class="code-block">
+                    <pre>#!/bin/bash
+DATE=$(date +%Y%m%d_%H%M%S)
+tar -czf backup_$DATE.tar.gz \
+    ~/tileserver-project/data/ \
+    ~/tileserver-project/config/</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 10: عیب‌یابی مشکلات رایج -->
+    <section class="slide" id="slide10">
+        <h2>🔧 عیب‌یابی مشکلات رایج</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>❌ مشکلات رایج و راه‌حل</h3>
+                
+                <div class="warning-box">
+                    <strong>خطا: Container خاموش می‌شود</strong>
+                </div>
+                <div class="code-block">
+                    <pre># بررسی لاگ‌ها
+docker compose logs tileserver
+
+# بررسی فایل‌های داده
+ls -la ~/tileserver-project/data/
+
+# تست دسترسی به فایل
+file ~/tileserver-project/data/*.mbtiles</pre>
+                </div>
+                
+                <div class="warning-box">
+                    <strong>خطا: 502 Bad Gateway</strong>
+                </div>
+                <div class="code-block">
+                    <pre># بررسی وضعیت سرویس‌ها
+docker compose ps
+sudo systemctl status nginx
+
+# تست اتصال داخلی
+curl -I http://localhost:8080</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🚨 مشکلات عملکرد</h3>
+                
+                <div class="info-box">
+                    <strong>کندی در بارگذاری کاشی‌ها:</strong>
+                    <ul>
+                        <li>بررسی اندازه فایل MBTiles</li>
+                        <li>فعال‌سازی کش Nginx</li>
+                        <li>بهینه‌سازی تنظیمات Docker</li>
+                    </ul>
+                </div>
+                
+                <div class="code-block">
+                    <pre># بررسی استفاده از منابع
+docker stats --no-stream
+free -h
+iostat -x 1 5
+
+# تنظیم محدودیت حافظه
+docker compose up -d --memory=1g</pre>
+                </div>
+                
+                <div class="success-box">
+                    <strong>✅ چک‌لیست عیب‌یابی:</strong>
+                    <ul>
+                        <li>وضعیت سرویس‌ها</li>
+                        <li>دسترسی به فایل‌ها</li>
+                        <li>تنظیمات فایروال</li>
+                        <li>فضای دیسک</li>
+                        <li>لاگ‌های خطا</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 11: API و توسعه -->
+    <section class="slide" id="slide11">
+        <h2>🔌 API و توسعه کاربردها</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>📡 استفاده از API</h3>
+                <div class="code-block">
+                    <pre># دریافت اطلاعات TileJSON
+curl http://localhost:8080/styles/basic.json
+
+# دریافت کاشی خاص
+curl http://localhost:8080/styles/basic/12/2048/1536.png
+
+# دریافت فهرست استایل‌ها
+curl http://localhost:8080/styles/</pre>
+                </div>
+                
+                <h3>🗺️ ادغام با Leaflet</h3>
+                <div class="code-block">
+                    <pre>// JavaScript
+var map = L.map('map').setView([35.6892, 51.3890], 10);
+
+L.tileLayer('http://localhost:8080/styles/basic/{z}/{x}/{y}.png', {
+    attribution: 'Map data © OpenStreetMap contributors',
+    maxZoom: 18
+}).addTo(map);</pre>
+                </div>
+            </div>
+            
+            <div>
+                <h3>🌐 ادغام با OpenLayers</h3>
+                <div class="code-block">
+                    <pre>// JavaScript
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import XYZ from 'ol/source/XYZ';
+
+const map = new Map({
+  target: 'map',
+  layers: [
+    new TileLayer({
+      source: new XYZ({
+        url: 'http://localhost:8080/styles/basic/{z}/{x}/{y}.png'
+      })
+    })
+  ],
+  view: new View({
+    center: [5704629.865282, 4260114.963312],
+    zoom: 10
+  })
+});</pre>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 نکات توسعه:</strong>
+                    <ul>
+                        <li>استفاده از CORS برای دسترسی از مرورگر</li>
+                        <li>پیاده‌سازی Rate Limiting</li>
+                        <li>کش کردن در سمت کلاینت</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 12: منابع و مراجع -->
+    <section class="slide" id="slide12">
+        <h2>📚 منابع و مراجع</h2>
+        
+        <div class="two-column">
+            <div>
+                <h3>🔗 لینک‌های مفید</h3>
+                <ul>
+                    <li><strong>TileServer GL:</strong> github.com/maptiler/tileserver-gl</li>
+                    <li><strong>OpenStreetMap:</strong> openstreetmap.org</li>
+                    <li><strong>PostGIS:</strong> postgis.net</li>
+                    <li><strong>Tippecanoe:</strong> github.com/mapbox/tippecanoe</li>
+                    <li><strong>MBTiles Spec:</strong> github.com/mapbox/mbtiles-spec</li>
+                </ul>
+                
+                <h3>📖 مستندات</h3>
+                <ul>
+                    <li>راهنمای Docker Compose</li>
+                    <li>مستندات Nginx</li>
+                    <li>آموزش‌های PostGIS</li>
+                    <li>راهنمای Leaflet</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3>🛠️ ابزارهای مفید</h3>
+                <ul>
+                    <li><strong>QGIS:</strong> ویرایش و تجزیه‌وتحلیل داده‌های مکانی</li>
+                    <li><strong>Maputnik:</strong> ویرایشگر استایل نقشه</li>
+                    <li><strong>TileMill:</strong> طراحی نقشه‌های سفارشی</li>
+                    <li><strong>Overpass Turbo:</strong> استخراج داده از OSM</li>
+                </ul>
+                
+                <div class="success-box">
+                    <strong>🎯 پروژه‌های پیشنهادی:</strong>
+                    <ul>
+                        <li>نقشه محله‌های شهر</li>
+                        <li>سیستم ناوبری داخلی</li>
+                        <li>نقشه‌های تخصصی (گردشگری، حمل‌ونقل)</li>
+                        <li>ادغام با سیستم‌های GIS موجود</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 13: نتیجه‌گیری و تشکر -->
+    <section class="slide" id="slide13">
+        <h1>🎉 تبریک! شما یک Tile Server کامل راه‌اندازی کردید</h1>
+        
+        <div class="two-column">
+            <div>
+                <div class="success-box">
+                    <h3>✅ آنچه که یاد گرفتید:</h3>
+                    <ul>
+                        <li>نصب و پیکربندی Docker در Debian 13</li>
+                        <li>راه‌اندازی TileServer GL</li>
+                        <li>مدیریت داده‌های نقشه و MBTiles</li>
+                        <li>پیکربندی Nginx و SSL</li>
+                        <li>بهینه‌سازی و مانیتورینگ</li>
+                        <li>عیب‌یابی مشکلات رایج</li>
+                        <li>استفاده از API برای توسعه</li>
+                    </ul>
+                </div>
+                
+                <div class="info-box">
+                    <h3>🚀 گام‌های بعدی:</h3>
+                    <ul>
+                        <li>ایجاد استایل‌های سفارشی</li>
+                        <li>ادغام با پایگاه داده PostGIS</li>
+                        <li>پیاده‌سازی سیستم کش پیشرفته</li>
+                        <li>توسعه اپلیکیشن‌های وب</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div>
+                <div class="info-box">
+                    <h3>🤝 مشارکت در جامعه</h3>
+                    <ul>
+                        <li>به‌روزرسانی داده‌های OpenStreetMap</li>
+                        <li>توسعه ابزارهای آزاد</li>
+                        <li>اشتراک‌گذاری تجربیات</li>
+                        <li>مشارکت در پروژه‌های GIS</li>
+                    </ul>
+                </div>
+                
+                <div class="success-box">
+                    <h3>📞 تماس با من</h3>
+                    <p><strong>وبسایت:</strong> <a href="https://araz.me" target="_blank">araz.me</a></p>
+                    <p><strong>ایمیل:</strong> araz.shah@gmail.com</p>
+                    <p><strong>گیت‌هاب:</strong> github.com/arazshah</p>
+                    <p><strong>تلگرام:</strong> @arazshah</p>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="highlight">🙏 از توجه شما متشکریم!</h2>
+        <p style="text-align: center; margin-top: 20px; font-size: 1.1em;">
+            برای اطلاعات بیشتر و پروژه‌های جدید: <strong><a href="https://araz.me" target="_blank">araz.me</a></strong>
+        </p>
+    </section>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation">
+        <button id="prevBtn"
+                onclick="changeSlide(-1)">قبلی</button>
+        <button id="nextBtn"
+                onclick="changeSlide(1)">بعدی</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>ارائه توسط: آراز.  <a href="https://araz.me">araz.me</a></p>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function changeSlide(direction) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide += direction;
+
+            if (currentSlide < 0) {
+                currentSlide = totalSlides - 1;
+            } else if (currentSlide >= totalSlides) {
+                currentSlide = 0;
+            }
+
+            slides[currentSlide].classList.add('active');
+            document.getElementById('current-slide').innerText = currentSlide + 1;
+            
+            // Update progress bar
+            const progressBar = document.getElementById('progress-bar');
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            } else if (e.key === 'Home') {
+                changeSlide(-currentSlide);
+            } else if (e.key === 'End') {
+                changeSlide(totalSlides - 1 - currentSlide);
+            }
+        });
+
+        // Initialize progress bar
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = (1 / totalSlides) * 100 + '%';
+        });
+
+        // Auto-hide navigation after inactivity
+        let hideTimeout;
+        function showNavigation() {
+            document.querySelector('.navigation').style.opacity = '1';
+            document.querySelector('.indicator').style.opacity = '1';
+            document.querySelector('.slide-counter').style.opacity = '1';
+            
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                document.querySelector('.navigation').style.opacity = '0.3';
+                document.querySelector('.indicator').style.opacity = '0.3';
+                document.querySelector('.slide-counter').style.opacity = '0.3';
+            }, 3000);
+        }
+
+        document.addEventListener('mousemove', showNavigation);
+        document.addEventListener('keydown', showNavigation);
+        
+        // Initialize
+        showNavigation();
+    </script>
+
+</body>
+
+</html>
