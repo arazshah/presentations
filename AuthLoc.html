@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم احراز هویت و کنترل دسترسی مکانی - ارائه فنی</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            background: white;
+            margin: 30px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .slide-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+
+        .slide-header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide-header h2 {
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide-content {
+            padding: 40px;
+            flex: 1;
+        }
+
+        .architecture-chart {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .chart-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 3px solid #27ae60;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .chart-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(39, 174, 96, 0.3);
+        }
+
+        .chart-box h3 {
+            color: #27ae60;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .hierarchy-tree {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            border-left: 5px solid #27ae60;
+        }
+
+        .tree-level {
+            margin: 10px 0;
+            padding-right: 20px;
+        }
+
+        .tree-level-0 { color: #27ae60; font-weight: 700; font-size: 1.2em; }
+        .tree-level-1 { color: #2ecc71; font-weight: 600; padding-right: 40px; }
+        .tree-level-2 { color: #58d68d; font-weight: 500; padding-right: 60px; }
+        .tree-level-3 { color: #82e0aa; font-weight: 400; padding-right: 80px; }
+        .tree-level-4 { color: #abebc6; font-weight: 400; padding-right: 100px; }
+
+        .scenario-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #27ae60;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .scenario-title {
+            color: #27ae60;
+            font-weight: 600;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .scenario-title::before {
+            content: '🔐';
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            border-left: 4px solid #27ae60;
+        }
+
+        .user-card {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            margin-left: 20px;
+        }
+
+        .user-info h4 {
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .user-info p {
+            opacity: 0.9;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .benefit-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 25px;
+            border-radius: 10px;
+            border-top: 4px solid #27ae60;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .benefit-card h4 {
+            color: #27ae60;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 30px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #27ae60;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 30px 0;
+            padding-right: 80px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: 18px;
+            top: 5px;
+            width: 25px;
+            height: 25px;
+            background: #27ae60;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 0 0 3px #27ae60;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .timeline-content h4 {
+            color: #27ae60;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .navigation {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 50%;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: #27ae60;
+            transform: scale(1.3);
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .architecture-chart {
+                grid-template-columns: 1fr;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .slide-header h1 {
+                font-size: 2em;
+            }
+            
+            .slide-header h2 {
+                font-size: 1.5em;
+            }
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(5)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(6)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(7)"></div>
+    </div>
+
+    <div class="presentation-container">
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide" id="slide-0">
+            <div class="slide-header">
+                <div class="slide-number">1/8</div>
+                <h1>🏢 سیستم احراز هویت و کنترل دسترسی مکانی</h1>
+                <p>سیستم هوشمند مدیریت دسترسی بر اساس GIS برای شرکت املاک پارس‌لند</p>
+            </div>
+            <div class="slide-content">
+                <div class="architecture-chart">
+                    <div class="chart-box">
+                        <h3>🔐 احراز هویت امن</h3>
+                        <p>سیستم JWT با رفرش توکن و رمزگذاری bcrypt</p>
+                    </div>
+                    <div class="chart-box">
+                        <h3>🗺️ کنترل مکانی</h3>
+                        <p>مدیریت دسترسی بر اساس موقعیت جغرافیایی و سلسله‌مراتب</p>
+                    </div>
+                    <div class="chart-box">
+                        <h3>⚡ عملکرد بالا</h3>
+                        <p>کش Redis، بهینه‌سازی پایگاه داده و پاسخ زیر 200ms</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 40px;">
+                    <h3 style="color: #27ae60; margin-bottom: 20px;">ویژگی‌های کلیدی</h3>
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                        <div style="margin: 10px;">✅ مدیریت سلسله‌مراتبی</div>
+                        <div style="margin: 10px;">✅ دسترسی فیلدی</div>
+                        <div style="margin: 10px;">✅ ردیابی فعالیت</div>
+                        <div style="margin: 10px;">✅ پشتیبانی GIS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: معماری سیستم -->
+        <div class="slide" id="slide-1">
+            <div class="slide-header">
+                <div class="slide-number">2/8</div>
+                <h2>🏗️ معماری سیستم</h2>
+                <p>چارت کامل اجزا و روابط سیستم</p>
+            </div>
+            <div class="slide-content">
+                <div class="architecture-chart">
+                    <div class="chart-box">
+                        <h3>👥 Users</h3>
+                        <p>مدیران، کارشناسان، مشاوران و مشتریان</p>
+                    </div>
+                    <div class="chart-box">
+                        <h3>👔 Roles</h3>
+                        <p>تعریف نقش‌ها و سطوح دسترسی</p>
+                    </div>
+                    <div class="chart-box">
+                        <h3>👥 Groups</h3>
+                        <p>گروه‌بندی کاربران بر اساس مکان</p>
+                    </div>
+                    <div class="chart-box">
+                        <h3>📍 Locations</h3>
+                        <p>سلسله‌مراتب مکانی با پشتیبانی GIS</p>
+                    </div>
+                    <div class="chart-box">
+                        <h3>🔑 Access Control</h3>
+                        <p>کنترل دسترسی CRUD و ارث‌بری</p>
+                    </div>
+                    <div class="chart-box">
+                        <h3>🛡️ Field Permissions</h3>
+                        <p>کنترل دسترسی در سطح فیلد</p>
+                    </div>
+                </div>
+                <div class="code-block">
+# مثال ساختار داده‌ای
+Users ←→ Roles ←→ Groups
+  ↓         ↓       ↓
+Locations ←→ UserLocationAccess
+  ↓
+GIS Resources ←→ FieldPermissions
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: سلسله‌مراتب مکانی -->
+        <div class="slide" id="slide-2">
+            <div class="slide-header">
+                <div class="slide-number">3/8</div>
+                <h2>🗺️ سلسله‌مراتب مکانی</h2>
+                <p>ساختار درختی مکان‌ها در شرکت پارس‌لند</p>
+            </div>
+            <div class="slide-content">
+                <div class="hierarchy-tree">
+                    <div class="tree-level tree-level-0">🇮🇷 ایران</div>
+                    <div class="tree-level tree-level-1">🏙️ تهران</div>
+                    <div class="tree-level tree-level-2">📍 منطقه 1</div>
+                    <div class="tree-level tree-level-3">🏢 مجتمع تجاری پلاتین</div>
+                    <div class="tree-level tree-level-4">🏪 طبقه همکف → واحد 1 (مغازه)</div>
+                    <div class="tree-level tree-level-4">🏪 طبقه همکف → واحد 2 (دفتر)</div>
+                    <div class="tree-level tree-level-4">🏠 طبقه اول → واحد 3 (آپارتمان)</div>
+                    <div class="tree-level tree-level-3">🏗️ برج مسکونی آسمان</div>
+                    <div class="tree-level tree-level-4">🏠 طبقه 5</div>
+                    <div class="tree-level tree-level-4">🏠 طبقه 10</div>
+                    <div class="tree-level tree-level-2">📍 منطقه 3</div>
+                    <div class="tree-level tree-level-3">🏢 مجتمع اداری</div>
+                    <div class="tree-level tree-level-1">🏙️ اصفهان</div>
+                    <div class="tree-level tree-level-2">📍 منطقه مرکزی</div>
+                    <div class="tree-level tree-level-3">🛍️ پاساژ کوثر</div>
+                </div>
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h4 style="color: #27ae60; margin-bottom: 15px;">💡 ویژگی ارث‌بری دسترسی</h4>
+                    <p>دسترسی به یک مکان، به صورت خودکار شامل تمام زیرمجموعه‌های آن می‌شود. مثلاً دسترسی به "منطقه 1" شامل دسترسی به تمام مجتمع‌ها، ساختمان‌ها و واحدهای آن منطقه است.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: شخصیت‌های سناریو -->
+        <div class="slide" id="slide-3">
+            <div class="slide-header">
+                <div class="slide-number">4/8</div>
+                <h2>👥 شخصیت‌های سناریو</h2>
+                <p>کاربران مختلف سیستم و سطوح دسترسی آن‌ها</p>
+            </div>
+            <div class="slide-content">
+                <div class="user-card">
+                    <div class="user-avatar">👨‍💼</div>
+                    <div class="user-info">
+                        <h4>آقای احمدی - مدیر کل</h4>
+                        <p>دسترسی کامل به تمام املاک در سراسر کشور | تمام عملیات CRUD</p>
+                    </div>
+                </div>
+
+                <div class="user-card">
+                    <div class="user-avatar">👩‍💼</div>
+                    <div class="user-info">
+                        <h4>خانم رضایی - مدیر شعبه تهران</h4>
+                        <p>دسترسی کامل به تمام املاک تهران | مدیریت کارمندان شعبه</p>
+                    </div>
+                </div>
+
+                <div class="user-card">
+                    <div class="user-avatar">👨‍💻</div>
+                    <div class="user-info">
+                        <h4>آقای محمدی - سرپرست منطقه 1</h4>
+                        <p>دسترسی کامل به املاک منطقه 1 | مدیریت تیم منطقه</p>
+                    </div>
+                </div>
+
+                <div class="user-card">
+                    <div class="user-avatar">👩‍🏢</div>
+                    <div class="user-info">
+                        <h4>خانم کریمی - کارشناس املاک</h4>
+                        <p>دسترسی کامل به مجتمع پلاتین | مدیریت قیمت‌ها و فروش</p>
+                    </div>
+                </div>
+
+                <div class="user-card">
+                    <div class="user-avatar">👨‍🤝‍👨</div>
+                    <div class="user-info">
+                        <h4>آقای صادقی - مشاور املاک</h4>
+                        <p>دسترسی فقط خواندنی به طبقه 5 برج آسمان | بدون مجوز تغییر قیمت</p>
+                    </div>
+                </div>
+
+                <div class="user-card">
+                    <div class="user-avatar">👩‍💼</div>
+                    <div class="user-info">
+                        <h4>خانم نوری - مشتری</h4>
+                        <p>دسترسی محدود به اطلاعات عمومی واحد 3 | بدون دسترسی به اطلاعات مالی</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: سناریوهای عملیاتی -->
+        <div class="slide" id="slide-4">
+            <div class="slide-header">
+                <div class="slide-number">5/8</div>
+                <h2>⚙️ سناریوهای عملیاتی</h2>
+                <p>نمونه‌هایی از نحوه عملکرد سیستم در شرایط واقعی</p>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">سناریو 1: ورود مدیر کل</div>
+                    <p><strong>آقای احمدی</strong> وارد سیستم شده و می‌خواهد اطلاعات مجتمع پلاتین را مشاهده کند.</p>
+                    <div class="code-block">
+# احراز هویت
+user = authenticate("ahmadi@parsland.com", "secure123")
+token = generate_jwt_token(user)
+
+# بررسی دسترسی
+location = get_location("مجتمع تجاری پلاتین")
+access = check_access(ahmadi, location)
+# نتیجه: دسترسی کامل (CRUD)
+                    </div>
+                    <p>✅ <strong>نتیجه:</strong> دسترسی کامل به تمام اطلاعات، قابلیت تغییر قیمت‌ها و مدیریت واحدها</p>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">سناریو 2: محدودیت دسترسی</div>
+                    <p><strong>خانم کریمی</strong> سعی می‌کند به اطلاعات برج آسمان دسترسی پیدا کند.</p>
+                    <div class="code-block">
+# تلاش برای دسترسی
+location = get_location("برج مسکونی آسمان")
+access = check_access(karimi, location)
+# نتیجه: Access Denied
+
+return {"error": "شما به این مکان دسترسی ندارید"}
+                    </div>
+                    <p>❌ <strong>نتیجه:</strong> عدم دسترسی و نمایش پیام خطا</p>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">سناریو 3: دسترسی محدود مشاور</div>
+                    <p><strong>آقای صادقی</strong> می‌تواند اطلاعات را مشاهده کند ولی نمی‌تواند تغییر دهد.</p>
+                    <div class="code-block">
+# دسترسی خواندنی
+access = check_access(sadeghi, floor5)
+# نتیجه: Read-only
+
+# تلاش برای تغییر قیمت
+try:
+    update_price(unit_15, new_price, sadeghi)
+except PermissionError:
+    return "شما مجوز تغییر قیمت را ندارید"
+                    </div>
+                    <p>⚠️ <strong>نتیجه:</strong> فقط مشاهده، بدون قابلیت ویرایش</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: قابلیت‌های GIS -->
+        <div class="slide" id="slide-5">
+            <div class="slide-header">
+                <div class="slide-number">6/8</div>
+                <h2>🗺️ قابلیت‌های GIS</h2>
+                <p>مدیریت مکانی پیشرفته و تحلیل‌های جغرافیایی</p>
+            </div>
+            <div class="slide-content">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <h4>📍 ذخیره موقعیت مکانی</h4>
+                        <p>ثبت مختصات GPS دقیق برای هر ملک، ساختمان و واحد</p>
+                        <div class="code-block" style="font-size: 0.9em;">
+geometry = Polygon([
+    (51.3890, 35.6892),  # شمال غربی
+    (51.3895, 35.6892),  # شمال شرقی
+    (51.3895, 35.6888),  # جنوب شرقی
+    (51.3890, 35.6888)   # جنوب غربی
+])
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <h4>🔍 جستجوی مکانی</h4>
+                        <p>پیدا کردن املاک در شعاع مشخص از نقطه مورد نظر</p>
+                        <div class="code-block" style="font-size: 0.9em;">
+# املاک در شعاع 2 کیلومتری
+center = Point(51.3892, 35.6890)
+nearby = Properties.objects.filter(
+    geometry__distance_lt=(center, D(km=2))
+)
+                        </div>
+                    </div>
+
+                    <div class="benefit-card">
+                        <h4>📊 تحلیل مکانی</h4>
+                        <p>محاسبه فاصله، مساحت و روابط مکانی بین املاک</p>
+                        <ul style="margin-top: 10px;">
+                            <li>محاسبه مساحت دقیق املاک</li>
+                            <li>فاصله تا مراکز مهم شهر</li>
+                            <li>تحلیل همسایگی</li>
+                        </ul>
+                    </div>
+
+                    <div class="benefit-card">
+                        <h4>🗺️ نمایش روی نقشه</h4>
+                        <p>نمایش تعاملی املاک روی نقشه با جزئیات کامل</p>
+                        <ul style="margin-top: 10px;">
+                            <li>نقشه تعاملی با Leaflet</li>
+                            <li>لایه‌بندی اطلاعات</li>
+                            <li>فیلتر بر اساس نوع ملک</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h4 style="color: #27ae60; margin-bottom: 15px;">🎯 مزایای استفاده از GIS</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <div>✅ دقت بالا در موقعیت‌یابی</div>
+                        <div>✅ تحلیل‌های پیشرفته مکانی</div>
+                        <div>✅ بهینه‌سازی مسیرهای بازدید</div>
+                        <div>✅ گزارش‌گیری بر اساس منطقه</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: مزایا و ویژگی‌ها -->
+        ```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم احراز هویت و کنترل دسترسی مکانی - شرکت املاک پارس‌لند</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #0f4c3a 0%, #1a6b4f 50%, #2d8659 100%);
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .slide {
+            background: rgba(255, 255, 255, 0.95);
+            margin: 30px 0;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-header {
+            background: linear-gradient(135deg, #2d8659 0%, #1a6b4f 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .slide-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .slide-header h2 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .slide-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .slide-content {
+            padding: 40px;
+        }
+        
+        .architecture-chart {
+            background: linear-gradient(135deg, #f8fffe 0%, #e8f5f0 100%);
+            border: 2px solid #2d8659;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            position: relative;
+        }
+        
+        .chart-box {
+            background: white;
+            border: 2px solid #2d8659;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px;
+            display: inline-block;
+            min-width: 150px;
+            box-shadow: 0 5px 15px rgba(45, 134, 89, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(45, 134, 89, 0.3);
+        }
+        
+        .chart-arrow {
+            color: #2d8659;
+            font-size: 2em;
+            margin: 10px;
+        }
+        
+        .hierarchy-tree {
+            background: linear-gradient(135deg, #f0f9f6 0%, #e0f2ea 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border-left: 5px solid #2d8659;
+        }
+        
+        .tree-node {
+            margin: 10px 0;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #2d8659;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .tree-node:hover {
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(45, 134, 89, 0.2);
+        }
+        
+        .tree-level-1 { margin-right: 0; }
+        .tree-level-2 { margin-right: 30px; }
+        .tree-level-3 { margin-right: 60px; }
+        .tree-level-4 { margin-right: 90px; }
+        .tree-level-5 { margin-right: 120px; }
+        .tree-level-6 { margin-right: 150px; }
+        
+        .persona-card {
+            background: linear-gradient(135deg, white 0%, #f8fffe 100%);
+            border: 2px solid #2d8659;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .persona-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(45, 134, 89, 0.2);
+        }
+        
+        .persona-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .persona-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2d8659 0%, #1a6b4f 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5em;
+            margin-left: 15px;
+        }
+        
+        .scenario-box {
+            background: linear-gradient(135deg, #f0f9f6 0%, #e8f5f0 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #2d8659;
+            position: relative;
+        }
+        
+        .scenario-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #2d8659 0%, #1a6b4f 100%);
+            border-radius: 0 12px 0 50px;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            border: 1px solid #2d8659;
+        }
+        
+        .code-comment {
+            color: #6a9955;
+        }
+        
+        .code-string {
+            color: #ce9178;
+        }
+        
+        .code-keyword {
+            color: #569cd6;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .benefit-card {
+            background: linear-gradient(135deg, white 0%, #f8fffe 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e8f5f0;
+            transition: all 0.3s ease;
+        }
+        
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            border-color: #2d8659;
+            box-shadow: 0 15px 30px rgba(45, 134, 89, 0.2);
+        }
+        
+        .benefit-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2d8659 0%, #1a6b4f 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2em;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #2d8659, #1a6b4f);
+            transform: translateX(-50%);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin: 30px 0;
+            width: 45%;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            margin-right: auto;
+            text-align: left;
+        }
+        
+        .timeline-item:nth-child(even) {
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .timeline-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e8f5f0;
+            position: relative;
+        }
+        
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            width: 0;
+            height: 0;
+            border: 15px solid transparent;
+        }
+        
+        .timeline-item:nth-child(odd) .timeline-content::before {
+            left: 100%;
+            border-right-color: white;
+        }
+        
+        .timeline-item:nth-child(even) .timeline-content::before {
+            right: 100%;
+            border-left-color: white;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            top: 30px;
+            width: 20px;
+            height: 20px;
+            background: #2d8659;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            border: 4px solid white;
+            box-shadow: 0 0 0 4px #2d8659;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #2d8659, #1a6b4f);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .warning-message {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .navigation {
+            position: fixed;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+        
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(45, 134, 89, 0.5);
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-dot.active,
+        .nav-dot:hover {
+            background: #2d8659;
+            transform: scale(1.5);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(45, 134, 89, 0.9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .slide-header h1 {
+                font-size: 1.8em;
+            }
+            
+            .slide-header h2 {
+                font-size: 1.5em;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                width: calc(100% - 40px);
+                margin-right: 0 !important;
+                margin-left: 40px !important;
+                text-align: right !important;
+            }
+            
+            .timeline-content::before {
+                right: 100% !important;
+                left: auto !important;
+                border-left-color: white !important;
+                border-right-color: transparent !important;
+            }
+            
+            .timeline-marker {
+                left: 20px;
+            }
+            
+            .navigation {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="navigation">
+        <div class="nav-dot active" onclick="scrollToSlide(0)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(1)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(2)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(3)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(4)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(5)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(6)"></div>
+        <div class="nav-dot" onclick="scrollToSlide(7)"></div>
+    </div>
+
+    <div class="presentation-container">
+        <!-- اسلاید 1: عنوان و معرفی -->
+        <div class="slide" id="slide-0">
+            <div class="slide-number">1/8</div>
+            <div class="slide-header">
+                <h1>🏢 سیستم احراز هویت و کنترل دسترسی مکانی</h1>
+                <p>سناریو کامل برای شرکت املاک پارس‌لند</p>
+                <p style="margin-top: 15px; font-size: 1em; opacity: 0.8;">
+                    مبتنی بر Django & DRF با قابلیت‌های GIS پیشرفته
+                </p>
+            </div>
+            <div class="slide-content">
+                <div class="architecture-chart">
+                    <h3 style="color: #2d8659; margin-bottom: 30px;">معماری کلی سیستم</h3>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+                        <div class="chart-box">👥 کاربران</div>
+                        <div class="chart-arrow">→</div>
+                        <div class="chart-box">🔐 احراز هویت</div>
+                        <div class="chart-arrow">→</div>
+                        <div class="chart-box">📍 کنترل مکانی</div>
+                        <div class="chart-arrow">→</div>
+                        <div class="chart-box">🗃️ دسترسی داده</div>
+                    </div>
+                    <div style="margin-top: 30px; display: flex; flex-wrap: wrap; justify-content: center;">
+                        <div class="chart-box">🌍 GIS Engine</div>
+                        <div class="chart-box">🔒 Security Layer</div>
+                        <div class="chart-box">📊 Audit System</div>
+                        <div class="chart-box">⚡ Cache Layer</div>
+                    </div>
+                </div>
+                
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🛡️</div>
+                        <h3>امنیت بالا</h3>
+                        <p>کنترل دسترسی چندلایه با JWT و bcrypt</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🌐</div>
+                        <h3>قابلیت‌های GIS</h3>
+                        <p>مدیریت مکانی پیشرفته با PostGIS</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⚙️</div>
+                        <h3>انعطاف‌پذیری</h3>
+                        <p>معماری مدولار و قابل توسعه</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: ساختار سازمانی -->
+        <div class="slide" id="slide-1">
+            <div class="slide-number">2/8</div>
+            <div class="slide-header">
+                <h2>🏗️ ساختار سازمانی شرکت پارس‌لند</h2>
+                <p>سلسله‌مراتب مکانی و نقش‌های کاربری</p>
+            </div>
+            <div class="slide-content">
+                <div class="hierarchy-tree">
+                    <h3 style="color: #2d8659; margin-bottom: 20px;">🗺️ سلسله‌مراتب مکانی</h3>
+                    <div class="tree-node tree-level-1">🇮🇷 ایران</div>
+                    <div class="tree-node tree-level-2">🏙️ تهران</div>
+                    <div class="tree-node tree-level-3">📍 منطقه 1</div>
+                    <div class="tree-node tree-level-4">🏢 مجتمع تجاری پلاتین</div>
+                    <div class="tree-node tree-level-5">🏬 طبقه همکف</div>
+                    <div class="tree-node tree-level-6">🏪 واحد 1 (مغازه)</div>
+                    <div class="tree-node tree-level-6">🏢 واحد 2 (دفتر)</div>
+                    <div class="tree-node tree-level-5">🏠 طبقه اول</div>
+                    <div class="tree-node tree-level-6">🏡 واحد 3 (آپارتمان)</div>
+                    <div class="tree-node tree-level-3">📍 منطقه 3</div>
+                    <div class="tree-node tree-level-4">🏢 مجتمع اداری</div>
+                    <div class="tree-node tree-level-2">🏙️ اصفهان</div>
+                    <div class="tree-node tree-level-3">📍 منطقه مرکزی</div>
+                    <div class="tree-node tree-level-4">🛍️ پاساژ کوثر</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 30px;">
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">👔</div>
+                            <div>
+                                <h4>مدیر کل</h4>
+                                <p style="color: #666;">دسترسی کامل کشوری</p>
+                            </div>
+                        </div>
+                        <p><span class="highlight">CRUD</span> تمام املاک</p>
+                    </div>
+                    
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">🏢</div>
+                            <div>
+                                <h4>مدیر شعبه</h4>
+                                <p style="color: #666;">دسترسی شهری</p>
+                            </div>
+                        </div>
+                        <p><span class="highlight">CRUD</span> املاک شهر</p>
+                    </div>
+                    
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">📋</div>
+                            <div>
+                                <h4>کارشناس املاک</h4>
+                                <p style="color: #666;">دسترسی ساختمان</p>
+                            </div>
+                        </div>
+                        <p><span class="highlight">CRUD</span> ساختمان مشخص</p>
+                    </div>
+                    
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">🤝</div>
+                            <div>
+                                <h4>مشاور املاک</h4>
+                                <p style="color: #666;">دسترسی محدود</p>
+                            </div>
+                        </div>
+                        <p><span class="highlight">Read-Only</span> واحدهای مشخص</p>
+                    </div>
+                    
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">👤</div>
+                            <div>
+                                <h4>مشتری</h4>
+                                <p style="color: #666;">اطلاعات عمومی</p>
+                            </div>
+                        </div>
+                        <p><span class="highlight">Limited</span> اطلاعات عمومی</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: شخصیت‌های سناریو -->
+        <div class="slide" id="slide-2">
+            <div class="slide-number">3/8</div>
+            <div class="slide-header">
+                <h2>👥 شخصیت‌های سناریو</h2>
+                <p>کاربران نمونه و سطوح دسترسی آن‌ها</p>
+            </div>
+            <div class="slide-content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px;">
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">👔</div>
+                            <div>
+                                <h3>آقای احمدی</h3>
+                                <p style="color: #2d8659; font-weight: 600;">مدیر کل شرکت</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <p><strong>📍 مکان:</strong> دفتر مرکزی تهران</p>
+                            <p><strong>🔑 دسترسی:</strong> کامل به تمام املاک کشور</p>
+                            <p><strong>⚡ عملیات:</strong> CRUD، گزارش‌گیری، مدیریت کاربران</p>
+                        </div>
+                    </div>
+
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">🏢</div>
+                            <div>
+                                <h3>خانم رضایی</h3>
+                                <p style="color: #2d8659; font-weight: 600;">مدیر شعبه تهران</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <p><strong>📍 مکان:</strong> شعبه تهران</p>
+                            <p><strong>🔑 دسترسی:</strong> تمام املاک تهران</p>
+                            <p><strong>⚡ عملیات:</strong> CRUD املاک، مدیریت تیم</p>
+                        </div>
+                    </div>
+
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">📋</div>
+                            <div>
+                                <h3>آقای محمدی</h3>
+                                <p style="color: #2d8659; font-weight: 600;">سرپرست منطقه 1</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <p><strong>📍 مکان:</strong> منطقه 1 تهران</p>
+                            <p><strong>🔑 دسترسی:</strong> املاک منطقه 1</p>
+                            <p><strong>⚡ عملیات:</strong> CRUD، نظارت بر فروش</p>
+                        </div>
+                    </div>
+
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">🔧</div>
+                            <div>
+                                <h3>خانم کریمی</h3>
+                                <p style="color: #2d8659; font-weight: 600;">کارشناس املاک</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <p><strong>📍 مکان:</strong> مجتمع پلاتین</p>
+                            <p><strong>🔑 دسترسی:</strong> فقط مجتمع پلاتین</p>
+                            <p><strong>⚡ عملیات:</strong> CRUD واحدها، به‌روزرسانی قیمت</p>
+                        </div>
+                    </div>
+
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">🤝</div>
+                            <div>
+                                <h3>آقای صادقی</h3>
+                                <p style="color: #2d8659; font-weight: 600;">مشاور املاک</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <p><strong>📍 مکان:</strong> برج آسمان</p>
+                            <p><strong>🔑 دسترسی:</strong> فقط خواندنی طبقه 5</p>
+                            <p><strong>⚡ عملیات:</strong> مشاهده، گزارش بازدید</p>
+                        </div>
+                    </div>
+
+                    <div class="persona-card">
+                        <div class="persona-header">
+                            <div class="persona-icon">👤</div>
+                            <div>
+                                <h3>خانم نوری</h3>
+                                <p style="color: #2d8659; font-weight: 600;">مشتری</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <p><strong>📍 مکان:</strong> علاقه‌مند به واحد 3</p>
+                            <p><strong>🔑 دسترسی:</strong> اطلاعات عمومی واحد</p>
+                            <p><strong>⚡ عملیات:</strong> مشاهده محدود، درخواست بازدید</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: سناریوهای عملیاتی - بخش اول -->
+        <div class="slide" id="slide-3">
+            <div class="slide-number">4/8</div>
+            <div class="slide-header">
+                <h2>🎬 سناریوهای عملیاتی - بخش اول</h2>
+                <p>نحوه عملکرد سیستم در موقعیت‌های مختلف</p>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-box">
+                    <h3 style```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستم احراز هویت و کنترل دسترسی مکانی - ارائه فنی</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .presentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            background: white;
+            margin: 20px 0;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-header {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 50%, #68bb59 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .slide-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide-header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .slide-content {
+            padding: 40px;
+        }
+
+        .architecture-chart {
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            border: 2px solid #68bb59;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .chart-level {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(104, 187, 89, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .chart-level:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(104, 187, 89, 0.3);
+        }
+
+        .chart-box {
+            display: inline-block;
+            background: linear-gradient(135deg, #68bb59 0%, #4a7c59 100%);
+            color: white;
+            padding: 15px 25px;
+            margin: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .chart-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #68bb59;
+            margin: 10px 0;
+        }
+
+        .scenario-card {
+            background: linear-gradient(135deg, #f8fff8 0%, #f0f8f0 100%);
+            border-left: 5px solid #68bb59;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 4px 15px rgba(104, 187, 89, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .scenario-card:hover {
+            box-shadow: 0 8px 25px rgba(104, 187, 89, 0.2);
+            transform: translateX(10px);
+        }
+
+        .scenario-title {
+            color: #2d5016;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .scenario-icon {
+            background: #68bb59;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 15px;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'Python';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: #68bb59;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+
+        .hierarchy-tree {
+            background: linear-gradient(135deg, #f8fff8 0%, #f0f8f0 100%);
+            border: 2px solid #68bb59;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            font-family: monospace;
+            line-height: 1.8;
+        }
+
+        .tree-node {
+            color: #2d5016;
+            font-weight: 500;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .benefit-card {
+            background: linear-gradient(135deg, #68bb59 0%, #4a7c59 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(104, 187, 89, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .benefit-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #68bb59;
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(104, 187, 89, 0.2);
+            width: 45%;
+        }
+
+        .timeline-item:nth-child(odd) {
+            margin-right: auto;
+            margin-left: 55%;
+        }
+
+        .timeline-item:nth-child(even) {
+            margin-left: auto;
+            margin-right: 55%;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #68bb59;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .timeline-item:nth-child(odd)::before {
+            right: -62px;
+        }
+
+        .timeline-item:nth-child(even)::before {
+            left: -62px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2d5016 0%, #4a7c59 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(45, 80, 22, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: #68bb59;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            margin: 5px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(104, 187, 89, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: #4a7c59;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(104, 187, 89, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .slide-header h1 {
+                font-size: 1.8em;
+            }
+            
+            .slide-content {
+                padding: 20px;
+            }
+            
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                width: calc(100% - 50px);
+                margin-left: 50px !important;
+                margin-right: 0 !important;
+            }
+            
+            .timeline-item::before {
+                left: -35px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        
+        <!-- اسلاید 1: عنوان اصلی -->
+        <div class="slide" id="slide-1">
+            <div class="slide-header">
+                <h1>🏢 سیستم احراز هویت و کنترل دسترسی مکانی</h1>
+                <p>بر اساس GIS و Django Framework</p>
+                <p>📅 ارائه فنی - مهر 1404</p>
+            </div>
+            <div class="slide-content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number">🔐</div>
+                        <div>امنیت بالا</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">🗺️</div>
+                        <div>پشتیبانی GIS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">⚡</div>
+                        <div>عملکرد بهینه</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">🔄</div>
+                        <div>قابل توسعه</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: معماری سیستم -->
+        <div class="slide" id="slide-2">
+            <div class="slide-header">
+                <h2>🏗️ معماری کلی سیستم</h2>
+            </div>
+            <div class="slide-content">
+                <div class="architecture-chart">
+                    <div class="chart-level">
+                        <div class="chart-box">👥 Users (کاربران)</div>
+                    </div>
+                    <div class="arrow">⬇️</div>
+                    <div class="chart-level">
+                        <div class="chart-box">👥 Groups (گروه‌ها)</div>
+                        <span style="margin: 0 20px;">↔️</span>
+                        <div class="chart-box">🎭 Roles (نقش‌ها)</div>
+                    </div>
+                    <div class="arrow">⬇️</div>
+                    <div class="chart-level">
+                        <div class="chart-box">📍 Locations (مکان‌ها)</div>
+                        <span style="margin: 0 20px;">↔️</span>
+                        <div class="chart-box">🔑 UserLocationAccess</div>
+                    </div>
+                    <div class="arrow">⬇️</div>
+                    <div class="chart-level">
+                        <div class="chart-box">🗺️ GIS Resources</div>
+                        <span style="margin: 0 20px;">↔️</span>
+                        <div class="chart-box">🛡️ FieldPermissions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: سلسله مراتب مکانی -->
+        <div class="slide" id="slide-3">
+            <div class="slide-header">
+                <h2>🏢 سلسله‌مراتب مکانی - شرکت پارس‌لند</h2>
+            </div>
+            <div class="slide-content">
+                <div class="hierarchy-tree">
+                    <div class="tree-node">🇮🇷 ایران</div>
+                    <div class="tree-node">├── 🏙️ تهران</div>
+                    <div class="tree-node">│   ├── 📍 منطقه 1</div>
+                    <div class="tree-node">│   │   ├── 🏢 مجتمع تجاری پلاتین</div>
+                    <div class="tree-node">│   │   │   ├── 🏬 طبقه همکف</div>
+                    <div class="tree-node">│   │   │   │   ├── 🏪 واحد 1 (مغازه)</div>
+                    <div class="tree-node">│   │   │   │   └── 🏢 واحد 2 (دفتر)</div>
+                    <div class="tree-node">│   │   │   └── 🏠 طبقه اول</div>
+                    <div class="tree-node">│   │   │       ├── 🏠 واحد 3 (آپارتمان)</div>
+                    <div class="tree-node">│   │   │       └── 🏠 واحد 4 (آپارتمان)</div>
+                    <div class="tree-node">│   │   └── 🏗️ برج مسکونی آسمان</div>
+                    <div class="tree-node">│   │       ├── 🏠 طبقه 5</div>
+                    <div class="tree-node">│   │       └── 🏠 طبقه 10</div>
+                    <div class="tree-node">│   └── 📍 منطقه 3</div>
+                    <div class="tree-node">│       └── 🏢 مجتمع اداری</div>
+                    <div class="tree-node">└── 🏙️ اصفهان</div>
+                    <div class="tree-node">    └── 📍 منطقه مرکزی</div>
+                    <div class="tree-node">        └── 🏪 پاساژ کوثر</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: نقش‌های سازمانی -->
+        <div class="slide" id="slide-4">
+            <div class="slide-header">
+                <h2>👥 نقش‌های سازمانی و سطح دسترسی</h2>
+            </div>
+            <div class="slide-content">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">👑</div>
+                        <h3>مدیر کل</h3>
+                        <p>دسترسی کامل به تمام املاک در سراسر کشور</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🏛️</div>
+                        <h3>مدیر شعبه</h3>
+                        <p>دسترسی کامل به املاک یک شهر خاص</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📍</div>
+                        <h3>سرپرست منطقه</h3>
+                        <p>دسترسی کامل به املاک یک منطقه</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🏢</div>
+                        <h3>کارشناس املاک</h3>
+                        <p>دسترسی کامل به ساختمان‌های مشخص</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💼</div>
+                        <h3>مشاور املاک</h3>
+                        <p>دسترسی فقط خواندنی به واحدهای مشخص</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">👤</div>
+                        <h3>مشتری</h3>
+                        <p>دسترسی محدود به اطلاعات عمومی</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: سناریو عملیاتی -->
+        <div class="slide" id="slide-5">
+            <div class="slide-header">
+                <h2>🎯 سناریو عملیاتی - آقای احمدی (مدیر کل)</h2>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">1</div>
+                        مرحله احراز هویت
+                    </div>
+                    <div class="code-block">
+user = authenticate(username="ahmadi@parsland.com", password="secure123")
+token = generate_jwt_token(user)
+# ✅ احراز هویت موفق
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">2</div>
+                        بررسی دسترسی
+                    </div>
+                    <div class="code-block">
+location = LocationHierarchy.objects.get(name="مجتمع تجاری پلاتین")
+access = check_user_location_access(user=ahmadi, location=location)
+# نتیجه: دسترسی کامل (CRUD) ✅
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">3</div>
+                        عملیات مجاز
+                    </div>
+                    <p>✅ مشاهده تمام اطلاعات مجتمع (نام، آدرس، قیمت، مالک)</p>
+                    <p>✅ مشاهده اطلاعات تمام واحدها</p>
+                    <p>✅ تغییر قیمت‌ها</p>
+                    <p>✅ اضافه کردن واحدهای جدید</p>
+                    <p>✅ حذف واحدها</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: سناریو محدودیت دسترسی -->
+        <div class="slide" id="slide-6">
+            <div class="slide-header">
+                <h2>🚫 سناریو محدودیت - خانم کریمی (کارشناس)</h2>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">❌</div>
+                        تلاش برای دسترسی غیرمجاز
+                    </div>
+                    <div class="code-block">
+# خانم کریمی می‌خواهد اطلاعات برج آسمان را ببیند
+location = LocationHierarchy.objects.get(name="برج مسکونی آسمان")
+access = check_user_location_access(user=karimi, location=location)
+# نتیجه: عدم دسترسی (Access Denied) ❌
+                    </div>
+                    <p style="color: #d32f2f; font-weight: bold; margin-top: 15px;">
+                        🚨 پیام سیستم: "شما به این مکان دسترسی ندارید"
+                    </p>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">✅</div>
+                        دسترسی مجاز
+                    </div>
+                    <div class="code-block">
+# دسترسی به مجتمع پلاتین (مجاز)
+location = LocationHierarchy.objects.get(name="مجتمع تجاری پلاتین")
+access = check_user_location_access(user=karimi, location=location)
+# نتیجه: دسترسی کامل (CRUD) ✅
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: دسترسی فیلدی -->
+        <div class="slide" id="slide-7">
+            <div class="slide-header">
+                <h2>🔒 کنترل دسترسی در سطح فیلد</h2>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">⚙️</div>
+                        تنظیم دسترسی فیلدی
+                    </div>
+                    <div class="code-block">
+# مشاوران نمی‌توانند قیمت دقیق را ببینند
+FieldLevelPermission.objects.create(
+    user_role="مشاور املاک",
+    model_name="PropertyUnit",
+    field_name="exact_price",
+    permission_type="HIDDEN"  # مخفی
+)
+
+FieldLevelPermission.objects.create(
+    user_role="مشاور املاک",
+    field_name="price_range",
+    permission_type="READ"    # قابل مشاهده
+)
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">👁️</div>
+                        نتیجه برای مشاور
+                    </div>
+                    <div class="code-block">
+unit_data = get_unit_info(unit_id=15, user=sadeghi)
+# نتیجه:
+{
+    "name": "واحد 15",
+    "area": "120 متر",
+    "rooms": 3,
+    "price_range": "400-600 میلیون تومان",  # ✅ قابل مشاهده
+    # "exact_price": 520000000  # ❌ مخفی شده
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: قابلیت‌های GIS -->
+        <div class="slide" id="slide-8">
+            <div class="slide-header">
+                <h2>🗺️ قابلیت‌های GIS و مکان‌یابی</h2>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">📍</div>
+                        ذخیره اطلاعات مکانی
+                    </div>
+                    <div class="code-block">
+from django.contrib.gis.geos import Point, Polygon
+
+# ذخیره موقعیت مجتمع پلاتین
+platinum_complex = LocationHierarchy.objects.create(
+    name="مجتمع تجاری پلاتین",
+    geometry=Polygon([
+        (51.3890, 35.6892),  # گوشه شمال غربی
+        (51.3895, 35.6892),  # گوشه شمال شرقی
+        (51.3895, 35.6888),  # گوشه جنوب شرقی
+        (51.3890, 35.6888),  # گوشه جنوب غربی
+        (51.3890, 35.6892)   # بازگشت به نقطه اول
+    ])
+)
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">🔍</div>
+                        جستجوی مکانی
+                    </div>
+                    <div class="code-block">
+# جستجوی املاک در شعاع 2 کیلومتری
+from django.contrib.gis.measure import D
+
+center_point = Point(51.3892, 35.6890)
+nearby_properties = LocationHierarchy.objects.filter(
+    geometry__distance_lt=(center_point, D(km=2))
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: مزایای سیستم -->
+        <div class="slide" id="slide-9">
+            <div class="slide-header">
+                <h2>🎯 مزایای سیستم برای کارفرما</h2>
+            </div>
+            <div class="slide-content">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔐</div>
+                        <h3>امنیت بالا</h3>
+                        <p>• کنترل دقیق دسترسی کاربران<br>
+                        • رهگیری تمام فعالیت‌ها<br>
+                        • رمزگذاری قوی</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🏗️</div>
+                        <h3>مدیریت سلسله‌مراتبی</h3>
+                        <p>• ساختار سازمانی منطقی<br>
+                        • ارث‌بری دسترسی‌ها<br>
+                        • مدیریت آسان تغییرات</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">⚡</div>
+                        <h3>انعطاف‌پذیری</h3>
+                        <p>• تعریف نقش‌های جدید<br>
+                        • کنترل دسترسی فیلدی<br>
+                        • پشتیبانی انواع املاک</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🗺️</div>
+                        <h3>قابلیت‌های GIS</h3>
+                        <p>• جستجوی مکانی<br>
+                        • نمایش روی نقشه<br>
+                        • تحلیل‌های مکانی</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📊</div>
+                        <h3>گزارش‌گیری جامع</h3>
+                        <p>• ردیابی فعالیت‌ها<br>
+                        • گزارش‌های مدیریتی<br>
+                        • آمار عملکرد</p>
+                    </div>
+<div class="benefit-icon">🚀</div>
+                        <h3>عملکرد بهینه</h3>
+                        <p>• پاسخ زیر 200ms<br>
+                        • کش Redis<br>
+                        • بهینه‌سازی پایگاه داده</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: مراحل پیاده‌سازی -->
+        <div class="slide" id="slide-10">
+            <div class="slide-header">
+                <h2>📅 مراحل پیاده‌سازی (11 هفته)</h2>
+            </div>
+            <div class="slide-content">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016; margin-bottom: 10px;">فاز 1: طراحی و توسعه (4 هفته)</h4>
+                        <p>• طراحی مدل‌های پایگاه داده</p>
+                        <p>• پیاده‌سازی سیستم احراز هویت JWT</p>
+                        <p>• توسعه API های اصلی</p>
+                        <p>• پیاده‌سازی کنترل دسترسی</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016; margin-bottom: 10px;">فاز 2: پیاده‌سازی GIS (3 هفته)</h4>
+                        <p>• ادغام PostGIS با Django</p>
+                        <p>• توسعه قابلیت‌های مکانی</p>
+                        <p>• پیاده‌سازی جستجوی مکانی</p>
+                        <p>• ایجاد نقشه‌های تعاملی</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016; margin-bottom: 10px;">فاز 3: ویژگی‌های پیشرفته (2 هفته)</h4>
+                        <p>• سیستم کش Redis</p>
+                        <p>• گزارش‌گیری و Audit</p>
+                        <p>• کنترل دسترسی فیلدی</p>
+                        <p>• بهینه‌سازی عملکرد</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016; margin-bottom: 10px;">فاز 4: تست و استقرار (2 هفته)</h4>
+                        <p>• تست‌های امنیتی جامع</p>
+                        <p>• تست بارگذاری</p>
+                        <p>• استقرار در محیط تولید</p>
+                        <p>• آموزش کارمندان</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: تکنولوژی‌های استفاده شده -->
+        <div class="slide" id="slide-11">
+            <div class="slide-header">
+                <h2>🛠️ تکنولوژی‌های استفاده شده</h2>
+            </div>
+            <div class="slide-content">
+                <div class="architecture-chart">
+                    <div class="chart-level">
+                        <h3 style="color: #2d5016; margin-bottom: 20px;">Backend Stack</h3>
+                        <div class="chart-box">🐍 Python 3.11</div>
+                        <div class="chart-box">🌐 Django 4.2</div>
+                        <div class="chart-box">🔗 Django REST Framework</div>
+                    </div>
+                    
+                    <div class="chart-level">
+                        <h3 style="color: #2d5016; margin-bottom: 20px;">Database & Storage</h3>
+                        <div class="chart-box">🐘 PostgreSQL 15</div>
+                        <div class="chart-box">🗺️ PostGIS</div>
+                        <div class="chart-box">⚡ Redis Cache</div>
+                        <div class="chart-box">📁 MinIO/S3</div>
+                    </div>
+                    
+                    <div class="chart-level">
+                        <h3 style="color: #2d5016; margin-bottom: 20px;">Security & Authentication</h3>
+                        <div class="chart-box">🔐 JWT Tokens</div>
+                        <div class="chart-box">🔒 bcrypt</div>
+                        <div class="chart-box">🛡️ Rate Limiting</div>
+                        <div class="chart-box">📋 Audit Logs</div>
+                    </div>
+                    
+                    <div class="chart-level">
+                        <h3 style="color: #2d5016; margin-bottom: 20px;">Frontend & Integration</h3>
+                        <div class="chart-box">⚛️ React/Vue</div>
+                        <div class="chart-box">🗺️ Leaflet Maps</div>
+                        <div class="chart-box">🔗 REST API</div>
+                        <div class="chart-box">🪝 Webhooks</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: KPI ها و معیارهای عملکرد -->
+        <div class="slide" id="slide-12">
+            <div class="slide-header">
+                <h2>📊 KPI ها و معیارهای عملکرد</h2>
+            </div>
+            <div class="slide-content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number">99.9%</div>
+                        <div>Uptime</div>
+                        <p style="font-size: 0.9em; margin-top: 10px;">دسترسی مداوم سیستم</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">&lt;200ms</div>
+                        <div>Response Time</div>
+                        <p style="font-size: 0.9em; margin-top: 10px;">سرعت پاسخ‌دهی</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">&lt;0.1%</div>
+                        <div>Error Rate</div>
+                        <p style="font-size: 0.9em; margin-top: 10px;">نرخ خطای سیستم</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">0</div>
+                        <div>Security Incidents</div>
+                        <p style="font-size: 0.9em; margin-top: 10px;">حوادث امنیتی</p>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">📈</div>
+                        ویژگی‌های نظارتی
+                    </div>
+                    <p>✅ <strong>نظارت بلادرنگ:</strong> Dashboard مدیریتی با آمار لحظه‌ای</p>
+                    <p>✅ <strong>هشدارهای خودکار:</strong> اطلاع‌رسانی در صورت مشکل</p>
+                    <p>✅ <strong>گزارش‌های دوره‌ای:</strong> تحلیل عملکرد هفتگی و ماهانه</p>
+                    <p>✅ <strong>پشتیبان‌گیری خودکار:</strong> روزانه با نگهداری 30 روزه</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: امنیت و پشتیبان‌گیری -->
+        <div class="slide" id="slide-13">
+            <div class="slide-header">
+                <h2>🔐 لایه‌های امنیتی و پشتیبان‌گیری</h2>
+            </div>
+            <div class="slide-content">
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔑</div>
+                        <h3>احراز هویت چندلایه</h3>
+                        <p>• JWT با Refresh Token<br>
+                        • رمزگذاری bcrypt<br>
+                        • انقضای خودکار توکن‌ها</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🛡️</div>
+                        <h3>محافظت از حملات</h3>
+                        <p>• Rate Limiting<br>
+                        • CORS Protection<br>
+                        • SQL Injection Prevention</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📋</div>
+                        <h3>ردیابی فعالیت‌ها</h3>
+                        <p>• ثبت تمام عملیات<br>
+                        • IP و زمان دسترسی<br>
+                        • تغییرات داده‌ها</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💾</div>
+                        <h3>پشتیبان‌گیری</h3>
+                        <p>• بکاپ روزانه خودکار<br>
+                        • نگهداری 30 روزه<br>
+                        • تست بازیابی ماهانه</p>
+                    </div>
+                </div>
+
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">🔒</div>
+                        مثال کنترل امنیتی
+                    </div>
+                    <div class="code-block">
+# بررسی محدودیت تعداد درخواست
+@ratelimit(key='ip', rate='100/h', method='GET')
+def get_property_data(request):
+    # بررسی دسترسی کاربر
+    if not has_permission(request.user, requested_location):
+        AuditLog.objects.create(
+            user=request.user,
+            action="UNAUTHORIZED_ACCESS_ATTEMPT",
+            ip_address=get_client_ip(request),
+            details="تلاش دسترسی غیرمجاز به املاک"
+        )
+        return Response({"error": "دسترسی غیرمجاز"}, 403)
+    
+    return Response(property_data)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: قابلیت‌های توسعه -->
+        <div class="slide" id="slide-14">
+            <div class="slide-header">
+                <h2>🚀 قابلیت‌های توسعه و ادغام</h2>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">🔗</div>
+                        REST API جامع
+                    </div>
+                    <div class="code-block">
+# نمونه API endpoints
+GET /api/v1/locations/              # لیست مکان‌ها
+GET /api/v1/locations/{id}/         # جزئیات مکان
+POST /api/v1/locations/             # ایجاد مکان جدید
+PUT /api/v1/locations/{id}/         # به‌روزرسانی مکان
+DELETE /api/v1/locations/{id}/      # حذف مکان
+
+GET /api/v1/users/permissions/      # دسترسی‌های کاربر
+POST /api/v1/audit/logs/            # گزارش فعالیت‌ها
+GET /api/v1/gis/nearby/             # جستجوی مکانی
+                    </div>
+                </div>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🌐</div>
+                        <h3>ادغام با سیستم‌های خارجی</h3>
+                        <p>• API Gateway<br>
+                        • Webhook Support<br>
+                        • OAuth 2.0</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📱</div>
+                        <h3>پشتیبانی چندپلتفرمه</h3>
+                        <p>• وب اپلیکیشن<br>
+                        • موبایل اپ<br>
+                        • Desktop App</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🔄</div>
+                        <h3>قابلیت مقیاس‌پذیری</h3>
+                        <p>• معماری میکروسرویس<br>
+                        • Load Balancing<br>
+                        • Horizontal Scaling</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: هزینه و بازگشت سرمایه -->
+        <div class="slide" id="slide-15">
+            <div class="slide-header">
+                <h2>💰 تحلیل هزینه و بازگشت سرمایه</h2>
+            </div>
+            <div class="slide-content">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-number">11</div>
+                        <div>هفته توسعه</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">6</div>
+                        <div>ماه پشتیبانی رایگان</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">24/7</div>
+                        <div>پشتیبانی فنی</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">∞</div>
+                        <div>کاربر همزمان</div>
+                    </div>
+                </div>
+
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">💵</div>
+                        <h3>صرفه‌جویی در هزینه</h3>
+                        <p>• کاهش خطاهای انسانی<br>
+                        • خودکارسازی فرآیندها<br>
+                        • کاهش زمان پردازش</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">📈</div>
+                        <h3>افزایش بهره‌وری</h3>
+                        <p>• دسترسی سریع به اطلاعات<br>
+                        • گزارش‌گیری خودکار<br>
+                        • مدیریت بهتر منابع</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">🎯</div>
+                        <h3>بهبود تصمیم‌گیری</h3>
+                        <p>• داده‌های دقیق و به‌روز<br>
+                        • تحلیل‌های مکانی<br>
+                        • پیش‌بینی روندها</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 16: نتیجه‌گیری و مراحل بعدی -->
+        <div class="slide" id="slide-16">
+            <div class="slide-header">
+                <h2>🎯 نتیجه‌گیری و مراحل بعدی</h2>
+            </div>
+            <div class="slide-content">
+                <div class="scenario-card">
+                    <div class="scenario-title">
+                        <div class="scenario-icon">✅</div>
+                        خلاصه مزایای سیستم
+                    </div>
+                    <p>🔐 <strong>امنیت بالا:</strong> کنترل دقیق دسترسی با چندین لایه امنیتی</p>
+                    <p>🗺️ <strong>قابلیت‌های GIS:</strong> مدیریت مکانی پیشرفته و تحلیل جغرافیایی</p>
+                    <p>⚡ <strong>عملکرد بهینه:</strong> پاسخ‌دهی سریع و قابلیت مقیاس‌پذیری</p>
+                    <p>🔄 <strong>انعطاف‌پذیری:</strong> قابل تطبیق با نیازهای مختلف سازمانی</p>
+                    <p>📊 <strong>گزارش‌گیری جامع:</strong> ردیابی کامل فعالیت‌ها و آمار دقیق</p>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016;">مرحله 1: تصویب پروژه</h4>
+                        <p>بررسی نهایی نیازها و تصویب شروع پروژه</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016;">مرحله 2: شروع توسعه</h4>
+                        <p>آغاز کدنویسی و پیاده‌سازی مرحله به مرحله</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016;">مرحله 3: تست و استقرار</h4>
+                        <p>تست کامل سیستم و استقرار در محیط تولید</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4 style="color: #2d5016;">مرحله 4: آموزش و پشتیبانی</h4>
+                        <p>آموزش کاربران و ارائه پشتیبانی مداوم</p>
+                    </div>
+                </div>
+
+               
+            </div>
+        </div>
+
+    </div>
+
+    <!-- دکمه‌های ناوبری -->
+    <div class="nav-buttons">
+        <button class="nav-btn" onclick="previousSlide()">⬅️ قبلی</button>
+        <button class="nav-btn" onclick="nextSlide()">بعدی ➡️</button>
+        <button class="nav-btn" onclick="goToTop()">🔝 بالا</button>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 16;
+
+        function scrollToSlide(slideNumber) {
+            const slide = document.getElementById(`slide-${slideNumber + 1}`);
+            if (slide) {
+                slide.scrollIntoView({ behavior: 'smooth' });
+                updateNavigation(slideNumber);
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                scrollToSlide(currentSlide - 1);
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                scrollToSlide(currentSlide - 1);
+            }
+        }
+
+        function goToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            currentSlide = 1;
+            updateNavigation(0);
+        }
+
+        function updateNavigation(activeIndex) {
+            const dots = document.querySelectorAll('.nav-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === activeIndex);
+            });
+        }
+
+        // کلیدهای کیبورد برای ناوبری
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            } else if (e.key === 'Home') {
+                goToTop();
+            }
+        });
+
+        // تشخیص اسلاید فعال هنگام اسکرول
+        window.addEventListener('scroll', function() {
+            const slides = document.querySelectorAll('.slide');
+            const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+            slides.forEach((slide, index) => {
+                const slideTop = slide.offsetTop;
+                const slideBottom = slideTop + slide.offsetHeight;
+
+                if (scrollPosition >= slideTop && scrollPosition <= slideBottom) {
+                    currentSlide = index + 1;
+                    updateNavigation(index);
+                }
+            });
+        });
+
+        // انیمیشن ورود اسلایدها
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.slide').forEach(slide => {
+            observer.observe(slide);
+        });
+
+        // تنظیم اولیه
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNavigation(0);
+        });
+    </script>
+</body>
+</html>
