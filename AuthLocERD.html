@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دیاگرام و جداول سیستم کنترل دسترسی مبتنی بر موقعیت</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazir:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazir', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #4CAF50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background: #45a049;
+        }
+
+        /* ER Diagram Styles */
+        .er-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .entity {
+            background: white;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px;
+            min-width: 250px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .entity-title {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .entity-fields {
+            list-style: none;
+        }
+
+        .entity-fields li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        .entity-fields li:last-child {
+            border-bottom: none;
+        }
+
+        .field-type {
+            color: #666;
+            font-size: 0.8em;
+            float: left;
+        }
+
+        .primary-key {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .foreign-key {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .data-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        /* Relationship Diagram */
+        .relationship-diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .relationship-box {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px;
+            display: inline-block;
+            min-width: 200px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .relationship-title {
+            background: #3498db;
+            color: white;
+            padding: 8px;
+            margin: -20px -20px 15px -20px;
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+        }
+
+        .relationship-arrow {
+            font-size: 2em;
+            color: #e74c3c;
+            margin: 0 20px;
+            vertical-align: middle;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Badge Styles */
+        .badge {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: inline-block;
+            margin: 2px;
+        }
+
+        .badge.pk { background: #e74c3c; }
+        .badge.fk { background: #3498db; }
+        .badge.unique { background: #f39c12; }
+        .badge.index { background: #9b59b6; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .entity {
+                margin: 10px 0;
+                display: block;
+                width: 100%;
+            }
+            
+            .relationship-box {
+                display: block;
+                margin: 10px 0;
+            }
+            
+            .relationship-arrow {
+                display: block;
+                margin: 10px 0;
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .header {
+                background: #4CAF50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗂️ دیاگرام و جداول سیستم</h1>
+            <p>سیستم کنترل دسترسی مبتنی بر موقعیت جغرافیایی</p>
+        </div>
+
+        <div class="content">
+            <!-- Database Schema Overview -->
+            <div class="section">
+                <h2 class="section-title">📊 آمار کلی دیتابیس</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">7</div>
+                        <div class="stat-label">جدول اصلی</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">52</div>
+                        <div class="stat-label">فیلد کل</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">رابطه</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">ایندکس</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ER Diagram -->
+            <div class="section">
+                <h2 class="section-title">🏗️ نمودار موجودیت-رابطه (ER Diagram)</h2>
+                <div class="er-diagram">
+                    <!-- Organization Entity -->
+                    <div class="entity">
+                        <div class="entity-title">🏢 Organization (سازمان)</div>
+                        <ul class="entity-fields">
+                            <li class="primary-key">id <span class="field-type">UUID PK</span></li>
+                            <li>name <span class="field-type">CharField(200)</span></li>
+                            <li>code <span class="field-type">CharField(50)</span></li>
+                            <li>organization_type <span class="field-type">CharField(50)</span></li>
+                            <li>parent_organization <span class="field-type">ForeignKey</span></li>
+                            <li>address <span class="field-type">TextField</span></li>
+                            <li>phone <span class="field-type">CharField(20)</span></li>
+                            <li>email <span class="field-type">EmailField</span></li>
+                            <li>website <span class="field-type">URLField</span></li>
+                            <li>is_active <span class="field-type">BooleanField</span></li>
+                            <li>created_at <span class="field-type">DateTimeField</span></li>
+                            <li>updated_at <span class="field-type">DateTimeField</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- User Entity -->
+                    <div class="entity">
+                        <div class="entity-title">👤 User (کاربر)</div>
+                        <ul class="entity-fields">
+                            <li class="primary-key">id <span class="field-type">UUID PK</span></li>
+                            <li>username <span class="field-type">CharField(150)</span></li>
+                            <li>email <span class="field-type">EmailField</span></li>
+                            <li>first_name <span class="field-type">CharField(100)</span></li>
+                            <li>last_name <span class="field-type">CharField(100)</span></li>
+                            <li>national_id <span class="field-type">CharField(10)</span></li>
+                            <li>phone <span class="field-type">CharField(15)</span></li>
+                            <li class="foreign-key">organization <span class="field-type">ForeignKey</span></li>
+                            <li>employee_id <span class="field-type">CharField(20)</span></li>
+                            <li>department <span class="field-type">CharField(100)</span></li>
+                            <li>position <span class="field-type">CharField(100)</span></li>
+                            <li>last_known_location <span class="field-type">PointField</span></li>
+                            <li>location_updated_at <span class="field-type">DateTimeField</span></li>
+                            <li>failed_login_attempts <span class="field-type">IntegerField</span></li>
+                            <li>is_active <span class="field-type">BooleanField</span></li>
+                            <li>created_at <span class="field-type">DateTimeField</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Role Entity -->
+                    <div class="entity">
+                        <div class="entity-title">🎭 Role (نقش)</div>
+                        <ul class="entity-fields">
+                            <li class="primary-key">id <span class="field-type">UUID PK</span></li>
+                            <li>name <span class="field-type">CharField(100)</span></li>
+                            <li>code <span class="field-type">CharField(50)</span></li>
+                            <li>description <span class="field-type">TextField</span></li>
+                            <li class="foreign-key">organization <span class="field-type">ForeignKey</span></li>
+                            <li>role_type <span class="field-type">CharField(50)</span></li>
+                            <li>priority <span class="field-type">IntegerField</span></li>
+                            <li>is_system_role <span class="field-type">BooleanField</span></li>
+                            <li>is_active <span class="field-type">BooleanField</span></li>
+                            <li>created_at <span class="field-type">DateTimeField</span></li>
+                            <li>updated_at <span class="field-type">DateTimeField</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- UserRole Entity -->
+                    <div class="entity">
+                        <div class="entity-title">👥 UserRole (تخصیص نقش)</div>
+                        <ul class="entity-fields">
+                            <li class="primary-key">id <span class="field-type">UUID PK</span></li>
+                            <li class="foreign-key">user <span class="field-type">ForeignKey</span></li>
+                            <li class="foreign-key">role <span class="field-type">ForeignKey</span></li>
+                            <li class="foreign-key">assigned_by <span class="field-type">ForeignKey</span></li>
+                            <li>valid_from <span class="field-type">DateTimeField</span></li>
+                            <li>valid_until <span class="field-type">DateTimeField</span></li>
+                            <li>assignment_reason <span class="field-type">TextField</span></li>
+                            <li>is_active <span class="field-type">BooleanField</span></li>
+                            <li>created_at <span class="field-type">DateTimeField</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- GeographicZone Entity -->
+                    <div class="entity">
+                        <div class="entity-title">🗺️ GeographicZone (محدوده جغرافیایی)</div>
+                        <ul class="entity-fields">
+                            <li class="primary-key">id <span class="field-type">UUID PK</span></li>
+                            <li>name <span class="field-type">CharField(200)</span></li>
+                            <li>code <span class="field-type">CharField(50)</span></li>
+                            <li>zone_type <span class="field-type">CharField(20)</span></li>
+                            <li class="foreign-key">organization <span class="field-type">ForeignKey</span></li>
+                            <li>center_point <span class="field-type">PointField</span></li>
+                            <li>radius <span class="field-type">FloatField</span></li>
+                            <li>polygon <span class="field-type">PolygonField</span></li>
+                            <li>address <span class="field-type">TextField</span></li>
+                            <li>properties <span class="field-type">JSONField</span></li>
+                            <li>is_active <span class="field-type">BooleanField</span></li>
+                            <li>created_at <span class="field-type">DateTimeField</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- FieldPermission Entity -->
+                    <div class="entity">
+                        <div class="entity-title">🔐 FieldPermission (مجوز فیلد)</div>
+                        <ul class="entity-fields">
+                            <li class="primary-key">id <span class="field-type">UUID PK</span></li>
+                            <li class="foreign-key">role <span class="field-type">ForeignKey</span></li>
+                            <li>resource_type <span class="field-type">CharField(100)</span></li>
+                            <li>field_name <span class="field-type">CharField(100)</span></li>
+                            <li>permission_type <span class="field-type">CharField(20)</span></li>
+                            <li>masking_rule <span class="field-type">CharField(50)</span></li>
+                            <li>conditions <span class="field-type">JSONField</span></li>
+                            <li>is_active <span class="field-type">BooleanField</span></li>
+                            <li>created_at <span class="field-type">DateTimeField</span></li>
+                        </ul>
+                    </div>
+
+                    <!-- AuditLog Entity -->
+                    <div class="entity">
+                        <div class="entity-title">📝 AuditLog (لاگ حسابرسی)</div>
+                        <ul class="entity-fields">
+                            <li class="primary-key">id <span class="field-type">UUID PK</span></li>
+                            <li class="foreign-key">user <span class="field-type">ForeignKey</span></li>
+                            <li>action <span class="field-type">CharField(50)</span></li>
+                            <li>resource_type <span class="field-type">CharField(100)</span></li>
+                            <li>resource_id <span class="field-type">CharField(100)</span></li>
+                            <li>field_name <span class="field-type">CharField(100)</span></li>
+                            <li>old_value <span class="field-type">TextField</span></li>
+                            <li>new_value <span class="field-type">TextField</span></li>
+                            <li>location <span class="field-type">PointField</span></li>
+                            <li>ip_address <span class="field-type">GenericIPAddressField</span></li>
+                            <li>user_agent <span class="field-type">TextField</span></li>
+                            <li>session_id <span class="field-type">CharField(100)</span></li>
+                            <li>additional_data <span class="field-type">JSONField</span></li>
+                            <li>created_at <span class="field-type">DateTimeField</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relationships Diagram -->
+            <div class="section">
+                <h2 class="section-title">🔗 نمودار روابط</h2>
+                <div class="relationship-diagram">
+                    <div class="relationship-box">
+                        <div class="relationship-title">Organization</div>
+                        <p>1 : N</p>
+                    </div>
+                    <span class="relationship-arrow">→</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">User</div>
+                        <p>هر سازمان چندین کاربر</p>
+                    </div>
+
+                    <br><br>
+
+                    <div class="relationship-box">
+                        <div class="relationship-title">User</div>
+                        <p>M : N</p>
+                    </div>
+                    <span class="relationship-arrow">↔</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">Role</div>
+                        <p>از طریق UserRole</p>
+                    </div>
+
+                    <br><br>
+
+                    <div class="relationship-box">
+                        <div class="relationship-title">Role</div>
+                        <p>1 : N</p>
+                    </div>
+                    <span class="relationship-arrow">→</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">FieldPermission</div>
+                        <p>هر نقش چندین مجوز</p>
+                    </div>
+
+                    <br><br>
+
+                    <div class="relationship-box">
+                        <div class="relationship-title">UserRole</div>
+                        <p>M : N</p>
+                    </div>
+                    <span class="relationship-arrow">↔</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">GeographicZone</div>
+                        <p>محدودیت مکانی</p>
+                    </div>
+
+                    <br><br>
+
+                    <div class="relationship-box">
+                        <div class="relationship-title">User</div>
+                        <p>1 : N</p>
+                    </div>
+                    <span class="relationship-arrow">→</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">AuditLog</div>
+                        <p>ثبت فعالیت‌ها</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Tables -->
+            <div class="section">
+                <h2 class="section-title">📋 جداول تفصیلی</h2>
+
+                <!-- Organization Table -->
+                <h3>🏢 جدول Organization</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام فیلد</th>
+                            <th>نوع داده</th>
+                            <th>محدودیت‌ها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id <span class="badge pk">PK</span></td>
+                            <td>UUIDField</td>
+                            <td>Primary Key, Auto</td>
+                            <td>شناسه یکتا سازمان</td>
+                        </tr>
+                        <tr>
+                            <td>name <span class="badge unique">UNIQUE</span></td>
+                            <td>CharField(200)</td>
+                            <td>Not Null</td>
+                            <td>نام رسمی سازمان</td>
+                        </tr>
+                        <tr>
+                            <td>code <span class="badge unique">UNIQUE</span></td>
+                            <td>CharField(50)</td>
+                            <td>Not Null</td>
+                            <td>کد اختصاری سازمان</td>
+                        </tr>
+                        <tr>
+                            <td>organization_type</td>
+                            <td>CharField(50)</td>
+                            <td>Choices</td>
+                            <td>نوع سازمان (دولتی، خصوصی، ...)</td>
+                        </tr>
+                        <tr>
+                            <td>parent_organization <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Self, Null</td>
+                            <td>سازمان والد (برای ساختار درختی)</td>
+                        </tr>
+                        <tr>
+                            <td>address</td>
+                            <td>TextField</td>
+                            <td>Null</td>
+                            <td>آدرس کامل سازمان</td>
+                        </tr>
+                        <tr>
+                            <td>phone</td>
+                            <td>CharField(20)</td>
+                            <td>Null</td>
+                            <td>شماره تلفن اصلی</td>
+                        </tr>
+                        <tr>
+                            <td>email</td>
+                            <td>EmailField</td>
+                            <td>Null</td>
+                            <td>ایمیل رسمی سازمان</td>
+                        </tr>
+                        <tr>
+                            <td>website</td>
+                            <td>URLField</td>
+                            <td>Null</td>
+                            <td>وبسایت رسمی</td>
+                        </tr>
+                        <tr>
+                            <td>is_active <span class="badge index">IDX</span></td>
+                            <td>BooleanField</td>
+                            <td>Default: True</td>
+                            <td>وضعیت فعال/غیرفعال</td>
+                        </tr>
+                        <tr>
+                            <td>created_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Add</td>
+                            <td>تاریخ ایجاد</td>
+                        </tr>
+                        <tr>
+                            <td>updated_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Update</td>
+                            <td>تاریخ آخرین بروزرسانی</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- User Table -->
+                <h3>👤 جدول User</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام فیلد</th>
+                            <th>نوع داده</th>
+                            <th>محدودیت‌ها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id <span class="badge pk">PK</span></td>
+                            <td>UUIDField</td>
+                            <td>Primary Key</td>
+                            <td>شناسه یکتا کاربر</td>
+                        </tr>
+                        <tr>
+                            <td>username <span class="badge unique">UNIQUE</span></td>
+                            <td>CharField(150)</td>
+                            <td>Not Null</td>
+                            <td>نام کاربری یکتا</td>
+                        </tr>
+                        <tr>
+                            <td>email <span class="badge unique">UNIQUE</span></td>
+                            <td>EmailField</td>
+                            <td>Not Null</td>
+                            <td>آدرس ایمیل یکتا</td>
+                        </tr>
+                        <tr>
+                            <td>first_name</td>
+                            <td>CharField(100)</td>
+                            <td>Not Null</td>
+                            <td>نام</td>
+                        </tr>
+                        <tr>
+                            <td>last_name</td>
+                            <td>CharField(100)</td>
+                            <td>Not Null</td>
+                            <td>نام خانوادگی</td>
+                        </tr>
+                        <tr>
+                            <td>national_id <span class="badge unique">UNIQUE</span></td>
+                            <td>CharField(10)</td>
+                            <td>Not Null</td>
+                            <td>کد ملی</td>
+                        </tr>
+                        <tr>
+                            <td>phone</td>
+                            <td>CharField(15)</td>
+                            <td>Null</td>
+                            <td>شماره تلفن همراه</td>
+                        </tr>
+                        <tr>
+                            <td>organization <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Not Null</td>
+                            <td>سازمان متبوع</td>
+                        </tr>
+                        <tr>
+                            <td>employee_id</td>
+                            <td>CharField(20)</td>
+                            <td>Null</td>
+                            <td>شماره پرسنلی</td>
+                        </tr>
+                        <tr>
+                            <td>department</td>
+                            <td>CharField(100)</td>
+                            <td>Null</td>
+                            <td>واحد سازمانی</td>
+                        </tr>
+                        <tr>
+                            <td>position</td>
+                            <td>CharField(100)</td>
+                            <td>Null</td>
+                            <td>سمت شغلی</td>
+                        </tr>
+                        <tr>
+                            <td>last_known_location <span class="badge index">IDX</span></td>
+                            <td>PointField</td>
+                            <td>Null, SRID=4326</td>
+                            <td>آخرین موقعیت شناخته شده</td>
+                        </tr>
+                        <tr>
+                            <td>location_updated_at</td>
+                            <td>DateTimeField</td>
+                            <td>Null</td>
+                            <td>زمان بروزرسانی موقعیت</td>
+                        </tr>
+                        <tr>
+                            <td>failed_login_attempts</td>
+                            <td>IntegerField</td>
+                            <td>Default: 0</td>
+                            <td>تعداد تلاش‌های ناموفق ورود</td>
+                            </tr>
+                        <tr>
+                            <td>is_active <span class="badge index">IDX</span></td>
+                            <td>BooleanField</td>
+                            <td>Default: True</td>
+                            <td>وضعیت فعال/غیرفعال کاربر</td>
+                        </tr>
+                        <tr>
+                            <td>created_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Add</td>
+                            <td>تاریخ ایجاد حساب کاربری</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Role Table -->
+                <h3>🎭 جدول Role</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام فیلد</th>
+                            <th>نوع داده</th>
+                            <th>محدودیت‌ها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id <span class="badge pk">PK</span></td>
+                            <td>UUIDField</td>
+                            <td>Primary Key</td>
+                            <td>شناسه یکتا نقش</td>
+                        </tr>
+                        <tr>
+                            <td>name</td>
+                            <td>CharField(100)</td>
+                            <td>Not Null</td>
+                            <td>نام نقش</td>
+                        </tr>
+                        <tr>
+                            <td>code <span class="badge unique">UNIQUE</span></td>
+                            <td>CharField(50)</td>
+                            <td>Not Null</td>
+                            <td>کد یکتا نقش</td>
+                        </tr>
+                        <tr>
+                            <td>description</td>
+                            <td>TextField</td>
+                            <td>Null</td>
+                            <td>توضیحات نقش</td>
+                        </tr>
+                        <tr>
+                            <td>organization <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Not Null</td>
+                            <td>سازمان مربوطه</td>
+                        </tr>
+                        <tr>
+                            <td>role_type</td>
+                            <td>CharField(50)</td>
+                            <td>Choices</td>
+                            <td>نوع نقش (مدیریتی، عملیاتی، ...)</td>
+                        </tr>
+                        <tr>
+                            <td>priority <span class="badge index">IDX</span></td>
+                            <td>IntegerField</td>
+                            <td>Default: 0</td>
+                            <td>اولویت نقش (برای تضارب)</td>
+                        </tr>
+                        <tr>
+                            <td>is_system_role</td>
+                            <td>BooleanField</td>
+                            <td>Default: False</td>
+                            <td>نقش سیستمی (غیرقابل حذف)</td>
+                        </tr>
+                        <tr>
+                            <td>is_active <span class="badge index">IDX</span></td>
+                            <td>BooleanField</td>
+                            <td>Default: True</td>
+                            <td>وضعیت فعال/غیرفعال</td>
+                        </tr>
+                        <tr>
+                            <td>created_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Add</td>
+                            <td>تاریخ ایجاد نقش</td>
+                        </tr>
+                        <tr>
+                            <td>updated_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Update</td>
+                            <td>تاریخ آخرین بروزرسانی</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- UserRole Table -->
+                <h3>👥 جدول UserRole</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام فیلد</th>
+                            <th>نوع داده</th>
+                            <th>محدودیت‌ها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id <span class="badge pk">PK</span></td>
+                            <td>UUIDField</td>
+                            <td>Primary Key</td>
+                            <td>شناسه یکتا تخصیص</td>
+                        </tr>
+                        <tr>
+                            <td>user <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Not Null</td>
+                            <td>کاربر مربوطه</td>
+                        </tr>
+                        <tr>
+                            <td>role <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Not Null</td>
+                            <td>نقش تخصیص یافته</td>
+                        </tr>
+                        <tr>
+                            <td>assigned_by <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Not Null</td>
+                            <td>کاربر تخصیص دهنده</td>
+                        </tr>
+                        <tr>
+                            <td>valid_from <span class="badge index">IDX</span></td>
+                            <td>DateTimeField</td>
+                            <td>Not Null</td>
+                            <td>تاریخ شروع اعتبار</td>
+                        </tr>
+                        <tr>
+                            <td>valid_until <span class="badge index">IDX</span></td>
+                            <td>DateTimeField</td>
+                            <td>Null</td>
+                            <td>تاریخ پایان اعتبار</td>
+                        </tr>
+                        <tr>
+                            <td>assignment_reason</td>
+                            <td>TextField</td>
+                            <td>Null</td>
+                            <td>دلیل تخصیص نقش</td>
+                        </tr>
+                        <tr>
+                            <td>is_active <span class="badge index">IDX</span></td>
+                            <td>BooleanField</td>
+                            <td>Default: True</td>
+                            <td>وضعیت فعال تخصیص</td>
+                        </tr>
+                        <tr>
+                            <td>created_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Add</td>
+                            <td>تاریخ ایجاد تخصیص</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- GeographicZone Table -->
+                <h3>🗺️ جدول GeographicZone</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام فیلد</th>
+                            <th>نوع داده</th>
+                            <th>محدودیت‌ها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id <span class="badge pk">PK</span></td>
+                            <td>UUIDField</td>
+                            <td>Primary Key</td>
+                            <td>شناسه یکتا محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>name</td>
+                            <td>CharField(200)</td>
+                            <td>Not Null</td>
+                            <td>نام محدوده جغرافیایی</td>
+                        </tr>
+                        <tr>
+                            <td>code <span class="badge unique">UNIQUE</span></td>
+                            <td>CharField(50)</td>
+                            <td>Not Null</td>
+                            <td>کد یکتا محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>zone_type</td>
+                            <td>CharField(20)</td>
+                            <td>Choices</td>
+                            <td>نوع محدوده (دایره‌ای، چندضلعی)</td>
+                        </tr>
+                        <tr>
+                            <td>organization <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Not Null</td>
+                            <td>سازمان مالک محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>center_point <span class="badge index">IDX</span></td>
+                            <td>PointField</td>
+                            <td>Null, SRID=4326</td>
+                            <td>نقطه مرکزی محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>radius</td>
+                            <td>FloatField</td>
+                            <td>Null</td>
+                            <td>شعاع محدوده (متر)</td>
+                        </tr>
+                        <tr>
+                            <td>polygon <span class="badge index">IDX</span></td>
+                            <td>PolygonField</td>
+                            <td>Null, SRID=4326</td>
+                            <td>چندضلعی تعریف کننده محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>address</td>
+                            <td>TextField</td>
+                            <td>Null</td>
+                            <td>آدرس توصیفی محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>properties</td>
+                            <td>JSONField</td>
+                            <td>Null</td>
+                            <td>خصوصیات اضافی محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>is_active <span class="badge index">IDX</span></td>
+                            <td>BooleanField</td>
+                            <td>Default: True</td>
+                            <td>وضعیت فعال محدوده</td>
+                        </tr>
+                        <tr>
+                            <td>created_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Add</td>
+                            <td>تاریخ ایجاد محدوده</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- FieldPermission Table -->
+                <h3>🔐 جدول FieldPermission</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام فیلد</th>
+                            <th>نوع داده</th>
+                            <th>محدودیت‌ها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id <span class="badge pk">PK</span></td>
+                            <td>UUIDField</td>
+                            <td>Primary Key</td>
+                            <td>شناسه یکتا مجوز</td>
+                        </tr>
+                        <tr>
+                            <td>role <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Not Null</td>
+                            <td>نقش مربوطه</td>
+                        </tr>
+                        <tr>
+                            <td>resource_type <span class="badge index">IDX</span></td>
+                            <td>CharField(100)</td>
+                            <td>Not Null</td>
+                            <td>نوع منبع (مدل)</td>
+                        </tr>
+                        <tr>
+                            <td>field_name <span class="badge index">IDX</span></td>
+                            <td>CharField(100)</td>
+                            <td>Not Null</td>
+                            <td>نام فیلد</td>
+                        </tr>
+                        <tr>
+                            <td>permission_type</td>
+                            <td>CharField(20)</td>
+                            <td>Choices</td>
+                            <td>نوع مجوز (خواندن، نوشتن، ...)</td>
+                        </tr>
+                        <tr>
+                            <td>masking_rule</td>
+                            <td>CharField(50)</td>
+                            <td>Null, Choices</td>
+                            <td>قانون پنهان‌سازی داده</td>
+                        </tr>
+                        <tr>
+                            <td>conditions</td>
+                            <td>JSONField</td>
+                            <td>Null</td>
+                            <td>شرایط اعمال مجوز</td>
+                        </tr>
+                        <tr>
+                            <td>is_active <span class="badge index">IDX</span></td>
+                            <td>BooleanField</td>
+                            <td>Default: True</td>
+                            <td>وضعیت فعال مجوز</td>
+                        </tr>
+                        <tr>
+                            <td>created_at</td>
+                            <td>DateTimeField</td>
+                            <td>Auto Add</td>
+                            <td>تاریخ ایجاد مجوز</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- AuditLog Table -->
+                <h3>📝 جدول AuditLog</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام فیلد</th>
+                            <th>نوع داده</th>
+                            <th>محدودیت‌ها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>id <span class="badge pk">PK</span></td>
+                            <td>UUIDField</td>
+                            <td>Primary Key</td>
+                            <td>شناسه یکتا لاگ</td>
+                        </tr>
+                        <tr>
+                            <td>user <span class="badge fk">FK</span></td>
+                            <td>ForeignKey</td>
+                            <td>Null</td>
+                            <td>کاربر انجام دهنده عمل</td>
+                        </tr>
+                        <tr>
+                            <td>action <span class="badge index">IDX</span></td>
+                            <td>CharField(50)</td>
+                            <td>Not Null</td>
+                            <td>نوع عمل انجام شده</td>
+                        </tr>
+                        <tr>
+                            <td>resource_type <span class="badge index">IDX</span></td>
+                            <td>CharField(100)</td>
+                            <td>Not Null</td>
+                            <td>نوع منبع تغییر یافته</td>
+                        </tr>
+                        <tr>
+                            <td>resource_id</td>
+                            <td>CharField(100)</td>
+                            <td>Not Null</td>
+                            <td>شناسه منبع</td>
+                        </tr>
+                        <tr>
+                            <td>field_name</td>
+                            <td>CharField(100)</td>
+                            <td>Null</td>
+                            <td>نام فیلد تغییر یافته</td>
+                        </tr>
+                        <tr>
+                            <td>old_value</td>
+                            <td>TextField</td>
+                            <td>Null</td>
+                            <td>مقدار قبلی</td>
+                        </tr>
+                        <tr>
+                            <td>new_value</td>
+                            <td>TextField</td>
+                            <td>Null</td>
+                            <td>مقدار جدید</td>
+                        </tr>
+                        <tr>
+                            <td>location <span class="badge index">IDX</span></td>
+                            <td>PointField</td>
+                            <td>Null, SRID=4326</td>
+                            <td>موقعیت جغرافیایی عمل</td>
+                        </tr>
+                        <tr>
+                            <td>ip_address</td>
+                            <td>GenericIPAddressField</td>
+                            <td>Null</td>
+                            <td>آدرس IP کاربر</td>
+                        </tr>
+                        <tr>
+                            <td>user_agent</td>
+                            <td>TextField</td>
+                            <td>Null</td>
+                            <td>اطلاعات مرورگر کاربر</td>
+                        </tr>
+                        <tr>
+                            <td>session_id</td>
+                            <td>CharField(100)</td>
+                            <td>Null</td>
+                            <td>شناسه جلسه کاربر</td>
+                        </tr>
+                        <tr>
+                            <td>additional_data</td>
+                            <td>JSONField</td>
+                            <td>Null</td>
+                            <td>داده‌های اضافی لاگ</td>
+                        </tr>
+                        <tr>
+                            <td>created_at <span class="badge index">IDX</span></td>
+                            <td>DateTimeField</td>
+                            <td>Auto Add</td>
+                            <td>زمان وقوع عمل</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Indexes and Constraints -->
+            <div class="section">
+                <h2 class="section-title">🔍 ایندکس‌ها و محدودیت‌ها</h2>
+                
+                <h3>📊 ایندکس‌های کامپوزیت</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>جدول</th>
+                            <th>نام ایندکس</th>
+                            <th>فیلدها</th>
+                            <th>نوع</th>
+                            <th>هدف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>UserRole</td>
+                            <td>idx_user_role_active</td>
+                            <td>user_id, role_id, is_active</td>
+                            <td>BTree</td>
+                            <td>جستجوی سریع نقش‌های فعال کاربر</td>
+                        </tr>
+                        <tr>
+                            <td>UserRole</td>
+                            <td>idx_user_role_validity</td>
+                            <td>valid_from, valid_until, is_active</td>
+                            <td>BTree</td>
+                            <td>بررسی اعتبار زمانی نقش‌ها</td>
+                        </tr>
+                        <tr>
+                            <td>FieldPermission</td>
+                            <td>idx_permission_resource</td>
+                            <td>role_id, resource_type, field_name</td>
+                            <td>BTree</td>
+                            <td>جستجوی مجوزهای فیلد</td>
+                        </tr>
+                        <tr>
+                            <td>AuditLog</td>
+                            <td>idx_audit_user_time</td>
+                            <td>user_id, created_at</td>
+                            <td>BTree</td>
+                            <td>گزارش‌گیری فعالیت‌های کاربر</td>
+                        </tr>
+                        <tr>
+                            <td>AuditLog</td>
+                            <td>idx_audit_resource</td>
+                            <td>resource_type, resource_id, action</td>
+                            <td>BTree</td>
+                            <td>ردیابی تغییرات منابع</td>
+                        </tr>
+                        <tr>
+                            <td>GeographicZone</td>
+                            <td>idx_zone_spatial</td>
+                            <td>polygon, center_point</td>
+                            <td>GIST</td>
+                            <td>جستجوهای مکانی سریع</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>idx_user_location</td>
+                            <td>last_known_location, location_updated_at</td>
+                            <td>GIST</td>
+                            <td>ردیابی موقعیت کاربران</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🔒 محدودیت‌های یکتایی</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>جدول</th>
+                            <th>نام محدودیت</th>
+                            <th>فیلدها</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Organization</td>
+                            <td>unique_org_name</td>
+                            <td>name</td>
+                            <td>نام سازمان باید یکتا باشد</td>
+                        </tr>
+                        <tr>
+                            <td>Organization</td>
+                            <td>unique_org_code</td>
+                            <td>code</td>
+                            <td>کد سازمان باید یکتا باشد</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>unique_username</td>
+                            <td>username</td>
+                            <td>نام کاربری باید یکتا باشد</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>unique_email</td>
+                            <td>email</td>
+                            <td>ایمیل باید یکتا باشد</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>unique_national_id</td>
+                            <td>national_id</td>
+                            <td>کد ملی باید یکتا باشد</td>
+                        </tr>
+                        <tr>
+                            <td>Role</td>
+                            <td>unique_role_code_org</td>
+                            <td>code, organization_id</td>
+                            <td>کد نقش در هر سازمان یکتا</td>
+                        </tr>
+                        <tr>
+                            <td>GeographicZone</td>
+                            <td>unique_zone_code_org</td>
+                            <td>code, organization_id</td>
+                            <td>کد محدوده در هر سازمان یکتا</td>
+                        </tr>
+                        <tr>
+                            <td>UserRole</td>
+                            <td>unique_active_user_role</td>
+                            <td>user_id, role_id, is_active</td>
+                            <td>یک نقش فعال برای هر کاربر</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>✅ محدودیت‌های بررسی (Check Constraints)</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>جدول</th>
+                            <th>نام محدودیت</th>
+                            <th>شرط</th>
+                            <th>توضیحات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>User</td>
+                            <td>check_national_id_length</td>
+                            <td>LENGTH(national_id) = 10</td>
+                            <td>کد ملی باید 10 رقم باشد</td>
+                        </tr>
+                        <tr>
+                            <td>GeographicZone</td>
+                            <td>check_radius_positive</td>
+                            <td>radius > 0</td>
+                            <td>شعاع باید مثبت باشد</td>
+                        </tr>
+                        <tr>
+                            <td>UserRole</td>
+                            <td>check_validity_dates</td>
+                            <td>valid_from <= valid_until</td>
+                            <td>تاریخ شروع قبل از پایان</td>
+                        </tr>
+                        <tr>
+                            <td>Role</td>
+                            <td>check_priority_range</td>
+                            <td>priority BETWEEN 0 AND 100</td>
+                            <td>اولویت بین 0 تا 100</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>check_failed_attempts</td>
+                            <td>failed_login_attempts >= 0</td>
+                            <td>تعداد تلاش‌ها نمی‌تواند منفی باشد</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Performance Considerations -->
+            <div class="section">
+                <h2 class="section-title">⚡ ملاحظات عملکرد</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">ایندکس بهینه‌سازی</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">محدودیت یکتایی</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">محدودیت بررسی</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">ایندکس مکانی</div>
+                    </div>
+                </div>
+
+                <h3>🎯 توصیه‌های بهینه‌سازی</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>حوزه</th>
+                            <th>توصیه</th>
+                            <th>تأثیر</th>
+                            <th>اولویت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ایندکس‌گذاری</td>
+                            <td>استفاده از ایندکس‌های ترکیبی برای کوئری‌های پیچیده</td>
+                            <td>کاهش 70% زمان جستجو</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>پارتیشن‌بندی</td>
+                            <td>پارتیشن‌بندی جدول AuditLog بر اساس تاریخ</td>
+                            <td>بهبود عملکرد کوئری‌ها</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>کش</td>
+                            <td>کش کردن مجوزهای کاربران در Redis</td>
+                            <td>کاهش 90% زمان بررسی مجوز</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>آرشیو</td>
+                            <td>آرشیو لاگ‌های قدیمی‌تر از 1 سال</td>
+                            <td>کاهش حجم دیتابیس</td>
+                            <td><span class="badge">متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td>فشرده‌سازی</td>
+                            <td>فشرده‌سازی فیلدهای JSON</td>
+                            <td>کاهش فضای ذخیره‌سازی</td>
+                            <td><span class="badge">متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td>تحلیل</td>
+                            <td>بروزرسانی منظم آمار جداول</td>
+                            <td>بهینه‌سازی خودکار کوئری‌ها</td>
+                            <td><span class="badge">پایین</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Data Migration Strategy -->
+            <div class="section">
+               <h2 class="section-title">🔄 استراتژی مایگریشن داده</h2>
+                
+                <h3>📋 مراحل مایگریشن</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>مرحله</th>
+                            <th>توضیحات</th>
+                            <th>مدت زمان</th>
+                            <th>وابستگی‌ها</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1. ایجاد ساختار پایه</td>
+                            <td>ایجاد جداول اصلی و ایندکس‌های اولیه</td>
+                            <td>30 دقیقه</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2. داده‌های مرجع</td>
+                            <td>وارد کردن سازمان‌ها و نقش‌های پیش‌فرض</td>
+                            <td>15 دقیقه</td>
+                            <td>مرحله 1</td>
+                        </tr>
+                        <tr>
+                            <td>3. کاربران</td>
+                            <td>مایگریشن کاربران از سیستم قدیمی</td>
+                            <td>2 ساعت</td>
+                            <td>مرحله 2</td>
+                        </tr>
+                        <tr>
+                            <td>4. تخصیص نقش‌ها</td>
+                            <td>تخصیص نقش‌ها به کاربران</td>
+                            <td>1 ساعت</td>
+                            <td>مرحله 3</td>
+                        </tr>
+                        <tr>
+                            <td>5. محدوده‌های جغرافیایی</td>
+                            <td>تعریف محدوده‌های مکانی</td>
+                            <td>45 دقیقه</td>
+                            <td>مرحله 2</td>
+                        </tr>
+                        <tr>
+                            <td>6. مجوزهای فیلد</td>
+                            <td>تنظیم مجوزهای دسترسی به فیلدها</td>
+                            <td>30 دقیقه</td>
+                            <td>مرحله 4</td>
+                        </tr>
+                        <tr>
+                            <td>7. بهینه‌سازی نهایی</td>
+                            <td>ایجاد ایندکس‌های پیشرفته و تنظیمات</td>
+                            <td>20 دقیقه</td>
+                            <td>تمام مراحل</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🛠️ اسکریپت‌های مایگریشن</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نام اسکریپت</th>
+                            <th>هدف</th>
+                            <th>نوع</th>
+                            <th>قابلیت برگشت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0001_initial.py</td>
+                            <td>ایجاد جداول اصلی</td>
+                            <td>Schema</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>0002_indexes.py</td>
+                            <td>ایجاد ایندکس‌های اولیه</td>
+                            <td>Index</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>0003_constraints.py</td>
+                            <td>اعمال محدودیت‌ها</td>
+                            <td>Constraint</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>0004_default_data.py</td>
+                            <td>داده‌های پیش‌فرض</td>
+                            <td>Data</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>0005_spatial_indexes.py</td>
+                            <td>ایندکس‌های مکانی</td>
+                            <td>Spatial</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>0006_performance_tuning.py</td>
+                            <td>بهینه‌سازی عملکرد</td>
+                            <td>Performance</td>
+                            <td>⚠️</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Security Considerations -->
+            <div class="section">
+                <h2 class="section-title">🔒 ملاحظات امنیتی</h2>
+                
+                <h3>🛡️ سطوح امنیت</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>لایه</th>
+                            <th>مکانیزم امنیتی</th>
+                            <th>پیاده‌سازی</th>
+                            <th>سطح حفاظت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>دیتابیس</td>
+                            <td>رمزگذاری در سطح فیلد</td>
+                            <td>AES-256 برای فیلدهای حساس</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>شبکه</td>
+                            <td>SSL/TLS</td>
+                            <td>تمام ارتباطات رمزگذاری شده</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>احراز هویت</td>
+                            <td>JWT + 2FA</td>
+                            <td>توکن‌های امن با تأیید دو مرحله‌ای</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>دسترسی</td>
+                            <td>RBAC + ABAC</td>
+                            <td>کنترل دسترسی مبتنی بر نقش و ویژگی</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>حسابرسی</td>
+                            <td>لاگ کامل</td>
+                            <td>ثبت تمام فعالیت‌ها</td>
+                            <td><span class="badge">متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td>داده</td>
+                            <td>ماسک‌گذاری</td>
+                            <td>پنهان‌سازی داده‌های حساس</td>
+                            <td><span class="badge">متوسط</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🔐 فیلدهای حساس</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>جدول</th>
+                            <th>فیلد</th>
+                            <th>نوع حساسیت</th>
+                            <th>روش حفاظت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>User</td>
+                            <td>national_id</td>
+                            <td>شخصی</td>
+                            <td>رمزگذاری + ماسک</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>phone</td>
+                            <td>شخصی</td>
+                            <td>ماسک‌گذاری</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>email</td>
+                            <td>شخصی</td>
+                            <td>ماسک‌گذاری</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>last_known_location</td>
+                            <td>موقعیت</td>
+                            <td>دسترسی محدود</td>
+                        </tr>
+                        <tr>
+                            <td>AuditLog</td>
+                            <td>ip_address</td>
+                            <td>فنی</td>
+                            <td>هش‌گذاری</td>
+                        </tr>
+                        <tr>
+                            <td>AuditLog</td>
+                            <td>old_value, new_value</td>
+                            <td>متغیر</td>
+                            <td>رمزگذاری شرطی</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Backup and Recovery -->
+            <div class="section">
+                <h2 class="section-title">💾 پشتیبان‌گیری و بازیابی</h2>
+                
+                <h3>📅 استراتژی پشتیبان‌گیری</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>نوع پشتیبان</th>
+                            <th>فرکانس</th>
+                            <th>مدت نگهداری</th>
+                            <th>مکان ذخیره</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Full Backup</td>
+                            <td>هفتگی</td>
+                            <td>3 ماه</td>
+                            <td>محلی + ابری</td>
+                        </tr>
+                        <tr>
+                            <td>Incremental Backup</td>
+                            <td>روزانه</td>
+                            <td>1 ماه</td>
+                            <td>محلی</td>
+                        </tr>
+                        <tr>
+                            <td>Transaction Log</td>
+                            <td>هر 15 دقیقه</td>
+                            <td>1 هفته</td>
+                            <td>محلی</td>
+                        </tr>
+                        <tr>
+                            <td>Configuration</td>
+                            <td>در هر تغییر</td>
+                            <td>6 ماه</td>
+                            <td>Git Repository</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🔄 سناریوهای بازیابی</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>سناریو</th>
+                            <th>RTO*</th>
+                            <th>RPO**</th>
+                            <th>روش بازیابی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>خرابی سخت‌افزار</td>
+                            <td>4 ساعت</td>
+                            <td>15 دقیقه</td>
+                            <td>بازیابی از پشتیبان + لاگ‌ها</td>
+                        </tr>
+                        <tr>
+                            <td>حذف اشتباهی داده</td>
+                            <td>1 ساعت</td>
+                            <td>صفر</td>
+                            <td>Point-in-Time Recovery</td>
+                        </tr>
+                        <tr>
+                            <td>فساد دیتابیس</td>
+                            <td>8 ساعت</td>
+                            <td>1 روز</td>
+                            <td>بازیابی کامل از پشتیبان</td>
+                        </tr>
+                        <tr>
+                            <td>حمله سایبری</td>
+                            <td>12 ساعت</td>
+                            <td>1 روز</td>
+                            <td>بازیابی از پشتیبان تمیز</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p><small>* RTO: Recovery Time Objective | ** RPO: Recovery Point Objective</small></p>
+            </div>
+
+            <!-- Monitoring and Alerts -->
+            <div class="section">
+                <h2 class="section-title">📊 نظارت و هشدارها</h2>
+                
+                <h3>🔍 متریک‌های کلیدی</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>متریک</th>
+                            <th>آستانه هشدار</th>
+                            <th>آستانه بحرانی</th>
+                            <th>اقدام</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>زمان پاسخ کوئری</td>
+                            <td>> 500ms</td>
+                            <td>> 2s</td>
+                            <td>بهینه‌سازی کوئری</td>
+                        </tr>
+                        <tr>
+                            <td>استفاده از CPU</td>
+                            <td>> 70%</td>
+                            <td>> 90%</td>
+                            <td>افزایش منابع</td>
+                        </tr>
+                        <tr>
+                            <td>استفاده از حافظه</td>
+                            <td>> 80%</td>
+                            <td>> 95%</td>
+                            <td>بهینه‌سازی کوئری‌ها</td>
+                        </tr>
+                        <tr>
+                            <td>فضای دیسک</td>
+                            <td>> 85%</td>
+                            <td>> 95%</td>
+                            <td>پاکسازی/افزایش فضا</td>
+                        </tr>
+                        <tr>
+                            <td>تعداد اتصالات</td>
+                            <td>> 80% max</td>
+                            <td>> 95% max</td>
+                            <td>بررسی Connection Pool</td>
+                        </tr>
+                        <tr>
+                            <td>تلاش‌های ورود ناموفق</td>
+                            <td>> 10/دقیقه</td>
+                            <td>> 50/دقیقه</td>
+                            <td>بررسی امنیتی</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>📈 داشبورد نظارت</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">نظارت مستمر</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15</div>
+                        <div class="stat-label">متریک اصلی</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">سطح هشدار</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">99.9%</div>
+                        <div class="stat-label">هدف دسترسی</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conclusion -->
+            <div class="section">
+                <h2 class="section-title">🎯 خلاصه و نتیجه‌گیری</h2>
+                
+                <div class="relationship-diagram">
+                    <div class="relationship-box">
+                        <div class="relationship-title">طراحی قوی</div>
+                        <p>ساختار منعطف و قابل توسعه</p>
+                    </div>
+                    <span class="relationship-arrow">+</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">امنیت بالا</div>
+                        <p>حفاظت چندلایه از داده‌ها</p>
+                    </div>
+                    <span class="relationship-arrow">+</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">عملکرد بهینه</div>
+                        <p>ایندکس‌گذاری هوشمند</p>
+                    </div>
+                    <span class="relationship-arrow">=</span>
+                    <div class="relationship-box">
+                        <div class="relationship-title">سیستم موفق</div>
+                        <p>کنترل دسترسی مبتنی بر موقعیت</p>
+                    </div>
+                </div>
+
+                <h3>✅ نکات کلیدی پیاده‌سازی</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>حوزه</th>
+                            <th>نکته مهم</th>
+                            <th>تأثیر</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>طراحی دیتابیس</td>
+                            <td>استفاده از UUID به جای ID عددی</td>
+                            <td>امنیت و قابلیت توزیع بالاتر</td>
+                        </tr>
+                        <tr>
+                            <td>ایندکس‌گذاری</td>
+                            <td>ایندکس‌های ترکیبی برای کوئری‌های پیچیده</td>
+                            <td>عملکرد بهتر در جستجوهای پیچیده</td>
+                        </tr>
+                        <tr>
+                            <td>امنیت داده</td>
+                            <td>رمزگذاری فیلدهای حساس</td>
+                            <td>حفاظت از اطلاعات شخصی</td>
+                        </tr>
+                        <tr>
+                            <td>قابلیت مقیاس‌پذیری</td>
+                            <td>پارتیشن‌بندی جدول لاگ</td>
+                            <td>مدیریت حجم بالای داده</td>
+                        </tr>
+                        <tr>
+                            <td>نظارت</td>
+                            <td>لاگ کامل فعالیت‌ها</td>
+                            <td>قابلیت حسابرسی و عیب‌یابی</td>
+                        </tr>
+                        <tr>
+                            <td>پشتیبان‌گیری</td>
+                            <td>استراتژی چندسطحه</td>
+                            <td>اطمینان از بازیابی داده‌ها</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>🚀 مراحل بعدی توسعه</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>فاز</th>
+                            <th>هدف</th>
+                            <th>مدت زمان</th>
+                            <th>اولویت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>فاز 1</td>
+                            <td>پیاده‌سازی مدل‌های Django</td>
+                            <td>1 هفته</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>فاز 2</td>
+                            <td>توسعه API های REST</td>
+                            <td>2 هفته</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>فاز 3</td>
+                            <td>پیاده‌سازی سیستم احراز هویت</td>
+                            <td>1 هفته</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>فاز 4</td>
+                            <td>موتور کنترل دسترسی</td>
+                            <td>2 هفته</td>
+                            <td><span class="badge">بالا</span></td>
+                        </tr>
+                        <tr>
+                            <td>فاز 5</td>
+                            <td>سیستم نظارت و لاگ</td>
+                            <td>1 هفته</td>
+                            <td><span class="badge">متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td>فاز 6</td>
+                            <td>تست و بهینه‌سازی</td>
+                            <td>2 هفته</td>
+                            <td><span class="badge">متوسط</span></td>
+                        </tr>
+                        <tr>
+                            <td>فاز 7</td>
+                            <td>مستندات و آموزش</td>
+                            <td>1 هفته</td>
+                            <td><span class="badge">پایین</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="header" style="margin-top: 50px; background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);">
+            <h3>🎉 سیستم آماده برای پیاده‌سازی</h3>
+            <p>طراحی کامل دیتابیس برای سیستم کنترل دسترسی مبتنی بر موقعیت جغرافیایی</p>
+            <p><small>تاریخ تولید: مهر 1404 | نسخه: 1.0</small></p>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Highlight table rows on hover
+            const tables = document.querySelectorAll('.data-table');
+            tables.forEach(table => {
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    row.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#e8f5e8';
+                        this.style.transform = 'scale(1.01)';
+                        this.style.transition = 'all 0.2s ease';
+                    });
+                    row.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = '';
+                        this.style.transform = 'scale(1)';
+                    });
+                });
+            });
+
+            // Add click functionality to entity boxes
+            const entities = document.querySelectorAll('.entity');
+            entities.forEach(entity => {
+                entity.addEventListener('click', function() {
+                    this.classList.toggle('expanded');
+                    if (this.classList.contains('expanded')) {
+                        this.style.boxShadow = '0 8px 16px rgba(76, 175, 80, 0.3)';
+                        this.style.borderColor = '#45a049';
+                    } else {
+                        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                        this.style.borderColor = '#4CAF50';
+                    }
+                });
+            });
+
+            // Smooth scrolling for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add animation to stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'fadeInUp 0.6s ease forwards';
+                    }
+                });
+            });
+
+            statCards.forEach(card => {
+                observer.observe(card);
+            });
+
+            // Print functionality
+            const printButton = document.createElement('button');
+            printButton.innerHTML = '🖨️ چاپ';
+            printButton.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-family: 'Vazir', sans-serif;
+                font-weight: bold;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                z-index: 1000;
+                transition: all 0.3s ease;
+            `;
+            
+            printButton.addEventListener('click', () => window.print());
+            printButton.addEventListener('mouseenter', function() {
+                this.style.background = '#45a049';
+                this.style.transform = 'scale(1.05)';
+            });
+            printButton.addEventListener('mouseleave', function() {
+                this.style.background = '#4CAF50';
+                this.style.transform = 'scale(1)';
+            });
+            
+            document.body.appendChild(printButton);
+        });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .entity:hover {
+                transform: translateY(-5px);
+                transition: all 0.3s ease;
+            }
+
+            .badge:hover {
+                transform: scale(1.1);
+                transition: all 0.2s ease;
+            }
+
+            .relationship-box:hover {
+                transform: scale(1.05);
+                transition: all 0.3s ease;
+            }
+
+            /* Loading animation for heavy content */
+            .data-table tbody tr {
+                animation: slideIn 0.3s ease forwards;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            /* Responsive improvements */
+            @media (max-width: 480px) {
+                .header h1 {
+                    font-size: 1.5em;
+                }
+                
+                .section-title {
+                    font-size: 1.5em;
+                }
+                
+                .data-table {
+                    font-size: 0.8em;
+                }
+                
+                .entity {
+                    font-size: 0.9em;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
