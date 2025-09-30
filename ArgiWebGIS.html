@@ -1,0 +1,3137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فازبندی پروژه WebGIS دستیار کشاورزی هوشمند</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c1e 0%, #2d5a2d 50%, #3d7a3d 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 40px 20px;
+        }
+
+        .phase {
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #388e3c 0%, #4caf50 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .phase-header:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(76, 175, 80, 0.4);
+        }
+
+        .phase-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .phase-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .phase-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .summary-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin: 5px;
+        }
+
+        .summary-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .summary-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .months-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            padding: 0 20px;
+        }
+
+        .month-card {
+            background: linear-gradient(135deg, #f1f8f4 0%, #e8f5e9 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #81c784;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(76, 175, 80, 0.3);
+            border-color: #4caf50;
+        }
+
+        .month-title {
+            font-size: 1.5em;
+            color: #2e7d32;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #4caf50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .month-number {
+            background: linear-gradient(135deg, #43a047 0%, #66bb6a 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .team-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .team-row {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border-right: 4px solid #4caf50;
+            transition: all 0.3s ease;
+        }
+
+        .team-row:hover {
+            background: #f1f8f4;
+            transform: translateX(-5px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+        }
+
+        .team-role {
+            font-weight: bold;
+            color: #2e7d32;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .team-details {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .detail-icon {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .month-total {
+            background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .task-description {
+            background: #fff3e0;
+            border-right: 4px solid #ff9800;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            color: #e65100;
+            font-weight: 500;
+        }
+
+        .sprints-section {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 40px;
+            margin: 40px 0;
+            border-radius: 15px;
+        }
+
+        .sprint-title {
+            font-size: 2em;
+            color: #1b5e20;
+            margin-bottom: 30px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sprint-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 3px solid #4caf50;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sprint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #c8e6c9;
+        }
+
+        .sprint-name {
+            font-size: 1.5em;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .sprint-duration {
+            background: #4caf50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .milestone-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .milestone-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f1f8f4;
+            border-radius: 10px;
+            border-right: 5px solid #66bb6a;
+            transition: all 0.3s ease;
+        }
+
+        .milestone-item:hover {
+            background: #e8f5e9;
+            transform: translateX(-5px);
+        }
+
+        .milestone-item::before {
+            content: "✓";
+            color: #4caf50;
+            font-weight: bold;
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .total-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .total-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .total-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .total-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .months-container {
+                grid-template-columns: 1fr;
+            }
+
+            .phase-summary {
+                flex-direction: column;
+            }
+        }
+
+        .collapse-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .collapse-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .collapsible-content {
+            max-height: 5000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌾 فازبندی پروژه WebGIS دستیار کشاورزی هوشمند</h1>
+            <p>برنامه‌ریزی جامع توسعه و پیاده‌سازی سامانه</p>
+        </div>
+
+        <div class="timeline">
+            <!-- فاز 1 -->
+            <div class="phase">
+                <div class="phase-header" onclick="togglePhase('phase1')">
+                    <div class="phase-title">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="phase-icon">📋</div>
+                            <span>فاز 1: تحلیل و طراحی</span>
+                        </div>
+                        <button class="collapse-btn">نمایش/پنهان</button>
+                    </div>
+                    <div class="phase-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">مدت زمان</div>
+                            <div class="summary-value">3 ماه</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">هزینه کل</div>
+                            <div class="summary-value">171 میلیون تومان</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">تیم</div>
+                            <div class="summary-value">3-4 نفر</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="phase1" class="collapsible-content">
+                    <div class="months-container">
+                        <!-- ماه 1 -->
+                        <div class="month-card">
+                            <div class="month-title">
+                                <div class="month-number">1</div>
+                                <span>ماه اول</span>
+                            </div>
+                            
+                            <div class="team-table">
+                                <div class="team-row">
+                                    <div class="team-role">👔 مدیر پروژه</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>15 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 مدیریت کلی و برنامه‌ریزی پروژه
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🏗️ معمار سیستم</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>18 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 طراحی معماری کلی سیستم
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🌱 مشاور کشاورزی</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>12 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 تحلیل نیازهای کشاورزی و دامنه کاری
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="month-total">
+                                💵 هزینه ماه اول: 45 میلیون تومان | تیم: 3 نفر
+                            </div>
+                        </div>
+
+                        <!-- ماه 2 -->
+                        <div class="month-card">
+                            <div class="month-title">
+                                <div class="month-number">2</div>
+                                <span>ماه دوم</span>
+                            </div>
+                            
+                            <div class="team-table">
+                                <div class="team-row">
+                                    <div class="team-role">👔 مدیر پروژه</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>15 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 نظارت بر فرآیند طراحی
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🏗️ معمار سیستم</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>18 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 طراحی معماری سیستم و زیرساخت
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">💻 توسعه‌دهنده Senior</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>16 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 طراحی APIها و ساختار Backend
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🗺️ متخصص GIS</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>17 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 طراحی سیستم مکانی و لایه‌های نقشه
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="month-total">
+                                💵 هزینه ماه دوم: 66 میلیون تومان | تیم: 4 نفر
+                            </div>
+                        </div>
+
+                        <!-- ماه 3 -->
+                        <div class="month-card">
+                            <div class="month-title">
+                                <div class="month-number">3</div>
+                                <span>ماه سوم</span>
+                            </div>
+                            
+                            <div class="team-table">
+                                <div class="team-row">
+                                    <div class="team-role">👔 مدیر پروژه</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>15 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 مدیریت پروژه و هماهنگی تیم‌ها
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">💻 توسعه‌دهنده Senior</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>16 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 طراحی پایگاه داده و مدل‌های داده
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🗺️ متخصص GIS</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>17 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 طراحی Spatial Database و ساختار مکانی
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🧪 مهندس تست</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>12 میلیون تومان</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 طراحی استراتژی تست و QA
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="month-total">
+                                💵 هزینه ماه سوم: 60 میلیون تومان | تیم: 4 نفر
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فاز 2 -->
+            <div class="phase">
+                <div class="phase-header" onclick="togglePhase('phase2')">
+                    <div class="phase-title">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div class="phase-icon">⚙️</div>
+                            <span>فاز 2: توسعه هسته سیستم</span>
+                        </div>
+                        <button class="collapse-btn">نمایش/پنهان</button>
+                    </div>
+                    <div class="phase-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">مدت زمان</div>
+                            <div class="summary-value">6 ماه</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">هزینه کل</div>
+                            <div class="summary-value">348 میلیون تومان</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">تیم</div>
+                            <div class="summary-value">4 نفر</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="phase2" class="collapsible-content">
+                    <div class="months-container">
+                        <!-- ماه‌های 4-5 -->
+                        <div class="month-card">
+                            <div class="month-title">
+                                <div class="month-number">4-5</div>
+                                <span>ماه‌های چهارم و پنجم</span>
+                            </div>
+                            
+                            <div class="team-table">
+                                <div class="team-row">
+                                    <div class="team-role">👔 مدیر پروژه</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>30 میلیون تومان (2 ماه)</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 مدیریت فرآیند توسعه Backend
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">💻 توسعه‌دهنده Senior</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>32 میلیون تومان (2 ماه)</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 توسعه Backend و سیستم Authentication
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">💻 توسعه‌دهنده Mid-level</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>28 میلیون تومان (2 ماه)</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 پیاده‌سازی APIهای اصلی سیستم
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🧪 مهندس تست</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>24 میلیون تومان (2 ماه)</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 تست‌های یکپارچگی و Unit Testing
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="month-total">
+                                💵 هزینه ماه‌های 4-5: 114 میلیون تومان | تیم: 4 نفر
+                            </div>
+                        </div>
+
+                        <!-- ماه‌های 6-7 -->
+                        <div class="month-card">
+                            <div class="month-title">
+                                <div class="month-number">6-7</div>
+                                <span>ماه‌های ششم و هفتم</span>
+                            </div>
+                            
+                            <div class="team-table">
+                                <div class="team-row">
+                                    <div class="team-role">👔 مدیر پروژه</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-icon">💰</span>
+                                            <span>30 میلیون تومان (2 ماه)</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-description">
+                                        📌 نظارت بر توسعه Frontend
+                                    </div>
+                                </div>
+
+                                <div class="team-row">
+                                    <div class="team-role">🎨 توسعه‌دهنده Frontend</div>
+                                    <div class="team-details">
+                                        <div class="detail-item">
+                                            <span class="detail-icon">👥</span>
+                                            <span>1 نفر</span>
+                                        </div>
+                                        # فایل HTML ارائه فازبندی پروژه
+
+```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فازبندی پروژه WebGIS دستیار کشاورزی هوشمند</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 50%, #40916c 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .phase-section {
+            margin-bottom: 50px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .phase-header {
+            background: linear-gradient(90deg, #52b788 0%, #74c69d 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(82, 183, 136, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .phase-header h2 {
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .phase-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .phase-total {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .month-card {
+            background: #f8f9fa;
+            border-right: 5px solid #52b788;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .month-card:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(82, 183, 136, 0.2);
+        }
+
+        .month-title {
+            background: linear-gradient(90deg, #2d6a4f 0%, #40916c 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cost-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .team-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            margin-top: 15px;
+        }
+
+        .team-table thead th {
+            background: #95d5b2;
+            color: #1e5128;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .team-table thead th:first-child {
+            border-top-right-radius: 10px;
+        }
+
+        .team-table thead th:last-child {
+            border-top-left-radius: 10px;
+        }
+
+        .team-table tbody tr {
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .team-table tbody tr:hover {
+            background: #d8f3dc;
+            transform: scale(1.02);
+        }
+
+        .team-table tbody td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .team-table tbody tr:last-child td {
+            border-bottom: none;
+            font-weight: bold;
+            background: #b7e4c7;
+            color: #1e5128;
+        }
+
+        .role-cell {
+            font-weight: 600;
+            color: #2d6a4f;
+        }
+
+        .tasks-cell {
+            text-align: right;
+            color: #555;
+            font-style: italic;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #1e5128 0%, #2d6a4f 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .summary-section h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+        }
+
+        .summary-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .summary-card .value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .sprint-section {
+            background: #f1faee;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 2px solid #95d5b2;
+        }
+
+        .sprint-section h3 {
+            color: #1e5128;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sprint-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .sprint-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 4px solid #52b788;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .sprint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(82, 183, 136, 0.2);
+        }
+
+        .sprint-card h4 {
+            color: #2d6a4f;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #95d5b2;
+        }
+
+        .sprint-card ul {
+            list-style: none;
+            padding-right: 0;
+        }
+
+        .sprint-card li {
+            padding: 8px 0;
+            color: #555;
+            position: relative;
+            padding-right: 20px;
+        }
+
+        .sprint-card li::before {
+            content: '✓';
+            position: absolute;
+            right: 0;
+            color: #52b788;
+            font-weight: bold;
+        }
+
+        .milestone-badge {
+            background: linear-gradient(90deg, #52b788 0%, #74c69d 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .footer {
+            background: #1e5128;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .phase-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .team-table {
+                font-size: 0.85em;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 فازبندی پروژه WebGIS دستیار کشاورزی هوشمند</h1>
+            <p>برنامه‌ریزی جامع توسعه و پیاده‌سازی</p>
+        </div>
+
+        <div class="content">
+            <!-- فاز 1: تحلیل و طراحی -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <h2>
+                        <span class="phase-icon">📋</span>
+                        فاز 1: تحلیل و طراحی
+                    </h2>
+                    <div class="phase-total">
+                        مجموع: 171 میلیون تومان
+                    </div>
+                </div>
+
+                <!-- ماه 1 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 1: تحلیل نیازمندی‌ها</span>
+                        <span class="cost-badge">45 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت کلی، برنامه‌ریزی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">معمار سیستم</td>
+                                <td>1</td>
+                                <td>18</td>
+                                <td>18</td>
+                                <td class="tasks-cell">طراحی معماری کلی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مشاور کشاورزی</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>12</td>
+                                <td class="tasks-cell">تحلیل نیازهای کشاورزی</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 1</strong></td>
+                                <td><strong>45</strong></td>
+                                <td class="tasks-cell"><strong>3 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 2 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 2: طراحی معماری</span>
+                        <span class="cost-badge">66 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">نظارت بر طراحی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">معمار سیستم</td>
+                                <td>1</td>
+                                <td>18</td>
+                                <td>18</td>
+                                <td class="tasks-cell">طراحی معماری سیستم</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">طراحی API ها</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">متخصص GIS</td>
+                                <td>1</td>
+                                <td>17</td>
+                                <td>17</td>
+                                <td class="tasks-cell">طراحی سیستم مکانی</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 2</strong></td>
+                                <td><strong>66</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 3 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 3: طراحی پایگاه داده</span>
+                        <span class="cost-badge">60 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت پروژه</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">طراحی پایگاه داده</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">متخصص GIS</td>
+                                <td>1</td>
+                                <td>17</td>
+                                <td>17</td>
+                                <td class="tasks-cell">طراحی spatial database</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>12</td>
+                                <td class="tasks-cell">طراحی استراتژی تست</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 3</strong></td>
+                                <td><strong>60</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sprint های فاز 1 -->
+                <div class="sprint-section">
+                    <h3>🎯 Sprint های فاز 1</h3>
+                    <div class="sprint-grid">
+                        <div class="sprint-card">
+                            <h4>Sprint 1 (هفته‌های 1-2)</h4>
+                            <ul>
+                                <li>جمع‌آوری نیازمندی‌های کسب‌وکار</li>
+                                <li>مصاحبه با ذینفعان</li>
+                                <li>تحلیل فرآیندهای کشاورزی</li>
+                                <li>تهیه مستندات اولیه</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: سند نیازمندی‌ها</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 2 (هفته‌های 3-4)</h4>
+                            <ul>
+                                <li>تحلیل نیازمندی‌های فنی</li>
+                                <li>بررسی فناوری‌های موجود</li>
+                                <li>تعیین معماری کلی سیستم</li>
+                                <li>طراحی دیاگرام‌های Use Case</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: سند معماری اولیه</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 3 (هفته‌های 5-6)</h4>
+                            <ul>
+                                <li>طراحی معماری سیستم</li>
+                                <li>تعیین لایه‌های سیستم</li>
+                                <li>طراحی ارتباط بین ماژول‌ها</li>
+                                <li>انتخاب تکنولوژی‌ها</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: سند معماری تفصیلی</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 4 (هفته‌های 7-8)</h4>
+                            <ul>
+                                <li>طراحی API های سیستم</li>
+                                <li>تعریف Endpoints</li>
+                                <li>طراحی سیستم احراز هویت</li>
+                                <li>تهیه مستندات API</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: مستندات API</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 5 (هفته‌های 9-10)</h4>
+                            <ul>
+                                <li>طراحی پایگاه داده رابطه‌ای</li>
+                                <li>طراحی مدل‌های داده</li>
+                                <li>تعریف روابط بین جداول</li>
+                                <li>طراحی Indexes</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: دیاگرام ERD</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 6 (هفته‌های 11-12)</h4>
+                            <ul>
+                                <li>طراحی Spatial Database</li>
+                                <li>تعریف لایه‌های مکانی</li>
+                                <li>طراحی استراتژی تست</li>
+                                <li>تهیه Test Cases</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: سند طراحی کامل</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فاز 2: توسعه هسته سیستم -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <h2>
+                        <span class="phase-icon">💻</span>
+                        فاز 2: توسعه هسته سیستم
+                    </h2>
+                    <div class="phase-total">
+                        مجموع: 348 میلیون تومان
+                    </div>
+                </div>
+
+                <!-- ماه‌های 4-5 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه‌های 4-5: Backend اصلی</span>
+                        <span class="cost-badge">114 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>30</td>
+                                <td class="tasks-cell">مدیریت توسعه</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>32</td>
+                                <td class="tasks-cell">Backend و Authentication</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Mid-level</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>28</td>
+                                <td class="tasks-cell">API های اصلی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>24</td>
+                                <td class="tasks-cell">تست‌های یکپارچگی</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه‌های 4-5</strong></td>
+                                <td><strong>114</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه‌های 6-7 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه‌های 6-7: Frontend و UI</span>
+                        <span class="cost-badge">114 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>30</td>
+                                <td class="tasks-cell">نظارت بر Frontend</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Frontend</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>30</td>
+                                <td class="tasks-cell">رابط کاربری</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">UI/UX Designer</td>
+                                <td>1</td>
+                                <td>13</td>
+                                <td>26</td>
+                                <td class="tasks-cell">طراحی تجربه کاربری</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Mid-level</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>28</td>
+                                <td class="tasks-cell">ادغام Frontend/Backend</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه‌های 6-7</strong></td>
+                                <td><strong>114</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه‌های 8-9 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه‌های 8-9: سیستم GIS</span>
+                        <span class="cost-badge">120 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>30</td>
+                                <td class="tasks-cell">مدیریت GIS</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">متخصص GIS</td>
+                                <td>1</td>
+                                <td>17</td>
+                                <td>34</td>
+                                <td class="tasks-cell">سیستم نقشه‌ها</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>32</td>
+                                <td class="tasks-cell">ادغام PostGIS</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>24</td>
+                                <td class="tasks-cell">تست عملیات مکانی</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه‌های 8-9</strong></td>
+                                <td><strong>120</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sprint های فاز 2 -->
+                <div class="sprint-section">
+                    <h3>🎯 Sprint های فاز 2</h3>
+                    <div class="sprint-grid">
+                        <div class="sprint-card">
+                            <h4>Sprint 1 (هفته‌های 1-2)</h4>
+                            <ul>
+                                <li>راه‌اندازی Django + DRF</li>
+                                <li>پیکربندی PostgreSQL</li>
+                                <li>طراحی مدل‌های User</li>
+                                <li>پیاده‌سازی JWT Authentication</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Authentication Ready</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 2 (هفته‌های 3-4)</h4>
+                            <ul>
+                                <li>سیستم مدیریت کاربران</li>
+                                <li>Role-Based Permissions</li>
+                                <li>Audit Log System</li>
+                                <li>API Documentation</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: User Management Complete</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 3 (هفته‌های 5-6)</h4>
+                            <ul>
+                                <li>طراحی Spatial Models</li>
+                                <li>پیاده‌سازی GeoDjango</li>
+                                <li>Spatial Indexing</li>
+                                <li>محاسبات مساحت/فاصله</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Spatial Database Ready</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 4 (هفته‌های 7-8)</h4>
+                            <ul>
+                                <li>Map Tile Server Setup</li>
+                                <li>WMS/WFS Services</li>
+                                <li>Layer Management</li>
+                                <li>Spatial Query API</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Map Services Live</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 5 (هفته‌های 9-10)</h4>
+                            <ul>
+                                <li>Farm Management Models</li>
+                                <li>Crop Management System</li>
+                                <li>Planting Schedule</li>
+                                <li>Agricultural Calendar</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Farm Management Complete</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 6 (هفته‌های 11-12)</h4>
+                            <ul>
+                                <li>Dashboard API</li>
+                                <li>Statistics & Analytics</li>
+                                <li>Report Generation</li>
+                                <li>Notification System</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Core System Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فاز 3: ماژول‌های تخصصی -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <h2>
+                        <span class="phase-icon">🌾</span>
+                        فاز 3: ماژول‌های تخصصی کشاورزی
+                    </h2>
+                    <div class="phase-total">
+                        مجموع: 224 میلیون تومان
+                    </div>
+                </div>
+
+                <!-- ماه 10 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 10: سیستم آبیاری هوشمند</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت ماژول آبیاری</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">سیستم آبیاری</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مشاور کشاورزی</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>12</td>
+                                <td class="tasks-cell">الگوریتم‌های آبیاری</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس IoT</td>
+                                <td>1</td>
+                                <td>13</td>
+                                <td>13</td>
+                                <td class="tasks-cell">ادغام سنسورها</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 10</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 11 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 11: سیستم پیش‌بینی محصول</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت ماژول ML</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">Data Scientist</td>
+                                <td>1</td>
+                                <td>18</td>
+                                <td>18</td>
+                                <td class="tasks-cell">مدل‌های پیش‌بینی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">ادغام ML با Backend</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مشاور کشاورزی</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>12</td>
+                                <td class="tasks-cell">اعتبارسنجی مدل‌ها</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 11</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 12 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 12: سیستم تشخیص بیماری</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت ماژول تشخیص</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">Data Scientist</td>
+                                <td>1</td>
+                                <td>18</td>
+                                <td>18</td>
+                                <td class="tasks-cell">مدل‌های Computer Vision</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">سرویس تشخیص تصویر</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">متخصص گیاه‌پزشکی</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>12</td>
+                                <td class="tasks-cell">پایگاه داده بیماری‌ها</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 12</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 13 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 13: ادغام و بهینه‌سازی</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">نظارت بر ادغام</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">ادغام ماژول‌ها</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس DevOps</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>14</td>
+                                <td class="tasks-cell">بهینه‌سازی Performance</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>12</td>
+                                <td class="tasks-cell">تست یکپارچگی کامل</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 13</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sprint های فاز 3 -->
+                <div class="sprint-section">
+                    <h3>🎯 Sprint های فاز 3</h3>
+                    <div class="sprint-grid">
+                        <div class="sprint-card">
+                            <h4>Sprint 1-2 (ماه 10)</h4>
+                            <ul>
+                                <li>طراحی سیستم آبیاری</li>
+                                <li>ادغام سنسورهای رطوبت</li>
+                                <li>الگوریتم محاسبه نیاز آبی</li>
+                                <li>سیستم زمان‌بندی آبیاری</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Smart Irrigation</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 3-4 (ماه 11)</h4>
+                            <ul>
+                                <li>جمع‌آوری داده‌های تاریخی</li>
+                                <li>آموزش مدل‌های ML</li>
+                                <li>پیش‌بینی عملکرد محصول</li>
+                                <li>API های پیش‌بینی</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Yield Prediction</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 5-6 (ماه 12)</h4>
+                            <ul>
+                                <li>پایگاه داده بیماری‌ها</li>
+                                <li>مدل تشخیص تصویر</li>
+                                <li>سیستم توصیه درمان</li>
+                                <li>Mobile App Integration</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Disease Detection</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 7-8 (ماه 13)</h4>
+                            <ul>
+                                <li>ادغام تمام ماژول‌ها</li>
+                                <li>بهینه‌سازی Performance</li>
+                                <li>تست یکپارچگی کامل</li>
+                                <li>رفع باگ‌های نهایی</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Integration Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فاز 4: تست و بهینه‌سازی -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <h2>
+                        <span class="phase-icon">🧪</span>
+                        فاز 4: تست و بهینه‌سازی
+                    </h2>
+                    <div class="phase-total">
+                        مجموع: 168 میلیون تومان
+                    </div>
+                </div>
+
+                <!-- ماه 14 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 14: تست‌های جامع</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت فرآیند تست</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست ارشد</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>14</td>
+                                <td class="tasks-cell">طراحی سناریوهای تست</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>2</td>
+                                <td>12</td>
+                                <td>24</td>
+                                <td class="tasks-cell">اجرای تست‌های دستی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس Automation</td>
+                                <td>1</td>
+                                <td>13</td>
+                                <td>13</td>
+                                <td class="tasks-cell">تست‌های خودکار</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 14</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>5 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 15 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 15: بهینه‌سازی Performance</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">نظارت بر بهینه‌سازی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">بهینه‌سازی کد</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس DevOps</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>14</td>
+                                <td class="tasks-cell">بهینه‌سازی زیرساخت</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">DBA</td>
+                                <td>1</td>
+                                <td>13</td>
+                                <td>13</td>
+                                <td class="tasks-cell">بهینه‌سازی دیتابیس</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 15</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 16 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 16: تست امنیتی و UAT</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">هماهنگی UAT</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">متخصص امنیت</td>
+                                <td>1</td>
+                                <td>18</td>
+                                <td>18</td>
+                                <td class="tasks-cell">Penetration Testing</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>2</td>
+                                <td>12</td>
+                                <td>24</td>
+                                <td class="tasks-cell">پشتیبانی UAT</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 16</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sprint های فاز 4 -->
+                <div class="sprint-section">
+                    <h3>🎯 Sprint های فاز 4</h3>
+                    <div class="sprint-grid">
+                        <div class="sprint-card">
+                            <h4>Sprint 1-2 (ماه 14)</h4>
+                            <ul>
+                                <li>Unit Testing (Coverage > 85%)</li>
+                                <li>Integration Testing</li>
+                                <li>API Testing</li>
+                                <li>UI/UX Testing</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Comprehensive Testing</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 3-4 (ماه 15)</h4>
+                            <ul>
+                                <li>Query Optimization</li>
+                                <li>Caching Implementation</li>
+                                <li>Load Balancing</li>
+                                <li>CDN Configuration</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Performance Optimized</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 5-6 (ماه 16)</h4>
+                            <ul>
+                                <li>Security Audit</li>
+                                <li>Vulnerability Assessment</li>
+                                <li>User Acceptance Testing</li>
+                                <li>Bug Fixing</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Production Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فاز 5: استقرار و راه‌اندازی -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <h2>
+                        <span class="phase-icon">🚀</span>
+                        فاز 5: استقرار و راه‌اندازی
+                    </h2>
+                    <div class="phase-total">
+                        مجموع: 112 میلیون تومان
+                    </div>
+                </div>
+
+                <!-- ماه 17 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 17: آماده‌سازی Production</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت استقرار</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس DevOps ارشد</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">راه‌اندازی Production</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس DevOps</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>14</td>
+                                <td class="tasks-cell">پیکربندی سرورها</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس امنیت</td>
+                                <td>1</td>
+                                <td>13</td>
+                                <td>13</td>
+                                <td class="tasks-cell">تنظیمات امنیتی</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 17</strong></td>
+                                <td><strong>56</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 18 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 18: راه‌اندازی و پشتیبانی</span>
+                        <span class="cost-badge">56 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">نظارت بر راه‌اندازی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس DevOps</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>14</td>
+                                <td class="tasks-cell">Monitoring & Logging</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">رفع مشکلات فوری</td>
+                            </tr>
+                            <tr>
+                                <td class="```html
+                                <td class="tasks-cell">تست‌های مکانی</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه‌های 8-9</strong></td>
+                                <td><strong>120</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sprint های فاز 2 -->
+                <div class="sprint-section">
+                    <h3>🎯 Sprint های فاز 2</h3>
+                    <div class="sprint-grid">
+                        <div class="sprint-card">
+                            <h4>Sprint 7 (هفته‌های 13-14)</h4>
+                            <ul>
+                                <li>راه‌اندازی Django + DRF</li>
+                                <li>پیکربندی PostgreSQL</li>
+                                <li>سیستم احراز هویت JWT</li>
+                                <li>مدل‌های User و Profile</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Authentication Ready</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 8 (هفته‌های 15-16)</h4>
+                            <ul>
+                                <li>سیستم مجوزها (RBAC)</li>
+                                <li>API های مدیریت کاربران</li>
+                                <li>Audit Logging</li>
+                                <li>Unit Tests</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: User Management Complete</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 9 (هفته‌های 17-18)</h4>
+                            <ul>
+                                <li>راه‌اندازی PostGIS</li>
+                                <li>مدل‌های مکانی (GeoDjango)</li>
+                                <li>Spatial Queries</li>
+                                <li>محاسبات جغرافیایی</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Spatial Engine Ready</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 10 (هفته‌های 19-20)</h4>
+                            <ul>
+                                <li>API های GIS</li>
+                                <li>سرویس‌های مکانی</li>
+                                <li>GeoJSON Support</li>
+                                <li>Spatial Indexing</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: GIS APIs Complete</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 11 (هفته‌های 21-22)</h4>
+                            <ul>
+                                <li>طراحی UI/UX</li>
+                                <li>ساخت کامپوننت‌های React</li>
+                                <li>ادغام Leaflet/Mapbox</li>
+                                <li>نمایش مزارع روی نقشه</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Frontend Base Ready</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 12 (هفته‌های 23-24)</h4>
+                            <ul>
+                                <li>ابزارهای رسم نقشه</li>
+                                <li>لایه‌های اطلاعاتی</li>
+                                <li>فیلترها و جستجو</li>
+                                <li>Responsive Design</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Interactive Map Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فاز 3: ماژول‌های تخصصی -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <h2>
+                        <span class="phase-icon">🌾</span>
+                        فاز 3: ماژول‌های تخصصی کشاورزی
+                    </h2>
+                    <div class="phase-total">
+                        مجموع: 234 میلیون تومان
+                    </div>
+                </div>
+
+                <!-- ماه‌های 10-11 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه‌های 10-11: مدیریت مزرعه</span>
+                        <span class="cost-badge">114 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>30</td>
+                                <td class="tasks-cell">هماهنگی تیم</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>32</td>
+                                <td class="tasks-cell">ماژول مدیریت مزرعه</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مشاور کشاورزی</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>24</td>
+                                <td class="tasks-cell">Business Logic کشاورزی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Mid-level</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>28</td>
+                                <td class="tasks-cell">API های مزرعه</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه‌های 10-11</strong></td>
+                                <td><strong>114</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه‌های 12-13 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه‌های 12-13: سیستم‌های هوشمند</span>
+                        <span class="cost-badge">120 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>30</td>
+                                <td class="tasks-cell">مدیریت پروژه</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس داده</td>
+                                <td>1</td>
+                                <td>17</td>
+                                <td>34</td>
+                                <td class="tasks-cell">سیستم Analytics</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>32</td>
+                                <td class="tasks-cell">ادغام سنسورها</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>24</td>
+                                <td class="tasks-cell">تست‌های سیستم</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه‌های 12-13</strong></td>
+                                <td><strong>120</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sprint های فاز 3 -->
+                <div class="sprint-section">
+                    <h3>🎯 Sprint های فاز 3</h3>
+                    <div class="sprint-grid">
+                        <div class="sprint-card">
+                            <h4>Sprint 13 (هفته‌های 25-26)</h4>
+                            <ul>
+                                <li>مدل‌های مزرعه و قطعات</li>
+                                <li>مدیریت محصولات</li>
+                                <li>سیستم چرخش محصول</li>
+                                <li>تقویم کشاورزی</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Farm Management Ready</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 14 (هفته‌های 27-28)</h4>
+                            <ul>
+                                <li>برنامه‌ریزی کشت</li>
+                                <li>مدیریت فصول</li>
+                                <li>ثبت فعالیت‌های مزرعه</li>
+                                <li>گزارش‌گیری</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Crop Planning Complete</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 15 (هفته‌های 29-30)</h4>
+                            <ul>
+                                <li>ادغام سنسورهای IoT</li>
+                                <li>جمع‌آوری داده‌های محیطی</li>
+                                <li>سیستم هشدار</li>
+                                <li>داشبورد Real-time</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: IoT Integration Ready</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 16 (هفته‌های 31-32)</h4>
+                            <ul>
+                                <li>سیستم تحلیل داده</li>
+                                <li>محاسبه NDVI</li>
+                                <li>پیش‌بینی عملکرد</li>
+                                <li>تشخیص ناهنجاری</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Analytics Engine Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فاز 4: تست و بهینه‌سازی -->
+            <div class="phase-section">
+                <div class="phase-header">
+                    <h2>
+                        <span class="phase-icon">🧪</span>
+                        فاز 4: تست، بهینه‌سازی و استقرار
+                    </h2>
+                    <div class="phase-total">
+                        مجموع: 174 میلیون تومان
+                    </div>
+                </div>
+
+                <!-- ماه‌های 14-15 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه‌های 14-15: تست و بهینه‌سازی</span>
+                        <span class="cost-badge">114 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>30</td>
+                                <td class="tasks-cell">نظارت بر تست‌ها</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست Senior</td>
+                                <td>1</td>
+                                <td>14</td>
+                                <td>28</td>
+                                <td class="tasks-cell">تست‌های جامع</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>1</td>
+                                <td>12</td>
+                                <td>24</td>
+                                <td class="tasks-cell">تست‌های خودکار</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>32</td>
+                                <td class="tasks-cell">بهینه‌سازی Performance</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه‌های 14-15</strong></td>
+                                <td><strong>114</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ماه 16 -->
+                <div class="month-card">
+                    <div class="month-title">
+                        <span>ماه 16: استقرار و راه‌اندازی</span>
+                        <span class="cost-badge">60 میلیون تومان</span>
+                    </div>
+                    <table class="team-table">
+                        <thead>
+                            <tr>
+                                <th>نقش</th>
+                                <th>تعداد</th>
+                                <th>حقوق ماهانه (م.ت)</th>
+                                <th>هزینه</th>
+                                <th>شرح وظایف</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="role-cell">مدیر پروژه</td>
+                                <td>1</td>
+                                <td>15</td>
+                                <td>15</td>
+                                <td class="tasks-cell">مدیریت استقرار</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس DevOps</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">استقرار Production</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">توسعه‌دهنده Senior</td>
+                                <td>1</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td class="tasks-cell">پشتیبانی فنی</td>
+                            </tr>
+                            <tr>
+                                <td class="role-cell">مهندس تست</td>
+                                <td>1</td>
+                                <td>13</td>
+                                <td>13</td>
+                                <td class="tasks-cell">تست Production</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3"><strong>مجموع ماه 16</strong></td>
+                                <td><strong>60</strong></td>
+                                <td class="tasks-cell"><strong>4 نفر</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sprint های فاز 4 -->
+                <div class="sprint-section">
+                    <h3>🎯 Sprint های فاز 4</h3>
+                    <div class="sprint-grid">
+                        <div class="sprint-card">
+                            <h4>Sprint 17 (هفته‌های 33-34)</h4>
+                            <ul>
+                                <li>Unit Testing (Coverage > 85%)</li>
+                                <li>Integration Testing</li>
+                                <li>API Testing</li>
+                                <li>رفع باگ‌های کشف شده</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Testing Phase 1 Complete</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 18 (هفته‌های 35-36)</h4>
+                            <ul>
+                                <li>Performance Testing</li>
+                                <li>Load Testing</li>
+                                <li>Security Testing</li>
+                                <li>بهینه‌سازی Queries</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Performance Optimized</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 19 (هفته‌های 37-38)</h4>
+                            <ul>
+                                <li>User Acceptance Testing</li>
+                                <li>Beta Testing</li>
+                                <li>رفع مشکلات کاربران</li>
+                                <li>تهیه مستندات کاربری</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: UAT Complete</span>
+                        </div>
+
+                        <div class="sprint-card">
+                            <h4>Sprint 20 (هفته‌های 39-40)</h4>
+                            <ul>
+                                <li>راه‌اندازی Production</li>
+                                <li>پیکربندی Monitoring</li>
+                                <li>تنظیم Backup Strategy</li>
+                                <li>آموزش کاربران</li>
+                            </ul>
+                            <span class="milestone-badge">Milestone: Production Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- خلاصه کلی پروژه -->
+            <div class="summary-section">
+                <h2>📊 خلاصه کلی پروژه</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>مدت زمان کل</h3>
+                        <div class="value">16 ماه</div>
+                        <p>(40 هفته / 20 Sprint)</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>هزینه کل پروژه</h3>
+                        <div class="value">927 م.ت</div>
+                        <p>نهصد و بیست و هفت میلیون تومان</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>تعداد کل تیم</h3>
+                        <div class="value">4-5 نفر</div>
+                        <p>به طور متوسط در هر ماه</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>تعداد Sprint ها</h3>
+                        <div class="value">20 Sprint</div>
+                        <p>هر Sprint دو هفته‌ای</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 30px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 20px;">📋 توزیع هزینه به تفکیک فازها</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; text-align: center;">
+                        <div>
+                            <div style="font-size: 1.1em; opacity: 0.9;">فاز 1: تحلیل و طراحی</div>
+                            <div style="font-size: 2em; font-weight: bold; margin-top: 10px;">171 م.ت</div>
+                            <div style="opacity: 0.8; margin-top: 5px;">18.4%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.1em; opacity: 0.9;">فاز 2: توسعه هسته</div>
+                            <div style="font-size: 2em; font-weight: bold; margin-top: 10px;">348 م.ت</div>
+                            <div style="opacity: 0.8; margin-top: 5px;">37.5%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.1em; opacity: 0.9;">فاز 3: ماژول‌های تخصصی</div>
+                            <div style="font-size: 2em; font-weight: bold; margin-top: 10px;">234 م.ت</div>
+                            <div style="opacity: 0.8; margin-top: 5px;">25.2%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.1em; opacity: 0.9;">فاز 4: تست و استقرار</div>
+                            <div style="font-size: 2em; font-weight: bold; margin-top: 10px;">174 م.ت</div>
+                            <div style="opacity: 0.8; margin-top: 5px;">18.9%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">✅ Milestones کلیدی پروژه</h3>
+                    <ul style="list-style: none; padding: 0; text-align: right;">
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>هفته 12:</strong> تکمیل فاز تحلیل و طراحی
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>هفته 16:</strong> سیستم احراز هویت و مدیریت کاربران آماده
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>هفته 20:</strong> موتور GIS و سیستم مکانی آماده
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>هفته 24:</strong> رابط کاربری و نقشه‌های تعاملی آماده
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>هفته 28:</strong> ماژول مدیریت مزرعه کامل
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>هفته 32:</strong> سیستم‌های هوشمند و Analytics آماده
+                        </li>
+                        <li style="padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                            <strong>هفته 38:</strong> تست‌های جامع و بهینه‌سازی تکمیل
+                        </li>
+                        <li style="padding: 10px 0;">
+                            <strong>هفته 40:</strong> استقرار در محیط Production و راه‌اندازی نهایی
+                        </li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">🎯 شاخص‌های موفقیت (KPIs)</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px;">
+                        <div style="text-align: right; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">✓ کیفیت کد</div>
+                            <div>Test Coverage بالای 85%</div>
+                        </div>
+                        <div style="text-align: right; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">✓ عملکرد</div>
+                            <div>زمان پاسخ API کمتر از 200ms</div>
+                        </div>
+                        <div style="text-align: right; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">✓ امنیت</div>
+                            <div>صفر آسیب‌پذیری Critical</div>
+                        </div>
+                        <div style="text-align: right; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">✓ مستندات</div>
+                            <div>100% API Endpoints مستندسازی شده</div>
+                        </div>
+                        <div style="text-align: right; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">✓ Uptime</div>
+                            <div>دسترس‌پذیری بالای 99.5%</div>
+                        </div>
+                        <div style="text-align: right; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-weight: bold; margin-bottom: 5px;">✓ رضایت کاربر</div>
+                            <div>امتیاز بالای 4 از 5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">⚙️ تکنولوژی‌های مورد استفاده</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; text-align: right;">
+                        <div>
+                            <div style="font-weight: bold; color: #95d5b2; margin-bottom: 10px;">Backend</div>
+                            <div>• Django 4.2+</div>
+                            <div>• Django REST Framework</div>
+                            <div>• Celery</div>
+                            <div>• Redis</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #95d5b2; margin-bottom: 10px;">Frontend</div>
+                            <div>• React 18+</div>
+                            <div>• Leaflet / Mapbox</div>
+                            <div>• Material-UI</div>
+                            <div>• Redux Toolkit</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #95d5b2; margin-bottom: 10px;">Database</div>
+                            <div>• PostgreSQL 15+</div>
+                            <div>• PostGIS 3.3+</div>
+                            <div>• pgAdmin</div>
+                            <div>• TimescaleDB</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #95d5b2; margin-bottom: 10px;">GIS & Mapping</div>
+                            <div>• GeoDjango</div>
+                            <div>• GeoServer</div>
+                            <div>• GDAL/OGR</div>
+                            <div>• Turf.js</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #95d5b2; margin-bottom: 10px;">DevOps</div>
+                            <div>• Docker</div>
+                            <div>• Docker Compose</div>
+                            <div>• Nginx</div>
+                            <div>• GitHub Actions</div>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; color: #95d5b2; margin-bottom: 10px;">Monitoring</div>
+                            <div>• Prometheus</div>
+                            <div>• Grafana</div>
+                            <div>• Sentry</div>
+                            <div>• ELK Stack</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">⚠️ ریسک‌ها و راهکارهای کاهش</h3>
+                    <div style="text-align: right;">
+                        <div style="padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #ff6b6b;">
+                            <div style="font-weight: bold; color: #ff6b6b; margin-bottom: 8px;">🔴 ریسک بالا: تاخیر در تحویل</div>
+                            <div style="margin-bottom: 5px;"><strong>راهکار:</strong> Sprint های دو هفته‌ای، Daily Standup، و Review منظم</div>
+                            <div><strong>احتمال:</strong> متوسط | <strong>تاثیر:</strong> بالا</div>
+                        </div>
+                        <div style="padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #ffa500;">
+                            <div style="font-weight: bold; color: #ffa500; margin-bottom: 8px;">🟠 ریسک متوسط: مشکلات فنی GIS</div>
+                            <div style="margin-bottom: 5px;"><strong>راهکار:</strong> استخدام متخصص GIS با تجربه، POC در فاز اول</div>
+                            <div><strong>احتمال:</strong> متوسط | <strong>تاثیر:</strong> متوسط</div>
+                        </div>
+                        <div style="padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #ffa500;">
+                            <div style="font-weight: bold; color: #ffa500; margin-bottom: 8px;">🟠 ریسک متوسط: تغییر نیازمندی‌ها</div>
+                            <div style="margin-bottom: 5px;"><strong>راهکار:</strong> مدیریت تغییرات منظم، جلسات هفتگی با ذینفعان</div>
+                            <div><strong>احتمال:</strong> بالا | <strong>تاثیر:</strong> متوسط</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #4caf50;">
+                            <div style="font-weight: bold; color: #4caf50; margin-bottom: 8px;">🟢 ریسک پایین: مشکلات امنیتی</div>
+                            <div style="margin-bottom: 5px;"><strong>راهکار:</strong> Security Audit منظم، استفاده از Best Practices</div>
+                            <div><strong>احتمال:</strong> پایین | <strong>تاثیر:</strong> بالا</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">📦 Deliverables هر فاز</h3>
+                    <div style="text-align: right;">
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: bold; font-size: 1.2em; color: #95d5b2; margin-bottom: 10px;">فاز 1: تحلیل و طراحی</div>
+                            <ul style="list-style: none; padding-right: 20px;">
+                                <li>✓ سند نیازمندی‌های کسب‌وکار (BRD)</li>
+                                <li>✓ سند نیازمندی‌های فنی (TRD)</li>
+                                <li>✓ دیاگرام معماری سیستم</li>
+                                <li>✓ دیاگرام ERD پایگاه داده</li>
+                                <li>✓ مستندات API (Swagger/OpenAPI)</li>
+                                <li>✓ Wireframes و Mockups</li>
+                            </ul>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: bold; font-size: 1.2em; color: #95d5b2; margin-bottom: 10px;">فاز 2: توسعه هسته سیستم</div>
+                            <ul style="list-style: none; padding-right: 20px;">
+                                <li>✓ سیستم احراز هویت JWT</li>
+                                <li>✓ سیستم مدیریت کاربران و نقش‌ها</li>
+                                <li>✓ موتور GIS و Spatial Database</li>
+                                <li>✓ API های RESTful کامل</li>
+                                <li>✓ رابط کاربری اصلی</li>
+                                <li>✓ سیستم نقشه تعاملی</li>
+                                <li>✓ Unit Tests (Coverage > 85%)</li>
+                            </ul>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-weight: bold; font-size: 1.2em; color: #95d5b2; margin-bottom: 10px;">فاز 3: ماژول‌های تخصصی</div>
+                            <ul style="list-style: none; padding-right: 20px;">
+                                <li>✓ سیستم مدیریت مزرعه</li>
+                                <li>✓ سیستم برنامه‌ریزی کشت</li>
+                                <li>✓ ماژول آبیاری هوشمند</li>
+                                <li>✓ سیستم تحلیل داده</li>
+                                <li>✓ ادغام سنسورهای IoT</li>
+                                <li>✓ داشبورد تحلیلی</li>
+                                <li>✓ سیستم گزارش‌گیری</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <div style="font-weight: bold; font-size: 1.2em; color: #95d5b2; margin-bottom: 10px;">فاز 4: تست و استقرار</div>
+                            <ul style="list-style: none; padding-right: 20px;">
+                                <li>✓ گزارش تست‌های جامع</li>
+                                <li>✓ مستندات کاربری</li>
+                                <li>✓ مستندات فنی</li>
+                                <li>✓ سیستم Monitoring و Logging</li>
+                                <li>✓ محیط Production آماده</li>
+                                <li>✓ برنامه Backup و Recovery</li>
+                                <li>✓ آموزش کاربران</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">👥 ساختار تیم پروژه</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; text-align: right;">
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">👔</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">مدیر پروژه</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">مدیریت کلی، برنامه‌ریزی، هماهنگی تیم</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">تمام مدت</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🏗️</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">معمار سیستم</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">طراحی معماری، تصمیمات فنی</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">فاز 1</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">💻</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">توسعه‌دهنده Senior</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">توسعه Backend، معماری کد</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">تمام مدت</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🗺️</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">متخصص GIS</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">سیستم‌های مکانی، نقشه‌ها</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">فازهای 1-2</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🎨</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">UI/UX Designer</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">طراحی رابط کاربری</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">فاز 2</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🧪</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">مهندس تست</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">تست و کنترل کیفیت</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">فازهای 2-4</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🌱</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">مشاور کشاورزی</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">دانش تخصصی کشاورزی</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">فازهای 1 و 3</div>
+                        </div>
+                        <div style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">⚙️</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">مهندس DevOps</div>
+                            <div style="opacity: 0.9; font-size: 0.9em;">زیرساخت، استقرار</div>
+                            <div style="margin-top: 10px; color: #95d5b2; font-weight: bold;">فاز 4</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">📅 تقویم پروژه (Gantt Chart Summary)</h3>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                            <thead>
+                                <tr style="background: rgba(149, 213, 178, 0.3);">
+                                    <th style="padding: 15px; text-align: right; border: 1px solid rgba(255,255,255,0.1);">فاز</th>
+                                    <th style="padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">شروع</th>
+                                    <th style="padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">پایان</th>
+                                    <th style="padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">مدت</th>
+                                    <th style="padding: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">وضعیت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 12px; text-align: right; border: 1px solid rgba(255,255,255,0.1);">فاز 1: تحلیل و طراحی</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 1</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 3</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">3 ماه</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                                        <span style="background: #4caf50; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.85em;">آماده شروع</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px; text-align: right; border: 1px solid rgba(255,255,255,0.1);">فاز 2: توسعه هسته سیستم</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 4</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 9</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">6 ماه</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                                        <span style="background: #2196f3; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.85em;">برنامه‌ریزی شده</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px; text-align: right; border: 1px solid rgba(255,255,255,0.1);">فاز 3: ماژول‌های تخصصی</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 10</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 13</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">4 ماه</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                                        <span style="background: #2196f3; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.85em;">برنامه‌ریزی شده</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 12px; text-align: right; border: 1px solid rgba(255,255,255,0.1);">فاز 4: تست و استقرار</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 14</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">ماه 16</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">3 ماه</td>
+                                    <td style="padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.1);">
+                                        <span style="background: #2196f3; color: white; padding: 5px 15px; border-radius: 15px; font-size: 0.85em;">برنامه‌ریزی شده</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 25px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h3 style="font-size: 1.5em; margin-bottom: 15px;">💡 توصیه‌های کلیدی</h3>
+                    <div style="text-align: right;">
+                        <div style="padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #4caf50;">
+                            <div style="font-weight: bold; margin-bottom: 8px;">✅ استفاده از متدولوژی Agile</div>
+                            <div>Sprint های دو هفته‌ای با Review و Retrospective منظم برای افزایش انعطاف‌پذیری</div>
+                        </div>
+                        <div style="padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #4caf50;">
+                            <div style="font-weight: bold; margin-bottom: 8px;">✅ CI/CD از ابتدا</div>
+                            <div>راه‌اندازی Pipeline های خودکار برای تست و Deploy از همان Sprint اول</div>
+                        </div>
+                        <div style="padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #4caf50;">
+                            <div style="font-weight: bold; margin-bottom: 8px;">✅ Documentation First</div>
+                            <div>مستندسازی همزمان با توسعه، نه در پایان پروژه</div>
+                        </div>
+                        <div style="padding: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #4caf50;">
+                            <div style="font-weight: bold; margin-bottom: 8px;">✅ Code Review اجباری</div>
+                            <div>هر Pull Request باید حداقل توسط یک نفر بررسی شود</div>
+                        </div>
+                        <div style="padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border-right: 4px solid #4caf50;">
+                            <div style="font-weight: bold; margin-bottom: 8px;">✅ ارتباط مداوم با ذینفعان</div>
+                            <div>جلسات هفتگی یا دو هفته‌ای با مشتری برای اطمینان از همسویی</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; text-align: center;">
+                    <div style="font-size: 1.2em; margin-bottom: 15px; opacity: 0.9;">
+                        این برنامه‌ریزی قابل تطبیق با شرایط و نیازهای خاص پروژه است
+                    </div>
+                    <div style="font-size: 1em; opacity: 0.8;">
+                        آخرین بروزرسانی: مهر 1404
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p style="font-size: 1.2em; margin-bottom: 10px;">🌱 پروژه WebGIS دستیار کشاورزی هوشمند</p>
+            <p>تهیه شده با استفاده از بهترین شیوه‌های مدیریت پروژه و توسعه نرم‌افزار</p>
+            <p style="margin-top: 15px; opacity: 0.8;">© 1404 - تمامی حقوق محفوظ است</p>
+        </div>
+    </div>
+
+    <script>
+        function togglePhase(phaseId) {
+            const content = document.getElementById(phaseId);
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+            } else {
+                content.classList.add('collapsed');
+            }
+        }
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.month-card, .sprint-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+
+        // Print functionality
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+
+        // Add smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize all phases as expanded
+        window.addEventListener('load', () => {
+            console.log('فایل HTML فازبندی پروژه WebGIS آماده است');
+        });
+    </script>
+</body>
+</html>
