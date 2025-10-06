@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use Case Diagram - سیستم احراز هویت مکان محور</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tahoma', 'Vazir', Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .diagram-container {
+            padding: 40px;
+            position: relative;
+            background: #fafafa;
+        }
+
+        .system-boundary {
+            border: 3px solid #2c5530;
+            border-radius: 20px;
+            position: relative;
+            margin: 50px;
+            padding: 40px;
+            background: white;
+            min-height: 800px;
+        }
+
+        .system-title {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #2c5530;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* Actors */
+        .actor {
+            position: absolute;
+            text-align: center;
+            width: 120px;
+        }
+
+        .actor-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .actor-name {
+            font-weight: bold;
+            color: #2c5530;
+            font-size: 0.9em;
+            line-height: 1.2;
+        }
+
+        /* Actor Colors */
+        .admin .actor-icon { background: #e91e63; }
+        .manager .actor-icon { background: #3f51b5; }
+        .expert .actor-icon { background: #ff9800; }
+        .citizen .actor-icon { background: #4caf50; }
+        .system .actor-icon { background: #607d8b; }
+
+        /* Actor Positions */
+        .admin { top: 50px; right: -150px; }
+        .manager { top: 200px; right: -150px; }
+        .expert { top: 350px; right: -150px; }
+        .citizen { top: 500px; right: -150px; }
+        .system { top: 300px; left: -150px; }
+
+        /* Use Cases */
+        .usecase {
+            position: absolute;
+            background: #e8f5e8;
+            border: 2px solid #4a7c59;
+            border-radius: 50px;
+            padding: 15px 25px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: bold;
+            color: #2c5530;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .usecase:hover {
+            background: #c8e6c9;
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .usecase.critical {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #d32f2f;
+        }
+
+        .usecase.important {
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #f57c00;
+        }
+
+        /* Use Case Positions - Authentication Group */
+        .uc-login { top: 80px; left: 150px; }
+        .uc-register { top: 80px; left: 320px; }
+        .uc-logout { top: 80px; left: 490px; }
+        .uc-reset-password { top: 140px; left: 235px; }
+        .uc-verify-otp { top: 140px; left: 405px; }
+
+        /* Use Case Positions - User Management Group */
+        .uc-manage-users { top: 220px; left: 150px; }
+        .uc-assign-roles { top: 220px; left: 320px; }
+        .uc-manage-permissions { top: 220px; left: 490px; }
+        .uc-view-user-profile { top: 280px; left: 235px; }
+        .uc-edit-profile { top: 280px; left: 405px; }
+
+        /* Use Case Positions - Location Management Group */
+        .uc-create-location { top: 360px; left: 150px; }
+        .uc-edit-location { top: 360px; left: 320px; }
+        .uc-delete-location { top: 360px; left: 490px; }
+        .uc-view-locations { top: 420px; left: 235px; }
+        .uc-search-locations { top: 420px; left: 405px; }
+
+        /* Use Case Positions - GIS Group */
+        .uc-view-map { top: 500px; left: 150px; }
+        .uc-spatial-search { top: 500px; left: 320px; }
+        .uc-upload-geojson { top: 500px; left: 490px; }
+        .uc-export-map { top: 560px; left: 235px; }
+        .uc-measure-distance { top: 560px; left: 405px; }
+
+        /* Use Case Positions - Reports Group */
+        .uc-view-audit-logs { top: 640px; left: 150px; }
+        .uc-generate-reports { top: 640px; left: 320px; }
+        .uc-export-data { top: 640px; left: 490px; }
+        .uc-dashboard { top: 700px; left: 320px; }
+
+        /* Connection Lines */
+        .connection {
+            position: absolute;
+            height: 2px;
+            background: #666;
+            transform-origin: left center;
+            opacity: 0.6;
+        }
+
+        .connection.dashed {
+            background: repeating-linear-gradient(
+                to right,
+                #666,
+                #666 5px,
+                transparent 5px,
+                transparent 10px
+            );
+        }
+
+        /* Group Labels */
+        .group-label {
+            position: absolute;
+            background: #4a7c59;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .auth-group { top: 50px; left: 150px; }
+        .user-group { top: 190px; left: 150px; }
+        .location-group { top: 330px; left: 150px; }
+        .gis-group { top: 470px; left: 150px; }
+        .report-group { top: 610px; left: 150px; }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            border: 2px solid #4a7c59;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .legend-title {
+            font-weight: bold;
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 0.85em;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 15px;
+            border-radius: 3px;
+            margin-left: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .diagram-container {
+                padding: 20px;
+            }
+            
+            .system-boundary {
+                margin: 20px;
+                padding: 20px;
+                min-height: 600px;
+            }
+            
+            .actor {
+                width: 100px;
+            }
+            
+            .actor-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
+            }
+            
+            .usecase {
+                font-size: 0.75em;
+                padding: 10px 15px;
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .header p {
+                font-size: 1em;
+            }
+            
+            .system-boundary {
+                margin: 10px;
+                padding: 15px;
+                min-height: 500px;
+            }
+            
+            .usecase {
+                font-size: 0.7em;
+                padding: 8px 12px;
+                min-width: 100px;
+            }
+            
+            .legend {
+                font-size: 0.8em;
+            }
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        /* Animation for use cases */
+        @keyframes pulse {
+            0% { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            50% { box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4); }
+            100% { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        }
+
+        .usecase.highlight {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Use Case Diagram</h1>
+            <p>سیستم احراز هویت و کنترل دسترسی مکان محور - شهرداری تهران</p>
+        </div>
+
+        <div class="diagram-container">
+            <div class="system-boundary">
+                <div class="system-title">سیستم مدیریت مکان محور</div>
+
+                <!-- Actors -->
+                <div class="actor admin">
+                    <div class="actor-icon">👑</div>
+                    <div class="actor-name">مدیر کل<br>(شهردار)</div>
+                </div>
+
+                <div class="actor manager">
+                    <div class="actor-icon">👨‍💼</div>
+                    <div class="actor-name">مدیر منطقه</div>
+                </div>
+
+                <div class="actor expert">
+                    <div class="actor-icon">👨‍💻</div>
+                    <div class="actor-name">کارشناس</div>
+                </div>
+
+                <div class="actor citizen">
+                    <div class="actor-icon">👤</div>
+                    <div class="actor-name">شهروند</div>
+                </div>
+
+                <div class="actor system">
+                    <div class="actor-icon">🖥️</div>
+                    <div class="actor-name">سیستم خارجی</div>
+                </div>
+
+                <!-- Group Labels -->
+                <div class="group-label auth-group">احراز هویت</div>
+                <div class="group-label user-group">مدیریت کاربران</div>
+                <div class="group-label location-group">مدیریت مکان‌ها</div>
+                <div class="group-label gis-group">عملیات GIS</div>
+                <div class="group-label report-group">گزارش‌گیری</div>
+
+                <!-- Authentication Use Cases -->
+                <div class="usecase critical uc-login" data-tooltip="ورود کاربر با نام کاربری/رمز عبور یا OTP">
+                    🔐 ورود به سیستم
+                </div>
+                <div class="usecase uc-register" data-tooltip="ثبت‌نام کاربر جدید با تأیید شماره موبایل">
+                    📝 ثبت‌نام
+                </div>
+                <div class="usecase uc-logout" data-tooltip="خروج امن از سیستم و پاک کردن session">
+                    🚪 خروج از سیستم
+                </div>
+                <div class="usecase uc-reset-password" data-tooltip="بازیابی رمز عبور از طریق SMS یا ایمیل">
+                    🔄 بازیابی رمز عبور
+                </div>
+                <div class="usecase uc-verify-otp" data-tooltip="تأیید کد یکبار مصرف برای احراز هویت">
+                    📱 تأیید OTP
+                </div>
+
+                <!-- User Management Use Cases -->
+                <div class="usecase critical uc-manage-users" data-tooltip="ایجاد، ویرایش، حذف و مدیریت کاربران">
+                    👥 مدیریت کاربران
+                </div>
+                <div class="usecase important uc-assign-roles" data-tooltip="تخصیص نقش‌ها و مجوزها به کاربران">
+                    🎭 تخصیص نقش‌ها
+                </div>
+                <div class="usecase critical uc-manage-permissions" data-tooltip="تعریف و مدیریت سطوح دسترسی">
+                    🛡️ مدیریت مجوزها
+                </div>
+                <div class="usecase uc-view-user-profile" data-tooltip="مشاهده اطلاعات پروفایل کاربر">
+                    👤ش پروفایل
+                </div>
+
+                <!-- Location Management Use Cases -->
+                <div class="usecase important uc-create-location" data-tooltip="ایجاد مکان جدید با مختصات جغرافیایی">
+                    📍 ایجاد مکان
+                </div>
+                <div class="usecase important uc-edit-location" data-tooltip="ویرایش اطلاعات و مختصات مکان">
+                    📝 ویرایش مکان
+                </div>
+                <div class="usecase uc-delete-location" data-tooltip="حذف مکان با رعایت قوانین سلسله مراتب">
+                    🗑️ حذف مکان
+                </div>
+                <div class="usecase uc-view-locations" data-tooltip="مشاهده لیست مکان‌ها بر اساس دسترسی">
+                    👁️ مشاهده مکان‌ها
+                </div>
+                <div class="usecase uc-search-locations" data-tooltip="جستجوی پیشرفته در مکان‌ها">
+                    🔍 جستجوی مکان
+                </div>
+
+                <!-- GIS Use Cases -->
+                <div class="usecase important uc-view-map" data-tooltip="نمایش نقشه تعاملی با لایه‌های مختلف">
+                    🗺️ مشاهده نقشه
+                </div>
+                <div class="usecase uc-spatial-search" data-tooltip="جستجوی مکانی در شعاع یا ناحیه مشخص">
+                    🎯 جستجوی مکانی
+                </div>
+                <div class="usecase uc-upload-geojson" data-tooltip="آپلود فایل‌های GeoJSON برای import انبوه">
+                    📤 آپلود GeoJSON
+                </div>
+                <div class="usecase uc-export-map" data-tooltip="خروجی گرفتن از نقشه در فرمت‌های مختلف">
+                    💾 خروجی نقشه
+                </div>
+                <div class="usecase uc-measure-distance" data-tooltip="اندازه‌گیری فاصله و مساحت روی نقشه">
+                    📏 اندازه‌گیری
+                </div>
+
+                <!-- Reports Use Cases -->
+                <div class="usecase uc-view-audit-logs" data-tooltip="مشاهده گزارش‌های audit و فعالیت‌ها">
+                    📋 مشاهده Audit
+                </div>
+                <div class="usecase uc-generate-reports" data-tooltip="تولید گزارش‌های مختلف بر اساس فیلتر">
+                    📊 تولید گزارش
+                </div>
+                <div class="usecase uc-export-data" data-tooltip="خروجی گرفتن از داده‌ها در فرمت‌های مختلف">
+                    📁 خروجی داده
+                </div>
+                <div class="usecase uc-dashboard" data-tooltip="داشبورد اختصاصی هر نوع کاربر">
+                    📈 داشبورد
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <div class="legend-title">راهنما:</div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffebee; border: 2px solid #f44336;"></div>
+                    عملیات حیاتی
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fff3e0; border: 2px solid #ff9800;"></div>
+                    عملیات مهم
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e8f5e8; border: 2px solid #4a7c59;"></div>
+                    عملیات عادی
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: linear-gradient(45deg, #e91e63, #3f51b5);"></div>
+                    انواع کاربران
+                </div>
+            </div>
+
+            <!-- Tooltip -->
+            <div class="tooltip" id="tooltip"></div>
+        </div>
+    </div>
+
+    <script>
+        // Tooltip functionality
+        const tooltip = document.getElementById('tooltip');
+        const usecases = document.querySelectorAll('.usecase');
+
+        usecases.forEach(usecase => {
+            usecase.addEventListener('mouseenter', function(e) {
+                const tooltipText = this.getAttribute('data-tooltip');
+                tooltip.textContent = tooltipText;
+                tooltip.classList.add('show');
+                
+                // Position tooltip
+                const rect = this.getBoundingClientRect();
+                tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+                tooltip.style.top = (rect.top - tooltip.offsetHeight - 10) + 'px';
+            });
+
+            usecase.addEventListener('mouseleave', function() {
+                tooltip.classList.remove('show');
+            });
+
+            // Add click functionality for highlighting
+            usecase.addEventListener('click', function() {
+                // Remove highlight from all use cases
+                usecases.forEach(uc => uc.classList.remove('highlight'));
+                
+                // Add highlight to clicked use case
+                this.classList.add('highlight');
+                
+                // Remove highlight after 3 seconds
+                setTimeout(() => {
+                    this.classList.remove('highlight');
+                }, 3000);
+            });
+        });
+
+        // Dynamic connection lines (simplified version)
+        function drawConnections() {
+            // This would be more complex in a real implementation
+            // For now, we'll just add some visual connections via CSS
+            console.log('Connections would be drawn here');
+        }
+
+        // Initialize
+        drawConnections();
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                // Remove all highlights
+                usecases.forEach(uc => uc.classList.remove('highlight'));
+            }
+        });
+
+        // Add search functionality
+        function searchUseCases(query) {
+            const searchTerm = query.toLowerCase();
+            usecases.forEach(usecase => {
+                const text = usecase.textContent.toLowerCase();
+                const tooltip = usecase.getAttribute('data-tooltip').toLowerCase();
+                
+                if (text.includes(searchTerm) || tooltip.includes(searchTerm)) {
+                    usecase.style.display = 'flex';
+                    usecase.classList.add('highlight');
+                } else {
+                    usecase.style.display = 'none';
+                    usecase.classList.remove('highlight');
+                }
+            });
+        }
+
+        // Add export functionality
+        function exportDiagram() {
+            // This would implement export to PNG/SVG
+            console.log('Export functionality would be implemented here');
+        }
+
+        // Add zoom functionality
+        let zoomLevel = 1;
+        function zoomDiagram(delta) {
+            zoomLevel += delta * 0.1;
+            zoomLevel = Math.max(0.5, Math.min(2, zoomLevel));
+            
+            const systemBoundary = document.querySelector('.system-boundary');
+            systemBoundary.style.transform = `scale(${zoomLevel})`;
+        }
+
+        // Mouse wheel zoom
+        document.addEventListener('wheel', function(event) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+                zoomDiagram(-event.deltaY / 100);
+            }
+        });
+
+        // Touch zoom for mobile
+        let lastTouchDistance = 0;
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length === 2) {
+                const touch1 = event.touches[0];
+                const touch2 = event.touches[1];
+                lastTouchDistance = Math.hypot(
+                    touch1.clientX - touch2.clientX,
+                    touch1.clientY - touch2.clientY
+                );
+            }
+        });
+
+        document.addEventListener('touchmove', function(event) {
+            if (event.touches.length === 2) {
+                event.preventDefault();
+                const touch1 = event.touches[0];
+                const touch2 = event.touches[1];
+                const currentDistance = Math.hypot(
+                    touch1.clientX - touch2.clientX,
+                    touch1.clientY - touch2.clientY
+                );
+                
+                if (lastTouchDistance > 0) {
+                    const delta = (currentDistance - lastTouchDistance) / 100;
+                    zoomDiagram(delta);
+                }
+                
+                lastTouchDistance = currentDistance;
+            }
+        });
+
+        // Add animation on page load
+        window.addEventListener('load', function() {
+            usecases.forEach((usecase, index) => {
+                setTimeout(() => {
+                    usecase.style.opacity = '0';
+                    usecase.style.transform = 'scale(0.8)';
+                    usecase.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        usecase.style.opacity = '1';
+                        usecase.style.transform = 'scale(1)';
+                    }, 100);
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>
