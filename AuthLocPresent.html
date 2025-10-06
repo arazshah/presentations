@@ -1,3 +1,631 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لیست کارهای پیاده‌سازی سیستم احراز هویت مکان محور</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tahoma', 'Vazir', Arial, sans-serif;
+            background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            padding: 40px;
+            height: 100vh;
+            background: white;
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow-y: auto;
+            animation: slideIn 0.5s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .slide h1 {
+            color: #2c5530;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            border-bottom: 3px solid #4a7c59;
+            padding-bottom: 15px;
+        }
+
+        .slide h2 {
+            color: #2c5530;
+            margin: 25px 0 15px 0;
+            font-size: 1.8em;
+            background: linear-gradient(90deg, #e8f5e8, transparent);
+            padding: 10px 15px;
+            border-right: 5px solid #4a7c59;
+            border-radius: 5px;
+        }
+
+        .slide h3 {
+            color: #4a7c59;
+            margin: 20px 0 10px 0;
+            font-size: 1.4em;
+            padding-right: 20px;
+        }
+
+        .slide ul {
+            margin: 15px 0 15px 40px;
+        }
+
+        .slide li {
+            margin: 8px 0;
+            padding: 8px 15px;
+            background: #f8fdf8;
+            border-right: 3px solid #7cb342;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .slide li:hover {
+            background: #e8f5e8;
+            transform: translateX(-5px);
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .slide li.completed {
+            background: #c8e6c9;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .slide li.in-progress {
+            background: #fff3e0;
+            border-right-color: #ff9800;
+        }
+
+        .slide li.critical {
+            background: #ffebee;
+            border-right-color: #f44336;
+            font-weight: bold;
+        }
+
+        .navigation {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: #2c5530;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn:hover {
+            background: #4a7c59;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(44, 85, 48, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: #4a7c59;
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+
+        .timeline-item {
+            text-align: center;
+            flex: 1;
+            padding: 10px;
+            background: #f0f8f0;
+            margin: 0 5px;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .timeline-item.active {
+            background: #c8e6c9;
+            border-color: #4a7c59;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            background: #2c5530;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #c8e6c9;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2c5530;
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .tech-item {
+            background: #2c5530;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .risk-indicator {
+            float: left;
+            margin-left: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            color: white;
+        }
+
+        .risk-low { background: #4caf50; }
+        .risk-medium { background: #ff9800; }
+        .risk-high { background: #f44336; }
+
+        .slide-content {
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .slide-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .slide-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .slide-content::-webkit-scrollbar-thumb {
+            background: #4a7c59;
+            border-radius: 10px;
+        }
+
+        .slide-content::-webkit-scrollbar-thumb:hover {
+            background: #2c5530;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .slide h1 {
+                font-size: 2em;
+            }
+            
+            .slide h2 {
+                font-size: 1.4em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slideshow-container">
+        <div class="progress-bar" id="progressBar"></div>
+        <div class="slide-counter" id="slideCounter">1 / 15</div>
+
+        <!-- اسلاید 1: عنوان اصلی -->
+        <div class="slide active">
+            <div class="slide-content">
+                <h1>🏛️ سیستم احراز هویت و کنترل دسترسی مکان محور</h1>
+                <div style="text-align: center; margin: 40px 0;">
+                    <div style="font-size: 1.5em; color: #2c5530; margin-bottom: 20px;">
+                        پروژه شهرداری تهران
+                    </div>
+                    <div style="font-size: 1.2em; color: #666; margin-bottom: 30px;">
+                        لیست کامل کارهای پیاده‌سازی از ابتدا تا تست نسخه اولیه
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">12</span>
+                        <div class="stat-label">فاز اصلی</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">22</span>
+                        <div class="stat-label">هفته زمان</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">150+</span>
+                        <div class="stat-label">کار جزئی</div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">8</span>
+                        <div class="stat-label">نفر تیم</div>
+                    </div>
+                </div>
+
+                <div class="tech-stack">
+                    <span class="tech-item">Django 4.2</span>
+                    <span class="tech-item">React 18</span>
+                    <span class="tech-item">PostgreSQL + PostGIS</span>
+                    <span class="tech-item">Redis</span>
+                    <span class="tech-item">Docker</span>
+                    <span class="tech-item">JWT Authentication</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: نمای کلی فازها -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>📋 نمای کلی فازهای پروژه</h1>
+                
+                <div class="timeline">
+                    <div class="timeline-item active">
+                        <div class="phase-badge">فاز 1-2</div>
+                        <div>تحلیل و طراحی</div>
+                        <small>2 هفته</small>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="phase-badge">فاز 3</div>
+                        <div>راه‌اندازی محیط</div>
+                        <small>1 هفته</small>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="phase-badge">فاز 4-6</div>
+                        <div>Backend Core</div>
+                        <small>3 هفته</small>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="phase-badge">فاز 7-10</div>
+                        <div>مجوزها و Frontend</div>
+                        <small>6 هفته</small>
+                    </div>
+                </div>
+
+                <h2>🎯 اهداف کلیدی</h2>
+                <ul>
+                    <li class="critical">🔐 سیستم احراز هویت امن با JWT و OTP</li>
+                    <li class="critical">🗺️ مدیریت مکان‌های سلسله مراتبی با GIS</li>
+                    <li class="critical">👥 کنترل دسترسی چندسطحه بر اساس نقش و مکان</li>
+                    <li>📊 داشبورد تعاملی برای مدیریت</li>
+                    <li>📝 سیستم audit و گزارش‌گیری</li>
+                    <li>🚀 عملکرد بالا و مقیاس‌پذیری</li>
+                </ul>
+
+                <h2>⚠️ نکات مهم</h2>
+                <ul>
+                    <li class="in-progress">اولویت اول: امنیت و کنترل دسترسی</li>
+                    <li>پشتیبانی از 22 منطقه تهران</li>
+                    <li>سازگاری با استانداردهای GIS ایران</li>
+                    <li>رابط کاربری فارسی و responsive</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: فاز 1 - تحلیل نیازمندی‌ها -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>🔍 فاز 1: تحلیل و طراحی (هفته 1-2)</h1>
+                
+                <h2>📊 تحلیل نیازمندی‌ها</h2>
+                <ul>
+                    <li>تحلیل دقیق نیازهای شهرداری تهران <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>شناسایی انواع کاربران و نقش‌ها (شهردار، مدیر منطقه، کارشناس، شهروند)</li>
+                    <li>تعریف سطوح دسترسی و محدودیت‌ها</li>
+                    <li>تحلیل ساختار سلسله مراتبی مکان‌ها (کشور → استان → شهر → منطقه → محله)</li>
+                    <li>تعریف انواع عملیات CRUD برای هر نقش</li>
+                    <li>شناسایی نیازهای امنیتی و حریم خصوصی <span class="risk-indicator risk-high">بالا</span></li>
+                </ul>
+
+                <h2>🏗️ طراحی معماری سیستم</h2>
+                <ul>
+                    <li>طراحی معماری کلی (Microservices یا Monolithic) <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>انتخاب تکنولوژی‌ها و فریمورک‌ها</li>
+                    <li>طراحی دیتابیس و مدل‌های داده</li>
+                    <li>طراحی API و endpoint ها</li>
+                    <li>طراحی ساختار احراز هویت JWT</li>
+                    <li>طراحی سیستم کش (Redis)</li>
+                    <li>طراحی معماری GIS و ذخیره‌سازی مکانی</li>
+                </ul>
+
+                <h2>🎨 طراحی UI/UX</h2>
+                <ul>
+                    <li>طراحی wireframe صفحات اصلی</li>
+                    <li>طراحی رابط کاربری مدیریت کاربران</li>
+                    <li>طراحی داشبورد برای هر نوع کاربر</li>
+                    <li>طراحی رابط نقشه و جستجوی مکانی</li>
+                    <li>طراحی فرم‌های ثبت و ویرایش مکان‌ها</li>
+                    <li>طراحی صفحات گزارش‌گیری و audit log</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: فاز 2 - راه‌اندازی محیط -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>⚙️ فاز 2: راه‌اندازی محیط توسعه (هفته 3)</h1>
+                
+                <h2>🔧 تنظیم محیط Backend</h2>
+                <ul>
+                    <li>ایجاد پروژه Django جدید <span class="risk-indicator risk-low">کم</span></li>
+                    <li>نصب و پیکربندی Django REST Framework</li>
+                    <li>نصب و پیکربندی PostgreSQL با PostGIS <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>نصب و پیکربندی Redis</li>
+                    <li>تنظیم Docker و docker-compose</li>
+                    <li>پیکربندی Git repository و branching strategy</li>
+                    <li>تنظیم محیط virtual environment</li>
+                </ul>
+
+                <h2>💻 تنظیم محیط Frontend</h2>
+                <ul>
+                    <li>ایجاد پروژه React/Vue.js</li>
+                    <li>نصب کتابخانه‌های مورد نیاز (Leaflet, Axios, etc.)</li>
+                    <li>تنظیم routing و state management</li>
+                    <li>پیکربندی build tools و bundler</li>
+                    <li>تنظیم ESLint و Prettier</li>
+                </ul>
+
+                <h2>🛠️ تنظیم ابزارهای توسعه</h2>
+                <ul>
+                    <li>پیکربندی IDE (VS Code extensions)</li>
+                    <li>تنظیم debugging tools</li>
+                    <li>پیکربندی testing framework (pytest, jest)</li>
+                    <li>تنظیم CI/CD pipeline اولیه <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>پیکربندی code quality tools</li>
+                </ul>
+
+                <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <strong>💡 نکته مهم:</strong> این فاز پایه و اساس کل پروژه است. دقت در پیکربندی‌ها باعث صرفه‌جویی زمان در مراحل بعدی خواهد شد.
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: فاز 3-4 - Backend Core -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>⚡ فاز 3-4: پیاده‌سازی Backend Core (هفته 4-6)</h1>
+                
+                <h2>🗄️ مدل‌های پایه</h2>
+                <ul>
+                    <li>ایجاد مدل User سفارشی <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>ایجاد مدل Location با پشتیبانی GIS <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>ایجاد مدل Role و Permission</li>
+                    <li>ایجاد مدل LocationAccess (رابطه many-to-many)</li>
+                    <li>ایجاد مدل AuditLog</li>
+                    <li>تعریف روابط بین مدل‌ها</li>
+                    <li>ایجاد migration های اولیه</li>
+                </ul>
+
+                <h2>🔐 سیستم احراز هویت</h2>
+                <ul>
+                    <li>پیاده‌سازی JWT authentication <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>ایجاد custom authentication backend</li>
+                    <li>پیاده‌سازی refresh token mechanism</li>
+                    <li>ایجاد سیستم OTP برای تأیید موبایل <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>پیاده‌سازی two-factor authentication</li>
+                    <li>ایجاد middleware برای logging</li>
+                </ul>
+
+                <h2>🌐 API های پایه</h2>
+                <ul>
+                    <li>API ثبت‌نام کاربر</li>
+                    <li>API ورود و خروج</li>
+                    <li>API مدیریت پروفایل کاربر</li>
+                    <li>API تغییر رمز عبور</li>
+                    <li>API بازیابی رمز عبور</li>
+                    <li>API تأیید OTP</li>
+                </ul>
+
+                <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin-top: 20px; border-right: 5px solid #ff9800;">
+                    <strong>⚠️ هشدار:</strong> سیستم احراز هویت و مدل‌های GIS از پیچیده‌ترین بخش‌های پروژه هستند. نیاز به تست دقیق دارند.
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: فاز 5-6 - مدیریت مکان‌ها -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>🗺️ فاز 5-6: سیستم مدیریت مکان‌ها (هفته 7-8)</h1>
+                
+                <h2>📝 CRUD عملیات مکان‌ها</h2>
+                <ul>
+                    <li>API ایجاد مکان جدید</li>
+                    <li>API مشاهده لیست مکان‌ها</li>
+                    <li>API مشاهده جزئیات مکان</li>
+                    <li>API ویرایش مکان</li>
+                    <li>API حذف مکان</li>
+                    <li>API آپلود فایل GeoJSON <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>API bulk import مکان‌ها</li>
+                </ul>
+
+                <h2>🌳 سیستم سلسله مراتب</h2>
+                <ul>
+                    <li>پیاده‌سازی tree structure برای مکان‌ها <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>API دریافت children یک مکان</li>
+                    <li>API دریافت parent chain</li>
+                    <li>validation برای جلوگیری از circular reference</li>
+                    <li>API جابجایی مکان در tree</li>
+                </ul>
+
+                <h2>🎯 قابلیت‌های GIS</h2>
+                <ul>
+                    <li>API جستجو در شعاع مشخص <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>API جستجو در polygon</li>
+                    <li>API پیدا کردن نزدیک‌ترین مکان</li>
+                    <li>API محاسبه فاصله بین دو نقطه</li>
+                    <li>API intersection و overlap detection</li>
+                    <li>optimization برای query های مکانی <span class="risk-indicator risk-high">بالا</span></li>
+                </ul>
+
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin-top: 20px; border-right: 5px solid #2196f3;">
+                    <strong>💡 نکته فنی:</strong> برای بهینه‌سازی query های GIS، استفاده از spatial index ها و caching ضروری است.
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: فاز 7-8 - سیستم مجوزها -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>🛡️ فاز 7-8: سیستم مجوزها و دسترسی‌ها (هفته 9-10)</h1>
+                
+                <h2>👤 مدیریت نقش‌ها</h2>
+                <ul>
+                    <li>API ایجاد نقش جدید</li>
+                    <li>API تخصیص نقش به کاربر</li>
+                    <li>API مدیریت permissions هر نقش <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>پیاده‌سازی role inheritance</li>
+                    <li>API bulk role assignment</li>
+                </ul>
+
+                <h2>🔒 کنترل دسترسی مکانی</h2>
+                <ul>
+                    <li>middleware برای بررسی دسترسی مکانی <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>پیاده‌سازی permission inheritance</li>
+                    <li>سیستم field-level permissions <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>API grant/revoke دسترسی</li>
+                    <li>API بررسی effective permissions</li>
+                    <li>پیاده‌سازی time-limited access</li>
+                </ul>
+
+                <h2>📋 سیستم Audit</h2>
+                <ul>
+                    <li>middleware برای log کردن همه عملیات</li>
+                    <li>API مشاهده audit logs</li>
+                    <li>API فیلتر و جستجو در logs</li>
+                    <li>پیاده‌سازی security alerts <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>API export audit reports</li>
+                </ul>
+
+                <div style="background: #ffebee; padding: 20px; border-radius: 10px; margin-top: 20px; border-right: 5px solid #f44336;">
+                    <strong>🚨 حیاتی:</strong> سیستم کنترل دسترسی قلب امنیت پروژه است. هر باگ در این بخش می‌تواند منجر به نقض امنیت شود.
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: فاز 9-10 - Frontend -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>🎨 فاز 9-10: پیاده‌سازی Frontend (هفته 11-13)</h1>
+                
+                <h2>🔑 صفحات احراز هویت</h2>
+                <ul>
+                    <li>صفحه ورود (Login)</li>
+                    <li>صفحه ثبت‌نام (Register)</li>
+                    <li>صفحه فراموشی رمز عبور</li>
+                    <li>صفحه تأیید OTP</li>
+                    <li>صفحه تنظیمات پروفایل</li>
+                    <li>پیاده‌سازی auto-logout</li>
+                </ul>
+
+                <h2>📊 داشبورد اصلی</h2>
+                <ul>
+                    <li>داشبورد مدیر کل (شهردار) <span class="risk-indicator risk-medium">متوسط</span></li>
+                    <li>داشبورد مدیر منطقه</li>
+                    <li>داشبورد کارشناس</li>
+                    <li>داشبورد شهروند</li>
+                    <li>نمایش آمار و چارت‌ها</li>
+                    <li>نمایش اعلان‌ها و هشدارها</li>
+                </ul>
+
+                <h2>🗺️ مدیریت مکان‌ها</h2>
+                <ul>
+                    <li>صفحه لیست مکان‌ها با tree view <span class="risk-indicator risk-high">بالا</span></li>
+                    <li>صفحه ایجاد مکان جدید</li>
+                    <li>صفحه ویرایش مکان</li>
+                    <li>نمایش مکان روی نقشه</li>
+                    <li>آپلود فایل GeoJSON</li>
+                    <li>bulk import interface</li>
+                </ul>
+
+
 <h2>🗺️ نقشه تعاملی</h2>
                 <ul>
                     <li>نمایش مکان‌ها روی نقشه <span class="risk-indicator risk-high">بالا</span></li>
