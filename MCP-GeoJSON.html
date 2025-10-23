@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش MCP با ChatGPT و تولید GeoJSON</title>
+    <!-- Highlight.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #764ba2;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin: 30px 0 15px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.5em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .icon {
+            font-size: 5em;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        pre {
+            background: #2d2d2d;
+            text-align: left;
+            color: #f8f8f2;
+            padding: 25px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin: 20px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            direction: ltr;
+        }
+
+        pre {
+            direction: rtl;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 5px solid #ffc107;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            padding: 20px;
+            border-left: 5px solid #2196f3;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            padding: 20px;
+            border-left: 5px solid #4caf50;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            padding: 20px;
+            border-left: 5px solid #ff9800;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        ul, ol {
+            margin: 20px 0 20px 40px;
+            font-size: 1.1em;
+        }
+
+        li {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: right;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-item {
+            background: white;
+            border: 3px solid #667eea;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 150px;
+            margin: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 0 10px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        @media print {
+            .slide {
+                page-break-after: always;
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            pre {
+                font-size: 0.8em;
+                padding: 15px;
+            }
+        }
+
+        .keyword {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .comment {
+            color: #6a9955;
+        }
+
+        .string {
+            color: #ce9178;
+        }
+
+        .number {
+            color: #b5cea8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="icon">🚀</div>
+            <h1>آموزش MCP با ChatGPT</h1>
+            <div class="subtitle">تولید GeoJSON از نام شهر</div>
+            <div class="icon">🗺️</div>
+            <div style="text-align: center; margin-top: 40px;">
+                <div class="step">Model Context Protocol</div>
+                <div class="step">OpenAI Integration</div>
+                <div class="step">GeoJSON Generation</div>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: مقدمه MCP -->
+        <div class="slide">
+            <h2>🔍 MCP چیست؟</h2>
+            <div class="info-box">
+                <h3>Model Context Protocol</h3>
+                <p><strong>MCP</strong> یک پروتکل استاندارد برای ارتباط بین کلاینت و سرور است که امکان اتصال به مدل‌های هوش مصنوعی را فراهم می‌کند.</p>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🎯 مزایا</h3>
+                    <ul>
+                        <li>ارتباط استاندارد</li>
+                        <li>توسعه‌پذیری بالا</li>
+                        <li>امنیت بیشتر</li>
+                        <li>مدیریت بهتر Context</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>⚙️ کاربردها</h3>
+                    <ul>
+                        <li>اتصال به AI Models</li>
+                        <li>پردازش داده</li>
+                        <li>تولید محتوا</li>
+                        <li>تحلیل اطلاعات</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: معماری پروژه -->
+        <div class="slide">
+            <h2>🏗️ معماری پروژه</h2>
+            
+            <div class="flow-diagram">
+                <div class="flow-item">
+                    <div style="font-size: 2em;">👤</div>
+                    <strong>کاربر</strong>
+                    <div>ورود نام شهر</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="flow-item">
+                    <div style="font-size: 2em;">🖥️</div>
+                    <strong>MCP Client</strong>
+                    <div>ارسال درخواست</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="flow-item">
+                    <div style="font-size: 2em;">⚙️</div>
+                    <strong>MCP Server</strong>
+                    <div>پردازش</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="flow-item">
+                    <div style="font-size: 2em;">🤖</div>
+                    <strong>ChatGPT</strong>
+                    <div>دریافت مختصات</div>
+                </div>
+                
+                <div class="arrow">→</div>
+                
+                <div class="flow-item">
+                    <div style="font-size: 2em;">📄</div>
+                    <strong>GeoJSON</strong>
+                    <div>تولید فایل</div>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>✅ فرآیند کامل:</h3>
+                <ol>
+                    <li>دریافت نام شهر از کاربر</li>
+                    <li>ارسال به ChatGPT برای دریافت مختصات</li>
+                    <li>تولید ساختار GeoJSON</li>
+                    <li>ذخیره در فایل</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: نصب و تنظیمات -->
+        <div class="slide">
+            <h2>📦 نصب و تنظیمات</h2>
+            
+            <h3>1️⃣ نصب پکیج‌ها</h3>
+            <pre><code class="language-bash">pip install mcp openai python-dotenv</code></pre>
+
+            <h3>2️⃣ ساخت فایل .env</h3>
+            <pre><code class="language-bash">OPENAI_API_KEY=your_api_key_here
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4</code></pre>
+
+            <div class="warning-box">
+                <strong>⚠️ نکته امنیتی:</strong>
+                <ul>
+                    <li>هرگز API Key را در کد قرار ندهید</li>
+                    <li>فایل .env را به .gitignore اضافه کنید</li>
+                    <li>از متغیرهای محیطی استفاده کنید</li>
+                </ul>
+            </div>
+
+            <h3>3️⃣ ساختار پروژه</h3>
+            <pre><code>project/
+├── server.py          # سرور MCP
+├── client.py          # کلاینت
+├── .env              # تنظیمات
+└── requirements.txt  # وابستگی‌ها</code></pre>
+        </div>
+
+        <!-- اسلاید 5: کد سرور - بخش 1 -->
+        <div class="slide">
+            <h2>💻 کد سرور MCP - بخش اول</h2>
+            
+            <h3>Import و تنظیمات اولیه</h3>
+            <pre><code><span class="keyword">from</span> mcp.server <span class="keyword">import</span> Server
+<span class="keyword">from</span> mcp.types <span class="keyword">import</span> Tool
+<span class="keyword">from</span> openai <span class="keyword">import</span> OpenAI
+<span class="keyword">import</span> json
+<span class="keyword">import</span> os
+<span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv
+
+<span class="comment"># بارگذاری تنظیمات</span>
+load_dotenv()
+
+<span class="comment"># تنظیمات OpenAI</span>
+client = OpenAI(
+    api_key=os.getenv(<span class="string">"OPENAI_API_KEY"</span>),
+    base_url=os.getenv(<span class="string">"OPENAI_BASE_URL"</span>, <span class="string">"https://api.openai.com/v1"</span>)
+)
+MODEL = os.getenv(<span class="string">"OPENAI_MODEL"</span>, <span class="string">"gpt-4"</span>)
+
+<span class="comment"># ایجاد سرور</span>
+server = Server(<span class="string">"geojson-mcp-server"</span>)</code></pre>
+
+            <div class="info-box">
+                <strong>📝 توضیحات:</strong>
+                <ul>
+                    <li><span class="keyword">load_dotenv()</span>: بارگذاری متغیرهای محیطی</li>
+                    <li><span class="keyword">Server()</span>: ایجاد نمونه سرور MCP</li>
+                    <li><span class="keyword">openai.api_key</span>: تنظیم کلید API</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: کد سرور - بخش 2 -->
+        <div class="slide">
+            <h2>💻 کد سرور MCP - بخش دوم</h2>
+            
+            <h3>تابع دریافت مختصات از ChatGPT</h3>
+            <pre><code><span class="keyword">@server.tool()</span>
+<span class="keyword">def</span> get_city_coordinates(city_name: str) -> dict:
+    <span class="string">"""دریافت مختصات شهر از ChatGPT"""</span>
+
+    <span class="keyword">try</span>:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[
+                {
+                    <span class="string">"role"</span>: <span class="string">"system"</span>,
+                    <span class="string">"content"</span>: <span class="string">"تو یک دستیار جغرافیایی هستی"</span>
+                },
+                {
+                    <span class="string">"role"</span>: <span class="string">"user"</span>,
+                    <span class="string">"content"</span>: <span class="string">f"مختصات {city_name} را JSON برگردان"</span>
+                }
+            ],
+            temperature=<span class="number">0.5</span>
+        )
+
+        content = response.choices[<span class="number">0</span>].message.content
+        city_data = json.loads(content)
+
+        <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"city_data"</span>: city_data}
+
+    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:
+        <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">False</span>, <span class="string">"error"</span>: str(e)}</code></pre>
+        </div>
+
+        <!-- اسلاید 7: کد سرور - بخش 3 -->
+        <div class="slide">
+            <h2>💻 کد سرور MCP - بخش سوم</h2>
+            
+            <h3>تابع تولید GeoJSON</h3>
+            <pre><code><span class="keyword">@server.tool()</span>
+<span class="keyword">def</span> create_geojson_point(
+    city_name: str,
+    latitude: float,
+    longitude: float,
+    properties: dict = <span class="keyword">None</span>
+) -> dict:
+    <span class="string">"""تولید نقطه GeoJSON"""</span>
+    
+    <span class="keyword">if</span> properties <span class="keyword">is</span> <span class="keyword">None</span>:
+        properties = {}
+    
+    geojson = {
+        <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+        <span class="string">"properties"</span>: {
+            <span class="string">"name"</span>: city_name,
+            **properties
+        },
+        <span class="string">"geometry"</span>: {
+            <span class="string">"type"</span>: <span class="string">"Point"</span>,
+            <span class="string">"coordinates"</span>: [longitude, latitude]
+        }
+    }
+    
+    <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"geojson"</span>: geojson}</code></pre>
+
+            <div class="highlight">
+                <strong>💡 نکته مهم:</strong> در GeoJSON ترتیب مختصات <span class="keyword">[longitude, latitude]</span> است نه بالعکس!
+            </div>
+        </div>
+
+        <!-- اسلاید 8: کد سرور - بخش 4 -->
+        <div class="slide">
+            <h2>💻 کد سرور MCP - بخش چهارم</h2>
+            
+            <h3>تابع ذخیره فایل</h3>
+            <pre><code><span class="keyword">@server.tool()</span>
+<span class="keyword">def</span> save_geojson_file(
+    geojson_data: dict,
+    file_path: str = <span class="string">"city_point.geojson"</span>
+) -> dict:
+    <span class="string">"""ذخیره GeoJSON در فایل"""</span>
+    
+    <span class="keyword">try</span>:
+        feature_collection = {
+            <span class="string">"type"</span>: <span class="string">"FeatureCollection"</span>,
+            <span class="string">"features"</span>: [geojson_data]
+        }
+        
+        <span class="keyword">with</span> open(file_path, <span class="string">'w'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:
+            json.dump(feature_collection, f, 
+                     ensure_ascii=<span class="keyword">False</span>, indent=<span class="number">2</span>)
+        
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">True</span>,
+            <span class="string">"file_path"</span>: os.path.abspath(file_path)
+        }
+        
+    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:
+        <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">False</span>, <span class="string">"error"</span>: str(e)}</code></pre>
+        </div>
+
+        <!-- اسلاید 9: کد سرور - بخش 5 -->
+        <div class="slide">
+            <h2>💻 کد سرور MCP - بخش پنجم</h2>
+            
+            <h3>تابع فرآیند کامل</h3>
+            <pre><code><span class="keyword">@server.tool()</span>
+<span class="keyword">def</span> process_city_to_geojson(city_name: str) -> dict:
+    <span class="string">"""فرآیند کامل: شهر → GeoJSON → فایل"""</span>
+    
+    <span class="comment"># مرحله 1: دریافت مختصات</span>
+    coords_result = get_city_coordinates(city_name)
+    <span class="keyword">if</span> <span class="keyword">not</span> coords_result[<span class="string">"success"</span>]:
+        <span class="keyword">return</span> coords_result
+    
+    city_data = coords_result[<span class="string">"city_data"</span>]
+    
+    <span class="comment"># مرحله 2: تولید GeoJSON</span>
+    geojson_result = create_geojson_point(
+        city_name=city_data[<span class="string">"city_name"</span>],
+        latitude=city_data[<span class="string">"latitude"</span>],
+        longitude=city_data[<span class="string">"longitude"</span>]
+    )
+    
+    <span class="comment"># مرحله 3: ذخیره فایل</span>
+    file_name = <span class="string">f"{city_name}.geojson"</span>
+    save_result = save_geojson_file(
+        geojson_result[<span class="string">"geojson"</span>], file_name
+    )
+    
+    <span class="keyword">return</span> {
+        <span class="string">"success"</span>: <span class="keyword">True</span>,
+        <span class="string">"city_data"</span>: city_data,
+        <span class="string">"file_info"</span>: save_result
+    }</code></pre>
+        </div>
+
+        <!-- اسلاید 10: کد کلاینت -->
+        <div class="slide">
+            <h2>📱 کد کلاینت MCP</h2>
+            
+            <pre><code><span class="keyword">import</span> asyncio
+<span class="keyword">from</span> mcp.client <span class="keyword">import</span> Client
+
+<span class="keyword">async def</span> main():
+    <span class="comment"># اتصال به سرور</span>
+    client = Client(<span class="string">"geojson-mcp-server"</span>)
+    
+    <span class="comment"># دریافت نام شهر از کاربر</span>
+    city_name = input(<span class="string">"🏙️ نام شهر: "</span>).strip()
+    
+    <span class="comment"># فراخوانی تابع فرآیند کامل</span>
+    result = <span class="keyword">await</span> client.call_tool(
+        <span class="string">"process_city_to_geojson"</span>,
+        {<span class="string">"city_name"</span>: city_name}
+    )
+    
+    <span class="keyword">if</span> result[<span class="string">"success"</span>]:
+        print(<span class="string">"✅ موفق!"</span>)
+        print(<span class="string">f"📍 شهر: {result['city_data']['city_name']}"</span>)
+        print(<span class="string">f"💾 فایل: {result['file_info']['file_path']}"</span>)
+    <span class="keyword">else</span>:
+        print(<span class="string">f"❌ خطا: {result['error']}"</span>)
+
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    asyncio.run(main())</code></pre>
+        </div>
+
+        <!-- اسلاید 11: ساختار GeoJSON -->
+        <div class="slide">
+            <h2>🗺️ ساختار GeoJSON</h2>
+            
+            <h3>مثال خروجی برای تهران:</h3>
+            <pre><code>{
+  <span class="string">"type"</span>: <span class="string">"FeatureCollection"</span>,
+  <span class="string">"features"</span>: [
+    {
+      <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+      <span class="string">"properties"</span>: {
+        <span class="string">"name"</span>: <span class="string">"تهران"</span>,
+        <span class="string">"country"</span>: <span class="string">"ایران"</span>,
+        <span class="string">"description"</span>: <span class="string">"پایتخت ایران"</span>
+      },
+      <span class="string">"geometry"</span>: {
+        <span class="string">"type"</span>: <span class="string">"Point"</span>,
+        <span class="string">"coordinates"</span>: [<span class="number">51.3890</span>, <span class="number">35.6892</span>]
+      }
+    }
+  ]
+}</code></pre>
+
+            <div class="info-box">
+                <h3>📐 توضیح فیلدها:</h3>
+                <table>
+                    <tr>
+                        <th>فیلد</th>
+                        <th>توضیح</th>
+                    </tr>
+                    <tr>
+                        <td>type</td>
+                        <td>نوع GeoJSON (Feature یا FeatureCollection)</td>
+                    </tr>
+                    <tr>
+                        <td>properties</td>
+                        <td>اطلاعات توصیفی نقطه</td>
+                    </tr>
+                    <tr>
+                        <td>geometry</td>
+                        <td>اطلاعات هندسی (نوع و مختصات)</td>
+                    </tr>
+                    <tr>
+                        <td>coordinates</td>
+                        <td>[طول جغرافیایی, عرض جغرافیایی]</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: نحوه اجرا -->
+        <div class="slide">
+            <h2>▶️ نحوه اجرای پروژه</h2>
+            
+            <div class="step">مرحله 1: نصب وابستگی‌ها</div>
+            <pre><code>pip install mcp openai python-dotenv</code></pre>
+
+            <div class="step">مرحله 2: تنظیم فایل .env</div>
+            <pre><code>OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxx
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4</code></pre>
+
+            <div class="step">مرحله 3: اجرای سرور</div>
+            <pre><code>python server.py</code></pre>
+
+            <div class="step">مرحله 4: اجرای کلاینت (در ترمینال جدید)</div>
+            <pre><code>python client.py</code></pre>
+
+            <div class="success-box">
+                <strong>✅ خروجی مورد انتظار:</strong>
+                <pre><code>🏙️ نام شهر: تهران
+⏳ در حال پردازش 'تهران'...
+✅ موفق!
+📍 شهر: تهران
+💾 فایل: /path/to/تهران.geojson</code></pre>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: مزایا و کاربردها -->
+        <div class="slide">
+            <h2>🎯 مزایا و کاربردها</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>✨ مزایا</h3>
+                    <ul>
+                        <li>اتوماسیون کامل</li>
+                        <li>دقت بالا با AI</li>
+                        <li>خروجی استاندارد</li>
+                        <li>قابل توسعه</li>
+                        <li>پشتیبانی از فارسی</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 کاربردها</h3>
+                    <ul>
+                        <li>نقشه‌های تعاملی</li>
+                        <li>سیستم‌های GIS</li>
+                        <li>برنامه‌های مسیریابی</li>
+                        <li>تحلیل مکانی</li>
+                        <li>داشبوردهای جغرافیایی</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🔧 توسعه‌پذیری</h3>
+                    <ul>
+                        <li>افزودن چند شهر</li>
+                        <li>رسم مسیر</li>
+                        <li>محاسبه فاصله</li>
+                        <li>تحلیل منطقه</li>
+                        <li>نمایش روی نقشه</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: مدیریت خطاها -->
+        <div class="slide">
+            <h2>⚠️ مدیریت خطاها</h2>
+            
+            <h3>خطاهای رایج و راه‌حل:</h3>
+            
+            <div class="warning-box">
+                <h3>1️⃣ خطای API Key</h3>
+                <pre><code>openai.AuthenticationError: Incorrect API key</code></pre>
+                <strong>راه‌حل:</strong>
+                <ul>
+                    <li>بررسی صحت API Key در فایل .env</li>
+                    <li>اطمینان از بارگذاری load_dotenv()</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h3>2️⃣ خطای JSON Parse</h3>
+                <pre><code>json.JSONDecodeError: Expecting value</code></pre>
+                <strong>راه‌حل:</strong>
+                <ul>
+                    <li>تمیز کردن پاسخ ChatGPT از markdown</li>
+                    <li>استفاده از try-except</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h3>3️⃣ خطای اتصال</h3>
+                <pre><code>ConnectionError: Failed to connect</code></pre>
+                <strong>راه‌حل:</strong>
+                <ul>
+                    <li>بررسی اتصال اینترنت</li>
+                    <li>بررسی Base URL</li>
+                    <li>استفاده از Proxy در صورت نیاز</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: کد مدیریت خطا -->
+        <div class="slide">
+            <h2>🛡️ کد مدیریت خطا</h2>
+            
+            <h3>مثال بهبود یافته:</h3>
+            <pre><code><span class="keyword">def</span> get_city_coordinates_safe(city_name: str) -> dict:
+    <span class="string">"""دریافت مختصات با مدیریت خطای کامل"""</span>
+
+    <span class="keyword">try</span>:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=[...],
+            temperature=<span class="number">0.5</span>,
+            timeout=<span class="number">30</span>  <span class="comment"># تایم‌اوت 30 ثانیه</span>
+        )
+
+        content = response.choices[<span class="number">0</span>].message.content.strip()
+
+        <span class="comment"># تمیز کردن markdown</span>
+        <span class="keyword">if</span> <span class="string">"```json"</span> <span class="keyword">in</span> content:
+            content = content.split(<span class="string">"```json"</span>)[<span class="number">1</span>].split(<span class="string">"```"</span>)[<span class="number">0</span>]
+
+        city_data = json.loads(content)
+
+        <span class="comment"># اعتبارسنجی داده‌ها</span>
+        <span class="keyword">if</span> <span class="keyword">not</span> all(k <span class="keyword">in</span> city_data <span class="keyword">for</span> k <span class="keyword">in</span>
+                   [<span class="string">"latitude"</span>, <span class="string">"longitude"</span>]):
+            <span class="keyword">raise</span> ValueError(<span class="string">"مختصات ناقص است"</span>)
+
+        <span class="keyword">return</span> {<span class="string">"success"</span>: <span class="keyword">True</span>, <span class="string">"city_data"</span>: city_data}
+
+    <span class="keyword">except</span> json.JSONDecodeError <span class="keyword">as</span> e:
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: <span class="string">f"خطا در تجزیه JSON: {str(e)}"</span>
+        }
+    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:
+        <span class="keyword">return</span> {
+            <span class="string">"success"</span>: <span class="keyword">False</span>,
+            <span class="string">"error"</span>: <span class="string">f"خطای عمومی: {str(e)}"</span>
+        }</code></pre>
+        </div>
+
+        <!-- اسلاید 16: بهینه‌سازی -->
+        <div class="slide">
+            <h2>⚡ بهینه‌سازی و نکات پیشرفته</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🎯 Cache کردن</h3>
+                    <pre><code><span class="comment"># ذخیره نتایج قبلی</span>
+cache = {}
+
+<span class="keyword">def</span> get_cached_coords(city):
+    <span class="keyword">if</span> city <span class="keyword">in</span> cache:
+        <span class="keyword">return</span> cache[city]
+    
+    result = get_city_coordinates(city)
+    cache[city] = result
+    <span class="keyword">return</span> result</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>🔄 Retry Logic</h3>
+                    <pre><code><span class="keyword">from</span> tenacity <span class="keyword">import</span> retry, stop_after_attempt
+
+<span class="keyword">@retry</span>(stop=stop_after_attempt(<span class="number">3</span>))
+<span class="keyword">def</span> get_coords_with_retry(city):
+    <span class="keyword">return</span> get_city_coordinates(city)</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Logging</h3>
+                    <pre><code><span class="keyword">import</span> logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+logger.info(<span class="string">f"پردازش شهر: {city}"</span>)
+logger.error(<span class="string">f"خطا: {error}"</span>)</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>💡 نکات بهینه‌سازی:</h3>
+                <ul>
+                    <li>استفاده از async/await برای درخواست‌های موازی</li>
+                    <li>کش کردن نتایج برای شهرهای تکراری</li>
+                    <li>استفاده از connection pooling</li>
+                    <li>تنظیم timeout مناسب</li>
+                    <li>مدیریت rate limiting</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 17: توسعه پروژه -->
+        <div class="slide">
+            <h2>🚀 ایده‌های توسعه پروژه</h2>
+            
+            <h3>1️⃣ پردازش چند شهر همزمان</h3>
+            <pre><code><span class="keyword">async def</span> process_multiple_cities(cities: list):
+    tasks = [process_city_to_geojson(city) <span class="keyword">for</span> city <span class="keyword">in</span> cities]
+    results = <span class="keyword">await</span> asyncio.gather(*tasks)
+    <span class="keyword">return</span> results
+
+<span class="comment"># استفاده:</span>
+cities = [<span class="string">"تهران"</span>, <span class="string">"شیراز"</span>, <span class="string">"اصفهان"</span>]
+results = <span class="keyword">await</span> process_multiple_cities(cities)</code></pre>
+
+            <h3>2️⃣ رسم مسیر بین دو شهر</h3>
+            <pre><code><span class="keyword">def</span> create_route_geojson(city1: dict, city2: dict):
+    <span class="keyword">return</span> {
+        <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+        <span class="string">"geometry"</span>: {
+            <span class="string">"type"</span>: <span class="string">"LineString"</span>,
+            <span class="string">"coordinates"</span>: [
+                [city1[<span class="string">"longitude"</span>], city1[<span class="string">"latitude"</span>]],
+                [city2[<span class="string">"longitude"</span>], city2[<span class="string">"latitude"</span>]]
+            ]
+        }
+    }</code></pre>
+
+            <h3>3️⃣ محاسبه فاصله</h3>
+            <pre><code><span class="keyword">from</span> geopy.distance <span class="keyword">import</span> geodesic
+
+<span class="keyword">def</span> calculate_distance(city1, city2):
+    point1 = (city1[<span class="string">"latitude"</span>], city1[<span class="string">"longitude"</span>])
+    point2 = (city2[<span class="string">"latitude"</span>], city2[<span class="string">"longitude"</span>])
+    <span class="keyword">return</span> geodesic(point1, point2).kilometers</code></pre>
+        </div>
+
+        <!-- اسلاید 18: نمایش روی نقشه -->
+        <div class="slide">
+            <h2>🗺️ نمایش GeoJSON روی نقشه</h2>
+            
+            <h3>استفاده از Leaflet.js</h3>
+            <pre><code><span class="comment">&lt;!-- HTML --&gt;</span>
+<span class="keyword">&lt;div</span> id=<span class="string">"map"</span> style=<span class="string">"height: 500px"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+
+<span class="comment">&lt;!-- JavaScript --&gt;</span>
+<span class="keyword">&lt;script&gt;</span>
+<span class="keyword">const</span> map = L.map(<span class="string">'map'</span>).setView([<span class="number">35.6892</span>, <span class="number">51.3890</span>], <span class="number">10</span>);
+
+L.tileLayer(<span class="string">'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'</span>)
+    .addTo(map);
+
+<span class="comment">// بارگذاری GeoJSON</span>
+fetch(<span class="string">'city_point.geojson'</span>)
+    .then(response => response.json())
+    .then(data => {
+        L.geoJSON(data, {
+            onEachFeature: <span class="keyword">function</span>(feature, layer) {
+                layer.bindPopup(feature.properties.name);
+            }
+        }).addTo(map);
+    });
+<span class="keyword">&lt;/script&gt;</span></code></pre>
+
+            <div class="success-box">
+                <h3>✅ نتیجه:</h3>
+                <p>نقشه تعاملی با نمایش موقعیت شهر و امکان کلیک برای مشاهده اطلاعات</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 19: API RESTful -->
+        <div class="slide">
+            <h2>🌐 تبدیل به API RESTful</h2>
+            
+            <h3>استفاده از FastAPI</h3>
+            <pre><code><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI, HTTPException
+<span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel
+
+app = FastAPI()
+
+<span class="keyword">class</span> CityRequest(BaseModel):
+    city_name: str
+
+<span class="keyword">@app.post</span>(<span class="string">"/api/city-to-geojson"</span>)
+<span class="keyword">async def</span> city_to_geojson(request: CityRequest):
+    result = process_city_to_geojson(request.city_name)
+    
+    <span class="keyword">if</span> <span class="keyword">not</span> result[<span class="string">"success"</span>]:
+        <span class="keyword">raise</span> HTTPException(
+            status_code=<span class="number">400</span>,
+            detail=result[<span class="string">"error"</span>]
+        )
+    
+    <span class="keyword">return</span> result[<span class="string">"geojson"</span>]
+
+<span class="keyword">@app.get</span>(<span class="string">"/api/cities/{city_name}"</span>)
+<span class="keyword">async def</span> get_city(city_name: str):
+    result = get_city_coordinates(city_name)
+    <span class="keyword">return</span> result</code></pre>
+
+            <h3>اجرا:</h3>
+            <pre><code>uvicorn api:app --reload</code></pre>
+
+            <h3>استفاده از API:</h3>
+            <pre><code>curl -X POST http://localhost:8000/api/city-to-geojson \
+  -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{"city_name": "تهران"}'</span></code></pre>
+        </div>
+
+        <!-- اسلاید 20: Docker -->
+        <div class="slide">
+            <h2>🐳 Docker کردن پروژه</h2>
+            
+            <h3>Dockerfile</h3>
+            <pre><code><span class="keyword">FROM</span> python:<span class="number">3.11</span>-slim
+
+<span class="keyword">WORKDIR</span> /app
+
+<span class="keyword">COPY</span> requirements.txt .
+<span class="keyword">RUN</span> pip install --no-cache-dir -r requirements.txt
+
+<span class="keyword">COPY</span> . .
+
+<span class="keyword">ENV</span> PYTHONUNBUFFERED=<span class="number">1</span>
+
+<span class="keyword">CMD</span> [<span class="string">"python"</span>, <span class="string">"server.py"</span>]</code></pre>
+
+            <h3>docker-compose.yml</h3>
+            <pre><code>version: <span class="string">'3.8'</span>
+
+services:
+  mcp-server:
+    build: .
+    ports:
+      - <span class="string">"8000:8000"</span>
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+    volumes:
+      - ./output:/app/output</code></pre>
+
+            <h3>اجرا:</h3>
+            <pre><code>docker-compose up --build</code></pre>
+        </div>
+
+        <!-- اسلاید 21: تست -->
+        <div class="slide">
+            <h2>🧪 تست‌نویسی</h2>
+            
+            <h3>استفاده از pytest</h3>
+            <pre><code><span class="keyword">import</span> pytest
+<span class="keyword">from</span> server <span class="keyword">import</span> create_geojson_point, get_city_coordinates
+
+<span class="keyword">def</span> test_create_geojson_point():
+    result = create_geojson_point(
+        city_name=<span class="string">"تهران"</span>,
+        latitude=<span class="number">35.6892</span>,
+        longitude=<span class="number">51.3890</span>
+    )
+    
+    <span class="keyword">assert</span> result[<span class="string">"success"</span>] == <span class="keyword">True</span>
+    <span class="keyword">assert</span> result[<span class="string">"geojson"</span>][<span class="string">"type"</span>] == <span class="string">"Feature"</span>
+    <span class="keyword">assert</span> result[<span class="string">"geojson"</span>][<span class="string">"geometry"</span>][<span class="string">"type"</span>] == <span class="string">"Point"</span>
+
+<span class="keyword">@pytest.mark.asyncio</span>
+<span class="keyword">async def</span> test_get_city_coordinates():
+    result = get_city_coordinates(<span class="string">"تهران"</span>)
+    
+    <span class="keyword">assert</span> result[<span class="string">"success"</span>] == <span class="keyword">True</span>
+    <span class="keyword">assert</span> <span class="string">"latitude"</span> <span class="keyword">in</span> result[<span class="string">"city_data"</span>]
+    <span class="keyword">assert</span> <span class="string">"longitude"</span> <span class="keyword">in</span> result[<span class="string">"city_data"</span>]
+
+<span class="keyword">def</span> test_invalid_city():
+    result = get_city_coordinates(<span class="string">""</span>)
+    <span class="keyword">assert</span> result[<span class="string">"success"</span>] == <span class="keyword">False</span></code></pre>
+
+            <h3>اجرای تست‌ها:</h3>
+            <pre><code>pytest tests/ -v --cov=server</code></pre>
+        </div>
+
+        <!-- اسلاید 22: امنیت -->
+        <div class="slide">
+            <h2>🔒 نکات امنیتی</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🔑 مدیریت API Keys</h3>
+                    <ul>
+                        <li>استفاده از متغیرهای محیطی</li>
+                        <li>عدم commit کردن .env</li>
+                        <li>استفاده از secrets manager</li>
+                        <li>Rotate کردن دوره‌ای</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🛡️ اعتبارسنجی ورودی</h3>
+                    <pre><code><span class="keyword">def</span> validate_city_name(name: str):
+    <span class="keyword">if</span> <span class="keyword">not</span> name <span class="keyword">or</span> len(name) > <span class="number">100</span>:
+        <span class="keyword">raise</span> ValueError(<span class="string">"نام نامعتبر"</span>)
+    
+    <span class="keyword">if</span> <span class="keyword">not</span> name.replace(<span class="string">" "</span>, <span class="string">""</span>).isalpha():
+        <span class="keyword">raise</span> ValueError(<span class="string">"فقط حروف"</span>)
+    
+    <span class="keyword">return</span> name.strip()</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>⚡ Rate Limiting</h3>
+                    <pre><code><span class="keyword">from</span> slowapi <span class="keyword">import</span> Limiter
+
+limiter = Limiter(key_func=get_remote_address)
+
+<span class="keyword">@app.post</span>(<span class="string">"/api/city"</span>)
+<span class="keyword">@limiter.limit</span>(<span class="string">"10/minute"</span>)
+<span class="keyword">async def</span> endpoint():
+    ...</code></pre>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h3>⚠️ چک‌لیست امنیتی:</h3>
+                <ul>
+                    <li>✅ استفاده از HTTPS</li>
+                    <li>✅ اعتبارسنجی تمام ورودی‌ها</li>
+                    <li>✅ محدودسازی تعداد درخواست</li>
+                    <li>✅ لاگ کردن رویدادها</li>
+                    <li>✅ مدیریت خطاها بدون افشای اطلاعات</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 23: مانیتورینگ -->
+        <div class="slide">
+            <h2>📊 مانیتورینگ و لاگینگ</h2>
+            
+            <h3>تنظیم Logging پیشرفته</h3>
+            <pre><code><span class="keyword">import</span> logging
+<span class="keyword">from</span> logging.handlers <span class="keyword">import</span> RotatingFileHandler
+
+<span class="comment"># تنظیم فرمت</span>
+formatter = logging.Formatter(
+    <span class="string">'%(asctime)s - %(name)s - %(levelname)s - %(message)s'</span>
+)
+
+<span class="comment"># Handler برای فایل</span>
+file_handler = RotatingFileHandler(
+    <span class="string">'app.log'</span>,
+    maxBytes=<span class="number">10485760</span>,  <span class="comment"># 10MB</span>
+    backupCount=<span class="number">5</span>
+)
+file_handler.setFormatter(formatter)
+
+<span class="comment"># Handler برای کنسول</span>
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+
+<span class="comment"># تنظیم logger</span>
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)</code></pre>
+
+            <h3>استفاده در کد:</h3>
+            <pre><code>logger.info(<span class="string">f"درخواست برای شهر: {city_name}"</span>)
+logger.error(<span class="string">f"خطا در پردازش: {error}"</span>)
+logger.warning(<span class="string">f"هشدار: تلاش مجدد..."</span>)</code></pre>
+        </div>
+
+        <!-- اسلاید 24: Performance -->
+        <div class="slide">
+            <h2>⚡ بهینه‌سازی عملکرد</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🚀 Async Processing</h3>
+                    <pre><code><span class="keyword">import</span> asyncio
+<span class="keyword">import</span> aiohttp
+
+<span class="keyword">async def</span> fetch_multiple():
+    <span class="keyword">async with</span> aiohttp.ClientSession() <span class="keyword">as</span> session:
+        tasks = [
+            fetch_city(session, city)
+            <span class="keyword">for</span> city <span class="keyword">in</span> cities
+        ]
+        results = <span class="keyword">await</span> asyncio.gather(*tasks)
+    <span class="keyword">return</span> results</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>💾 Caching با Redis</h3>
+                    <pre><code><span class="keyword">import</span> redis
+
+cache = redis.Redis()
+
+<span class="keyword">def</span> get_cached(city):
+    cached = cache.get(city)
+    <span class="keyword">if</span> cached:
+        <span class="keyword">return</span> json.loads(cached)
+    
+    result = fetch_coords(city)
+    cache.setex(city, <span class="number">3600</span>, 
+               json.dumps(result))
+    <span class="keyword">return</span> result</code></pre>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Profiling</h3>
+                    <pre><code><span class="keyword">import</span> cProfile
+
+<span class="keyword">def</span> profile_function():
+    profiler = cProfile.Profile()
+    profiler.enable()
+    
+    <span class="comment"># کد شما</span>
+    process_city(<span class="string">"تهران"</span>)
+    
+    profiler.disable()
+    profiler.print_stats()</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 25: CI/CD -->
+        <div class="slide">
+            <h2>🔄 CI/CD Pipeline</h2>
+            
+            <h3>GitHub Actions (.github/workflows/main.yml)</h3>
+            <pre><code>name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: <span class="string">'3.11'</span>
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run tests
+      run: pytest --cov=./ --cov-report=xml
+    
+    - name: Upload coverage
+      uses: codecov/codecov-action@v2
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to production
+      run: |
+        <span class="comment"># دستورات deploy</span></code></pre>
+        </div>
+
+        <!-- اسلاید 26: Documentation -->
+        <div class="slide">
+            <h2>📚 مستندسازی</h2>
+            
+            <h3>استفاده از Sphinx</h3>
+            <pre><code><span class="keyword">def</span> get_city_coordinates(city_name: str) -> dict:
+    <span class="string">"""
+    دریافت مختصات جغرافیایی شهر از ChatGPT
+    
+    این تابع نام شهر را دریافت کرده و با استفاده از API OpenAI
+    مختصات جغرافیایی آن را استخراج می‌کند.
+    
+    Args:
+        city_name (str): نام شهر به فارسی یا انگلیسی
+        
+    Returns:
+        dict: دیکشنری شامل موفقیت و داده‌های شهر
+            {
+                "success": bool,
+                "city_data": {
+                    "city_name": str,
+                    "latitude": float,
+                    "longitude": float,
+                    "country": str,
+                    "description": str
+                }
+            }
+    
+    Raises:
+        ValueError: اگر نام شهر خالی باشد
+        APIError: اگر خطایی در ارتباط با API رخ دهد
+    
+    Example:
+        >>> result = get_city_coordinates("تهران")
+        >>> print(result["city_data"]["latitude"])
+        35.6892
+    
+    Note:
+        این تابع نیاز به تنظیم OPENAI_API_KEY دارد
+    
+    See Also:
+        create_geojson_point: برای تولید GeoJSON
+    """</span>
+    ...</code></pre>
+        </div>
+
+        <!-- اسلاید 27: Best Practices -->
+        <div class="slide">
+            <h2>✨ بهترین شیوه‌ها (Best Practices)</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>📝 کد تمیز</h3>
+                    <ul>
+                        <li>نام‌گذاری معنادار</li>
+                        <li>توابع کوچک و مشخص</li>
+                        <li>DRY (Don't Repeat Yourself)</li>
+                        <li>Type hints استفاده کن</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🏗️ معماری</h3>
+                    <ul>
+                        <li>جداسازی Concerns</li>
+                        <li>Dependency Injection</li>
+                        <li>SOLID Principles</li>
+                        <li>Design Patterns</li>
+                        <li>Modular Structure</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🧪 تست</h3>
+                    <ul>
+                        <li>Unit Tests</li>
+                        <li>Integration Tests</li>
+                        <li>Coverage بالای 80%</li>
+                        <li>Mock کردن External APIs</li>
+                        <li>Test-Driven Development</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>💡 قوانین طلایی:</h3>
+                <ol>
+                    <li><strong>همیشه خطاها را مدیریت کن</strong></li>
+                    <li><strong>از متغیرهای محیطی استفاده کن</strong></li>
+                    <li><strong>کد را مستند کن</strong></li>
+                    <li><strong>تست بنویس</strong></li>
+                    <li><strong>امنیت را جدی بگیر</strong></li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- اسلاید 28: مقایسه -->
+        <div class="slide">
+            <h2>⚖️ مقایسه MCP با روش‌های دیگر</h2>
+            
+            <table>
+                <tr>
+                    <th>ویژگی</th>
+                    <th>MCP</th>
+                    <th>REST API</th>
+                    <th>GraphQL</th>
+                </tr>
+                <tr>
+                    <td>پیچیدگی</td>
+                    <td>متوسط</td>
+                    <td>کم</td>
+                    <td>زیاد</td>
+                </tr>
+                <tr>
+                    <td>انعطاف‌پذیری</td>
+                    <td>بالا</td>
+                    <td>متوسط</td>
+                    <td>خیلی بالا</td>
+                </tr>
+                <tr>
+                    <td>مدیریت Context</td>
+                    <td>عالی</td>
+                    <td>ضعیف</td>
+                    <td>خوب</td>
+                </tr>
+                <tr>
+                    <td>استاندارد</td>
+                    <td>بله</td>
+                    <td>بله</td>
+                    <td>بله</td>
+                </tr>
+                <tr>
+                    <td>کاربرد AI</td>
+                    <td>بهینه</td>
+                    <td>معمولی</td>
+                    <td>خوب</td>
+                </tr>
+            </table>
+
+            <div class="success-box">
+                <h3>✅ چه زمانی از MCP استفاده کنیم?</h3>
+                <ul>
+                    <li>اتصال به مدل‌های AI</li>
+                    <li>نیاز به مدیریت Context پیچیده</li>
+                    <li>پروژه‌های قابل توسعه</li>
+                    <li>نیاز به استانداردسازی</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 29: منابع یادگیری -->
+        <div class="slide">
+            <h2>📖 منابع یادگیری بیشتر</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>📚 مستندات رسمی</h3>
+                    <ul>
+                        <li>MCP Documentation</li>
+                        <li>OpenAI API Reference</li>
+                        <li>GeoJSON Specification</li>
+                        <li>Python Async/Await</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🎓 دوره‌های آموزشی</h3>
+                    <ul>
+                        <li>Python Advanced</li>
+                        <li>API Design</li>
+                        <li>GIS Programming</li>
+                        <li>AI Integration</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🛠️ ابزارها</h3>
+                    <ul>
+                        <li>Postman (API Testing)</li>
+                        <li>QGIS (GIS Visualization)</li>
+                        <li>Docker (Containerization)</li>
+                        <li>GitHub Actions (CI/CD)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h3>🔗 لینک‌های مفید:</h3>
+                <ul>
+                    <li><strong>GitHub:</strong> github.com/modelcontextprotocol</li>
+                    <li><strong>OpenAI:</strong> platform.openai.com/docs</li>
+                    <li><strong>GeoJSON:</strong> geojson.org</li>
+                    <li><strong>Python MCP:</strong> pypi.org/project/mcp</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 30: پروژه‌های مشابه -->
+        <div class="slide">
+            <h2>🎯 پروژه‌های عملی مشابه</h2>
+            
+            <h3>1️⃣ سیستم رزرو هتل با نقشه</h3>
+            <pre><code><span class="comment"># دریافت هتل‌های اطراف</span>
+<span class="keyword">def</span> find_nearby_hotels(city: str, radius_km: int):
+    coords = get_city_coordinates(city)
+    hotels = search_hotels_nearby(coords, radius_km)
+    <span class="keyword">return</span> create_geojson_collection(hotels)</code></pre>
+
+            <h3>2️⃣ برنامه مسیریابی هوشمند</h3>
+            <pre><code><span class="comment"># محاسبه بهترین مسیر</span>
+<span class="keyword">def</span> calculate_best_route(cities: list):
+    coordinates = [get_city_coordinates(c) <span class="keyword">for</span> c <span class="keyword">in</span> cities]
+    optimized = optimize_route(coordinates)
+    <span class="keyword">return</span> create_route_geojson(optimized)</code></pre>
+
+            <h3>3️⃣ داشبورد تحلیل جمعیت</h3>
+            <pre><code><span class="comment"># تحلیل جمعیت شهرها</span>
+<span class="keyword">def</span> analyze_population(cities: list):
+    data = []
+    <span class="keyword">for</span> city <span class="keyword">in</span> cities:
+        coords = get_city_coordinates(city)
+        population = get_population_data(city)
+        data.append({<span class="string">"coords"</span>: coords, <span class="string">"pop"</span>: population})
+    <span class="keyword">return</span> create_heatmap_geojson(data)</code></pre>
+        </div>
+
+        <!-- اسلاید 31: Troubleshooting -->
+        <div class="slide">
+            <h2>🔧 عیب‌یابی مشکلات رایج</h2>
+            
+            <div class="warning-box">
+                <h3>❌ مشکل: مختصات نادرست</h3>
+                <strong>علت:</strong> پرامپت نامناسب یا پاسخ نامعتبر ChatGPT
+                <br><br>
+                <strong>راه‌حل:</strong>
+                <pre><code><span class="comment"># اعتبارسنجی مختصات</span>
+<span class="keyword">def</span> validate_coordinates(lat, lon):
+    <span class="keyword">if</span> <span class="keyword">not</span> (-<span class="number">90</span> <= lat <= <span class="number">90</span>):
+        <span class="keyword">raise</span> ValueError(<span class="string">"عرض جغرافیایی نامعتبر"</span>)
+    <span class="keyword">if</span> <span class="keyword">not</span> (-<span class="number">180</span> <= lon <= <span class="number">180</span>):
+        <span class="keyword">raise</span> ValueError(<span class="string">"طول جغرافیایی نامعتبر"</span>)
+    <span class="keyword">return</span> <span class="keyword">True</span></code></pre>
+            </div>
+
+            <div class="warning-box">
+                <h3>❌ مشکل: فایل GeoJSON باز نمی‌شود</h3>
+                <strong>علت:</strong> ساختار JSON نامعتبر
+                <br><br>
+                <strong>راه‌حل:</strong>
+                <pre><code><span class="comment"># اعتبارسنجی GeoJSON</span>
+<span class="keyword">import</span> jsonschema
+
+<span class="keyword">def</span> validate_geojson(data):
+    schema = load_geojson_schema()
+    <span class="keyword">try</span>:
+        jsonschema.validate(data, schema)
+        <span class="keyword">return</span> <span class="keyword">True</span>
+    <span class="keyword">except</span> jsonschema.ValidationError:
+        <span class="keyword">return</span> <span class="keyword">False</span></code></pre>
+            </div>
+
+            <div class="warning-box">
+                <h3>❌ مشکل: کندی در پاسخ‌دهی</h3>
+                <strong>علت:</strong> عدم استفاده از Cache و Async
+                <br><br>
+                <strong>راه‌حل:</strong>
+                <ul>
+                    <li>استفاده از Redis برای Cache</li>
+                    <li>پیاده‌سازی Async/Await</li>
+                    <li>Connection Pooling</li>
+                    <li>CDN برای فایل‌های استاتیک</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 32: کیس استادی -->
+        <div class="slide">
+            <h2>📊 مطالعه موردی (Case Study)</h2>
+            
+            <div class="info-box">
+                <h3>🏢 پروژه: سیستم مدیریت شعب بانک</h3>
+                <p><strong>چالش:</strong> نمایش 500+ شعبه بانک روی نقشه با اطلاعات دقیق</p>
+            </div>
+
+            <h3>📈 نتایج قبل از بهینه‌سازی:</h3>
+            <ul>
+                <li>⏱️ زمان پاسخ: 45 ثانیه</li>
+                <li>💾 مصرف حافظه: 2GB</li>
+                <li>🔄 تعداد درخواست API: 500</li>
+                <li>💰 هزینه API: $50/روز</li>
+            </ul>
+
+            <h3>✅ پس از بهینه‌سازی با MCP:</h3>
+            <ul>
+                <li>⏱️ زمان پاسخ: 3 ثانیه (93% بهبود)</li>
+                <li>💾 مصرف حافظه: 200MB (90% کاهش)</li>
+                <li>🔄 تعداد درخواست API: 50 (با Cache)</li>
+                <li>💰 هزینه API: $5/روز (90% کاهش)</li>
+            </ul>
+
+            <div class="success-box">
+                <h3>🎯 راهکارهای استفاده شده:</h3>
+                <ol>
+                    <li>Cache کردن مختصات شعب</li>
+                    <li>Batch Processing برای درخواست‌های موازی</li>
+                    <li>استفاده از CDN برای GeoJSON</li>
+                    <li>Lazy Loading روی نقشه</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- اسلاید 33: آینده MCP -->
+        <div class="slide">
+            <h2>🚀 آینده MCP و AI</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>🔮 روندهای آینده</h3>
+                    <ul>
+                        <li>یکپارچگی بیشتر با AI Models</li>
+                        <li>پشتیبانی از Multimodal</li>
+                        <li>Edge Computing</li>
+                        <li>Real-time Streaming</li>
+                        <li>Federated Learning</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>💡 فرصت‌های جدید</h3>
+                    <ul>
+                        <li>IoT Integration</li>
+                        <li>AR/VR Applications</li>
+                        <li>Smart Cities</li>
+                        <li>Autonomous Systems</li>
+                        <li>Digital Twins</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🌍 کاربردهای نوظهور</h3>
+                    <ul>
+                        <li>کشاورزی هوشمند</li>
+                        <li>مدیریت بحران</li>
+                        <li>لجستیک پیشرفته</li>
+                        <li>شهرهای هوشمند</li>
+                        <li>محیط زیست</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <h3>💭 پیش‌بینی:</h3>
+                <p>تا سال 2030، MCP به یکی از استانداردهای اصلی ارتباط با AI تبدیل خواهد شد و در بیش از 80% پروژه‌های AI-Powered استفاده می‌شود.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 34: تمرین عملی -->
+        <div class="slide">
+            <h2>✍️ تمرین عملی</h2>
+            
+            <div class="step">تمرین 1: پایه</div>
+            <div class="info-box">
+                <p><strong>هدف:</strong> یک برنامه بنویسید که 3 شهر دریافت کند و GeoJSON آن‌ها را تولید کند</p>
+                <p><strong>الزامات:</strong></p>
+                <ul>
+                    <li>دریافت نام شهرها از کاربر</li>
+                    <li>اتصال به ChatGPT</li>
+                    <li>تولید یک فایل GeoJSON</li>
+                    <li>مدیریت خطا</li>
+                </ul>
+            </div>
+
+            <div class="step">تمرین 2: متوسط</div>
+            <div class="info-box">
+                <p><strong>هدف:</strong> محاسبه فاصله بین شهرها و رسم مسیر</p>
+                <p><strong>الزامات:</strong></p>
+                <ul>
+                    <li>محاسبه فاصله جغرافیایی</li>
+                    <li>رسم خط بین نقاط</li>
+                    <li>نمایش روی نقشه</li>
+                    <li>محاسبه زمان سفر تقریبی</li>
+                </ul>
+            </div>
+
+            <div class="step">تمرین 3: پیشرفته</div>
+            <div class="info-box">
+                <p><strong>هدف:</strong> ساخت API RESTful با داشبورد تعاملی</p>
+                <p><strong>الزامات:</strong></p>
+                <ul>
+                    <li>FastAPI با Swagger</li>
+                    <li>نقشه تعاملی با Leaflet</li>
+                    <li>Cache با Redis</li>
+                    <li>Docker Compose</li>
+                    <li>CI/CD Pipeline</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 35: Q&A -->
+        <div class="slide">
+            <h2>❓ سوالات متداول (FAQ)</h2>
+            
+            <div class="info-box">
+                <h3>Q1: آیا MCP رایگان است؟</h3>
+                <p><strong>A:</strong> بله، MCP به عنوان یک پروتکل رایگان است، اما استفاده از OpenAI API هزینه دارد.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Q2: چگونه هزینه API را کاهش دهیم؟</h3>
+                <p><strong>A:</strong> از Cache استفاده کنید، درخواست‌ها را Batch کنید، و از مدل‌های ارزان‌تر برای کارهای ساده استفاده کنید.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Q3: آیا می‌توان از مدل‌های محلی استفاده کرد؟</h3>
+                <p><strong>A:</strong> بله، می‌توانید از Ollama یا LM Studio برای اجرای مدل‌های محلی استفاده کنید.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Q4: GeoJSON چه تفاوتی با JSON دارد؟</h3>
+                <p><strong>A:</strong> GeoJSON یک فرمت استاندارد JSON برای نمایش داده‌های جغرافیایی است که توسط ابزارهای GIS پشتیبانی می‌شود.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Q5: چگونه دقت مختصات را بهبود دهیم؟</h3>
+                <p><strong>A:</strong> پرامپت بهتر بنویسید، از مدل‌های قوی‌تر استفاده کنید، و نتایج را با منابع معتبر مقایسه کنید.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 36: چک‌لیست پروژه -->
+        <div class="slide">
+            <h2>✅ چک‌لیست تکمیل پروژه</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>📋 کد و توسعه</h3>
+                    <ul>
+                        <li>☐ نصب پکیج‌ها</li>
+                        <li>☐ تنظیم .env</li>
+                        <li>☐ پیاده‌سازی سرور</li>
+                        <li>☐ پیاده‌سازی کلاینت</li>
+                        <li>☐ مدیریت خطا</li>
+                        <li>☐ Validation</li>
+                        <li>☐ Logging</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🧪 تست و کیفیت</h3>
+                    <ul>
+                        <li>☐ Unit Tests</li>
+                        <li>☐ Integration Tests</li>
+                        <li>☐ Code Coverage > 80%</li>
+                        <li>☐ Linting (flake8)</li>
+                        <li>☐ Type Checking (mypy)</li>
+                        <li>☐ Security Scan</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>📚 مستندات</h3>
+                    <ul>
+                        <li>☐ README.md</li>
+                        <li>☐ API Documentation</li>
+                        <li>☐ Code Comments</li>
+                        <li>☐ Usage Examples</li>
+                        <li>☐ Architecture Diagram</li>
+                        <li>☐ Deployment Guide</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>🎉 آماده برای Production:</h3>
+                <ul>
+                    <li>✅ همه تست‌ها پاس شده</li>
+                    <li>✅ مستندات کامل</li>
+                    <li>✅ امنیت بررسی شده</li>
+                    <li>✅ Performance بهینه</li>
+                    <li>✅ Monitoring فعال</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 37: منابع کد -->
+        <div class="slide">
+            <h2>💾 دریافت کد کامل</h2>
+            
+            <div class="highlight">
+                <h3>📦 ساختار کامل پروژه:</h3>
+                <pre><code>mcp-geojson-project/
+│
+├── src/
+│   ├── __init__.py
+│   ├── server.py              # سرور MCP
+│   ├── client.py              # کلاینت
+│   ├── models.py              # مدل‌های داده
+│   ├── utils.py               # توابع کمکی
+│   └── config.py              # تنظیمات
+│
+├── tests/
+│   ├── test_server.py
+│   ├── test_client.py
+│   └── test_utils.py
+│
+├── docs/
+│   ├── api.md
+│   ├── setup.md
+│   └── examples.md
+│
+├── .env.example
+├── .gitignore
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── README.md
+└── LICENSE</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h3>🔗 دریافت کد:</h3>
+                <p>کد کامل این پروژه در GitHub موجود است:</p>
+                <pre><code>git clone https://github.com/your-repo/mcp-geojson.git
+cd mcp-geojson
+pip install -r requirements.txt
+cp .env.example .env
+# ویرایش .env و اضافه کردن API Key
+python src/server.py</code></pre>
+            </div>
+        </div>
+
+        <!-- اسلاید 38: جمع‌بندی -->
+        <div class="slide">
+            <h2>📝 جمع‌بندی</h2>
+            
+            <div class="success-box">
+                <h3>✨ چیزهایی که یاد گرفتیم:</h3>
+                <ul>
+                    <li>✅ مفهوم و کاربرد MCP</li>
+                    <li>✅ اتصال به ChatGPT با Python</li>
+                    <li>✅ تولید و مدیریت GeoJSON</li>
+                    <li>✅ مدیریت خطا و اعتبارسنجی</li>
+                    <li>✅ بهینه‌سازی و Cache</li>
+                    <li>✅ تست و مستندسازی</li>
+                    <li>✅ Deploy و CI/CD</li>
+                </ul>
+            </div>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>🎯 نکات کلیدی</h3>
+                    <ul>
+                        <li>MCP استاندارد قدرتمند</li>
+                        <li>امنیت اولویت اول</li>
+                        <li>تست ضروری است</li>
+                        <li>مستندات مهم است</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🚀 گام‌های بعدی</h3>
+                    <ul>
+                        <li>پیاده‌سازی پروژه</li>
+                        <li>توسعه ویژگی‌ها</li>
+                        <li>بهینه‌سازی</li>
+                        <li>استقرار Production</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>📚 یادگیری بیشتر</h3>
+                    <ul>
+                        <li>مطالعه مستندات</li>
+                        <li>پروژه‌های Open Source</li>
+                        <li>جامعه توسعه‌دهندگان</li>
+                        <li>دوره‌های پیشرفته</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 39: تشکر -->
+        <div class="slide">
+            <div class="icon">🎉</div>
+            <h1>تشکر از توجه شما!</h1>
+            <div class="subtitle">امیدوارم این آموزش مفید بوده باشد</div>
+            
+            <div class="info-box" style="margin-top: 50px;">
+                <h3>📧 ارتباط با من:</h3>
+                <p style="font-size: 1.2em; line-height: 2; text-align: left;">
+                    <strong>email:</strong> araz.shah@gmail.com<br>
+                    <strong>GitHub:</strong> github.com/arazshah<br>
+                    <strong>LinkedIn:</strong> linkedin.com/in/araz-shahkarami<br>
+                     <strong>website:</strong> https://araz.me<br>
+                  
+                </p>
+            </div>
+
+            <div class="highlight" style="margin-top: 30px;">
+                <h3>💡 سوال دارید؟</h3>
+                <p>در صورت هرگونه سوال یا نیاز به راهنمایی، خوشحال می‌شوم کمک کنم!</p>
+            </div>
+
+            <div class="icon" style="margin-top: 40px;">🚀</div>
+            <h2 style="color: #667eea;">موفق باشید!</h2>
+        </div>
+
+        <!-- اسلاید 40: منابع اضافی -->
+        <div class="slide">
+            <h2>🔗 منابع و لینک‌های مفید</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3>📚 مستندات</h3>
+                    <ul>
+                        <li><a href="https://modelcontextprotocol.io" style="color: white;">MCP Official Docs</a></li>
+                        <li><a href="https://platform.openai.com/docs" style="color: white;">OpenAI API Docs</a></li>
+                        <li><a href="https://geojson.org" style="color: white;">GeoJSON Spec</a></li>
+                        <li><a href="https://docs.python.org/3/" style="color: white;">Python Docs</a></li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>🛠️ ابزارها</h3>
+                    <ul>
+                        <li><a href="https://geojson.io" style="color: white;">GeoJSON.io (Viewer)</a></li>
+                        <li><a href="https://www.postman.com" style="color: white;">Postman</a></li>
+                        <li><a href="https://qgis.org" style="color: white;">QGIS</a></li>
+                        <li><a href="https://leafletjs.com" style="color: white;">Leaflet.js</a></li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>👥 جامعه</h3>
+                    <ul>
+                        <li><a href="https://stackoverflow.com" style="color: white;">Stack Overflow</a></li>
+                        <li><a href="https://reddit.com/r/Python" style="color: white;">r/Python</a></li>
+                        <li><a href="https://discord.gg/python" style="color: white;">Python Discord</a></li>
+                        <li><a href="https://github.com/topics/mcp" style="color: white;">GitHub MCP</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h3>📖 کتاب‌های پیشنهادی:</h3>
+                <ul>
+                    <li><strong>Python for Data Analysis</strong> - Wes McKinney</li>
+                    <li><strong>Fluent Python</strong> - Luciano Ramalho</li>
+                    <li><strong>Geographic Data Science with Python</strong> - Sergio Rey</li>
+                    <li><strong>Building APIs with Python</strong> - Various Authors</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <h3>🎥 ویدیوها و دوره‌ها:</h3>
+                <ul>
+                    <li>Python Advanced Programming (YouTube)</li>
+                    <li>GIS with Python (Coursera)</li>
+                    <li>API Development Masterclass (Udemy)</li>
+                    <li>AI Integration Best Practices (edX)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎓 آموزش MCP با ChatGPT و تولید GeoJSON</p>
+            <p>📅 تاریخ: 23 اکتبر 2025 | نسخه: 1.0</p>
+            <p>💻 ساخته شده با ❤️ توسط Claude 4.5 Sonnet</p>
+        </div>
+
+    </div>
+
+    <!-- اسکریپت‌های اضافی برای تعامل -->
+    <script>
+        // اضافه کردن شماره اسلاید
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach((slide, index) => {
+                const slideNumber = document.createElement('div');
+                slideNumber.style.cssText = `
+                    position: absolute;
+                    bottom: 20px;
+                    right: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 10px 20px;
+                    border-radius: 20px;
+                    font-weight: bold;
+                `;
+                slideNumber.textContent = `${index + 1} / ${slides.length}`;
+                slide.style.position = 'relative';
+                slide.appendChild(slideNumber);
+            });
+
+            // اضافه کردن دکمه‌های ناوبری
+            const nav = document.createElement('div');
+            nav.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: white;
+                padding: 15px 30px;
+                border-radius: 50px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                display: flex;
+                gap: 20px;
+                z-index: 1000;
+            `;
+            
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '← قبلی';
+            prevBtn.style.cssText = `
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 1em;
+                font-weight: bold;
+            `;
+            
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = 'بعدی →';
+            nextBtn.style.cssText = prevBtn.style.cssText;
+            
+            const homeBtn = document.createElement('button');
+            homeBtn.textContent = '🏠 خانه';
+            homeBtn.style.cssText = prevBtn.style.cssText;
+            
+            nav.appendChild(prevBtn);
+            nav.appendChild(homeBtn);
+            nav.appendChild(nextBtn);
+            document.body.appendChild(nav);
+
+            // مدیریت ناوبری
+            let currentSlide = 0;
+            
+            function scrollToSlide(index) {
+                if (index >= 0 && index < slides.length) {
+                    currentSlide = index;
+                    slides[index].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            prevBtn.addEventListener('click', () => scrollToSlide(currentSlide - 1));
+            nextBtn.addEventListener('click', () => scrollToSlide(currentSlide + 1));
+            homeBtn.addEventListener('click', () => scrollToSlide(0));
+
+            // کلیدهای صفحه‌کلید
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                    scrollToSlide(currentSlide + 1);
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    scrollToSlide(currentSlide - 1);
+                } else if (e.key === 'Home') {
+                    scrollToSlide(0);
+                } else if (e.key === 'End') {
+                    scrollToSlide(slides.length - 1);
+                }
+            });
+
+            // تشخیص اسلاید فعلی با scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        currentSlide = Array.from(slides).indexOf(entry.target);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            slides.forEach(slide => observer.observe(slide));
+
+            // اضافه کردن انیمیشن به کدها
+            const codeBlocks = document.querySelectorAll('pre');
+            codeBlocks.forEach(block => {
+                block.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.02)';
+                    this.style.transition = 'transform 0.3s ease';
+                });
+                block.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // اضافه کردن کپی کردن به کدها
+            codeBlocks.forEach(block => {
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 کپی';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    padding: 5px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                `;
+                
+                block.style.position = 'relative';
+                block.appendChild(copyBtn);
+                
+                block.addEventListener('mouseenter', () => {
+                    copyBtn.style.opacity = '1';
+                });
+                
+                block.addEventListener('mouseleave', () => {
+                    copyBtn.style.opacity = '0';
+                });
+                
+                copyBtn.addEventListener('click', () => {
+                    const code = block.querySelector('code').textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        copyBtn.textContent = '✅ کپی شد!';
+                        setTimeout(() => {
+                            copyBtn.textContent = '📋 کپی';
+                        }, 2000);
+                    });
+                });
+            });
+
+            // اضافه کردن Progress Bar
+            const progressBar = document.createElement('div');
+            progressBar.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 0%;
+                height: 5px;
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                z-index: 9999;
+                transition: width 0.3s ease;
+            `;
+            document.body.appendChild(progressBar);
+
+            window.addEventListener('scroll', () => {
+                const windowHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrolled = (window.scrollY / windowHeight) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+
+            // اضافه کردن Table of Contents
+            const tocBtn = document.createElement('button');
+            tocBtn.textContent = '📑 فهرست';
+            tocBtn.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 1em;
+                font-weight: bold;
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            `;
+            document.body.appendChild(tocBtn);
+
+            const tocPanel = document.createElement('div');
+            tocPanel.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 20px;
+                background: white;
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                max-height: 70vh;
+                overflow-y: auto;
+                display: none;
+                z-index: 999;
+                width: 300px;
+            `;
+            
+            const tocTitle = document.createElement('h3');
+            tocTitle.textContent = '📑 فهرست مطالب';
+            tocTitle.style.cssText = 'color: #667eea; margin-bottom: 15px;';
+            tocPanel.appendChild(tocTitle);
+
+            const tocList = document.createElement('ul');
+            tocList.style.cssText = 'list-style: none; padding: 0;';
+            
+            slides.forEach((slide, index) => {
+                const h2 = slide.querySelector('h2, h1');
+                if (h2) {
+                    const li = document.createElement('li');
+                    li.style.cssText = `
+                        padding: 10px;
+                        margin: 5px 0;
+                        cursor: pointer;
+                        border-radius: 5px;
+                        transition: background 0.3s;
+                    `;
+                    li.textContent = `${index + 1}. ${h2.textContent}`;
+                    li.addEventListener('mouseenter', function() {
+                        this.style.background = '#f0f0f0';
+                    });
+                    li.addEventListener('mouseleave', function() {
+                        this.style.background = 'white';
+                    });
+                    li.addEventListener('click', () => {
+                        scrollToSlide(index);
+                        tocPanel.style.display = 'none';
+                    });
+                    tocList.appendChild(li);
+                }
+            });
+            
+            tocPanel.appendChild(tocList);
+            document.body.appendChild(tocPanel);
+
+            tocBtn.addEventListener('click', () => {
+                tocPanel.style.display = tocPanel.style.display === 'none' ? 'block' : 'none';
+            });
+
+            // بستن TOC با کلیک خارج از آن
+            document.addEventListener('click', (e) => {
+                if (!tocPanel.contains(e.target) && e.target !== tocBtn) {
+                    tocPanel.style.display = 'none';
+                }
+            });
+
+            // اضافه کردن دکمه چاپ
+            const printBtn = document.createElement('button');
+            printBtn.textContent = '🖨️ چاپ';
+            printBtn.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 15px 25px;
+                border-radius: 25px;
+                cursor: pointer;
+                font-size: 1em;
+                font-weight: bold;
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            `;
+            printBtn.addEventListener('click', () => window.print());
+            document.body.appendChild(printBtn);
+
+            // اضافه کردن دکمه تم تاریک
+            const themeBtn = document.createElement('button');
+            themeBtn.textContent = '🌙';
+            themeBtn.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 15px 20px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 1.5em;
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            `;
+            
+            let isDarkMode = false;
+            themeBtn.addEventListener('click', () => {
+                isDarkMode = !isDarkMode;
+                if (isDarkMode) {
+                    document.body.style.background = 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)';
+                    themeBtn.textContent = '☀️';
+                    slides.forEach(slide => {
+                        slide.style.background = '#0f3460';
+                        slide.style.color = '#e8e8e8';
+                    });
+                } else {
+                    document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    themeBtn.textContent = '🌙';
+                    slides.forEach(slide => {
+                        slide.style.background = 'white';
+                        slide.style.color = '#333';
+                    });
+                }
+            });
+            document.body.appendChild(themeBtn);
+
+            // اضافه کردن Fullscreen
+            const fullscreenBtn = document.createElement('button');
+            fullscreenBtn.textContent = '⛶';
+            fullscreenBtn.style.cssText = `
+                position: fixed;
+                top: 140px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 15px 20px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 1.5em;
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            `;
+            
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                    fullscreenBtn.textContent = '⛶';
+                } else {
+                    document.exitFullscreen();
+                    fullscreenBtn.textContent = '⛶';
+                }
+            });
+            document.body.appendChild(fullscreenBtn);
+
+            console.log('🎉 ارائه آماده است! از کلیدهای جهت‌دار یا دکمه‌ها استفاده کنید.');
+        });
+    </script>
+
+    <!-- Highlight.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+</body>
+</html>
