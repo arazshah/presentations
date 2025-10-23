@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش GistIndex در Django</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #1b5e20 0%, #4caf50 100%);
+            padding: 20px;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #1b5e20;
+            font-size: 2.5em;
+            text-align: center;
+            border-bottom: 4px solid #4caf50;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #1b5e20;
+            font-size: 1.8em;
+            margin: 30px 0 15px;
+            border-right: 5px solid #4caf50;
+            padding-right: 12px;
+        }
+        
+        h3 {
+            color: #2e7d32;
+            font-size: 1.3em;
+            margin: 20px 0 10px;
+        }
+        
+        p, li {
+            font-size: 1.05em;
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        
+        ul { margin-right: 25px; }
+        
+        .code {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            border-right: 4px solid #4caf50;
+            direction: ltr;
+            text-align: left;
+            white-space: pre;
+        }
+        
+        .output {
+            background: #0d1117;
+            color: #58a6ff;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            border-right: 4px solid #4caf50;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .box {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-right: 4px solid;
+        }
+        
+        .info { background: #e8f5e9; border-color: #4caf50; }
+        .warn { background: #fff3e0; border-color: #ff9800; }
+        .error { background: #ffebee; border-color: #f44336; }
+        .success { background: #e8f5e9; border-color: #4caf50; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th {
+            background: #4caf50;
+            color: white;
+            padding: 10px;
+            text-align: right;
+        }
+        
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: right;
+        }
+        
+        tr:nth-child(even) { background: #f0f7f0; }
+        
+        code {
+            background: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+            color: #d32f2f;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            h1 { font-size: 2em; }
+            .grid { grid-template-columns: 1fr; }
+        }
+        
+        .k { color: #569cd6; font-weight: bold; }
+        .s { color: #ce9178; }
+        .c { color: #6a9955; font-style: italic; }
+        .n { color: #b5cea8; }
+        .f { color: #dcdcaa; }
+        .cl { color: #4ec9b0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ آموزش GistIndex در Django</h1>
+
+        <!-- بخش 1 -->
+        <h2>📍 1. مقدمه</h2>
+        <div class="info box">
+            <strong>GistIndex چیست؟</strong>
+            <p><strong>GIST</strong> (Generalized Search Tree) یک ایندکس ویژه PostgreSQL برای داده‌های مکانی است که سرعت پرس‌وجوها را تا <strong>1000 برابر</strong> افزایش می‌دهد.</p>
+        </div>
+
+        <div class="grid">
+            <div class="error box">
+                <strong>❌ بدون GistIndex:</strong>
+                <ul>
+                    <li>Sequential Scan</li>
+                    <li>زمان: 5-10 ثانیه</li>
+                    <li>CPU بالا</li>
+                </ul>
+            </div>
+            <div class="success box">
+                <strong>✅ با GistIndex:</strong>
+                <ul>
+                    <li>Index Scan</li>
+                    <li>زمان: 0.05 ثانیه</li>
+                    <li>بهینه و سریع</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- بخش 2 -->
+        <h2>🔧 2. نصب و تنظیمات</h2>
+        
+        <h3>نصب پیش‌نیازها:</h3>
+        <div class="code"><span class="c"># Ubuntu/Debian</span>
+sudo apt-get install postgresql postgis postgresql-14-postgis-3
+sudo apt-get install binutils libproj-dev gdal-bin
+
+<span class="c"># Python packages</span>
+pip install django psycopg2-binary</div>
+
+        <h3>تنظیمات Django:</h3>
+        <div class="code"><span class="c"># settings.py</span>
+<span class="cl">INSTALLED_APPS</span> = [
+    ...,
+    <span class="s">'django.contrib.gis'</span>,  <span class="c"># اضافه کنید</span>
+]
+
+<span class="cl">DATABASES</span> = {
+    <span class="s">'default'</span>: {
+        <span class="s">'ENGINE'</span>: <span class="s">'django.contrib.gis.db.backends.postgis'</span>,
+        <span class="s">'NAME'</span>: <span class="s">'mydb'</span>,
+        <span class="s">'USER'</span>: <span class="s">'postgres'</span>,
+        <span class="s">'PASSWORD'</span>: <span class="s">'password'</span>,
+        <span class="s">'HOST'</span>: <span class="s">'localhost'</span>,
+    }
+}</div>
+
+        <h3>فعال‌سازی PostGIS:</h3>
+        <div class="code"><span class="c">-- در PostgreSQL اجرا کنید</span>
+<span class="k">CREATE EXTENSION</span> postgis;
+<span class="k">CREATE EXTENSION</span> postgis_topology;</div>
+
+        <!-- بخش 3 -->
+        <h2>🏗️ 3. تعریف مدل با GistIndex</h2>
+        
+        <div class="code"><span class="k">from</span> django.db <span class="k">import</span> models
+<span class="k">from</span> django.contrib.gis.db <span class="k">import</span> models <span class="k">as</span> gis_models
+<span class="k">from</span> django.contrib.gis.db.models <span class="k">import</span> GistIndex
+
+<span class="k">class</span> <span class="cl">Store</span>(models.Model):
+    name = models.CharField(max_length=<span class="n">100</span>)
+    address = models.TextField()
+    location = gis_models.PointField(srid=<span class="n">4326</span>)  <span class="c"># WGS84</span>
+    city = models.CharField(max_length=<span class="n">50</span>)
+    category = models.CharField(max_length=<span class="n">50</span>)
+    is_open = models.BooleanField(default=<span class="k">True</span>)
+    
+    <span class="k">class</span> <span class="cl">Meta</span>:
+        indexes = [
+            <span class="c"># ایندکس مکانی اصلی</span>
+            GistIndex(fields=[<span class="s">'location'</span>]),
+            
+            <span class="c"># ایندکس ترکیبی</span>
+            GistIndex(fields=[<span class="s">'location'</span>, <span class="s">'category'</span>]),
+            
+            <span class="c"># ایندکس معمولی</span>
+            models.Index(fields=[<span class="s">'city'</span>]),
+        ]
+    
+    <span class="k">def</span> <span class="f">__str__</span>(self):
+        <span class="k">return</span> self.name</div>
+
+        <h3>انواع فیلدهای مکانی:</h3>
+        <table>
+            <tr>
+                <th>فیلد</th>
+                <th>کاربرد</th>
+            </tr>
+            <tr>
+                <td><code>PointField</code></td>
+                <td>نقطه (موقعیت فروشگاه)</td>
+            </tr>
+            <tr>
+                <td><code>LineStringField</code></td>
+                <td>خط (مسیر جاده)</td>
+            </tr>
+            <tr>
+                <td><code>PolygonField</code></td>
+                <td>چندضلعی (مرز شهر)</td>
+            </tr>
+            <tr>
+                <td><code>MultiPointField</code></td>
+                <td>مجموعه نقاط</td>
+            </tr>
+        </table>
+
+        <div class="code"><span class="c"># اعمال تغییرات</span>
+python manage.py makemigrations
+python manage.py migrate</div>
+
+        <!-- بخش 4 -->
+        <h2>📊 4. ایجاد داده‌های مکانی</h2>
+        
+        <div class="code"><span class="k">from</span> django.contrib.gis.geos <span class="k">import</span> Point, Polygon
+
+<span class="c"># ایجاد نقطه: Point(longitude, latitude)</span>
+<span class="c"># توجه: اول طول جغرافیایی، بعد عرض!</span>
+
+<span class="c"># تهران</span>
+tehran_loc = Point(<span class="n">51.3890</span>, <span class="n">35.6892</span>)
+
+store = Store.objects.create(
+    name=<span class="s">"فروشگاه مرکزی"</span>,
+    address=<span class="s">"تهران، میدان ولیعصر"</span>,
+    location=tehran_loc,
+    city=<span class="s">"تهران"</span>,
+    category=<span class="s">"supermarket"</span>
+)
+
+<span class="c"># مشهد</span>
+mashhad_loc = Point(<span class="n">59.6168</span>, <span class="n">36.2974</span>)
+Store.objects.create(
+    name=<span class="s">"فروشگاه مشهد"</span>,
+    location=mashhad_loc,
+    city=<span class="s">"مشهد"</span>,
+    category=<span class="s">"restaurant"</span>
+)</div>
+
+        <!-- بخش 5 -->
+        <h2>🔍 5. پرس‌وجوهای مکانی</h2>
+        
+        <h3>عملیات‌های مکانی:</h3>
+        <table>
+            <tr>
+                <th>عملیات</th>
+                <th>توضیح</th>
+            </tr>
+            <tr>
+                <td><code>__distance_lte</code></td>
+                <td>فاصله کمتر یا مساوی</td>
+            </tr>
+            <tr>
+                <td><code>__distance_lt</code></td>
+                <td>فاصله کمتر</td>
+            </tr>
+            <tr>
+                <td><code>__within</code></td>
+                <td>داخل چندضلعی</td>
+            </tr>
+            <tr>
+                <td><code>__contains</code></td>
+                <td>شامل نقطه</td>
+            </tr>
+            <tr>
+                <td><code>__intersects</code></td>
+                <td>تقاطع دارد</td>
+            </tr>
+        </table>
+
+        <h3>1️⃣ یافتن نزدیک‌ترین فروشگاه‌ها:</h3>
+        <div class="code"><span class="k">from</span> django.contrib.gis.db.models.functions <span class="k">import</span> Distance
+<span class="k">from</span> django.contrib.gis.measure <span class="k">import</span> D
+<span class="k">from</span> django.contrib.gis.geos <span class="k">import</span> Point
+
+<span class="k">def</span> <span class="f">find_nearby_stores</span>(user_lat, user_lng, radius_km=<span class="n">10</span>):
+    user_location = Point(user_lng, user_lat)
+    
+    nearby = Store.objects.filter(
+        location__distance_lte=(user_location, D(km=radius_km))
+    ).annotate(
+        distance=Distance(<span class="s">'location'</span>, user_location)
+    ).order_by(<span class="s">'distance'</span>)
+    
+    <span class="k">return</span> nearby
+
+<span class="c"># استفاده</span>
+stores = find_nearby_stores(<span class="n">35.6892</span>, <span class="n">51.3890</span>, radius_km=<span class="n">5</span>)
+
+<span class="k">for</span> store <span class="k">in</span> stores:
+    print(<span class="s">f"</span>{store.name}<span class="s">: </span>{store.distance.km:.2f}<span class="s"> کیلومتر"</span>)</div>
+
+        <div class="output">فروشگاه مرکزی: 0.85 کیلومتر
+فروشگاه شمال: 2.34 کیلومتر
+فروشگاه غرب: 4.12 کیلومتر</div>
+
+        <h3>2️⃣ فیلتر ترکیبی (مکانی + دسته‌بندی):</h3>
+        <div class="code"><span class="k">def</span> <span class="f">find_restaurants</span>(lat, lng, radius=<span class="n">3</span>):
+    location = Point(lng, lat)
+    
+    restaurants = Store.objects.filter(
+        location__distance_lte=(location, D(km=radius)),
+        category=<span class="s">'restaurant'</span>,
+        is_open=<span class="k">True</span>
+    ).annotate(
+        distance=Distance(<span class="s">'location'</span>, location)
+    ).order_by(<span class="s">'distance'</span>)[:<span class="n">10</span>]
+    
+    <span class="k">return</span> restaurants</div>
+
+        <h3>3️⃣ نقاط داخل چندضلعی:</h3>
+        <div class="code"><span class="c"># تعریف مرز تهران</span>
+tehran_boundary = Polygon((
+    (<span class="n">51.0</span>, <span class="n">35.5</span>), (<span class="n">51.8</span>, <span class="n">35.5</span>),
+    (<span class="n">51.8</span>, <span class="n">35.9</span>), (<span class="n">51.0</span>, <span class="n">35.9</span>),
+    (<span class="n">51.0</span>, <span class="n">35.5</span>)
+))
+
+<span class="c"># فروشگاه‌های داخل تهران</span>
+stores_in_tehran = Store.objects.filter(
+    location__within=tehran_boundary
+)
+
+print(<span class="s">f"تعداد: </span>{stores_in_tehran.count()}<span class="s">"</span>)</div>
+
+        <!-- بخش 6 -->
+        <h2>⚡ 6. بهینه‌سازی</h2>
+        
+        <h3>استفاده از Cache:</h3>
+        <div class="code"><span class="k">from</span> django.core.cache <span class="k">import</span> cache
+
+<span class="k">def</span> <span class="f">get_nearby_cached</span>(lat, lng, radius=<span class="n">10</span>):
+    cache_key = <span class="s">f"stores_</span>{lat:.3f}<span class="s">_</span>{lng:.3f}<span class="s">_</span>{radius}<span class="s">"</span>
+    
+    result = cache.get(cache_key)
+    <span class="k">if</span> result <span class="k">is</span> <span class="k">None</span>:
+        location = Point(lng, lat)
+        result = list(Store.objects.filter(
+            location__distance_lte=(location, D(km=radius))
+        ).annotate(
+            distance=Distance(<span class="s">'location'</span>, location)
+        ).order_by(<span class="s">'distance'</span>)[:<span class="n">20</span>])
+        
+        cache.set(cache_key, result, timeout=<span class="n">3600</span>)
+    
+    <span class="k">return</span> result</div>
+
+        <div class="grid">
+            <div class="info box">
+                <strong>✅ بهترین شیوه‌ها:</strong>
+                <ul>
+                    <li>همیشه <code>SRID=4326</code></li>
+                    <li>ایندکس ترکیبی برای فیلترهای مکرر</li>
+                    <li>استفاده از Cache</li>
+                    <li>بررسی با EXPLAIN ANALYZE</li>
+                </ul>
+            </div>
+            <div class="warn box">
+                <strong>⚠️ خطاهای رایج:</strong>
+                <ul>
+                    <li>فراموشی migration</li>
+                    <li>اشتباه در (lng, lat)</li>
+                    <li>SRID نادرست</li>
+                    <li>فراموشی postgis ENGINE</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- بخش 7 -->
+        <h2>📊 7. مقایسه عملکرد</h2>
+        
+        <table>
+            <tr>
+                <th>تعداد رکورد</th>
+                <th>بدون Index</th>
+                <th>با GistIndex</th>
+                <th>بهبود</th>
+            </tr>
+            <tr>
+                <td>100</td>
+                <td>50 ms</td>
+                <td>5 ms</td>
+                <td>10x ⚡</td>
+            </tr>
+            <tr>
+                <td>10,000</td>
+                <td>500 ms</td>
+                <td>8 ms</td>
+                <td>62x ⚡⚡</td>
+            </tr>
+            <tr>
+                <td>100,000</td>
+                <td>5,000 ms</td>
+                <td>12 ms</td>
+                <td>416x ⚡⚡⚡</td>
+            </tr>
+            <tr>
+                <td>1,000,000</td>
+                <td>50,000 ms</td>
+                <td>18 ms</td>
+                <td>2777x 🚀</td>
+            </tr>
+        </table>
+
+        <!-- بخش 8 -->
+        <h2>🏙️ 8. مثال کامل - سیستم تاکسی</h2>
+        
+        <div class="code"><span class="c"># models.py</span>
+<span class="k">class</span> <span class="cl">Driver</span>(models.Model):
+    name = models.CharField(max_length=<span class="n">100</span>)
+    current_location = gis_models.PointField()
+    is_available = models.BooleanField(default=<span class="k">True</span>)
+    rating = models.DecimalField(max_digits=<span class="n">3</span>, decimal_places=<span class="n">2</span>)
+    
+    <span class="k">class</span> <span class="cl">Meta</span>:
+        indexes = [
+            GistIndex(fields=[<span class="s">'current_location'</span>]),
+            models.Index(fields=[<span class="s">'is_available'</span>, <span class="s">'-rating'</span>]),
+        ]
+
+<span class="k">class</span> <span class="cl">Ride</span>(models.Model):
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    pickup_location = gis_models.PointField()
+    dropoff_location = gis_models.PointField()
+    status = models.CharField(max_length=<span class="n">20</span>)
+    
+    <span class="k">class</span> <span class="cl">Meta</span>:
+        indexes = [
+            GistIndex(fields=[<span class="s">'pickup_location'</span>]),
+            GistIndex(fields=[<span class="s">'dropoff_location'</span>]),
+        ]
+
+
+<span class="c"># services.py</span>
+<span class="k">def</span> <span class="f">find_nearest_driver</span>(passenger_lat, passenger_lng, max_km=<span class="n">5</span>):
+    <span class="s">"""یافتن نزدیک‌ترین راننده آزاد"""</span>
+    location = Point(passenger_lng, passenger_lat)
+    
+    driver = Driver.objects.filter(
+        is_available=<span class="k">True</span>,
+        current_location__distance_lte=(location, D(km=max_km))
+    ).annotate(
+        distance=Distance(<span class="s">'current_location'</span>, location)
+    ).order_by(<span class="s">'distance'</span>, <span class="s">'-rating'</span>).first()
+    
+    <span class="k">return</span> driver
+
+
+<span class="k">def</span> <span class="f">create_ride</span>(passenger_lat, passenger_lng, dest_lat, dest_lng):
+    <span class="s">"""ایجاد سفر جدید"""</span>
+    driver = find_nearest_driver(passenger_lat, passenger_lng)
+    
+    <span class="k">if</span> <span class="k">not</span> driver:
+        <span class="k">raise</span> Exception(<span class="s">"راننده‌ای در دسترس نیست"</span>)
+    
+    ride = Ride.objects.create(
+        driver=driver,
+        pickup_location=Point(passenger_lng, passenger_lat),
+        dropoff_location=Point(dest_lng, dest_lat),
+        status=<span class="s">'pending'</span>
+    )
+    
+    <span class="c"># راننده دیگر در دسترس نیست</span>
+    driver.is_available = <span class="k">False</span>
+    driver.save()
+    
+    <span class="k">return</span> ride
+
+
+<span class="k">def</span> <span class="f">get_ride_statistics</span>(city_boundary):
+    <span class="s">"""آمار سفرهای یک شهر"""</span>
+    rides = Ride.objects.filter(
+        pickup_location__within=city_boundary,
+        status=<span class="s">'completed'</span>
+    )
+    
+    <span class="k">return</span> {
+        <span class="s">'total_rides'</span>: rides.count(),
+        <span class="s">'avg_distance'</span>: rides.aggregate(
+            avg_dist=Avg(Distance(<span class="s">'pickup_location'</span>, <span class="s">'dropoff_location'</span>))
+        )[<span class="s">'avg_dist'</span>]
+    }</div>
+
+        <!-- بخش 9 -->
+        <h2>🔍 9. بررسی ایندکس</h2>
+        
+        <div class="code"><span class="c"># بررسی استفاده از ایندکس</span>
+<span class="k">from</span> django.db <span class="k">import</span> connection
+
+<span class="k">def</span> <span class="f">check_index_usage</span>():
+    location = Point(<span class="n">51.3890</span>, <span class="n">35.6892</span>)
+    
+    query = Store.objects.filter(
+        location__distance_lte=(location, D(km=<span class="n">10</span>))
+    ).query
+    
+    <span class="k">with</span> connection.cursor() <span class="k">as</span> cursor:
+        cursor.execute(<span class="s">f"EXPLAIN ANALYZE </span>{query}<span class="s">"</span>)
+        <span class="k">for</span> row <span class="k">in</span> cursor.fetchall():
+            print(row[<span class="n">0</span>])
+
+check_index_usage()</div>
+
+        <div class="output">Index Scan using store_location_gist on store
+  Index Cond: (location && '...'::geography)
+Planning Time: 0.123 ms
+Execution Time: 2.456 ms  ✅</div>
+
+        <!-- بخش 10 -->
+        <h2>📚 10. خلاصه و نکات کلیدی</h2>
+        
+        <div class="success box">
+            <h3>✅ نکات کلیدی:</h3>
+            <ul>
+                <li><strong>GistIndex</strong> برای هر برنامه مکانی با +1000 رکورد ضروری است</li>
+                <li>سرعت را تا <strong>1000 برابر</strong> افزایش می‌دهد</li>
+                <li>از <code>SRID=4326</code> (WGS84) استفاده کنید</li>
+                <li>ایندکس‌های ترکیبی برای فیلترهای مکرر بسازید</li>
+                <li>پرس‌وجوهای پرتکرار را کش کنید</li>
+                <li>با <code>EXPLAIN ANALYZE</code> عملکرد را بررسی کنید</li>
+            </ul>
+        </div>
+
+        <div class="info box">
+            <h3>📖 منابع بیشتر:</h3>
+            <ul>
+                <li>مستندات Django GeoDjango</li>
+                <li>مستندات PostGIS</li>
+                <li>PostgreSQL GIST Index Documentation</li>
+            </ul>
+        </div>
+
+        <div class="warn box">
+            <h3>⚠️ چک‌لیست قبل از Production:</h3>
+            <ul>
+                <li>✓ PostGIS نصب و فعال است</li>
+                <li>✓ تمام migrationها اجرا شده‌اند</li>
+                <li>✓ GistIndex روی تمام فیلدهای مکانی وجود دارد</li>
+                <li>✓ با EXPLAIN ANALYZE تست شده است</li>
+                <li>✓ Cache برای پرس‌وجوهای مکرر فعال است</li>
+                <li>✓ Backup از دیتابیس گرفته شده</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 20px; background: #e8f5e9; border-radius: 10px;">
+            <h3 style="color: #1b5e20;">🎉 پایان آموزش</h3>
+            <p style="font-size: 1.1em;">حالا می‌توانید برنامه‌های مکانی حرفه‌ای با Django بسازید!</p>
+        </div>
+    </div>
+</body>
+</html>
