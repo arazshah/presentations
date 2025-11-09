@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش Tippecanoe - ابزار Vector Tiles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 1.8;
+            direction: rtl;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            text-align: center;
+            border-bottom: 4px solid #764ba2;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin: 30px 0 15px;
+            border-right: 5px solid #764ba2;
+            padding-right: 15px;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin: 20px 0 10px;
+        }
+        
+        p, li {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        
+        .box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-right: 5px solid;
+        }
+        
+        .info { background: #e3f2fd; border-color: #2196f3; }
+        .success { background: #e8f5e9; border-color: #4caf50; }
+        .warning { background: #fff3e0; border-color: #ff9800; }
+        .code-box { background: #f5f5f5; border-color: #9e9e9e; }
+        
+        .code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            margin: 15px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .code .comment { color: #68d391; }
+        .code .command { color: #fbb6ce; }
+        .code .flag { color: #90cdf4; }
+        .code .file { color: #faf089; }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: right;
+        }
+        
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        
+        tr:nth-child(even) { background: #f9f9f9; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-top: 4px solid #667eea;
+        }
+        
+        .emoji {
+            font-size: 1.3em;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .step {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-right: 4px solid #4caf50;
+        }
+        
+        .step-number {
+            background: #4caf50;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-right: 4px solid #667eea;
+        }
+        
+        .comparison-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗺️ آموزش Tippecanoe - ابزار Vector Tiles</h1>
+        
+        <!-- مقدمه -->
+        <div class="info box">
+            <p><strong>Tippecanoe</strong> ابزار قدرتمند Mapbox برای تولید <span class="highlight">Vector Tiles</span> از داده‌های GeoJSON است که نقشه‌های وب را سریع‌تر و کارآمدتر می‌کند.</p>
+        </div>
+
+        <!-- چرا Tippecanoe؟ -->
+        <h2>🎯 چرا از Tippecanoe استفاده کنیم؟</h2>
+        
+        <div class="grid">
+            <div class="card">
+                <h3><span class="emoji">⚡</span> سرعت بالا</h3>
+                <p>نمایش نقشه‌های پیچیده با میلیون‌ها نقطه در کسری از ثانیه</p>
+            </div>
+            
+            <div class="card">
+                <h3><span class="emoji">📱</span> سازگاری موبایل</h3>
+                <p>مصرف پهنای باند کمتر و عملکرد بهتر روی موبایل</p>
+            </div>
+            
+            <div class="card">
+                <h3><span class="emoji">🎨</span> استایل پویا</h3>
+                <p>تغییر استایل نقشه بدون نیاز به بارگیری مجدد داده</p>
+            </div>
+            
+            <div class="card">
+                <h3><span class="emoji">📊</span> مقیاس‌پذیری</h3>
+                <p>مدیریت داده‌های حجیم با سیستم zoom levels هوشمند</p>
+            </div>
+        </div>
+
+        <!-- نصب -->
+        <h2>📦 نصب Tippecanoe</h2>
+        
+        <h3>Ubuntu/Debian:</h3>
+        <div class="code">
+<span class="comment"># نصب وابستگی‌ها</span>
+sudo apt-get update
+sudo apt-get install build-essential libsqlite3-dev zlib1g-dev
+
+<span class="comment"># کلون و کامپایل</span>
+git clone https://github.com/mapbox/tippecanoe.git
+cd tippecanoe
+make -j
+sudo make install
+</div>
+
+        <h3>macOS:</h3>
+        <div class="code">
+<span class="comment"># با Homebrew</span>
+brew install tippecanoe
+</div>
+
+        <h3>Docker:</h3>
+        <div class="code">
+<span class="comment"># استفاده از Docker Image</span>
+docker pull klokantech/tippecanoe
+</div>
+
+        <!-- مفاهیم کلیدی -->
+        <h2>🧠 مفاهیم کلیدی</h2>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <h4><span class="emoji">🔍</span> Vector Tiles</h4>
+                <p>فرمت فشرده برای انتقال داده‌های وکتور به صورت کاشی‌های کوچک</p>
+            </div>
+            
+            <div class="feature-item">
+                <h4><span class="emoji">📐</span> Zoom Levels</h4>
+                <p>سطوح مختلف بزرگنمایی (0-22) با جزئیات متفاوت</p>
+            </div>
+            
+            <div class="feature-item">
+                <h4><span class="emoji">🎯</span> Simplification</h4>
+                <p>ساده‌سازی هندسه در zoom های پایین برای بهینه‌سازی</p>
+            </div>
+            
+            <div class="feature-item">
+                <h4><span class="emoji">📊</span> Clustering</h4>
+                <p>گروه‌بندی نقاط نزدیک به هم در zoom های پایین</p>
+            </div>
+            
+            <div class="feature-item">
+                <h4><span class="emoji">🗂️</span> MBTiles</h4>
+                <p>فرمت SQLite برای ذخیره‌سازی کاشی‌ها</p>
+            </div>
+            
+            <div class="feature-item">
+                <h4><span class="emoji">⚙️</span> Filtering</h4>
+                <p>فیلتر کردن ویژگی‌ها بر اساس zoom level</p>
+            </div>
+        </div>
+
+        <!-- استفاده پایه -->
+        <h2>🚀 استفاده پایه</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>تبدیل GeoJSON به MBTiles</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># ساده‌ترین حالت</span>
+<span class="command">tippecanoe</span> <span class="flag">-o</span> <span class="file">output.mbtiles</span> <span class="file">input.geojson</span>
+
+<span class="comment"># با تنظیمات پیشرفته</span>
+<span class="command">tippecanoe</span> <span class="flag">-z</span> 14 <span class="flag">-Z</span> 0 <span class="flag">-r1</span> <span class="flag">--drop-densest-as-needed</span> \
+    <span class="flag">-o</span> <span class="file">iran-cities.mbtiles</span> <span class="file">cities.geojson</span>
+</div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>چندین لایه در یک فایل</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># ترکیب چندین GeoJSON</span>
+<span class="command">tippecanoe</span> <span class="flag">-z</span> 12 <span class="flag">-o</span> <span class="file">iran-map.mbtiles</span> \
+    <span class="flag">-L</span> cities:<span class="file">cities.geojson</span> \
+    <span class="flag">-L</span> roads:<span class="file">roads.geojson</span> \
+    <span class="flag">-L</span> provinces:<span class="file">provinces.geojson</span>
+</div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>سرو کردن کاشی‌ها</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># سرو مستقیم از MBTiles</span>
+<span class="command">tile-join</span> <span class="flag">--no-tile-compression</span> <span class="flag">-e</span> <span class="file">tiles_directory</span> <span class="file">output.mbtiles</span>
+
+<span class="comment"># یا استفاده از tileserver</span>
+npm install -g tileserver-gl-light
+<span class="command">tileserver-gl-light</span> <span class="file">output.mbtiles</span>
+</div>
+
+        <!-- پارامترهای مهم -->
+        <h2>⚙️ پارامترهای مهم</h2>
+        
+        <div class="comparison-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>پارامتر</th>
+                        <th>توضیح</th>
+                        <th>مثال</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>-z, --maximum-zoom</code></td>
+                        <td>حداکثر سطح zoom</td>
+                        <td><code>-z 14</code></td>
+                        <td>کنترل جزئیات</td>
+                    </tr>
+                    <tr>
+                        <td><code>-Z, --minimum-zoom</code></td>
+                        <td>حداقل سطح zoom</td>
+                        <td><code>-Z 0</code></td>
+                        <td>نمای کلی</td>
+                    </tr>
+                    <tr>
+                        <td><code>-r, --drop-rate</code></td>
+                        <td>نرخ حذف نقاط</td>
+                        <td><code>-r1</code></td>
+                        <td>کاهش حجم</td>
+                    </tr>
+                    <tr>
+                        <td><code>--drop-densest-as-needed</code></td>
+                        <td>حذف نقاط پرتراکم</td>
+                        <td>-</td>
+                        <td>بهینه‌سازی</td>
+                    </tr>
+                    <tr>
+                        <td><code>-l, --layer</code></td>
+                        <td>نام لایه</td>
+                        <td><code>-l cities</code></td>
+                        <td>سازماندهی</td>
+                    </tr>
+                    <tr>
+                        <td><code>-L</code></td>
+                        <td>لایه با فایل</td>
+                        <td><code>-L cities:data.geojson</code></td>
+                        <td>چند لایه</td>
+                    </tr>
+                    <tr>
+                        <td><code>--coalesce-densest-as-needed</code></td>
+                        <td>ادغام نقاط نزدیک</td>
+                        <td>-</td>
+                        <td>clustering</td>
+                    </tr>
+                    <tr>
+                        <td><code>-B, --base-zoom</code></td>
+                        <td>zoom پایه برای clustering</td>
+                        <td><code>-B 12</code></td>
+                        <td>کنترل clustering</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- مثال‌های عملی -->
+        <h2>💼 مثال‌های عملی</h2>
+        
+        <h3>1. نقشه شهرهای ایران</h3>
+        <div class="code">
+<span class="comment"># تولید tiles برای شهرهای ایران</span>
+<span class="command">tippecanoe</span> <span class="flag">-z</span> 12 <span class="flag">-Z</span> 4 \
+    <span class="flag">--drop-densest-as-needed</span> \
+    <span class="flag">--coalesce-densest-as-needed</span> \
+    <span class="flag">-l</span> iran-cities \
+    <span class="flag">-n</span> "شهرهای ایران" \
+    <span class="flag">-A</span> "نقشه شهرهای ایران" \
+    <span class="flag">-o</span> <span class="file">iran-cities.mbtiles</span> \
+    <span class="file">iran-cities.geojson</span>
+</div>
+
+        <h3>2. نقشه چند لایه کامل</h3>
+        <div class="code">
+<span class="comment"># نقشه کامل با چندین لایه</span>
+<span class="command">tippecanoe</span> <span class="flag">-z</span> 14 <span class="flag">-Z</span> 0 <span class="flag">-r1</span> \
+    <span class="flag">--drop-densest-as-needed</span> \
+    <span class="flag">--coalesce-densest-as-needed</span> \
+    <span class="flag">-n</span> "نقشه ایران" \
+    <span class="flag">-o</span> <span class="file">iran-complete.mbtiles</span> \
+    <span class="flag">-L</span> provinces:<span class="file">provinces.geojson</span> \
+    <span class="flag">-L</span> cities:<span class="file">cities.geojson</span> \
+    <span class="flag">-L</span> roads:<span class="file">roads.geojson</span> \
+    <span class="flag">-L</span> pois:<span class="file">points-of-interest.geojson</span>
+</div>
+
+        <h3>3. بهینه‌سازی برای موبایل</h3>
+        <div class="code">
+<span class="comment"># تنظیمات بهینه برای موبایل</span>
+<span class="command">tippecanoe</span> <span class="flag">-z</span> 12 <span class="flag">-Z</span> 6 \
+    <span class="flag">--drop-rate</span> 2 \
+    <span class="flag">--buffer</span> 5 \
+    <span class="flag">--simplification</span> 4 \
+    <span class="flag">--drop-densest-as-needed</span> \
+    <span class="flag">--coalesce-densest-as-needed</span> \
+    <span class="flag">-o</span> <span class="file">mobile-optimized.mbtiles</span> \
+    <span class="file">input.geojson</span>
+</div>
+
+        <!-- فیلتر و شرطی‌سازی -->
+        <h2>🔍 فیلتر و شرطی‌سازی</h2>
+        
+        <h3>فیلتر بر اساس ویژگی‌ها</h3>
+        <div class="code">
+<span class="comment"># نمایش شهرهای بزرگ در zoom های پایین</span>
+<span class="command">tippecanoe</span> <span class="flag">-z</span> 12 \
+    <span class="flag">--feature-filter</span> 'population >= 100000 || $zoom >= 8' \
+    <span class="flag">-o</span> <span class="file">filtered-cities.mbtiles</span> \
+    <span class="file">cities.geojson</span>
+
+<span class="comment"># حذف ویژگی‌های غیرضروری</span>
+<span class="command">tippecanoe</span> <span class="flag">-z</span> 12 \
+    <span class="flag">--exclude</span> 'id,temp_field' \
+    <span class="flag">-o</span> <span class="file">clean-data.mbtiles</span> \
+    <span class="file">input.geojson</span>
+</div>
+
+        <!-- استفاده در وب -->
+        <h2>🌐 استفاده در نقشه‌های وب</h2>
+        
+        <h3>Mapbox GL JS</h3>
+        <div class="code">
+// اضافه کردن Vector Tiles به نقشه
+map.addSource('iran-data', {
+    'type': 'vector',
+    'url': 'http://localhost:8080/iran-cities.json'
+});
+
+map.addLayer({
+    'id': 'cities-layer',
+    'type': 'circle',
+    'source': 'iran-data',
+    'source-layer': 'iran-cities',
+    'paint': {
+        'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            6, 2,
+            12, 8
+        ],
+        'circle-color': '#ff6b6b'
+    }
+});
+</div>
+
+        <h3>Leaflet</h3>
+        <div class="code">
+// استفاده با Leaflet و VectorGrid
+var vectorTileOptions = {
+    rendererFactory: L.canvas.tile,
+    vectorTileLayerStyles: {
+        'cities': {
+            color: '#ff6b6b',
+            weight: 2,
+            opacity: 0.8
+        }
+    }
+};
+
+var vectorLayer = L.vectorGrid.protobuf(
+    'http://localhost:8080/tiles/{z}/{x}/{y}.pbf',
+    vectorTileOptions
+).addTo(map);
+</div>
+
+        <!-- بهینه‌سازی -->
+        <h2>⚡ نکات بهینه‌سازی</h2>
+        
+        <div class="grid">
+            <div class="success box">
+                <h3><span class="emoji">🎯</span> انتخاب Zoom Level</h3>
+                <ul>
+                    <li>نقشه‌های شهری: z=0 تا z=16</li>
+                    <li>نقشه‌های کشوری: z=0 تا z=12</li>
+                    <li>نقشه‌های جهانی: z=0 تا z=8</li>
+                </ul>
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">📊</span> مدیریت حجم داده</h3>
+                <ul>
+                    <li>استفاده از <code>--drop-rate</code></li>
+                    <li>فعال‌سازی <code>--drop-densest-as-needed</code></li>
+                    <li>تنظیم <code>--simplification</code></li>
+                </ul>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">🔧</span> تنظیمات پیشرفته</h3>
+                <ul>
+                    <li>تنظیم <code>--buffer</code> برای حاشیه کاشی‌ها</li>
+                    <li>استفاده از <code>--coalesce</code> برای clustering</li>
+                    <li>بهینه‌سازی با <code>--hilbert</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- مقایسه با سایر ابزارها -->
+        <h2>⚖️ مقایسه با سایر ابزارها</h2>
+        
+        <div class="comparison-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ابزار</th>
+                        <th>سرعت</th>
+                        <th>قابلیت‌ها</th>
+                        <th>پیچیدگی</th>
+                        <th>مناسب برای</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Tippecanoe</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                        <td>پروژه‌های حرفه‌ای</td>
+                    </tr>
+                    <tr>
+                        <td>GDAL/OGR</td>
+                        <td>⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>تبدیل فرمت</td>
+                    </tr>
+                    <tr>
+                        <td>PostGIS</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>پایگاه داده مکانی</td>
+                    </tr>
+                    <tr>
+                        <td>T-Rex</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                        <td>⭐⭐</td>
+                        <td>سرور Vector Tiles</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- خطاهای رایج -->
+        <h2>🚨 خطاهای رایج و راه‌حل</h2>
+        
+        <div class="warning box">
+            <h3>❌ خطاهای رایج:</h3>
+            <ul>
+                <li><strong>حافظه کم:</strong> استفاده از <code>--drop-densest-as-needed</code></li>
+                <li><strong>فایل خیلی بزرگ:</strong> کاهش <code>max-zoom</code> یا افزایش <code>drop-rate</code></li>
+                <li><strong>کیفیت پایین:</strong> افزایش <code>--buffer</code> و کاهش <code>--simplification</code></li>
+                <li><strong>clustering نامناسب:</strong> تنظیم <code>--base-zoom</code></li>
+            </ul>
+        </div>
+
+        <div class="success box">
+            <h3>✅ بهترین روش‌ها:</h3>
+            <ul>
+                <li>همیشه داده‌ها را قبل از پردازش تست کنید</li>
+                <li>از فیلترها برای کاهش حجم استفاده کنید</li>
+                <li>zoom level ها را بر اساس نیاز تنظیم کنید</li>
+                <li>برای داده‌های بزرگ از clustering استفاده کنید</li>
+            </ul>
+        </div>
+
+        <!-- مثال پروژه کامل -->
+        <h2>🏗️ مثال پروژه کامل: نقشه ایران</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>آماده‌سازی داده‌ها</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># دانلود و آماده‌سازی داده‌های ایران</span>
+wget https://example.com/iran-provinces.geojson
+wget https://example.com/iran-cities.geojson
+wget https://example.com/iran-roads.geojson
+
+<span class="comment"># بررسی صحت داده‌ها</span>
+geojsonhint iran-provinces.geojson
+geojsonhint iran-cities.geojson
+geojsonhint iran-roads.geojson
+</div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>تولید Vector Tiles</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># تولید tiles بهینه شده برای ایران</span>
+<span class="command">tippecanoe</span> \
+    <span class="flag">--minimum-zoom</span>=0 \
+    <span class="flag">--maximum-zoom</span>=14 \
+    <span class="flag">--drop-rate</span>=1.5 \
+    <span class="flag">--buffer</span>=8 \
+    <span class="flag">--drop-densest-as-needed</span> \
+    <span class="flag">--coalesce-densest-as-needed</span> \
+    <span class="flag">--simplification</span>=2 \
+    <span class="flag">--name</span>="نقشه ایران" \
+    <span class="flag">--attribution</span>="© داده‌های ایران" \
+    <span class="flag">--output</span>=<span class="file">iran-map.mbtiles</span> \
+    <span class="flag">--layer</span>=provinces:<span class="file">iran-provinces.geojson</span> \
+    <span class="flag">--layer</span>=cities:<span class="file">iran-cities.geojson</span> \
+    <span class="flag">--layer</span>=roads:<span class="file">iran-roads.geojson</span>
+</div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>تست و بررسی</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># بررسی اطلاعات فایل تولید شده</span>
+<span class="command">tile-join</span> <span class="flag">--info</span> <span class="file">iran-map.mbtiles</span>
+
+<span class="comment"># استخراج نمونه کاشی برای تست</span>
+<span class="command">tile-join</span> <span class="flag">--extract</span> 8/162/99 <span class="file">iran-map.mbtiles</span> > <span class="file">sample-tile.json</span>
+
+<span class="comment"># بررسی حجم فایل</span>
+ls -lh iran-map.mbtiles
+</div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>راه‌اندازی سرور</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># نصب tileserver</span>
+npm install -g tileserver-gl-light
+
+<span class="comment"># راه‌اندازی سرور</span>
+<span class="command">tileserver-gl-light</span> <span class="flag">--port</span> 8080 <span class="file">iran-map.mbtiles</span>
+
+<span class="comment"># یا استفاده از Docker</span>
+docker run -it -v $(pwd):/data -p 8080:80 \
+    klokantech/tileserver-gl iran-map.mbtiles
+</div>
+
+        <!-- ادغام با Django -->
+        <h2>🐍 ادغام با Django</h2>
+        
+        <h3>تولید خودکار Vector Tiles در Django</h3>
+        <div class="code">
+<span class="comment"># views.py</span>
+import subprocess
+import os
+from django.http import JsonResponse
+from django.views import View
+
+class GenerateTilesView(View):
+    def post(self, request):
+        # دریافت داده از دیتابیس
+        geojson_data = self.export_to_geojson()
+        
+        # ذخیره موقت
+        temp_file = '/tmp/temp_data.geojson'
+        with open(temp_file, 'w') as f:
+            f.write(geojson_data)
+        
+        # تولید tiles با tippecanoe
+        output_file = f'/media/tiles/{request.user.id}.mbtiles'
+        command = [
+            'tippecanoe',
+            '-z', '12',
+            '-Z', '0',
+            '--drop-densest-as-needed',
+            '-o', output_file,
+            temp_file
+        ]
+        
+        try:
+            subprocess.run(command, check=True)
+            os.remove(temp_file)
+            
+            return JsonResponse({
+                'success': True,
+                'tiles_url': f'/tiles/{request.user.id}/'
+            })
+        except subprocess.CalledProcessError as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+    
+    def export_to_geojson(self):
+        # منطق تبدیل مدل‌های Django به GeoJSON
+        from django.contrib.gis.geos import GEOSGeometry
+        from .models import Location
+        
+        features = []
+        for location in Location.objects.all():
+            feature = {
+                "type": "Feature",
+                "geometry": location.geometry.geojson,
+                "properties": {
+                    "name": location.name,
+                    "category": location.category
+                }
+            }
+            features.append(feature)
+        
+        return {
+            "type": "FeatureCollection",
+            "features": features
+        }
+</div>
+
+        <!-- Management Command -->
+        <h3>Management Command برای تولید دوره‌ای</h3>
+        <div class="code">
+<span class="comment"># management/commands/generate_tiles.py</span>
+from django.core.management.base import BaseCommand
+from django.contrib.gis.serializers import geojson
+import subprocess
+import tempfile
+import os
+
+class Command(BaseCommand):
+    help = 'تولید Vector Tiles از داده‌های دیتابیس'
+    
+    def add_arguments(self, parser):
+        parser.add_argument('--output', type=str, help='مسیر خروجی')
+        parser.add_argument('--max-zoom', type=int, default=12)
+        parser.add_argument('--min-zoom', type=int, default=0)
+    
+    def handle(self, *args, **options):
+        from myapp.models import Location
+        
+        # صادر کردن به GeoJSON
+        queryset = Location.objects.all()
+        geojson_data = geojson.serialize(queryset, 
+                                       geometry_field='geometry',
+                                       fields=['name', 'category'])
+        
+        # ذخیره موقت
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.geojson', 
+                                       delete=False) as temp_file:
+            temp_file.write(geojson_data)
+            temp_path = temp_file.name
+        
+        # تولید tiles
+        output_path = options['output'] or 'tiles.mbtiles'
+        
+        command = [
+            'tippecanoe',
+            '-z', str(options['max_zoom']),
+            '-Z', str(options['min_zoom']),
+            '--drop-densest-as-needed',
+            '--coalesce-densest-as-needed',
+            '-o', output_path,
+            temp_path
+        ]
+        
+        try:
+            self.stdout.write('شروع تولید Vector Tiles...')
+            subprocess.run(command, check=True)
+            os.unlink(temp_path)
+            
+            self.stdout.write(
+                self.style.SUCCESS(f'Vector Tiles با موفقیت در {output_path} تولید شد')
+            )
+        except subprocess.CalledProcessError as e:
+            self.stdout.write(
+                self.style.ERROR(f'خطا در تولید tiles: {e}')
+            )
+</div>
+
+        <!-- استفاده در Frontend -->
+        <h2>🎨 استفاده در Frontend</h2>
+        
+        <h3>نمونه HTML کامل</h3>
+        <div class="code">
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;title&gt;نقشه ایران با Vector Tiles&lt;/title&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"&gt;&lt;/script&gt;
+    &lt;link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet"&gt;
+    &lt;style&gt;
+        body { margin: 0; padding: 0; font-family: Tahoma; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="map"&gt;&lt;/div&gt;
+    
+    &lt;script&gt;
+        // تنظیم نقشه
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: {
+                'version': 8,
+                'sources': {},
+                'layers': []
+            },
+            center: [53.688, 32.427], // مرکز ایران
+            zoom: 5
+        });
+        
+        map.on('load', function() {
+            // اضافه کردن منبع Vector Tiles
+            map.addSource('iran-data', {
+                'type': 'vector',
+                'tiles': ['http://localhost:8080/tiles/{z}/{x}/{y}.pbf'],
+                'minzoom': 0,
+                'maxzoom': 14
+            });
+            
+            // لایه استان‌ها
+            map.addLayer({
+                'id': 'provinces',
+                'type': 'fill',
+                'source': 'iran-data',
+                'source-layer': 'provinces',
+                'paint': {
+                    'fill-color': '#088',
+                    'fill-opacity': 0.3
+                }
+            });
+            
+            // لایه مرز استان‌ها
+            map.addLayer({
+                'id': 'provinces-border',
+                'type': 'line',
+                'source': 'iran-data',
+                'source-layer': 'provinces',
+                'paint': {
+                    'line-color': '#000',
+                    'line-width': 1
+                }
+            });
+            
+            // لایه شهرها
+            map.addLayer({
+                'id': 'cities',
+                'type': 'circle',
+                'source': 'iran-data',
+                'source-layer': 'cities',
+                'paint': {
+                    'circle-radius': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        5, 2,
+                        10, 8
+                    ],
+                    'circle-color': '#ff6b6b',
+                    'circle-stroke-color': '#fff',
+                    'circle-stroke-width': 1
+                }
+            });
+            
+            // لایه جاده‌ها
+            map.addLayer({
+                'id': 'roads',
+                'type': 'line',
+                'source': 'iran-data',
+                'source-layer': 'roads',
+                'paint': {
+                    'line-color': '#ffa726',
+                    'line-width': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        5, 0.5,
+                        12, 3
+                    ]
+                }
+            });
+            
+            // رویداد کلیک روی شهرها
+            map.on('click', 'cities', function(e) {
+                const properties = e.features[0].properties;
+                
+                new mapboxgl.Popup()
+                    .setLngLat(e.lngLat)
+                    .setHTML(`
+                        &lt;h3&gt;${properties.name}&lt;/h3&gt;
+                        &lt;p&gt;جمعیت: ${properties.population}&lt;/p&gt;
+                    `)
+                    .addTo(map);
+            });
+            
+            // تغییر شکل موس
+            map.on('mouseenter', 'cities', function() {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            
+            map.on('mouseleave', 'cities', function() {
+                map.getCanvas().style.cursor = '';
+            });
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</div>
+
+        <!-- بهینه‌سازی عملکرد -->
+        <h2>🚀 بهینه‌سازی عملکرد</h2>
+        
+        <div class="grid">
+            <div class="success box">
+                <h3><span class="emoji">💾</span> کش کردن</h3>
+                <ul>
+                    <li>استفاده از CDN برای سرو کاشی‌ها</li>
+                    <li>تنظیم Cache-Control headers</li>
+                    <li>پیش‌بارگیری کاشی‌های مهم</li>
+                </ul>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">🗜️</span> فشرده‌سازی</h3>
+                <ul>
+                    <li>فعال‌سازی gzip compression</li>
+                    <li>استفاده از Brotli برای فشرده‌سازی بهتر</li>
+                    <li>بهینه‌سازی حجم MBTiles</li>
+                </ul>
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">📊</span> مانیتورینگ</h3>
+                <ul>
+                    <li>نظارت بر زمان پاسخ سرور</li>
+                    <li>اندازه‌گیری مصرف پهنای باند</li>
+                    <li>تحلیل الگوهای استفاده کاربران</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- نکات امنیتی -->
+        <h2>🔒 نکات امنیتی</h2>
+        
+        <div class="warning box">
+            <h3>⚠️ نکات امنیتی مهم:</h3>
+            <ul>
+                <li><strong>محدودیت دسترسی:</strong> تنظیم CORS برای دامنه‌های مجاز</li>
+                <li><strong>Rate Limiting:</strong> محدود کردن تعداد درخواست‌ها</li>
+                <li><strong>احراز هویت:</strong> محافظت از API های حساس</li>
+                <li><strong>مخفی‌سازی داده:</strong> حذف اطلاعات حساس از Vector Tiles</li>
+            </ul>
+        </div>
+
+        <div class="code">
+<span class="comment"># مثال تنظیمات Nginx برای Vector Tiles</span>
+server {
+    listen 80;
+    server_name tiles.example.com;
+    
+    location /tiles/ {
+        alias /var/www/tiles/;
+        
+        # تنظیمات Cache
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+        
+        # فشرده‌سازی
+        gzip on;
+        gzip_types application/x-protobuf;
+        
+        # CORS
+        add_header Access-Control-Allow-Origin "https://myapp.com";
+        
+        # Rate Limiting
+        limit_req zone=tiles burst=10 nodelay;
+    }
+}
+</div>
+
+        <!-- خلاصه و نتیجه‌گیری -->
+        <h2>🎯 خلاصه و نتیجه‌گیری</h2>
+        
+        <div class="success box">
+            <h3><span class="emoji">✅</span> مزایای Tippecanoe:</h3>
+            <ul>
+                <li>سرعت بالا در تولید و نمایش Vector Tiles</li>
+                <li>بهینه‌سازی خودکار برای zoom level های مختلف</li>
+                <li>پشتیبانی از clustering و simplification</li>
+                <li>انعطاف‌پذیری بالا در تنظیمات</li>
+                <li>سازگاری با استانداردهای وب</li>
+            </ul>
+        </div>
+        
+        <div class="info box">
+            <h3><span class="emoji">🎓</span> کاربردهای عملی:</h3>
+            <ul>
+                <li><strong>نقشه‌های وب:</strong> نمایش داده‌های جغرافیایی پیچیده</li>
+                <li><strong>اپلیکیشن‌های موبایل:</strong> کاهش مصرف پهنای باند</li>
+                <li><strong>داشبوردهای تحلیلی:</strong> نمایش سریع داده‌های آماری</li>
+                <li><strong>سیستم‌های ناوبری:</strong> نقشه‌های آفلاین</li>
+            </ul>
+        </div>
+        
+        <div class="warning box">
+            <h3><span class="emoji">⚡</span> نکات نهایی:</h3>
+            <ul>
+                <li>همیشه داده‌ها را قبل از پردازش تست کنید</li>
+                <li>تنظیمات را بر اساس نیاز پروژه بهینه کنید</li>
+                <li>از monitoring برای بهبود عملکرد استفاده کنید</li>
+                <li>مستندات رسمی را برای آخرین به‌روزرسانی‌ها دنبال کنید</li>
+            </ul>
+        </div>
+
+        <!-- منابع و لینک‌های مفید -->
+        <h2>📚 منابع و لینک‌های مفید</h2>
+        
+        <div class="grid">
+            <div class="card">
+                <h3><span class="emoji">📖</span> مستندات رسمی</h3>
+                <ul>
+                    <li><a href="https://github.com/mapbox/tippecanoe" target="_blank">GitHub Repository</a></li>
+                    <li><a href="https://docs.mapbox.com/vector-tiles/" target="_blank">Vector Tiles Specification</a></li>
+                    <li><a href="https://docs.mapbox.com/mapbox-gl-js/" target="_blank">Mapbox GL JS</a></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3><span class="emoji">🛠️</span> ابزارهای مرتبط</h3>
+                <ul>
+                    <li><a href="https://github.com/mapbox/mbutil" target="_blank">MBUtil</a> - ابزار کار با MBTiles</li>
+                    <li><a href="https://github.com/klokantech/tileserver-gl" target="_blank">TileServer GL</a> - سرور Vector Tiles</li>
+                    <li><a href="https://github.com/mapbox/tile-join" target="_blank">Tile-join</a> - ادغام و تحلیل کاشی‌ها</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3><span class="emoji">🎓</span> آموزش‌های بیشتر</h3>
+                <ul>
+                    <li><a href="https://docs.mapbox.com/help/tutorials/" target="_blank">Mapbox Tutorials</a></li>
+                    <li><a href="https://leafletjs.com/plugins.html#vector-tiles" target="_blank">Leaflet Vector Tiles</a></li>
+                    <li><a href="https://openlayers.org/en/latest/examples/" target="_blank">OpenLayers Examples</a></li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3><span class="emoji">💬</span> جامعه و پشتیبانی</h3>
+                <ul>
+                    <li><a href="https://stackoverflow.com/questions/tagged/tippecanoe" target="_blank">Stack Overflow</a></li>
+                    <li><a href="https://gis.stackexchange.com/" target="_blank">GIS Stack Exchange</a></li>
+                    <li><a href="https://github.com/mapbox/tippecanoe/issues" target="_blank">GitHub Issues</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- پایان -->
+        <div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px;">
+            <h2><span class="emoji">🎉</span> پایان آموزش Tippecanoe</h2>
+            <p style="font-size: 1.2em; margin-top: 15px;">
+                حالا می‌توانید Vector Tiles حرفه‌ای برای پروژه‌های خود تولید کنید!
+            </p>
+            <p style="margin-top: 15px;">
+                <span class="emoji">🚀</span> موفق باشید در ساخت نقشه‌های سریع و زیبا!
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع Celery و Redis - با مثال‌های عملی</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 2;
+            direction: rtl;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.8em;
+            text-align: center;
+            border-bottom: 5px solid #764ba2;
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+            font-weight: 700;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin: 40px 0 20px;
+            border-right: 6px solid #764ba2;
+            padding-right: 20px;
+            font-weight: 700;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.5em;
+            margin: 25px 0 15px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.2em;
+            margin: 20px 0 10px;
+            font-weight: 500;
+        }
+        
+        p, li {
+            font-size: 1.15em;
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 2.2;
+        }
+        
+        .box {
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-right: 6px solid;
+        }
+        
+        .info { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+            border-color: #2196f3; 
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
+            border-color: #4caf50; 
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
+            border-color: #ff9800; 
+        }
+        
+        .danger {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #f44336;
+        }
+        
+        .code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1em;
+            margin: 20px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            line-height: 1.8;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .code .comment { color: #86efac; }
+        .code .keyword { color: #fbbf24; }
+        .code .string { color: #fb923c; }
+        .code .function { color: #60a5fa; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border-top: 4px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .emoji {
+            font-size: 1.5em;
+            margin-left: 10px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: 600;
+        }
+        
+        td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: right;
+        }
+        
+        tr:nth-child(even) { 
+            background: #f8f9fa; 
+        }
+        
+        tr:hover {
+            background: #e9ecef;
+        }
+        
+        .step {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-right: 5px solid #4caf50;
+        }
+        
+        .step-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #4caf50;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-left: 15px;
+            font-size: 1.1em;
+        }
+        
+        .reason-box {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-right: 5px solid #fbc02d;
+        }
+        
+        .architecture-diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .flow-item {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin: 10px;
+            font-weight: 600;
+        }
+        
+        .arrow {
+            display: inline-block;
+            color: #667eea;
+            font-size: 2em;
+            margin: 0 10px;
+        }
+        
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .pros-cons { grid-template-columns: 1fr; }
+            .container { padding: 25px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.6em; }
+        }
+        
+        ul, ol {
+            margin-right: 30px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 12px;
+        }
+        
+        .note {
+            background: #e1f5fe;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 5px solid #0288d1;
+            margin: 20px 0;
+        }
+        
+        .example-box {
+            background: #f3e5f5;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-right: 5px solid #9c27b0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚡ آموزش جامع Celery و Redis</h1>
+        
+        <!-- مقدمه -->
+        <div class="info box">
+            <h3><span class="emoji">📚</span> این آموزش چیست؟</h3>
+            <p>در این آموزش یاد می‌گیرید چگونه از <span class="highlight">Celery</span> و <span class="highlight">Redis</span> برای اجرای تسک‌های پس‌زمینه در Django استفاده کنید. این ابزارها به شما کمک می‌کنند تا برنامه‌های وب سریع‌تر و کارآمدتری بسازید.</p>
+        </div>
+
+        <!-- چرا نیاز داریم؟ -->
+        <h2>🤔 چرا به Celery و Redis نیاز داریم؟</h2>
+        
+        <div class="reason-box">
+            <h3><span class="emoji">❌</span> مشکل بدون Celery:</h3>
+            <p>فرض کنید کاربر روی دکمه "ارسال گزارش" کلیک می‌کند. سرور باید:</p>
+            <ul>
+                <li>داده‌ها را از دیتابیس بخواند (۵ ثانیه)</li>
+                <li>گزارش PDF تولید کند (۱۰ ثانیه)</li>
+                <li>ایمیل ارسال کند (۳ ثانیه)</li>
+            </ul>
+            <p><strong>نتیجه:</strong> کاربر باید ۱۸ ثانیه منتظر بماند! صفحه فریز می‌شود و تجربه کاربری بد می‌شود. 😞</p>
+        </div>
+
+        <div class="success box">
+            <h3><span class="emoji">✅</span> راه‌حل با Celery:</h3>
+            <p>با Celery، سرور فوراً به کاربر پاسخ می‌دهد: "گزارش شما در حال آماده‌سازی است" و کار را در پس‌زمینه انجام می‌دهد.</p>
+            <ul>
+                <li>پاسخ فوری به کاربر (۰.۱ ثانیه)</li>
+                <li>کار سنگین در پس‌زمینه انجام می‌شود</li>
+                <li>کاربر می‌تواند به کار خود ادامه دهد</li>
+                <li>وقتی کار تمام شد، اعلان دریافت می‌کند</li>
+            </ul>
+        </div>
+
+        <!-- دلایل استفاده -->
+        <h2>🎯 دلایل اصلی استفاده از Celery و Redis</h2>
+        
+        <div class="grid">
+            <div class="card">
+                <h4><span class="emoji">🚀</span> افزایش سرعت برنامه</h4>
+                <p>کارهای سنگین را به پس‌زمینه منتقل کنید و برنامه شما همیشه سریع پاسخ دهد.</p>
+            </div>
+            
+            <div class="card">
+                <h4><span class="emoji">👥</span> تجربه کاربری بهتر</h4>
+                <p>کاربران منتظر نمی‌مانند و می‌توانند به کار خود ادامه دهند.</p>
+            </div>
+            
+            <div class="card">
+                <h4><span class="emoji">📊</span> مدیریت کارهای دوره‌ای</h4>
+                <p>ارسال خودکار گزارش روزانه، پاکسازی فایل‌های قدیمی، بک‌آپ دیتابیس.</p>
+            </div>
+            
+            <div class="card">
+                <h4><span class="emoji">⚡</span> پردازش موازی</h4>
+                <p>چندین کار همزمان انجام شود بدون اینکه سرور مسدود شود.</p>
+            </div>
+            
+            <div class="card">
+                <h4><span class="emoji">🔄</span> تلاش مجدد خودکار</h4>
+                <p>اگر کاری با خطا مواجه شد، خودکار دوباره تلاش می‌کند.</p>
+            </div>
+            
+            <div class="card">
+                <h4><span class="emoji">📈</span> مقیاس‌پذیری</h4>
+                <p>با افزودن Worker های بیشتر، می‌توانید کارهای بیشتری را مدیریت کنید.</p>
+            </div>
+        </div>
+
+        <!-- معماری -->
+        <h2>🏗️ معماری و نحوه کار</h2>
+        
+        <div class="architecture-diagram">
+            <h3 style="color: #667eea; margin-bottom: 20px;">جریان کار Celery</h3>
+            
+            <div style="margin: 30px 0;">
+                <div class="flow-item">۱. Django App<br>(ارسال تسک)</div>
+                <span class="arrow">→</span>
+                <div class="flow-item">۲. Redis<br>(صف پیام‌ها)</div>
+                <span class="arrow">→</span>
+                <div class="flow-item">۳. Celery Worker<br>(اجرای تسک)</div>
+                <span class="arrow">→</span>
+                <div class="flow-item">۴. Redis<br>(ذخیره نتیجه)</div>
+            </div>
+        </div>
+
+        <div class="note">
+            <h4><span class="emoji">💡</span> توضیح ساده:</h4>
+            <ol>
+                <li><strong>Django App:</strong> شما در کد خود می‌گویید "این کار را انجام بده"</li>
+                <li><strong>Redis (صف):</strong> پیام شما را نگه می‌دارد تا نوبتش برسد</li>
+                <li><strong>Celery Worker:</strong> پیام را می‌گیرد و کار را انجام می‌دهد</li>
+                <li><strong>Redis (نتیجه):</strong> نتیجه کار را ذخیره می‌کند تا بعداً ببینید</li>
+            </ol>
+        </div>
+
+        <!-- چرا Redis؟ -->
+        <h2>🔴 چرا Redis؟</h2>
+        
+        <div class="info box">
+            <h3><span class="emoji">🤔</span> Redis چیست؟</h3>
+            <p>Redis یک دیتابیس حافظه محور (In-Memory) است که داده‌ها را در RAM نگه می‌دارد. این یعنی سرعت فوق‌العاده بالا!</p>
+        </div>
+
+        <div class="pros-cons">
+            <div class="success box">
+                <h4><span class="emoji">✅</span> مزایای Redis:</h4>
+                <ul>
+                    <li><strong>سرعت بالا:</strong> خواندن/نوشتن در کمتر از ۱ میلی‌ثانیه</li>
+                    <li><strong>ساده:</strong> نصب و راه‌اندازی آسان</li>
+                    <li><strong>قابل اعتماد:</strong> پایداری بالا</li>
+                    <li><strong>انعطاف‌پذیر:</strong> انواع داده را پشتیبانی می‌کند</li>
+                </ul>
+            </div>
+            
+            <div class="warning box">
+                <h4><span class="emoji">⚠️</span> جایگزین‌های Redis:</h4>
+                <ul>
+                    <li><strong>RabbitMQ:</strong> پیچیده‌تر اما قدرتمندتر</li>
+                    <li><strong>Amazon SQS:</strong> سرویس ابری</li>
+                    <li><strong>Database:</strong> کند و ناکارآمد</li>
+                </ul>
+                <p><strong>نتیجه:</strong> Redis بهترین انتخاب برای شروع است! 🎯</p>
+            </div>
+        </div>
+
+        <!-- نصب و راه‌اندازی -->
+        <h2>📦 نصب و راه‌اندازی</h2>
+        
+        <div class="step">
+            <span class="step-num">۱</span>
+            <strong>نصب Redis</strong>
+        </div>
+        
+        <h4>Ubuntu/Debian:</h4>
+        <div class="code">
+<span class="comment"># نصب Redis</span>
+sudo apt-get update
+sudo apt-get install redis-server
+
+<span class="comment"># بررسی نصب</span>
+redis-cli ping
+<span class="comment"># باید پاسخ "PONG" را ببینید</span>
+
+<span class="comment"># شروع Redis</span>
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
+        </div>
+
+        <h4>macOS:</h4>
+        <div class="code">
+<span class="comment"># نصب با Homebrew</span>
+brew install redis
+
+<span class="comment"># شروع Redis</span>
+brew services start redis
+        </div>
+
+        <h4>Windows:</h4>
+        <div class="code">
+<span class="comment"># دانلود از سایت رسمی یا استفاده از WSL</span>
+<span class="comment"># یا استفاده از Docker:</span>
+docker run -d -p 6379:6379 redis
+        </div>
+
+        <div class="step">
+            <span class="step-num">۲</span>
+            <strong>نصب کتابخانه‌های Python</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># نصب Celery و Redis</span>
+pip install celery redis
+
+<span class="comment"># برای Django</span>
+pip install django-celery-beat django-celery-results
+
+<span class="comment"># برای مانیتورینگ (اختیاری)</span>
+pip install flower
+        </div>
+
+        <div class="note">
+            <h4><span class="emoji">📝</span> توضیح کتابخانه‌ها:</h4>
+            <ul>
+                <li><strong>celery:</strong> موتور اصلی برای اجرای تسک‌ها</li>
+                <li><strong>redis:</strong> درایور اتصال به Redis</li>
+                <li><strong>django-celery-beat:</strong> زمان‌بندی تسک‌های دوره‌ای</li>
+                <li><strong>django-celery-results:</strong> ذخیره نتایج در دیتابیس Django</li>
+                <li><strong>flower:</strong> رابط گرافیکی برای مانیتورینگ</li>
+            </ul>
+        </div>
+
+        <!-- تنظیمات Django -->
+        <h2>⚙️ تنظیمات Django</h2>
+        
+        <div class="step">
+            <span class="step-num">۱</span>
+            <strong>ایجاد فایل celery.py در پوشه اصلی پروژه</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># config/celery.py</span>
+<span class="keyword">import</span> os
+<span class="keyword">from</span> celery <span class="keyword">import</span> Celery
+
+<span class="comment"># تنظیم متغیر محیطی Django</span>
+os.environ.setdefault(<span class="string">'DJANGO_SETTINGS_MODULE'</span>, <span class="string">'config.settings'</span>)
+
+<span class="comment"># ایجاد instance از Celery</span>
+app = Celery(<span class="string">'myproject'</span>)
+
+<span class="comment"># خواندن تنظیمات از settings.py</span>
+app.config_from_object(<span class="string">'django.conf:settings'</span>, namespace=<span class="string">'CELERY'</span>)
+
+<span class="comment"># کشف خودکار تسک‌ها از تمام اپلیکیشن‌های Django</span>
+app.autodiscover_tasks()
+
+<span class="comment"># تسک تستی برای بررسی اتصال</span>
+<span class="keyword">@app.task</span>(bind=<span class="keyword">True</span>)
+<span class="keyword">def</span> <span class="function">debug_task</span>(self):
+    <span class="keyword">print</span>(<span class="string">f'Request: {self.request!r}'</span>)
+        </div>
+
+        <div class="note">
+            <h4><span class="emoji">💡</span> توضیح کد:</h4>
+            <ul>
+                <li><strong>os.environ.setdefault:</strong> به Celery می‌گوید از تنظیمات Django استفاده کند</li>
+                <li><strong>app = Celery:</strong> یک نمونه از Celery می‌سازیم</li>
+                <li><strong>config_from_object:</strong> تنظیمات را از settings.py می‌خواند</li>
+                <li><strong>autodiscover_tasks:</strong> به صورت خودکار فایل‌های tasks.py را پیدا می‌کند</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-num">۲</span>
+            <strong>ویرایش __init__.py</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># config/__init__.py</span>
+<span class="keyword">from</span> .celery <span class="keyword">import</span> app <span class="keyword">as</span> celery_app
+
+__all__ = (<span class="string">'celery_app'</span>,)
+        </div>
+
+        <div class="note">
+            <p><span class="emoji">💡</span> این کد باعث می‌شود Celery هنگام شروع Django بارگذاری شود.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-num">۳</span>
+            <strong>تنظیمات settings.py</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># config/settings.py</span>
+
+<span class="comment"># ==================== تنظیمات Celery ====================</span>
+
+<span class="comment"># آدرس Redis به عنوان Broker (صف پیام‌ها)</span>
+CELERY_BROKER_URL = <span class="string">'redis://localhost:6379/0'</span>
+
+<span class="comment"># آدرس Redis برای ذخیره نتایج</span>
+CELERY_RESULT_BACKEND = <span class="string">'redis://localhost:6379/0'</span>
+
+<span class="comment"># فرمت سریال‌سازی پیام‌ها (JSON امن‌تر است)</span>
+CELERY_ACCEPT_CONTENT = [<span class="string">'json'</span>]
+CELERY_TASK_SERIALIZER = <span class="string">'json'</span>
+CELERY_RESULT_SERIALIZER = <span class="string">'json'</span>
+
+<span class="comment"># تنظیم منطقه زمانی</span>
+CELERY_TIMEZONE = <span class="string">'Asia/Tehran'</span>
+
+<span class="comment"># مدت زمان نگهداری نتایج (به ثانیه)</span>
+CELERY_RESULT_EXPIRES = 3600  <span class="comment"># 1 ساعت</span>
+
+<span class="comment"># تعداد تسک‌هایی که هر Worker می‌تواند همزمان اجرا کند</span>
+CELERY_WORKER_CONCURRENCY = 4
+
+<span class="comment"># فعال‌سازی tracking وضعیت تسک‌ها</span>
+CELERY_TASK_TRACK_STARTED = <span class="keyword">True</span>
+
+<span class="comment"># حداکثر زمان اجرای یک تسک (به ثانیه)</span>
+CELERY_TASK_TIME_LIMIT = 30 * 60  <span class="comment"># 30 دقیقه</span>
+
+<span class="comment"># زمان هشدار قبل از timeout</span>
+CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  <span class="comment"># 25 دقیقه</span>
+        </div>
+
+        <div class="warning box">
+            <h4><span class="emoji">⚠️</span> توضیحات مهم تنظیمات:</h4>
+            <ul>
+                <li><strong>BROKER_URL:</strong> آدرس Redis که پیام‌ها را نگه می‌دارد. عدد ۰ در انتها شماره دیتابیس Redis است (می‌توانید از ۰ تا ۱۵ استفاده کنید)</li>
+                <li><strong>RESULT_BACKEND:</strong> جایی که نتایج تسک‌ها ذخیره می‌شود</li>
+                <li><strong>TASK_SERIALIZER:</strong> JSON امن‌تر از pickle است</li>
+                <li><strong>WORKER_CONCURRENCY:</strong> تعداد پردازنده‌های CPU شما (معمولاً ۴ یا ۸)</li>
+                <li><strong>TASK_TIME_LIMIT:</strong> جلوگیری از تسک‌های بی‌پایان</li>
+            </ul>
+        </div>
+
+        <!-- مثال عملی ۱ -->
+        <h2>💼 مثال عملی ۱: ارسال ایمیل</h2>
+        
+        <div class="example-box">
+            <h3><span class="emoji">📧</span> سناریو:</h3>
+            <p>کاربر در سایت ثبت‌نام می‌کند. باید یک ایمیل خوش‌آمدگویی برایش ارسال شود. اما ارسال ایمیل ممکن است ۳-۵ ثانیه طول بکشد. نمی‌خواهیم کاربر منتظر بماند!</p>
+        </div>
+
+        <div class="step">
+            <span class="step-num">۱</span>
+            <strong>ایجاد فایل tasks.py</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># myapp/tasks.py</span>
+<span class="keyword">from</span> celery <span class="keyword">import</span> shared_task
+<span class="keyword">from</span> django.core.mail <span class="keyword">import</span> send_mail
+<span class="keyword">from</span> django.conf <span class="keyword">import</span> settings
+<span class="keyword">import</span> time
+
+<span class="keyword">@shared_task</span>(
+    name=<span class="string">'send_welcome_email'</span>,  <span class="comment"># نام تسک</span>
+    bind=<span class="keyword">True</span>,  <span class="comment"># دسترسی به خود تسک</span>
+    max_retries=3,  <span class="comment"># حداکثر تلاش مجدد</span>
+    default_retry_delay=60  <span class="comment"># تاخیر بین تلاش‌ها (ثانیه)</span>
+)
+<span class="keyword">def</span> <span class="function">send_welcome_email</span>(self, user_email, user_name):
+    <span class="string">"""
+    ارسال ایمail خوش‌آمدگویی به کاربر
+    """</span>
+    <span class="keyword">try</span>:
+        send_mail(
+            subject=<span class="string">"خوش آمدید!"</span>,
+            message=<span class="string">f"سلام {user_name}، به وبسایت ما خوش آمدید!"</span>,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user_email],
+            fail_silently=<span class="keyword">False</span>
+        )
+        <span class="keyword">return</span> <span class="string">f"ایمیل به {user_email} ارسال شد"</span>
+    <span class="keyword">except</span> Exception <span class="keyword">as</span> exc:
+        <span class="comment"># تلاش مجدد در صورت خطا</span>
+        self.retry(exc=exc)
+        <span class="keyword">return</span> <span class="string">"خطا در ارسال ایمیل"</span>
+        </div>
+        
+        <div class="step">
+            <span class="step-num">۲</span>
+            <strong>ایجاد View برای ارسال ایمیل</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># myapp/views.py</span>
+<span class="keyword">from</span> django.http <span class="keyword">import</span> JsonResponse
+<span class="keyword">from</span> .tasks <span class="keyword">import</span> send_welcome_email
+
+<span class="keyword">def</span> <span class="function">send_email_view</span>(request):
+    user_email = <span class="string">"user@example.com"</span>  <span class="comment"># ایمیل کاربر</span>
+    user_name = <span class="string">"علی"</span>  <span class="comment"># نام کاربر</span>
+    
+    task = send_welcome_email.delay(user_email, user_name)  <span class="comment"># ارسال تسک به Celery</span>
+    
+    <span class="keyword">return</span> JsonResponse({
+        <span class="string">"task_id"</span>: task.id,
+        <span class="string">"status"</span>: <span class="string">"ایمیل در حال ارسال است"</span>
+    })
+        </div>
+
+        <div class="step">
+            <span class="step-num">۳</span>
+            <strong>مانیتورینگ وضعیت تسک</strong>
+        </div>
+        
+        <div class="code">
+<span class="comment"># myapp/views.py</span>
+<span class="keyword">from</span> celery.result <span class="keyword">import</span> AsyncResult
+
+<span class="keyword">def</span> <span class="function">check_task_status</span>(request, task_id):
+    task = AsyncResult(task_id)  <span class="comment"># گرفتن وضعیت تسک</span>
+    
+    <span class="keyword">return</span> JsonResponse({
+        <span class="string">"task_id"</span>: task_id,
+        <span class="string">"status"</span>: task.status,
+        <span class="string">"result"</span>: task.result
+    })
+        </div>
+
+        <div class="step">
+            <span class="step-num">۴</span>
+            <strong>ایجاد Template ساده</strong>
+        </div>
+        
+        <div class="code">
+&lt;!-- templates/send_email.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html lang="fa" dir="rtl"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;title&gt;ارسال ایمیل با Celery&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: 'Vazirmatn', Arial, sans-serif; direction: rtl; text-align: center; padding: 20px; }
+        button { padding: 10px 20px; font-size: 1em; background-color: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #5a67d8; }
+        #status { margin-top: 20px; font-size: 1.1em; color: #333; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;ارسال ایمیل با Celery&lt;/h1&gt;
+    &lt;button onclick="sendEmail()"&gt;ارسال ایمیل خوش‌آمدگویی&lt;/button&gt;
+    &lt;div id="status"&gt;&lt;/div&gt;
+
+    &lt;script&gt;
+        function sendEmail() {
+            fetch('/send-email/')
+                .then(response =&gt; response.json())
+                .then(data =&gt; {
+                    checkStatus(data.task_id);
+                });
+        }
+
+        function checkStatus(taskId) {
+            fetch(`/task/${taskId}/`)
+                .then(response =&gt; response.json())
+                .then(data =&gt; {
+                    document.getElementById('status').innerText = `وضعیت: ${data.status}`;
+                    
+                    if (data.status === 'PENDING' || data.status === 'RETRY') {
+                        setTimeout(() =&gt; checkStatus(taskId), 2000);
+                    } else if (data.result) {
+                        document.getElementById('status').innerText += ` - ${data.result}`;
+                    }
+                });
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </div>
+
+        <!-- راه‌اندازی پروژه -->
+        <h2>🚀 راه‌اندازی پروژه</h2>
+        
+        <div class="step">
+            <span class="step-num">۱</span>
+            <strong>اجرای Redis</strong>
+        </div>
+        <div class="code">
+<span class="comment"># شروع Redis</span>
+redis-server
+        </div>
+        
+        <div class="step">
+            <span class="step-num">۲</span>
+            <strong>اجرای Celery Worker</strong>
+        </div>
+        <div class="code">
+<span class="comment"># شروع Worker Celery</span>
+celery -A config worker --loglevel=info
+        </div>
+
+        <div class="step">
+            <span class="step-num">۳</span>
+            <strong>اجرای Django</strong>
+        </div>
+        <div class="code">
+<span class="comment"># شروع سرور Django</span>
+python manage.py runserver
+        </div>
+
+        <div class="step">
+            <span class="step-num">۴</span>
+            <strong>(اختیاری) مانیتورینگ با Flower</strong>
+        </div>
+        <div class="code">
+<span class="comment"># نصب Flower برای مانیتورینگ</span>
+pip install flower
+
+<span class="comment"># شروع Flower</span>
+celery -A config flower
+<span class="comment"># در مرورگر آدرس زیر را باز کنید:</span>
+<span class="comment">http://localhost:5555</span>
+        </div>
+
+        <!-- خطاهای رایج -->
+        <h2>⚠️ خطاهای رایج و راه‌حل‌ها</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>مشکل</th>
+                    <th>دلیل</th>
+                    <th>راه‌حل</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>تسک اجرا نمی‌شود</td>
+                    <td>Redis یا Celery Worker اجرا نشده‌اند</td>
+                    <td>مطمئن شوید که دستورات <code>redis-server</code> و <code>celery worker</code> اجرا شده باشند</td>
+                </tr>
+                <tr>
+                    <td>زمان‌بندی تسک‌ها کار نمی‌کند</td>
+                    <td>Celery Beat اجرا نشده است</td>
+                    <td>دستور <code>celery -A config beat --loglevel=info</code> را اجرا کنید</td>
+                </tr>
+                <tr>
+                    <td>خطای ImportError</td>
+                    <td>Celery فایل‌های تسک‌ها را پیدا نمی‌کند</td>
+                    <td>مطمئن شوید فایل <code>tasks.py</code> در هر اپلیکیشن موجود باشد</td>
+                </tr>
+                <tr>
+                    <td>تسک‌ها معلق می‌مانند</td>
+                    <td>مشکلات در تنظیمات Redis یا خطا در تسک</td>
+                    <td>تنظیمات <code>settings.py</code> و <code>logs</code> را بررسی کنید</td>
+                </tr>
+                <tr>
+                    <td>Worker ها خطای بیش از حد زمان را گزارش می‌دهند</td>
+                    <td>تسک‌ها بسیار طولانی اجرا شده‌اند</td>
+                    <td>تنظیمات <code>CELERY_TASK_TIME_LIMIT</code> را بررسی و افزایش دهید</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- نتیجه‌گیری -->
+        <h2>🎉 نتیجه‌گیری</h2>
+        
+        <div class="success box">
+            <h3>✅ خلاصه آموزش:</h3>
+            <ul>
+                <li>Celery و Redis برای اجرای تسک‌های پس‌زمینه استفاده می‌شوند.</li>
+                <li>برنامه شما سریع‌تر می‌شود و تجربه کاربری بهبود می‌یابد.</li>
+                <li>می‌توانید کارهای سنگین را بدون مسدود کردن سرور انجام دهید.</li>
+                <li>مانیتورینگ وضعیت تسک‌ها با ابزار Flower امکان‌پذیر است.</li>
+            </ul>
+        </div>
+        
+        <div class="note">
+            <p><span class="emoji">💡</span> اگر سوال یا مشکلی دارید، حتماً در کامنت‌ها با من به اشتراک بگذارید!</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px;">
+            <h3>🎯 موفق باشید در ساخت پروژه‌های مقیاس‌پذیر و حرفه‌ای!</h3>
+        </div>
+    </div>
+</body>
+</html>

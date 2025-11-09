@@ -1,0 +1,3070 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع Transformer Architecture</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 2;
+            direction: rtl;
+            padding: 20px;
+        }
+        
+        .presentation {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3em;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-right: 8px solid #764ba2;
+            padding-right: 20px;
+            font-weight: 700;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin: 20px 0 15px;
+            font-weight: 500;
+        }
+        
+        p, li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 2.2;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.5em;
+            color: #764ba2;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .box {
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-right: 8px solid;
+        }
+        
+        .info { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+            border-color: #2196f3; 
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
+            border-color: #4caf50; 
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
+            border-color: #ff9800; 
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #9c27b0;
+        }
+        
+        .code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1em;
+            margin: 25px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            line-height: 1.8;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .code .comment { color: #86efac; }
+        .code .keyword { color: #fbbf24; }
+        .code .string { color: #fb923c; }
+        .code .function { color: #60a5fa; }
+        .code .number { color: #c084fc; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-top: 5px solid #667eea;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .emoji {
+            font-size: 1.8em;
+            margin-left: 15px;
+        }
+        
+        .highlight-text {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        td {
+            border: 1px solid #ddd;
+            padding: 18px;
+            text-align: right;
+        }
+        
+        tr:nth-child(even) { 
+            background: #f8f9fa; 
+        }
+        
+        tr:hover {
+            background: #e9ecef;
+        }
+        
+        .diagram {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .layer-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 15px auto;
+            max-width: 400px;
+            font-weight: 600;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .arrow {
+            color: #667eea;
+            font-size: 2.5em;
+            margin: 10px 0;
+        }
+        
+        ul, ol {
+            margin-right: 40px;
+            margin-bottom: 25px;
+        }
+        
+        li {
+            margin-bottom: 15px;
+        }
+        
+        .formula {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+            font-size: 1.3em;
+            border: 3px solid #667eea;
+            font-family: 'Times New Roman', serif;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 30px 0;
+        }
+        
+        .timeline-item {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-right: 5px solid #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-year {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 6px solid #fbc02d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+            .slide { padding: 30px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.8em; }
+        }
+        
+        .attention-visual {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .matrix {
+            display: inline-block;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .navigation {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .nav-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s;
+        }
+        
+        .nav-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h1>🤖 معماری Transformer</h1>
+            <p class="subtitle">انقلاب در پردازش زبان طبیعی و هوش مصنوعی</p>
+            
+            <div style="text-align: center; margin-top: 80px;">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='100' r='80' fill='%23667eea' opacity='0.2'/%3E%3Ccircle cx='100' cy='100' r='60' fill='%23764ba2' opacity='0.3'/%3E%3Ccircle cx='100' cy='100' r='40' fill='%23667eea' opacity='0.4'/%3E%3C/svg%3E" alt="Transformer">
+            </div>
+            
+            <div class="info box" style="margin-top: 60px;">
+                <h3><span class="emoji">📖</span> درباره این ارائه</h3>
+                <p>در این ارائه آموزشی، به طور کامل با معماری Transformer آشنا می‌شوید - معماری که پایه و اساس مدل‌های پیشرفته مانند GPT، BERT، و Claude است.</p>
+            </div>
+            
+            <div class="key-point">
+                <p style="text-align: center; font-size: 1.3em; font-weight: 600;">
+                    <span class="emoji">🎯</span> هدف: درک عمیق از نحوه کار Transformer و کاربردهای آن
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: تاریخچه -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>📜 تاریخچه و تکامل</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <span class="timeline-year">قبل از 2017</span>
+                    <h4>دوران RNN و LSTM</h4>
+                    <p>مدل‌های بازگشتی (Recurrent) برای پردازش متن استفاده می‌شدند. مشکلات اصلی:</p>
+                    <ul>
+                        <li>پردازش ترتیبی و کند</li>
+                        <li>مشکل حافظه بلندمدت</li>
+                        <li>عدم امکان پردازش موازی</li>
+                        <li>Gradient Vanishing</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2017</span>
+                    <h4>انتشار مقاله "Attention Is All You Need"</h4>
+                    <p>محققان Google (Vaswani et al.) معماری Transformer را معرفی کردند که تمام محدودیت‌های قبلی را حل کرد.</p>
+                    <ul>
+                        <li>حذف کامل RNN و LSTM</li>
+                        <li>استفاده از مکانیزم Self-Attention</li>
+                        <li>پردازش موازی کامل</li>
+                        <li>عملکرد بهتر در ترجمه ماشینی</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2018-2019</span>
+                    <h4>ظهور BERT و GPT</h4>
+                    <p>استفاده از Transformer در مدل‌های پیش‌آموزش شده:</p>
+                    <ul>
+                        <li><strong>BERT:</strong> Bidirectional Encoder</li>
+                        <li><strong>GPT:</strong> Autoregressive Decoder</li>
+                        <li>نتایج شگفت‌انگیز در تمام تسک‌های NLP</li>
+                    </ul>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2020-حال</span>
+                    <h4>انفجار مدل‌های بزرگ</h4>
+                    <p>تکامل به مدل‌های غول‌پیکر:</p>
+                    <ul>
+                        <li>GPT-3, GPT-4 (OpenAI)</li>
+                        <li>Claude (Anthropic)</li>
+                        <li>PaLM (Google)</li>
+                        <li>LLaMA (Meta)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: چرا Transformer؟ -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>🤔 چرا Transformer انقلابی بود؟</h2>
+            
+            <div class="comparison">
+                <div class="warning box">
+                    <h3><span class="emoji">❌</span> مشکلات RNN/LSTM</h3>
+                    <ul>
+                        <li><strong>پردازش ترتیبی:</strong> نمی‌توان کلمات را به صورت موازی پردازش کرد</li>
+                        <li><strong>حافظه محدود:</strong> اطلاعات دور از هم فراموش می‌شوند</li>
+                        <li><strong>کندی:</strong> برای جملات بلند بسیار کند است</li>
+                        <li><strong>Gradient Vanishing:</strong> مشکل در یادگیری وابستگی‌های دور</li>
+                    </ul>
+                </div>
+                
+                <div class="success box">
+                    <h3><span class="emoji">✅</span> مزایای Transformer</h3>
+                    <ul>
+                        <li><strong>پردازش موازی:</strong> تمام کلمات همزمان پردازش می‌شوند</li>
+                        <li><strong>توجه به کل متن:</strong> هر کلمه به تمام کلمات دیگر توجه می‌کند</li>
+                        <li><strong>سرعت بالا:</strong> با GPU ها بسیار سریع است</li>
+                        <li><strong>مقیاس‌پذیری:</strong> می‌توان مدل‌های بسیار بزرگ ساخت</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <h3><span class="emoji">💡</span> نکته کلیدی</h3>
+                <p>Transformer با استفاده از مکانیزم <span class="highlight-text">Self-Attention</span> به هر کلمه اجازه می‌دهد که به طور مستقیم به تمام کلمات دیگر در جمله توجه کند، بدون نیاز به عبور از مراحل میانی.</p>
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">📊</span> مثال عملی:</h4>
+                <p>جمله: "بانک رودخانه پر از ماهی بود"</p>
+                <ul>
+                    <li><strong>RNN:</strong> ممکن است "بانک" را با "پول" مرتبط کند</li>
+                    <li><strong>Transformer:</strong> با دیدن "رودخانه"، متوجه می‌شود که "بانک" به معنای "کنار رودخانه" است</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: معماری کلی -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>🏗️ معماری کلی Transformer</h2>
+            
+            <div class="diagram">
+                <h3 style="color: #667eea; margin-bottom: 30px;">ساختار کلی</h3>
+                
+                <div class="layer-box">ورودی (Input)</div>
+                <div class="arrow">↓</div>
+                
+                <div class="layer-box">Input Embedding + Positional Encoding</div>
+                <div class="arrow">↓</div>
+                
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    Encoder<br>
+                    <span style="font-size: 0.8em;">(N لایه)</span>
+                </div>
+                <div class="arrow">↓</div>
+                
+                <div class="layer-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                    Decoder<br>
+                    <span style="font-size: 0.8em;">(N لایه)</span>
+                </div>
+                <div class="arrow">↓</div>
+                
+                <div class="layer-box">Linear + Softmax</div>
+                <div class="arrow">↓</div>
+                
+                <div class="layer-box">خروجی (Output)</div>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">📥</span> Encoder</h4>
+                    <p>وظیفه: درک و رمزگذاری ورودی</p>
+                    <ul>
+                        <li>Multi-Head Attention</li>
+                        <li>Feed Forward Network</li>
+                        <li>Layer Normalization</li>
+                        <li>Residual Connections</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📤</span> Decoder</h4>
+                    <p>وظیفه: تولید خروجی</p>
+                    <ul>
+                        <li>Masked Multi-Head Attention</li>
+                        <li>Encoder-Decoder Attention</li>
+                        <li>Feed Forward Network</li>
+                        <li>Layer Normalization</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">🔍</span> تفاوت اصلی:</h4>
+                <p>در مدل اصلی، <strong>Encoder</strong> متن ورودی را می‌خواند و <strong>Decoder</strong> ترجمه یا پاسخ را تولید می‌کند. اما در مدل‌های مدرن:</p>
+                <ul>
+                    <li><strong>BERT:</strong> فقط از Encoder استفاده می‌کند</li>
+                    <li><strong>GPT:</strong> فقط از Decoder استفاده می‌کند</li>
+                    <li><strong>T5:</strong> از هر دو استفاده می‌کند</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: Embedding -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>🔤 Input Embedding</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">📚</span> Embedding چیست؟</h3>
+                <p>تبدیل کلمات به بردارهای عددی که کامپیوتر بتواند با آن‌ها کار کند.</p>
+            </div>
+            
+            <div class="highlight box">
+                <h4><span class="emoji">💡</span> مثال ساده:</h4>
+                <p>کلمه "گربه" → بردار [0.2, -0.5, 0.8, 0.1, ...]</p>
+                <p>کلمه "سگ" → بردار [0.3, -0.4, 0.7, 0.2, ...]</p>
+                <p>کلمات مشابه، بردارهای نزدیک به هم دارند!</p>
+            </div>
+            
+            <div class="code">
+<span class="keyword">import</span> torch
+<span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn
+
+<span class="keyword">class</span> <span class="function">Embedding</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, vocab_size, d_model):
+        <span class="string">"""
+        vocab_size: تعداد کلمات در واژگان
+        d_model: بعد بردار embedding (معمولاً 512 یا 768)
+        """</span>
+        self.embedding = nn.Embedding(vocab_size, d_model)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="comment"># تبدیل ایندکس کلمات به بردار</span>
+        <span class="keyword">return</span> self.embedding(x) * torch.sqrt(torch.tensor(d_model))
+
+<span class="comment"># مثال استفاده</span>
+vocab_size = <span class="number">10000</span>  <span class="comment"># 10 هزار کلمه</span>
+d_model = <span class="number">512</span>  <span class="comment"># بعد بردار</span>
+
+emb = Embedding(vocab_size, d_model)
+
+<span class="comment"># جمله: "من یک دانشجو هستم"</span>
+<span class="comment"># ایندکس‌ها: [45, 102, 789, 1200]</span>
+sentence = torch.tensor([<span class="number">45</span>, <span class="number">102</span>, <span class="number">789</span>, <span class="number">1200</span>])
+embedded = emb.forward(sentence)
+<span class="comment"># خروجی: tensor شکل [4, 512]</span>
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">🎯</span> نکات مهم:</h4>
+                <ul>
+                    <li>هر کلمه به یک بردار با ابعاد ثابت (d_model) تبدیل می‌شود</li>
+                    <li>این بردارها در طول آموزش یاد گرفته می‌شوند</li>
+                    <li>کلمات مشابه معنایی، بردارهای نزدیک دارند</li>
+                    <li>ضرب در √d_model برای نرمال‌سازی است</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: Positional Encoding -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>📍 Positional Encoding</h2>
+            
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> مشکل:</h3>
+                <p>Transformer به صورت موازی کار می‌کند، پس ترتیب کلمات را نمی‌فهمد!</p>
+                <p>مثال: "سگ گربه را دید" و "گربه سگ را دید" برای مدل یکسان است! 😱</p>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">✅</span> راه‌حل: Positional Encoding</h3>
+                <p>به هر کلمه یک "کد موقعیت" اضافه می‌کنیم تا مدل بفهمد کلمه در کجای جمله قرار دارد.</p>
+            </div>
+            
+            <div class="formula">
+                PE<sub>(pos, 2i)</sub> = sin(pos / 10000<sup>2i/d_model</sup>)<br><br>
+                PE<sub>(pos, 2i+1)</sub> = cos(pos / 10000<sup>2i/d_model</sup>)
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">📝</span> توضیح فرمول:</h4>
+                <ul>
+                    <li><strong>pos:</strong> موقعیت کلمه در جمله (0، 1، 2، ...)</li>
+                    <li><strong>i:</strong> شماره بعد در بردار</li>
+                    <li><strong>d_model:</strong> بعد بردار embedding</li>
+                    <li>از توابع sin و cos استفاده می‌شود تا الگویی منحصربفرد برای هر موقعیت ایجاد شود</li>
+                </ul>
+            </div>
+            
+            <div class="code">
+<span class="keyword">import</span> torch
+<span class="keyword">import</span> math
+
+<span class="keyword">class</span> <span class="function">PositionalEncoding</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, max_len=<span class="number">5000</span>):
+        <span class="string">"""
+        d_model: بعد بردار
+        max_len: حداکثر طول جمله
+        """</span>
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(<span class="number">0</span>, max_len).unsqueeze(<span class="number">1</span>)
+        
+        <span class="comment"># محاسبه div_term</span>
+        div_term = torch.exp(
+            torch.arange(<span class="number">0</span>, d_model, <span class="number">2</span>) * 
+            -(math.log(<span class="number">10000.0</span>) / d_model)
+        )
+        
+        <span class="comment"># محاسبه sin برای ایندکس‌های زوج</span>
+        pe[:, <span class="number">0</span>::<span class="number">2</span>] = torch.sin(position * div_term)
+        
+        <span class="comment"># محاسبه cos برای ایندکس‌های فرد</span>
+        pe[:, <span class="number">1</span>::<span class="number">2</span>] = torch.cos(position * div_term)
+        
+        self.pe = pe.unsqueeze(<span class="number">0</span>)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="comment"># اضافه کردن positional encoding به embedding</span>
+        <span class="keyword">return</span> x + self.pe[:, :x.size(<span class="number">1</span>)]
+
+<span class="comment"># مثال استفاده</span>
+d_model = <span class="number">512</span>
+pos_enc = PositionalEncoding(d_model)
+
+<span class="comment"># فرض کنید embedded_sentence از مرحله قبل داریم</span>
+<span class="comment"># شکل: [batch_size, seq_len, d_model]</span>
+final_input = pos_enc.forward(embedded_sentence)
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">🎯</span> چرا این روش؟</h4>
+                <ul>
+                    <li><strong>منحصر به فرد:</strong> هر موقعیت یک الگوی یکتا دارد</li>
+                    <li><strong>قابل تعمیم:</strong> برای جملات بلندتر از آموزش هم کار می‌کند</li>
+                    <li><strong>نسبی:</strong> مدل می‌تواند فاصله بین کلمات را بفهمد</li>
+                    <li><strong>ثابت:</strong> نیازی به آموزش ندارد</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: Self-Attention -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>👁️ Self-Attention: قلب Transformer</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🧠</span> Self-Attention چیست؟</h3>
+                <p>مکانیزمی که به هر کلمه اجازه می‌دهد به تمام کلمات دیگر در جمله "توجه" کند و تصمیم بگیرد کدام کلمات مهم‌تر هستند.</p>
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">💡</span> مثال ساده:</h4>
+                <p><strong>جمله:</strong> "حیوان خسته بود چون راه زیادی رفته بود"</p>
+                <p>وقتی مدل کلمه "حیوان" را پردازش می‌کند:</p>
+                <ul>
+                    <li>به "خسته" توجه می‌کند (چون صفت حیوان است)</li>
+                    <li>به "رفته" توجه می‌کند (چون فعل حیوان است)</li>
+                    <li>به "راه" کمتر توجه می‌کند</li>
+                </ul>
+            </div>
+            
+            <h3 style="margin-top: 40px;">🔑 سه مفهوم کلیدی: Q، K، V</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">❓</span> Query (پرسش)</h4>
+                    <p>کلمه‌ای که می‌خواهد اطلاعات جمع‌آوری کند.</p>
+                    <p><strong>مثال:</strong> "من چه کلماتی را باید ببینم؟"</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔑</span> Key (کلید)</h4>
+                    <p>نشانه‌ای از هر کلمه که نشان می‌دهد چه اطلاعاتی دارد.</p>
+                    <p><strong>مثال:</strong> "من یک فعل هستم"</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💎</span> Value (مقدار)</h4>
+                    <p>اطلاعات واقعی که کلمه حمل می‌کند.</p>
+                    <p><strong>مثال:</strong> معنای واقعی کلمه</p>
+                </div>
+            </div>
+            
+            <div class="formula">
+                Attention(Q, K, V) = softmax(QK<sup>T</sup> / √d<sub>k</sub>) V
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">📝</span> توضیح فرمول گام به گام:</h4>
+                <ol>
+                    <li><strong>QK<sup>T</sup>:</strong> محاسبه شباهت بین Query و Key ها</li>
+                    <li><strong>/ √d<sub>k</sub>:</strong> نرمال‌سازی (جلوگیری از اعداد خیلی بزرگ)</li>
+                    <li><strong>softmax:</strong> تبدیل به احتمال (مجموع = 1)</li>
+                    <li><strong>× V:</strong> ضرب در Value ها برای گرفتن خروجی نهایی</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: کد Self-Attention -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>💻 پیاده‌سازی Self-Attention</h2>
+            
+            <div class="code">
+<span class="keyword">import</span> torch
+<span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn
+<span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F
+<span class="keyword">import</span> math
+
+<span class="keyword">class</span> <span class="function">SelfAttention</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model):
+        <span class="string">"""
+        d_model: بعد بردار ورودی
+        """</span>
+        <span class="keyword">super</span>().__init__()
+        self.d_model = d_model
+        
+        <span class="comment"># ماتریس‌های تبدیل برای Q، K، V</span>
+        self.query = nn.Linear(d_model, d_model)
+        self.key = nn.Linear(d_model, d_model)
+        self.value = nn.Linear(d_model, d_model)
+        
+        <span class="comment"># لایه خروجی</span>
+        self.out = nn.Linear(d_model, d_model)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, mask=<span class="keyword">None</span>):
+        <span class="string">"""
+        x: ورودی با شکل [batch_size, seq_len, d_model]
+        mask: ماسک برای جلوگیری از توجه به برخی موقعیت‌ها
+        """</span>
+        batch_size, seq_len, d_model = x.size()
+        
+        <span class="comment"># گام 1: محاسبه Q، K، V</span>
+        Q = self.query(x)  <span class="comment"># [batch, seq_len, d_model]</span>
+        K = self.key(x)    <span class="comment"># [batch, seq_len, d_model]</span>
+        V = self.value(x)  <span class="comment"># [batch, seq_len, d_model]</span>
+        
+        <span class="comment"># گام 2: محاسبه Attention Scores</span>
+        <span class="comment"># QK^T</span>
+        scores = torch.matmul(Q, K.transpose(-<span class="number">2</span>, -<span class="number">1</span>))
+        <span class="comment"># [batch, seq_len, seq_len]</span>
+        
+        <span class="comment"># گام 3: Scale (تقسیم بر جذر d_model)</span>
+        scores = scores / math.sqrt(d_model)
+        
+        <span class="comment"># گام 4: اعمال Mask (اختیاری)</span>
+        <span class="keyword">if</span> mask <span class="keyword">is not None</span>:
+            scores = scores.masked_fill(mask == <span class="number">0</span>, <span class="number">-1e9</span>)
+        
+        <span class="comment"># گام 5: Softmax</span>
+        attention_weights = F.softmax(scores, dim=-<span class="number">1</span>)
+        <span class="comment"># [batch, seq_len, seq_len]</span>
+        
+        <span class="comment"># گام 6: ضرب در V</span>
+        output = torch.matmul(attention_weights, V)
+        <span class="comment"># [batch, seq_len, d_model]</span>
+        
+        <span class="comment"># گام 7: لایه خروجی</span>
+        output = self.out(output)
+        
+        <span class="keyword">return</span> output, attention_weights
+
+<span class="comment"># مثال استفاده</span>
+d_model = <span class="number">512</span>
+seq_len = <span class="number">10</span>
+batch_size = <span class="number">32</span>
+
+attention = SelfAttention(d_model)
+x = torch.randn(batch_size, seq_len, d_model)
+
+output, weights = attention.forward(x)
+<span class="keyword">print</span>(<span class="string">f"Output shape: {output.shape}"</span>)
+<span class="keyword">print</span>(<span class="string">f"Attention weights shape: {weights.shape}"</span>)
+            </div>
+            
+            <div class="success box">
+                <h4><span class="emoji">✅</span> نکات مهم کد:</h4>
+                <ul>
+                    <li><strong>nn.Linear:</strong> ماتریس‌های وزن برای تبدیل به Q، K، V</li>
+                    <li><strong>transpose:</strong> برای محاسبه ضرب ماتریسی QK<sup>T</sup></li>
+                    <li><strong>masked_fill:</strong> برای جلوگیری از توجه به موقعیت‌های خاص</li>
+                    <li><strong>softmax:</strong> تبدیل scores به احتمال</li>
+                    <li><strong>attention_weights:</strong> نشان می‌دهد هر کلمه به کدام کلمات توجه کرده</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: Multi-Head Attention -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>🎭 Multi-Head Attention</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">🤔</span> چرا Multi-Head؟</h3>
+                <p>به جای یک attention، از چندین attention موازی استفاده می‌کنیم. هر "head" می‌تواند به جنبه‌های مختلف جمله توجه کند:</p>
+                <ul>
+                    <li><strong>Head 1:</strong> روابط دستوری (فاعل - فعل)</li>
+                    <li><strong>Head 2:</strong> روابط معنایی (صفت - موصوف)</li>
+                    <li><strong>Head 3:</strong> وابستگی‌های دور</li>
+                    <li><strong>Head 4:</strong> الگوهای خاص زبان</li>
+                </ul>
+            </div>
+            
+            <div class="diagram">
+                <h3 style="color: #667eea; margin-bottom: 30px;">ساختار Multi-Head Attention</h3>
+                
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    ورودی (Input)
+                </div>
+                <div class="arrow">↓</div>
+                
+                <div style="display: flex; justify-content: space-around; margin: 20px 0;">
+                    <div class="layer-box" style="max-width: 150px; font-size: 0.9em;">Head 1</div>
+                    <div class="layer-box" style="max-width: 150px; font-size: 0.9em;">Head 2</div>
+                    <div class="layer-box" style="max-width: 150px; font-size: 0.9em;">Head 3</div>
+                    <div class="layer-box" style="max-width: 150px; font-size: 0.9em;">Head 4</div>
+                </div>
+                
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                    Concatenate
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">خروجی (Output)</div>
+            </div>
+            
+            <div class="code">
+<span class="keyword">class</span> <span class="function">MultiHeadAttention</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, num_heads):
+        <span class="string">"""
+        d_model: بعد بردار کل (باید بر num_heads بخش‌پذیر باشد)
+        num_heads: تعداد attention heads (معمولاً 8)
+        """</span>
+        <span class="keyword">super</span>().__init__()
+        <span class="keyword">assert</span> d_model % num_heads == <span class="number">0</span>
+        
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.d_k = d_model // num_heads  <span class="comment"># بعد هر head</span>
+        
+        <span class="comment"># ماتریس‌های تبدیل</span>
+        self.W_q = nn.Linear(d_model, d_model)
+        self.W_k = nn.Linear(d_model, d_model)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.W_o = nn.Linear(d_model, d_model)
+    
+    <span class="keyword">def</span> <span class="function">split_heads</span>(self, x):
+        <span class="string">"""تقسیم به چند head"""</span>
+        batch_size, seq_len, d_model = x.size()
+        <span class="keyword">return</span> x.view(batch_size, seq_len, self.num_heads, self.d_k).transpose(<span class="number">1</span>, <span class="number">2</span>)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, mask=<span class="keyword">None</span>):
+        batch_size = x.size(<span class="number">0</span>)
+        
+        <span class="comment"># 1. محاسبه Q، K، V برای تمام heads</span>
+        Q = self.split_heads(self.W_q(x))
+        K = self.split_heads(self.W_k(x))
+        V = self.split_heads(self.W_v(x))
+        <span class="comment"># شکل: [batch, num_heads, seq_len, d_k]</span>
+        
+        <span class="comment"># 2. محاسبه attention</span>
+        scores = torch.matmul(Q, K.transpose(-<span class="number">2</span>, -<span class="number">1</span>)) / math.sqrt(self.d_k)
+        
+        <span class="keyword">if</span> mask <span class="keyword">is not None</span>:
+            scores = scores.masked_fill(mask == <span class="number">0</span>, <span class="number">-1e9</span>)
+        
+        attention = F.softmax(scores, dim=-<span class="number">1</span>)
+        output = torch.matmul(attention, V)
+        
+        <span class="comment"># 3. ترکیب heads</span>
+        output = output.transpose(<span class="number">1</span>, <span class="number">2</span>).contiguous()
+        output = output.view(batch_size, -<span class="number">1</span>, self.d_model)
+        
+        <span class="comment"># 4. لایه خروجی</span>
+        <span class="keyword">return</span> self.W_o(output)
+
+<span class="comment"># مثال</span>
+d_model = <span class="number">512</span>
+num_heads = <span class="number">8</span>
+mha = MultiHeadAttention(d_model, num_heads)
+
+x = torch.randn(<span class="number">32</span>, <span class="number">10</span>, <span class="number">512</span>)
+output = mha.forward(x)
+<span class="keyword">print</span>(<span class="string">f"Output shape: {output.shape}"</span>)  <span class="comment"># [32, 10, 512]</span>
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">🎯</span> مزایای Multi-Head:</h4>
+                <ul>
+                    <li>مدل می‌تواند به جنبه‌های مختلف همزمان توجه کند</li>
+                    <li>افزایش قدرت یادگیری بدون افزایش پارامترها</li>
+                    <li>پردازش موازی بهتر</li>
+                    <li>کاهش overfitting</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: Feed Forward Network -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>🔄 Feed Forward Network</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">🧠</span> FFN چیست؟</h3>
+                <p>بعد از attention، هر کلمه از یک شبکه عصبی ساده عبور می‌کند. این شبکه به مدل کمک می‌کند تا اطلاعات را بهتر پردازش کند.</p>
+            </div>
+            
+            <div class="diagram">
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    ورودی (d_model)
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">Linear Layer 1<br>(d_model → d_ff)</div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                    ReLU Activation
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">Linear Layer 2<br>(d_ff → d_model)</div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    خروجی (d_model)
+                </div>
+            </div>
+            
+            <div class="formula">
+                FFN(x) = max(0, xW<sub>1</sub> + b<sub>1</sub>)W<sub>2</sub> + b<sub>2</sub>
+            </div>
+            
+            <div class="code">
+<span class="keyword">class</span> <span class="function">FeedForward</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, d_ff=<span class="number">2048</span>, dropout=<span class="number">0.1</span>):
+        <span class="string">"""
+        d_model: بعد ورودی و خروجی
+        d_ff: بعد لایه میانی (معمولاً 4 برابر d_model)
+        dropout: نرخ dropout برای regularization
+        """</span>
+        <span class="keyword">super</span>().__init__()
+        
+        <span class="comment"># لایه اول: افزایش ابعاد</span>
+        self.linear1 = nn.Linear(d_model, d_ff)
+        
+        <span class="comment"># تابع فعال‌سازی</span>
+        self.relu = nn.ReLU()
+        
+        <span class="comment"># Dropout برای جلوگیری از overfitting</span>
+        self.dropout = nn.Dropout(dropout)
+        
+        <span class="comment"># لایه دوم: بازگشت به ابعاد اصلی</span>
+        self.linear2 = nn.Linear(d_ff, d_model)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="string">"""
+        x: ورودی با شکل [batch_size, seq_len, d_model]
+        """</span>
+        <span class="comment"># گام 1: لایه اول + ReLU</span>
+        x = self.relu(self.linear1(x))
+        <span class="comment"># [batch, seq_len, d_ff]</span>
+        
+        <span class="comment"># گام 2: Dropout</span>
+        x = self.dropout(x)
+        
+        <span class="comment"># گام 3: لایه دوم</span>
+        x = self.linear2(x)
+        <span class="comment"># [batch, seq_len, d_model]</span>
+        
+        <span class="keyword">return</span> x
+
+<span class="comment"># مثال استفاده</span>
+d_model = <span class="number">512</span>
+d_ff = <span class="number">2048</span>
+
+ffn = FeedForward(d_model, d_ff)
+x = torch.randn(<span class="number">32</span>, <span class="number">10</span>, <span class="number">512</span>)
+output = ffn.forward(x)
+<span class="keyword">print</span>(<span class="string">f"Output shape: {output.shape}"</span>)  <span class="comment"># [32, 10, 512]</span>
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">💡</span> نکات مهم:</h4>
+                <ul>
+                    <li><strong>d_ff معمولاً 4 برابر d_model است:</strong> برای افزایش ظرفیت یادگیری</li>
+                    <li><strong>ReLU:</strong> تابع فعال‌سازی ساده و سریع</li>
+                    <li><strong>Position-wise:</strong> هر موقعیت به صورت مستقل پردازش می‌شود</li>
+                    <li><strong>Dropout:</strong> برای جلوگیری از overfitting</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: Layer Normalization -->
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>📊 Layer Normalization & Residual Connections</h2>
+            
+            <div class="grid">
+                <div class="info box">
+                    <h3><span class="emoji">📏</span> Layer Normalization</h3>
+                    <p>نرمال‌سازی داده‌ها برای تسریع و پایدارسازی آموزش.</p>
+                    <div class="formula" style="font-size: 1em; margin-top: 15px;">
+                        LN(x) = γ × (x - μ) / √(σ² + ε) + β
+                    </div>
+                    <ul style="margin-top: 15px;">
+                        <li>μ: میانگین</li>
+                        <li>σ: انحراف معیار</li>
+                        <li>γ، β: پارامترهای قابل آموزش</li>
+                    </ul>
+                </div>
+                
+                <div class="success box">
+                    <h3><span class="emoji">🔗</span> Residual Connection</h3>
+                    <p>اضافه کردن ورودی به خروجی برای جلوگیری از Vanishing Gradient.</p>
+                    <div class="formula" style="font-size: 1em; margin-top: 15px;">
+                        output = LayerNorm(x + Sublayer(x))
+                    </div>
+                    <p style="margin-top: 15px;"><strong>مزیت:</strong> اطلاعات اولیه حفظ می‌شود و gradient بهتر جریان می‌یابد.</p>
+                </div>
+            </div>
+            
+            <div class="code">
+<span class="keyword">class</span> <span class="function">LayerNorm</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, eps=<span class="number">1e-6</span>):
+        <span class="keyword">super</span>().__init__()
+        <span class="comment"># پارامترهای قابل آموزش</span>
+        self.gamma = nn.Parameter(torch.ones(d_model))
+        self.beta = nn.Parameter(torch.zeros(d_model))
+        self.eps = eps
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="comment"># محاسبه میانگین و واریانس</span>
+        mean = x.mean(-<span class="number">1</span>, keepdim=<span class="keyword">True</span>)
+        std = x.std(-<span class="number">1</span>, keepdim=<span class="keyword">True</span>)
+        
+        <span class="comment"># نرمال‌سازی</span>
+        <span class="keyword">return</span> self.gamma * (x - mean) / (std + self.eps) + self.beta
+
+<span class="keyword">class</span> <span class="function">SublayerConnection</span>(nn.Module):
+    <span class="string">"""
+    Residual connection + Layer Normalization
+    """</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, dropout=<span class="number">0.1</span>):
+        <span class="keyword">super</span>().__init__()
+        self.norm = LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, sublayer):
+        <span class="string">"""
+        x: ورودی
+        sublayer: تابعی که می‌خواهیم اعمال کنیم (مثل attention)
+        """</span>
+        <span class="comment"># Add & Norm</span>
+        <span class="keyword">return</span> x + self.dropout(sublayer(self.norm(x)))
+
+<span class="comment"># مثال استفاده</span>
+d_model = <span class="number">512</span>
+sublayer_conn = SublayerConnection(d_model)
+
+<span class="comment"># فرض کنید attention_layer یک لایه attention است</span>
+x = torch.randn(<span class="number">32</span>, <span class="number">10</span>, <span class="number">512</span>)
+output = sublayer_conn.forward(x, <span class="keyword">lambda</span> x: attention_layer(x))
+            </div>
+            
+            <div class="diagram">
+                <h4 style="color: #667eea; text-align: center; margin-bottom: 20px;">جریان داده در یک لایه Encoder</h4>
+                
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    ورودی (x)
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">Layer Norm</div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);">
+                    Multi-Head Attention
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                    Add (Residual) + Dropout
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">Layer Norm</div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);">
+                    Feed Forward
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                    Add (Residual) + Dropout
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    خروجی
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: Encoder Layer کامل -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>🔨 ساخت یک Encoder Layer کامل</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🎯</span> ترکیب تمام اجزا</h3>
+                <p>حالا تمام قطعات را کنار هم می‌گذاریم تا یک لایه Encoder کامل بسازیم.</p>
+            </div>
+            
+            <div class="code">
+<span class="keyword">class</span> <span class="function">EncoderLayer</span>(nn.Module):
+    <span class="string">"""
+    یک لایه کامل Encoder شامل:
+    1. Multi-Head Self-Attention
+    2. Feed Forward Network
+    3. Layer Normalization & Residual Connections
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, num_heads, d_ff, dropout=<span class="number">0.1</span>):
+        <span class="keyword">super</span>().__init__()
+        
+        <span class="comment"># Multi-Head Attention</span>
+        self.self_attn = MultiHeadAttention(d_model, num_heads)
+        
+        <span class="comment"># Feed Forward Network</span>
+        self.feed_forward = FeedForward(d_model, d_ff, dropout)
+        
+        <span class="comment"># دو Sublayer Connection (برای attention و ffn)</span>
+        self.sublayer1 = SublayerConnection(d_model, dropout)
+        self.sublayer2 = SublayerConnection(d_model, dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, mask=<span class="keyword">None</span>):
+        <span class="string">"""
+        x: ورودی [batch_size, seq_len, d_model]
+        mask: ماسک برای padding
+        """</span>
+        <span class="comment"># 1. Self-Attention + Add & Norm</span>
+        x = self.sublayer1(x, <span class="keyword">lambda</span> x: self.self_attn(x, mask))
+        
+        <span class="comment"># 2. Feed Forward + Add & Norm</span>
+        x = self.sublayer2(x, self.feed_forward)
+        
+        <span class="keyword">return</span> x
+
+<span class="keyword">class</span> <span class="function">Encoder</span>(nn.Module):
+    <span class="string">"""
+    Encoder کامل با N لایه
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, vocab_size, d_model=<span class="number">512</span>, num_layers=<span class="number">6</span>, 
+                 num_heads=<span class="number">8</span>, d_ff=<span class="number">2048</span>, dropout=<span class="number">0.1</span>, max_len=<span class="number">5000</span>):
+        <span class="keyword">super</span>().__init__()
+        
+        <span class="comment"># Embedding Layer</span>
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        
+        <span class="comment"># Positional Encoding</span>
+        self.pos_encoding = PositionalEncoding(d_model, max_len)
+        
+        <span class="comment"># N لایه Encoder</span>
+        self.layers = nn.ModuleList([
+            EncoderLayer(d_model, num_heads, d_ff, dropout)
+            <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)
+        ])
+        
+        <span class="comment"># Layer Norm نهایی</span>
+        self.norm = LayerNorm(d_model)
+        
+        self.dropout = nn.Dropout(dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, mask=<span class="keyword">None</span>):
+        <span class="string">"""
+        x: ایندکس‌های کلمات [batch_size, seq_len]
+        """</span>
+        <span class="comment"># 1. Embedding</span>
+        x = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
+        
+        <span class="comment"># 2. Positional Encoding</span>
+        x = self.pos_encoding(x)
+        x = self.dropout(x)
+        
+        <span class="comment"># 3. عبور از N لایه Encoder</span>
+        <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:
+            x = layer(x, mask)
+        
+        <span class="comment"># 4. Normalization نهایی</span>
+        <span class="keyword">return</span> self.norm(x)
+
+<span class="comment"># مثال استفاده</span>
+vocab_size = <span class="number">10000</span>
+encoder = Encoder(vocab_size, d_model=<span class="number">512</span>, num_layers=<span class="number">6</span>)
+
+<span class="comment"># جمله نمونه (ایندکس‌های کلمات)</span>
+x = torch.randint(<span class="number">0</span>, vocab_size, (<span class="number">32</span>, <span class="number">10</span>))  <span class="comment"># [batch=32, seq_len=10]</span>
+output = encoder(x)
+<span class="keyword">print</span>(<span class="string">f"Encoder output shape: {output.shape}"</span>)  <span class="comment"># [32, 10, 512]</span>
+            </div>
+            
+            <div class="success box">
+                <h4><span class="emoji">✅</span> Encoder کامل شد!</h4>
+                <p>این Encoder می‌تواند:</p>
+                <ul>
+                    <li>متن ورودی را به بردارهای معنادار تبدیل کند</li>
+                    <li>روابط بین کلمات را درک کند</li>
+                    <li>اطلاعات را در لایه‌های مختلف پردازش کند</li>
+                    <li>خروجی غنی برای تسک‌های مختلف تولید کند</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: Decoder -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h2>🎨 Decoder: تولید خروجی</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">🤔</span> Decoder چه کاری انجام می‌دهد؟</h3>
+                <p>Decoder وظیفه تولید خروجی را دارد. برای مثال در ترجمه ماشینی:</p>
+                <ul>
+                    <li><strong>Encoder:</strong> جمله انگلیسی را می‌خواند</li>
+                    <li><strong>Decoder:</strong> ترجمه فارسی را کلمه به کلمه تولید می‌کند</li>
+                </ul>
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> تفاوت اصلی با Encoder</h3>
+                <p>Decoder سه نوع Attention دارد:</p>
+                <ol>
+                    <li><strong>Masked Self-Attention:</strong> فقط به کلمات قبلی توجه می‌کند (نه آینده!)</li>
+                    <li><strong>Encoder-Decoder Attention:</strong> به خروجی Encoder توجه می‌کند</li>
+                    <li><strong>Feed Forward:</strong> مثل Encoder</li>
+                </ol>
+            </div>
+            
+            <div class="diagram">
+                <h4 style="color: #667eea; text-align: center; margin-bottom: 20px;">ساختار Decoder Layer</h4>
+                
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    ورودی Decoder
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
+                    Masked Self-Attention<br>
+                    <span style="font-size: 0.8em;">(فقط به گذشته نگاه می‌کند)</span>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">Add & Norm</div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);">
+                    Encoder-Decoder Attention<br>
+                    <span style="font-size: 0.8em;">(به Encoder توجه می‌کند)</span>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">Add & Norm</div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);">
+                    Feed Forward
+                </div>
+                <div class="arrow">↓</div>
+                <div class="layer-box">Add & Norm</div>
+                <div class="arrow">↓</div>
+                <div class="layer-box" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                    خروجی
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">🔑</span> Masked Attention چیست؟</h4>
+                <p><strong>مشکل:</strong> در زمان تولید، نباید به کلمات آینده نگاه کنیم (چون هنوز تولید نشده‌اند!)</p>
+                <p><strong>راه‌حل:</strong> با یک ماسک مثلثی، توجه به کلمات بعدی را مسدود می‌کنیم.</p>
+                
+                <div style="background: white; padding: 20px; border-radius: 10px; margin-top: 15px;">
+                    <pre style="direction: ltr; text-align: left; font-family: monospace;">
+جمله: "من یک دانشجو هستم"
+
+زمان تولید "من":     ✅ من
+زمان تولید "یک":     ✅ من  ✅ یک
+زمان تولید "دانشجو":  ✅ من  ✅ یک  ✅ دانشجو
+زمان تولید "هستم":   ✅ من  ✅ یک  ✅ دانشجو  ✅ هستم
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: کد Decoder -->
+        <div class="slide">
+            <div class="slide-number">14</div>
+            <h2>💻 پیاده‌سازی Decoder</h2>
+            
+            <div class="code">
+<span class="keyword">class</span> <span class="function">DecoderLayer</span>(nn.Module):
+    <span class="string">"""
+    یک لایه Decoder شامل:
+    1. Masked Self-Attention
+    2. Encoder-Decoder Attention
+    3. Feed Forward Network
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, num_heads, d_ff, dropout=<span class="number">0.1</span>):
+        <span class="keyword">super</span>().__init__()
+        
+        <span class="comment"># Masked Self-Attention</span>
+        self.self_attn = MultiHeadAttention(d_model, num_heads)
+        
+        <span class="comment"># Encoder-Decoder Attention</span>
+        self.enc_dec_attn = MultiHeadAttention(d_model, num_heads)
+        
+        <span class="comment"># Feed Forward</span>
+        self.feed_forward = FeedForward(d_model, d_ff, dropout)
+        
+        <span class="comment"># سه Sublayer Connection</span>
+        self.sublayer1 = SublayerConnection(d_model, dropout)
+        self.sublayer2 = SublayerConnection(d_model, dropout)
+        self.sublayer3 = SublayerConnection(d_model, dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, encoder_output, src_mask=<span class="keyword">None</span>, tgt_mask=<span class="keyword">None</span>):
+        <span class="string">"""
+        x: ورودی decoder
+        encoder_output: خروجی encoder
+        src_mask: ماسک برای encoder
+        tgt_mask: ماسک برای decoder (مثلثی)
+        """</span>
+        <span class="comment"># 1. Masked Self-Attention</span>
+        x = self.sublayer1(x, <span class="keyword">lambda</span> x: self.self_attn(x, tgt_mask))
+        
+        <span class="comment"># 2. Encoder-Decoder Attention</span>
+        <span class="comment"># Query از decoder، Key و Value از encoder</span>
+        x = self.sublayer2(x, <span class="keyword">lambda</span> x: self.enc_dec_attn(
+            x, encoder_output, encoder_output, src_mask
+        ))
+        
+        <span class="comment"># 3. Feed Forward</span>
+        x = self.sublayer3(x, self.feed_forward)
+        
+        <span class="keyword">return</span> x
+
+<span class="keyword">class</span> <span class="function">Decoder</span>(nn.Module):
+    <span class="string">"""
+    Decoder کامل
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, vocab_size, d_model=<span class="number">512</span>, num_layers=<span class="number">6</span>,
+                 num_heads=<span class="number">8</span>, d_ff=<span class="number">2048</span>, dropout=<span class="number">0.1</span>, max_len=<span class="number">5000</span>):
+        <span class="keyword">super</span>().__init__()
+        
+        <span class="comment"># Embedding</span>
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        
+        <span class="comment"># Positional Encoding</span>
+        self.pos_encoding = PositionalEncoding(d_model, max_len)
+        
+        <span class="comment"># N لایه Decoder</span>
+        self.layers = nn.ModuleList([
+            DecoderLayer(d_model, num_heads, d_ff, dropout)
+            <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)
+        ])
+        
+        <span class="comment"># Layer Norm نهایی</span>
+        self.norm = LayerNorm(d_model)
+        
+        self.dropout = nn.Dropout(dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, encoder_output, src_mask=<span class="keyword">None</span>, tgt_mask=<span class="keyword">None</span>):
+        <span class="comment"># 1. Embedding</span>
+        x = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
+        
+        <span class="comment"># 2. Positional Encoding</span>
+        x = self.pos_encoding(x)
+        x = self.dropout(x)
+        
+        <span class="comment"># 3. عبور از N لایه Decoder</span>
+        <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:
+            x = layer(x, encoder_output, src_mask, tgt_mask)
+        
+        <span class="comment"># 4. Normalization نهایی</span>
+        <span class="keyword">return</span> self.norm(x)
+
+<span class="keyword">def</span> <span class="function">create_masks</span>(src, tgt, pad_idx=<span class="number">0</span>):
+    <span class="string">"""
+    ایجاد ماسک‌ها برای padding و future positions
+    """</span>
+    <span class="comment"># ماسک برای padding در source</span>
+    src_mask = (src != pad_idx).unsqueeze(<span class="number">1</span>).unsqueeze(<span class="number">2</span>)
+    
+    <span class="comment"># ماسک برای target (مثلثی)</span>
+    tgt_len = tgt.size(<span class="number">1</span>)
+    tgt_mask = torch.tril(torch.ones(tgt_len, tgt_len)).bool()
+    tgt_mask = tgt_mask.unsqueeze(<span class="number">0</span>).unsqueeze(<span class="number">0</span>)
+    
+    <span class="comment"># ماسک padding در target</span>
+    tgt_pad_mask = (tgt != pad_idx).unsqueeze(<span class="number">1</span>).unsqueeze(<span class="number">2</span>)
+    tgt_mask = tgt_mask & tgt_pad_mask
+    
+    <span class="keyword">return</span> src_mask, tgt_mask
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">📝</span> نکات کلیدی:</h4>
+                <ul>
+                    <li><strong>Masked Attention:</strong> با ماسک مثلثی از دیدن آینده جلوگیری می‌کنیم</li>
+                    <li><strong>Encoder-Decoder Attention:</strong> Query از decoder، Key و Value از encoder</li>
+                    <li><strong>Autoregressive:</strong> خروجی کلمه به کلمه تولید می‌شود</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: Transformer کامل -->
+        <div class="slide">
+            <div class="slide-number">15</div>
+            <h2>🎉 Transformer کامل</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🏆</span> ترکیب نهایی</h3>
+                <p>حالا Encoder و Decoder را کنار هم می‌گذاریم تا یک Transformer کامل بسازیم!</p>
+            </div>
+            
+            <div class="code">
+<span class="keyword">class</span> <span class="function">Transformer</span>(nn.Module):
+    <span class="string">"""
+    مدل Transformer کامل برای ترجمه ماشینی
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, src_vocab_size, tgt_vocab_size,
+                 d_model=<span class="number">512</span>, num_layers=<span class="number">6</span>, num_heads=<span class="number">8</span>,
+                 d_ff=<span class="number">2048</span>, dropout=<span class="number">0.1</span>, max_len=<span class="number">5000</span>):
+        <span class="keyword">super</span>().__init__()
+        
+        <span class="comment"># Encoder</span>
+        self.encoder = Encoder(
+            src_vocab_size, d_model, num_layers,
+            num_heads, d_ff, dropout, max_len
+        )
+        
+        <span class="comment"># Decoder</span>
+        self.decoder = Decoder(
+            tgt_vocab_size, d_model, num_layers,
+            num_heads, d_ff, dropout, max_len
+        )
+        
+        <span class="comment"># لایه خروجی (تبدیل به احتمالات کلمات)</span>
+        self.output_layer = nn.Linear(d_model, tgt_vocab_size)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, src, tgt, src_mask=<span class="keyword">None</span>, tgt_mask=<span class="keyword">None</span>):
+        <span class="string">"""
+        src: جمله ورودی [batch_size, src_len]
+        tgt: جمله هدف [batch_size, tgt_len]
+        """</span>
+        <span class="comment"># 1. Encoder</span>
+        encoder_output = self.encoder(src, src_mask)
+        
+        <span class="comment"># 2. Decoder</span>
+        decoder_output = self.decoder(tgt, encoder_output, src_mask, tgt_mask)
+        
+        <span class="comment"># 3. لایه خروجی</span>
+        output = self.output_layer(decoder_output)
+        
+        <span class="keyword">return</span> output
+    
+    <span class="keyword">def</span> <span class="function">generate</span>(self, src, max_len=<span class="number">50</span>, start_token=<span class="number">1</span>, end_token=<span class="number">2</span>):
+        <span class="string">"""
+        تولید ترجمه به صورت autoregressive
+        """</span>
+        self.eval()
+        <span class="keyword">with</span> torch.no_grad():
+            <span class="comment"># Encode کردن ورودی</span>
+            src_mask, _ = create_masks(src, src)
+            encoder_output = self.encoder(src, src_mask)
+            
+            <span class="comment"># شروع با start token</span>
+            tgt = torch.LongTensor([[start_token]])
+            
+            <span class="keyword">for</span> i <span class="keyword">in</span> range(max_len):
+                <span class="comment"># ماسک برای target</span>
+                _, tgt_mask = create_masks(src, tgt)
+                
+                <span class="comment"># Decode</span>
+                decoder_output = self.decoder(
+                    tgt, encoder_output, src_mask, tgt_mask
+                )
+                
+                <span class="comment"># پیش‌بینی کلمه بعدی</span>
+                output = self.output_layer(decoder_output[:, -<span class="number">1</span>, :])
+                next_token = output.argmax(dim=-<span class="number">1</span>).unsqueeze(<span class="number">0</span>)
+                
+                <span class="comment"># اضافه کردن به target</span>
+                tgt = torch.cat([tgt, next_token], dim=<span class="number">1</span>)
+                
+                <span class="comment"># اگر به end token رسیدیم، توقف</span>
+                <span class="keyword">if</span> next_token.item() == end_token:
+                    <span class="keyword">break</span>
+            
+            <span class="keyword">return</span> tgt
+
+<span class="comment"># ساخت مدل</span>
+src_vocab_size = <span class="number">10000</span>  <span class="comment"># واژگان زبان مبدا</span>
+tgt_vocab_size = <span class="number">8000</span>   <span class="comment"># واژگان زبان مقصد</span>
+
+model = Transformer(
+    src_vocab_size, 
+    tgt_vocab_size,
+    d_model=<span class="number">512</span>,
+    num_layers=<span class="number">6</span>,
+    num_heads=<span class="number">8</span>
+)
+
+<span class="comment"># مثال استفاده</span>
+src = torch.randint(<span class="number">0</span>, src_vocab_size, (<span class="number">32</span>, <span class="number">20</span>))  <span class="comment"># جمله انگلیسی</span>
+tgt = torch.randint(<span class="number">0</span>, tgt_vocab_size, (<span class="number">32</span>, <span class="number">15</span>))  <span class="comment"># جمله فارسی</span>
+
+src_mask, tgt_mask = create_masks(src, tgt)
+output = model(src, tgt, src_mask, tgt_mask)
+
+<span class="keyword">print</span>(<span class="string">f"Output shape: {output.shape}"</span>)  <span class="comment"># [32, 15, 8000]</span>
+            </div>
+            
+            <div class="success box">
+                <h4><span class="emoji">🎉</span> تبریک! Transformer کامل شد!</h4>
+                <p>این مدل می‌تواند:</p>
+                <ul>
+                    <li>ترجمه ماشینی انجام دهد</li>
+                    <li>خلاصه‌سازی متن</li>
+                    <li>پاسخ به سوالات</li>
+                    <li>تولید متن</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 16: آموزش مدل -->
+        <div class="slide">
+            <div class="slide-number">16</div>
+            <h2>🎓 آموزش Transformer</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">📚</span> نحوه آموزش</h3>
+                <p>برای آموزش Transformer، از تکنیک <span class="highlight-text">Teacher Forcing</span> استفاده می‌کنیم.</p>
+            </div>
+            
+            <div class="code">
+<span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim
+
+<span class="keyword">def</span> <span class="function">train_epoch</span>(model, train_loader, optimizer, criterion, device):
+    <span class="string">"""
+    آموزش یک epoch
+    """</span>
+    model.train()
+    total_loss = <span class="number">0</span>
+    
+    <span class="keyword">for</span> batch_idx, (src, tgt) <span class="keyword">in</span> enumerate(train_loader):
+        src, tgt = src.to(device), tgt.to(device)
+        
+        <span class="comment"># tgt_input: تمام کلمات به جز آخری</span>
+        <span class="comment"># tgt_output: تمام کلمات به جز اولی</span>
+        tgt_input = tgt[:, :-<span class="number">1</span>]
+        tgt_output = tgt[:, <span class="number">1</span>:]
+        
+        <span class="comment"># ایجاد ماسک‌ها</span>
+        src_mask, tgt_mask = create_masks(src, tgt_input)
+        
+        <span class="comment"># Forward pass</span>
+        optimizer.zero_grad()
+        output = model(src, tgt_input, src_mask, tgt_mask)
+        
+        <span class="comment"># محاسبه loss</span>
+        output = output.reshape(-<span class="number">1</span>, output.size(-<span class="number">1</span>))
+        tgt_output = tgt_output.reshape(-<span class="number">1</span>)
+        loss = criterion(output, tgt_output)
+        
+        <span class="comment"># Backward pass</span>
+        loss.backward()
+        
+        <span class="comment"># Gradient Clipping (جلوگیری از exploding gradients)</span>
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=<span class="number">1.0</span>)
+        
+        optimizer.step()
+        
+        total_loss += loss.item()
+        
+        <span class="keyword">if</span> batch_idx % <span class="number">100</span> == <span class="number">0</span>:
+            <span class="keyword">print</span>(<span class="string">f"Batch {batch_idx}, Loss: {loss.item():.4f}"</span>)
+    
+    <span class="keyword">return</span> total_loss / len(train_loader)
+
+<span class="comment"># تنظیمات آموزش</span>
+device = torch.device(<span class="string">"cuda"</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">"cpu"</span>)
+model = model.to(device)
+
+<span class="comment"># Optimizer با learning rate scheduling</span>
+optimizer = optim.Adam(model.parameters(), lr=<span class="number">0.0001</span>, betas=(<span class="number">0.9</span>, <span class="number">0.98</span>), eps=<span class="number">1e-9</span>)
+
+<span class="comment"># Loss function (نادیده گرفتن padding)</span>
+criterion = nn.CrossEntropyLoss(ignore_index=<span class="number">0</span>)
+
+<span class="comment"># حلقه آموزش</span>
+num_epochs = <span class="number">10</span>
+<span class="keyword">for</span> epoch <span class="keyword">in</span> range(num_epochs):
+    <span class="keyword">print</span>(<span class="string">f"\nEpoch {epoch + 1}/{num_epochs}"</span>)
+    train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
+    <span class="keyword">print</span>(<span class="string">f"Average Loss: {train_loss:.4f}"</span>)
+    
+    <span class="comment"># ذخیره مدل</span>
+    torch.save(model.state_dict(), <span class="string">f"transformer_epoch_{epoch+1}.pt"</span>)
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">💡</span> نکات مهم آموزش:</h4>
+                <ul>
+                    <li><strong>Teacher Forcing:</strong> در آموزش، کلمات واقعی را به مدل می‌دهیم (نه پیش‌بینی‌ها)</li>
+                    <li><strong>Gradient Clipping:</strong> جلوگیری از exploding gradients</li>
+                    <li><strong>Label Smoothing:</strong> کاهش overfitting</li>
+                    <li><strong>Warmup:</strong> شروع با learning rate کم و افزایش تدریجی</li>
+                </ul>
+            </div>
+            
+            <div class="warning box">
+                <h4><span class="emoji">⚠️</span> چالش‌های آموزش:</h4>
+                <ul>
+                    <li><strong>حافظه GPU:</strong> مدل‌های بزرگ حافظه زیادی می‌خواهند</li>
+                    <li><strong>زمان آموزش:</strong> ممکن است روزها طول بکشد</li>
+                    <li><strong>داده:</strong> نیاز به میلیون‌ها جمله برای آموزش خوب</li>
+                    <li><strong>Hyperparameter Tuning:</strong> تنظیم پارامترها سخت است</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 17: انواع Transformer -->
+        <div class="slide">
+            <div class="slide-number">17</div>
+            <h2>🌟 انواع معماری‌های مبتنی بر Transformer</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3><span class="emoji">📖</span> BERT</h3>
+                    <p><strong>Bidirectional Encoder</strong></p>
+                    <ul>
+                        <li>فقط از Encoder استفاده می‌کند</li>
+                        <li>دوطرفه متن را می‌خواند</li>
+                        <li>برای: طبقه‌بندی، NER، QA</li>
+                        <li>پیش‌آموزش: Masked Language Modeling</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3><span class="emoji">✍️</span> GPT</h3>
+                    <p><strong>Autoregressive Decoder</strong></p>
+                    <ul>
+                        <li>فقط از Decoder استفاده می‌کند</li>
+                        <li>یک‌طرفه (چپ به راست)</li>
+                        <li>برای: تولید متن، مکالمه</li>
+                        <li>پیش‌آموزش: Next Token Prediction</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3><span class="emoji">🔄</span> T5</h3>
+                    <p><strong>Text-to-Text Transfer</strong></p>
+                    <ul>
+                        <li>از Encoder و Decoder استفاده می‌کند</li>
+                        <li>همه تسک‌ها را text-to-text می‌کند</li>
+                        <li>برای: ترجمه، خلاصه‌سازی، QA</li>
+                        <li>پیش‌آموزش: Span Corruption</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3><span class="emoji">🎨</span> Vision Transformer</h3>
+                    <p><strong>ViT</strong></p>
+                    <ul>
+                        <li>Transformer برای تصاویر</li>
+                        <li>تصویر را به patch تبدیل می‌کند</li>
+                        <li>برای: طبقه‌بندی تصویر</li>
+                        <li>رقیب CNN ها</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <span class="timeline-year">2017</span>
+                    <h4>Transformer اصلی</h4>
+                    <p>مقاله "Attention Is All You Need" - Google</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2018</span>
+                    <h4>BERT</h4>
+                    <p>انقلاب در NLP با پیش‌آموزش دوطرفه - Google</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2019</span>
+                    <h4>GPT-2</h4>
+                    <p>تولید متن با کیفیت بالا - OpenAI</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2020</span>
+                    <h4>GPT-3</h4>
+                    <p>175 میلیارد پارامتر، Few-shot Learning - OpenAI</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2022</span>
+                    <h4>ChatGPT</h4>
+                    <p>مدل مکالمه‌ای با RLHF - OpenAI</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <span class="timeline-year">2023-2024</span>
+                    <h4>GPT-4, Claude, Gemini</h4>
+                    <p>مدل‌های چندوجهی پیشرفته</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 18: کاربردها -->
+        <div class="slide">
+            <div class="slide-number">18</div>
+            <h2>🚀 کاربردهای Transformer</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> ترجمه ماشینی</h4>
+                    <p>ترجمه متن بین زبان‌های مختلف با دقت بالا</p>
+                    <p><strong>مثال:</strong> Google Translate</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💬</span> چت‌بات‌ها</h4>
+                    <p>مکالمه طبیعی با انسان‌ها</p>
+                    <p><strong>مثال:</strong> ChatGPT, Claude, Bard</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📝</span> خلاصه‌سازی</h4>
+                    <p>تولید خلاصه از متون بلند</p>
+                    <p><strong>مثال:</strong> خلاصه اخبار، مقالات</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❓</span> پاسخ به سوال</h4>
+                    <p>پاسخ دقیق به سوالات از روی متن</p>
+                    <p><strong>مثال:</strong> موتورهای جستجو</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🏷️</span> طبقه‌بندی متن</h4>
+                    <p>دسته‌بندی متون به موضوعات</p>
+                    <p><strong>مثال:</strong> تحلیل احساسات</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎯</span> Named Entity Recognition</h4>
+                    <p>شناسایی نام اشخاص، مکان‌ها، سازمان‌ها</p>
+                    <p><strong>مثال:</strong> استخراج اطلاعات</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💻</span> تولید کد</h4>
+                    <p>نوشتن کد برنامه‌نویسی</p>
+                    <p><strong>مثال:</strong> GitHub Copilot</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🖼️</span> تولید تصویر</h4>
+                    <p>تولید تصویر از توضیحات متنی</p>
+                    <p><strong>مثال:</strong> DALL-E, Midjourney</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎵</span> تولید موسیقی</h4>
+                    <p>ساخت موسیقی با Transformer</p>
+                    <p><strong>مثال:</strong> Jukebox</p>
+                </div>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🌍</span> تأثیر بر صنعت</h3>
+                <p>Transformer صنایع مختلف را متحول کرده است:</p>
+                <ul>
+                    <li><strong>خدمات مشتری:</strong> چت‌بات‌های هوشمند</li>
+                    <li><strong>آموزش:</strong> دستیارهای یادگیری شخصی</li>
+                    <li><strong>پزشکی:</strong> تحلیل گزارش‌های پزشکی</li>
+                    <li><strong>حقوقی:</strong> بررسی قراردادها</li>
+                    <li><strong>تحقیق:</strong> خلاصه‌سازی مقالات علمی</li>
+                    <li><strong>تجارت:</strong> تحلیل بازار و مشتری</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 19: مزایا و معایب -->
+        <div class="slide">
+            <div class="slide-number">19</div>
+            <h2>⚖️ مزایا و محدودیت‌های Transformer</h2>
+            
+            <div class="comparison">
+                <div class="success box">
+                    <h3><span class="emoji">✅</span> مزایا</h3>
+                    <ul>
+                        <li><strong>پردازش موازی:</strong> سریع‌تر از RNN/LSTM</li>
+                        <li><strong>Long-range Dependencies:</strong> وابستگی‌های دور را بهتر یاد می‌گیرد</li>
+                        <li><strong>مقیاس‌پذیری:</strong> با افزایش داده و پارامتر بهتر می‌شود</li>
+                        <li><strong>Transfer Learning:</strong> پیش‌آموزش و fine-tuning آسان</li>
+                        <li><strong>چندوجهی:</strong> متن، تصویر، صدا را با هم پردازش می‌کند</li>
+                        <li><strong>State-of-the-art:</strong> بهترین نتایج در اکثر تسک‌ها</li>
+                    </ul>
+                </div>
+                
+                <div class="warning box">
+                    <h3><span class="emoji">⚠️</span> محدودیت‌ها</h3>
+                    <ul>
+                        <li><strong>حافظه:</strong> O(n²) برای self-attention (مشکل برای متون بلند)</li>
+                        <li><strong>محاسبات:</strong> نیاز به GPU/TPU قدرتمند</li>
+                        <li><strong>داده:</strong> نیاز به داده زیاد برای آموزش</li>
+                        <li><strong>Interpretability:</strong> سخت است بفهمیم چطور کار می‌کند</li>
+                        <li><strong>هزینه:</strong> آموزش و استفاده گران است</li>
+                        <li><strong>طول متن:</strong> محدودیت در طول ورودی (معمولاً 512-4096 توکن)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">🔬</span> تحقیقات جاری</h3>
+                <p>محققان در حال کار روی حل این محدودیت‌ها هستند:</p>
+                <ul>
+                    <li><strong>Efficient Transformers:</strong> کاهش پیچیدگی O(n²) به O(n log n) یا O(n)</li>
+                    <li><strong>Sparse Attention:</strong> توجه فقط به بخش‌های مهم</li>
+                    <li><strong>Longer Context:</strong> افزایش طول ورودی به 100K+ توکن</li>
+                    <li><strong>Smaller Models:</strong> مدل‌های کوچک‌تر با عملکرد خوب</li>
+                    <li><strong>Quantization:</strong> کاهش حجم مدل با حفظ دقت</li>
+                </ul>
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">💡</span> نکته مهم:</h4>
+                <p>با وجود محدودیت‌ها، Transformer همچنان بهترین معماری برای اکثر تسک‌های NLP و بسیاری از تسک‌های دیگر است. تحقیقات جاری به سرعت در حال بهبود این معماری هستند.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 20: مثال عملی -->
+        <div class="slide">
+            <div class="slide-number">20</div>
+            <h2>🛠️ مثال عملی: استفاده از Hugging Face</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">🤗</span> Hugging Face Transformers</h3>
+                <p>کتابخانه محبوب برای استفاده آسان از مدل‌های Transformer پیش‌آموزش شده</p>
+            </div>
+            
+            <div class="code">
+<span class="comment"># نصب کتابخانه</span>
+pip install transformers torch
+
+<span class="comment"># مثال 1: تحلیل احساسات</span>
+<span class="keyword">from</span> transformers <span class="keyword">import</span> pipeline
+
+<span class="comment"># بارگذاری مدل</span>
+classifier = pipeline(<span class="string">"sentiment-analysis"</span>)
+
+<span class="comment"># استفاده</span>
+result = classifier(<span class="string">"I love this product!"</span>)
+<span class="keyword">print</span>(result)
+<span class="comment"># Output: [{'label': 'POSITIVE', 'score': 0.9998}]</span>
+
+<span class="comment"># مثال 2: ترجمه</span>
+translator = pipeline(<span class="string">"translation_en_to_fr"</span>)
+result = translator(<span class="string">"Hello, how are you?"</span>)
+<span class="keyword">print</span>(result)
+<span class="comment"># Output: [{'translation_text': 'Bonjour, comment allez-vous?'}]</span>
+
+<span class="comment"># مثال 3: تولید متن</span>
+generator = pipeline(<span class="string">"text-generation"</span>, model=<span class="string">"gpt2"</span>)
+result = generator(
+    <span class="string">"Once upon a time"</span>,
+    max_length=<span class="number">50</span>,
+    num_return_sequences=<span class="number">1</span>
+)
+<span class="keyword">print</span>(result[<span class="number">0</span>][<span class="string">'generated_text'</span>])
+
+<span class="comment"># مثال 4: پاسخ به سوال</span>
+qa = pipeline(<span class="string">"question-answering"</span>)
+context = <span class="string">"""
+Transformer is a deep learning architecture developed by Google.
+It was introduced in 2017 in the paper "Attention Is All You Need".
+"""</span>
+question = <span class="string">"When was Transformer introduced?"</span>
+
+result = qa(question=question, context=context)
+<span class="keyword">print</span>(result)
+<span class="comment"># Output: {'answer': '2017', 'score': 0.98}</span>
+
+<span class="comment"># مثال 5: استفاده مستقیم از مدل</span>
+<span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer, AutoModel
+<span class="keyword">import</span> torch
+
+<span class="comment"># بارگذاری tokenizer و مدل</span>
+tokenizer = AutoTokenizer.from_pretrained(<span class="string">"bert-base-uncased"</span>)
+model = AutoModel.from_pretrained(<span class="string">"bert-base-uncased"</span>)
+
+<span class="comment"># متن ورودی</span>
+text = <span class="string">"Hello, my name is John."</span>
+
+<span class="comment"># Tokenization</span>
+inputs = tokenizer(text, return_tensors=<span class="string">"pt"</span>)
+
+<span class="comment"># Forward pass</span>
+<span class="keyword">with</span> torch.no_grad():
+    outputs = model(**inputs)
+
+<span class="comment"># دریافت embeddings</span>
+last_hidden_states = outputs.last_hidden_state
+<span class="keyword">print</span>(<span class="string">f"Shape: {last_hidden_states.shape}"</span>)
+<span class="comment"># Output: Shape: torch.Size([1, 8, 768])</span>
+
+<span class="comment"># مثال 6: Fine-tuning برای تسک خاص</span>
+<span class="keyword">from</span> transformers <span class="keyword">import</span> Trainer, TrainingArguments
+<span class="keyword">from</span> datasets <span class="keyword">import</span> load_dataset
+
+<span class="comment"># بارگذاری dataset</span>
+dataset = load_dataset(<span class="string">"imdb"</span>)
+
+<span class="comment"># Tokenization</span>
+<span class="keyword">def</span> <span class="function">tokenize_function</span>(examples):
+    <span class="keyword">return</span> tokenizer(examples[<span class="string">"text"</span>], padding=<span class="string">"max_length"</span>, truncation=<span class="keyword">True</span>)
+
+tokenized_datasets = dataset.map(tokenize_function, batched=<span class="keyword">True</span>)
+
+<span class="comment"># تنظیمات آموزش</span>
+training_args = TrainingArguments(
+    output_dir=<span class="string">"./results"</span>,
+    num_train_epochs=<span class="number">3</span>,
+    per_device_train_batch_size=<span class="number">16</span>,
+    save_steps=<span class="number">1000</span>,
+    save_total_limit=<span class="number">2</span>,
+)
+
+<span class="comment"># Trainer</span>
+trainer = Trainer(
+    model=model,
+    args=training_args,
+    train_dataset=tokenized_datasets[<span class="string">"train"</span>],
+    eval_dataset=tokenized_datasets[<span class="string">"test"</span>],
+)
+
+<span class="comment"># شروع آموزش</span>
+trainer.train()
+            </div>
+            
+            <div class="success box">
+                <h4><span class="emoji">🎉</span> مزایای Hugging Face:</h4>
+                <ul>
+                    <li>دسترسی آسان به صدها مدل پیش‌آموزش شده</li>
+                    <li>API ساده و یکپارچه</li>
+                    <li>پشتیبانی از PyTorch و TensorFlow</li>
+                    <li>ابزارهای Fine-tuning آماده</li>
+                    <li>جامعه بزرگ و فعال</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 21: نکات پیشرفته -->
+        <div class="slide">
+            <div class="slide-number">21</div>
+            <h2>🎓 نکات پیشرفته</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🔧</span> Optimization Tricks</h4>
+                    <ul>
+                        <li><strong>Learning Rate Warmup:</strong> شروع با LR کم</li>
+                        <li><strong>Label Smoothing:</strong> کاهش اطمینان بیش از حد</li>
+                        <li><strong>Gradient Accumulation:</strong> برای batch size بزرگ‌تر</li>
+                        <li><strong>Mixed Precision:</strong> استفاده از FP16 برای سرعت</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📊</span> Attention Patterns</h4>
+                    <ul>
+                        <li><strong>Local Attention:</strong> توجه به همسایه‌ها</li>
+                        <li><strong>Global Attention:</strong> توجه به تمام توکن‌ها</li>
+                        <li><strong>Sparse Attention:</strong> توجه انتخابی</li>
+                        <li><strong>Sliding Window:</strong> پنجره متحرک</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎯</span> Pre-training Tasks</h4>
+                    <ul>
+                        <li><strong>MLM:</strong> Masked Language Modeling</li>
+                        <li><strong>NSP:</strong> Next Sentence Prediction</li>
+                        <li><strong>CLM:</strong> Causal Language Modeling</li>
+                        <li><strong>Denoising:</strong> بازسازی متن</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">⚡</span> Efficient Architectures</h4>
+                    <ul>
+                        <li><strong>Linformer:</strong> O(n) complexity</li>
+                        <li><strong>Reformer:</strong> استفاده از LSH</li>
+                        <li><strong>Longformer:</strong> برای متون بلند</li>
+                        <li><strong>BigBird:</strong> ترکیب attention patterns</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🧪</span> تکنیک‌های پیشرفته</h3>
+                
+                <h4>1. Layer-wise Learning Rate Decay</h4>
+                <div class="code">
+<span class="comment"># لایه‌های بالایی learning rate کمتری دارند</span>
+optimizer_grouped_parameters = [
+    {
+        <span class="string">"params"</span>: [p <span class="keyword">for</span> n, p <span class="keyword">in</span> model.named_parameters() 
+                    <span class="keyword">if</span> <span class="string">"layer.0"</span> <span class="keyword">in</span> n],
+        <span class="string">"lr"</span>: <span class="number">1e-5</span>
+    },
+    {
+        <span class="string">"params"</span>: [p <span class="keyword">for</span> n, p <span class="keyword">in</span> model.named_parameters() 
+                    <span class="keyword">if</span> <span class="string">"layer.11"</span> <span class="keyword">in</span> n],
+        <span class="string">"lr"</span>: <span class="number">1e-4</span>
+    }
+]
+                </div>
+                
+                <h4>2. Attention Visualization</h4>
+                <div class="code">
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">import</span> seaborn <span class="keyword">as</span> sns
+
+<span class="keyword">def</span> <span class="function">visualize_attention</span>(attention_weights, tokens):
+    <span class="string">"""نمایش وزن‌های attention"""</span>
+    plt.figure(figsize=(<span class="number">10</span>, <span class="number">8</span>))
+    sns.heatmap(
+        attention_weights.detach().numpy(),
+        xticklabels=tokens,
+        yticklabels=tokens,
+        cmap=<span class="string">"viridis"</span>
+    )
+    plt.title(<span class="string">"Attention Weights"</span>)
+    plt.show()
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 22: منابع یادگیری -->
+        <div class="slide">
+            <div class="slide-number">22</div>
+            <h2>📚 منابع یادگیری بیشتر</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">📄</span> مقالات کلیدی</h4>
+                    <ul>
+                        <li><strong>Attention Is All You Need</strong> (2017) - مقاله اصلی</li>
+                        <li><strong>BERT</strong> (2018) - Pre-training of Deep Bidirectional Transformers</li>
+                        <li><strong>GPT-3</strong> (2020) - Language Models are Few-Shot Learners</li>
+                        <li><strong>Vision Transformer</strong> (2020) - An Image is Worth 16x16 Words</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📖</span> کتاب‌ها</h4>
+                    <ul>
+                        <li><strong>Natural Language Processing with Transformers</strong> - O'Reilly</li>
+                        <li><strong>Deep Learning</strong> - Goodfellow et al.</li>
+                        <li><strong>Speech and Language Processing</strong> - Jurafsky & Martin</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎥</span> دوره‌های آنلاین</h4>
+                    <ul>
+                        <li><strong>Stanford CS224N:</strong> NLP with Deep Learning</li>
+                        <li><strong>Hugging Face Course:</strong> رایگان و عالی</li>
+                        <li><strong>Fast.ai:</strong> Practical Deep Learning</li>
+                        <li><strong>DeepLearning.AI:</strong> NLP Specialization</li>
+                    ```html
+class="string">f'Batch {batch_idx}, Loss: {loss.item():.4f}'</span>)
+    
+    <span class="keyword">return</span> total_loss / len(train_loader)
+
+<span class="keyword">def</span> <span class="function">train_model</span>(model, train_loader, val_loader, num_epochs=<span class="number">10</span>):
+    <span class="string">"""
+    آموزش کامل مدل
+    """</span>
+    device = torch.device(<span class="string">'cuda'</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">'cpu'</span>)
+    model = model.to(device)
+    
+    <span class="comment"># Optimizer: Adam با learning rate scheduling</span>
+    optimizer = optim.Adam(model.parameters(), lr=<span class="number">0.0001</span>, betas=(<span class="number">0.9</span>, <span class="number">0.98</span>), eps=<span class="number">1e-9</span>)
+    
+    <span class="comment"># Learning Rate Scheduler</span>
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode=<span class="string">'min'</span>, factor=<span class="number">0.5</span>, patience=<span class="number">2</span>
+    )
+    
+    <span class="comment"># Loss Function: CrossEntropyLoss با ignore_index برای padding</span>
+    criterion = nn.CrossEntropyLoss(ignore_index=<span class="number">0</span>)
+    
+    <span class="keyword">for</span> epoch <span class="keyword">in</span> range(num_epochs):
+        <span class="keyword">print</span>(<span class="string">f'\n===== Epoch {epoch+1}/{num_epochs} ====='</span>)
+        
+        <span class="comment"># آموزش</span>
+        train_loss = train_epoch(model, train_loader, optimizer, criterion, device)
+        
+        <span class="comment"># ارزیابی</span>
+        val_loss = evaluate(model, val_loader, criterion, device)
+        
+        <span class="keyword">print</span>(<span class="string">f'Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}'</span>)
+        
+        <span class="comment"># به‌روزرسانی learning rate</span>
+        scheduler.step(val_loss)
+        
+        <span class="comment"># ذخیره مدل</span>
+        <span class="keyword">if</span> epoch % <span class="number">5</span> == <span class="number">0</span>:
+            torch.save(model.state_dict(), <span class="string">f'transformer_epoch_{epoch}.pth'</span>)
+
+<span class="keyword">def</span> <span class="function">evaluate</span>(model, val_loader, criterion, device):
+    <span class="string">"""
+    ارزیابی مدل
+    """</span>
+    model.eval()
+    total_loss = <span class="number">0</span>
+    
+    <span class="keyword">with</span> torch.no_grad():
+        <span class="keyword">for</span> src, tgt <span class="keyword">in</span> val_loader:
+            src, tgt = src.to(device), tgt.to(device)
+            
+            tgt_input = tgt[:, :-<span class="number">1</span>]
+            tgt_output = tgt[:, <span class="number">1</span>:]
+            
+            src_mask, tgt_mask = create_masks(src, tgt_input)
+            output = model(src, tgt_input, src_mask, tgt_mask)
+            
+            output = output.reshape(-<span class="number">1</span>, output.size(-<span class="number">1</span>))
+            tgt_output = tgt_output.reshape(-<span class="number">1</span>)
+            loss = criterion(output, tgt_output)
+            
+            total_loss += loss.item()
+    
+    <span class="keyword">return</span> total_loss / len(val_loader)
+            </div>
+            
+            <div class="key-point">
+                <h4><span class="emoji">🔑</span> نکات مهم آموزش:</h4>
+                <ul>
+                    <li><strong>Teacher Forcing:</strong> در آموزش، از کلمات واقعی (نه پیش‌بینی شده) استفاده می‌کنیم</li>
+                    <li><strong>Gradient Clipping:</strong> جلوگیری از exploding gradients</li>
+                    <li><strong>Learning Rate Scheduling:</strong> کاهش تدریجی learning rate</li>
+                    <li><strong>Label Smoothing:</strong> برای جلوگیری از overconfidence</li>
+                    <li><strong>Warmup:</strong> افزایش تدریجی learning rate در ابتدای آموزش</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 17: کاربردهای Transformer -->
+        <div class="slide">
+            <div class="slide-number">17</div>
+            <h2>🌟 کاربردهای Transformer</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> ترجمه ماشینی</h4>
+                    <p>ترجمه متن بین زبان‌های مختلف</p>
+                    <ul>
+                        <li>Google Translate</li>
+                        <li>DeepL</li>
+                        <li>Microsoft Translator</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💬</span> چت‌بات‌ها</h4>
+                    <p>مکالمه طبیعی با کاربران</p>
+                    <ul>
+                        <li>ChatGPT</li>
+                        <li>Claude (من!)</li>
+                        <li>Google Bard</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📝</span> خلاصه‌سازی</h4>
+                    <p>خلاصه کردن متون طولانی</p>
+                    <ul>
+                        <li>خلاصه اخبار</li>
+                        <li>خلاصه مقالات</li>
+                        <li>خلاصه جلسات</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❓</span> پاسخ به سوال</h4>
+                    <p>پاسخ به سوالات بر اساس متن</p>
+                    <ul>
+                        <li>موتورهای جستجو</li>
+                        <li>سیستم‌های پشتیبانی</li>
+                        <li>دستیارهای مجازی</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🖼️</span> Vision Transformer</h4>
+                    <p>پردازش تصویر با Transformer</p>
+                    <ul>
+                        <li>تشخیص اشیا</li>
+                        <li>دسته‌بندی تصاویر</li>
+                        <li>تولید تصویر</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎵</span> پردازش صوت</h4>
+                    <p>کار با داده‌های صوتی</p>
+                    <ul>
+                        <li>تبدیل گفتار به متن</li>
+                        <li>تولید گفتار</li>
+                        <li>ترجمه همزمان</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🧬</span> بیوانفورماتیک</h4>
+                    <p>تحلیل توالی‌های زیستی</p>
+                    <ul>
+                        <li>پیش‌بینی ساختار پروتئین</li>
+                        <li>تحلیل DNA</li>
+                        <li>کشف دارو</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💻</span> تولید کد</h4>
+                    <p>کمک به برنامه‌نویسی</p>
+                    <ul>
+                        <li>GitHub Copilot</li>
+                        <li>CodeWhisperer</li>
+                        <li>Tabnine</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight box" style="margin-top: 30px;">
+                <h3><span class="emoji">🚀</span> مدل‌های مشهور مبتنی بر Transformer</h3>
+                <table>
+                    <tr>
+                        <th>مدل</th>
+                        <th>سازنده</th>
+                        <th>معماری</th>
+                        <th>کاربرد اصلی</th>
+                    </tr>
+                    <tr>
+                        <td><strong>BERT</strong></td>
+                        <td>Google</td>
+                        <td>Encoder-only</td>
+                        <td>درک زبان، طبقه‌بندی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GPT-4</strong></td>
+                        <td>OpenAI</td>
+                        <td>Decoder-only</td>
+                        <td>تولید متن، مکالمه</td>
+                    </tr>
+                    <tr>
+                        <td><strong>T5</strong></td>
+                        <td>Google</td>
+                        <td>Encoder-Decoder</td>
+                        <td>همه تسک‌های NLP</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Claude</strong></td>
+                        <td>Anthropic</td>
+                        <td>Decoder-only</td>
+                        <td>مکالمه، تحلیل</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LLaMA</strong></td>
+                        <td>Meta</td>
+                        <td>Decoder-only</td>
+                        <td>تحقیق، متن‌باز</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ViT</strong></td>
+                        <td>Google</td>
+                        <td>Encoder-only</td>
+                        <td>پردازش تصویر</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 18: بهینه‌سازی‌ها -->
+        <div class="slide">
+            <div class="slide-number">18</div>
+            <h2>⚡ بهینه‌سازی‌های مدرن</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">🔧</span> مشکلات Transformer اصلی</h3>
+                <ul>
+                    <li><strong>حافظه بالا:</strong> برای جملات بلند، حافظه زیادی نیاز است</li>
+                    <li><strong>محاسبات سنگین:</strong> پیچیدگی O(n²) برای self-attention</li>
+                    <li><strong>طول محدود:</strong> نمی‌تواند با متون خیلی بلند کار کند</li>
+                </ul>
+            </div>
+            
+            <h3 style="margin-top: 30px;">🚀 راه‌حل‌های نوین</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">⚡</span> Flash Attention</h4>
+                    <p>محاسبه attention با سرعت و حافظه بهتر</p>
+                    <ul>
+                        <li>کاهش ۵-۱۰ برابری مصرف حافظه</li>
+                        <li>سرعت ۲-۳ برابری</li>
+                        <li>بدون تغییر در دقت</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎯</span> Sparse Attention</h4>
+                    <p>توجه فقط به بخشی از کلمات</p>
+                    <ul>
+                        <li>Longformer</li>
+                        <li>BigBird</li>
+                        <li>کاهش پیچیدگی به O(n)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔄</span> Rotary Positional Embedding</h4>
+                    <p>جایگزین بهتر برای positional encoding</p>
+                    <ul>
+                        <li>استفاده در GPT-Neo, LLaMA</li>
+                        <li>عملکرد بهتر</li>
+                        <li>تعمیم به طول‌های بیشتر</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📊</span> Mixed Precision Training</h4>
+                    <p>استفاده از FP16 به جای FP32</p>
+                    <ul>
+                        <li>کاهش ۵۰٪ حافظه</li>
+                        <li>سرعت بیشتر</li>
+                        <li>دقت مشابه</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎨</span> Multi-Query Attention</h4>
+                    <p>اشتراک Key و Value بین heads</p>
+                    <ul>
+                        <li>کاهش پارامترها</li>
+                        <li>سرعت بیشتر در inference</li>
+                        <li>استفاده در PaLM</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔗</span> Sliding Window Attention</h4>
+                    <p>توجه فقط به پنجره محلی</p>
+                    <ul>
+                        <li>مناسب برای متون بلند</li>
+                        <li>پیچیدگی خطی</li>
+                        <li>استفاده در Mistral</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="code">
+<span class="comment"># مثال: Flash Attention (ساده‌شده)</span>
+<span class="keyword">def</span> <span class="function">flash_attention</span>(Q, K, V, block_size=<span class="number">256</span>):
+    <span class="string">"""
+    محاسبه attention به صورت block-wise
+    برای کاهش مصرف حافظه
+    """</span>
+    seq_len = Q.size(<span class="number">1</span>)
+    output = torch.zeros_like(Q)
+    
+    <span class="comment"># تقسیم به block ها</span>
+    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, seq_len, block_size):
+        end = min(i + block_size, seq_len)
+        
+        <span class="comment"># محاسبه attention برای این block</span>
+        Q_block = Q[:, i:end, :]
+        scores = torch.matmul(Q_block, K.transpose(-<span class="number">2</span>, -<span class="number">1</span>))
+        scores = scores / math.sqrt(Q.size(-<span class="number">1</span>))
+        
+        attention = F.softmax(scores, dim=-<span class="number">1</span>)
+        output[:, i:end, :] = torch.matmul(attention, V)
+    
+    <span class="keyword">return</span> output
+
+<span class="comment"># مثال: Rotary Position Embedding</span>
+<span class="keyword">class</span> <span class="function">RotaryEmbedding</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, dim):
+        <span class="keyword">super</span>().__init__()
+        inv_freq = <span class="number">1.0</span> / (<span class="number">10000</span> ** (torch.arange(<span class="number">0</span>, dim, <span class="number">2</span>).float() / dim))
+        self.register_buffer(<span class="string">'inv_freq'</span>, inv_freq)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, seq_len):
+        t = torch.arange(seq_len, device=x.device).type_as(self.inv_freq)
+        freqs = torch.einsum(<span class="string">'i,j->ij'</span>, t, self.inv_freq)
+        emb = torch.cat((freqs, freqs), dim=-<span class="number">1</span>)
+        <span class="keyword">return</span> emb.cos(), emb.sin()
+            </div>
+        </div>
+
+        <!-- اسلاید 19: نکات عملی -->
+        <div class="slide">
+            <div class="slide-number">19</div>
+            <h2>💡 نکات عملی و بهترین روش‌ها</h2>
+            
+            <div class="grid">
+                <div class="success box">
+                    <h4><span class="emoji">✅</span> انتخاب Hyperparameters</h4>
+                    <ul>
+                        <li><strong>d_model:</strong> 512 یا 768 (مدل‌های کوچک) تا 1024-2048 (مدل‌های بزرگ)</li>
+                        <li><strong>num_layers:</strong> 6 (پایه)، 12 (متوسط)، 24+ (بزرگ)</li>
+                        <li><strong>num_heads:</strong> 8 یا 16 (باید d_model بر آن بخش‌پذیر باشد)</li>
+                        <li><strong>d_ff:</strong> معمولاً 4 × d_model</li>
+                        <li><strong>dropout:</strong> 0.1 تا 0.3</li>
+                    </ul>
+                </div>
+                
+                <div class="warning box">
+                    <h4><span class="emoji">⚠️</span> خطاهای رایج</h4>
+                    <ul>
+                        <li><strong>فراموشی Positional Encoding:</strong> مدل ترتیب را نمی‌فهمد</li>
+                        <li><strong>عدم استفاده از Masking:</strong> مدل به آینده نگاه می‌کند</li>
+                        <li><strong>Learning Rate بالا:</strong> مدل diverge می‌شود</li>
+                        <li><strong>بدون Warmup:</strong> آموزش ناپایدار است</li>
+                        <li><strong>Gradient Clipping نکردن:</strong> exploding gradients</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">🎯</span> بهینه‌سازی برای Production</h4>
+                <ul>
+                    <li><strong>Quantization:</strong> تبدیل به INT8 برای سرعت بیشتر</li>
+                    <li><strong>Distillation:</strong> آموزش مدل کوچک‌تر از مدل بزرگ</li>
+                    <li><strong>Pruning:</strong> حذف وزن‌های کم‌اهمیت</li>
+                    <li><strong>ONNX Export:</strong> برای استفاده در محیط‌های مختلف</li>
+                    <li><strong>Caching:</strong> ذخیره Key و Value برای تولید سریع‌تر</li>
+                </ul>
+            </div>
+            
+            <div class="code">
+<span class="comment"># نکات عملی برای آموزش</span>
+
+<span class="comment"># 1. Warmup Learning Rate</span>
+<span class="keyword">class</span> <span class="function">WarmupScheduler</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, optimizer, d_model, warmup_steps=<span class="number">4000</span>):
+        self.optimizer = optimizer
+        self.d_model = d_model
+        self.warmup_steps = warmup_steps
+        self.step_num = <span class="number">0</span>
+    
+    <span class="keyword">def</span> <span class="function">step</span>(self):
+        self.step_num += <span class="number">1</span>
+        lr = self.d_model ** (-<span class="number">0.5</span>) * min(
+            self.step_num ** (-<span class="number">0.5</span>),
+            self.step_num * self.warmup_steps ** (-<span class="number">1.5</span>)
+        )
+        <span class="keyword">for</span> param_group <span class="keyword">in</span> self.optimizer.param_groups:
+            param_group[<span class="string">'lr'</span>] = lr
+
+<span class="comment"># 2. Label Smoothing</span>
+<span class="keyword">class</span> <span class="function">LabelSmoothingLoss</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, smoothing=<span class="number">0.1</span>, vocab_size=<span class="number">10000</span>):
+        <span class="keyword">super</span>().__init__()
+        self.smoothing = smoothing
+        self.vocab_size = vocab_size
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, pred, target):
+        confidence = <span class="number">1.0</span> - self.smoothing
+        smooth_value = self.smoothing / (self.vocab_size - <span class="number">1</span>)
+        
+        <span class="comment"># ایجاد توزیع smooth</span>
+        true_dist = torch.full_like(pred, smooth_value)
+        true_dist.scatter_(<span class="number">1</span>, target.unsqueeze(<span class="number">1</span>), confidence)
+        
+        <span class="keyword">return</span> F.kl_div(F.log_softmax(pred, dim=-<span class="number">1</span>), true_dist, reduction=<span class="string">'batchmean'</span>)
+
+<span class="comment"># 3. Gradient Accumulation (برای batch size بزرگ‌تر)</span>
+accumulation_steps = <span class="number">4</span>
+<span class="keyword">for</span> i, (src, tgt) <span class="keyword">in</span> enumerate(train_loader):
+    output = model(src, tgt)
+    loss = criterion(output, target) / accumulation_steps
+    loss.backward()
+    
+    <span class="keyword">if</span> (i + <span class="number">1</span>) % accumulation_steps == <span class="number">0</span>:
+        optimizer.step()
+        optimizer.zero_grad()
+            </div>
+        </div>
+
+        <!-- اسلاید 20: خلاصه و جمع‌بندی -->
+        <div class="slide">
+            <div class="slide-number">20</div>
+            <h2>🎓 خلاصه و جمع‌بندی</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">📚</span> چیزهایی که یاد گرفتیم</h3>
+                <ol style="font-size: 1.1em; line-height: 2.5;">
+                    <li><strong>Self-Attention:</strong> قلب Transformer - توجه به تمام کلمات همزمان</li>
+                    <li><strong>Multi-Head Attention:</strong> توجه به جنبه‌های مختلف با چندین head</li>
+                    <li><strong>Positional Encoding:</strong> اضافه کردن اطلاعات موقعیت به مدل</li>
+                    <li><strong>Feed Forward Network:</strong> پردازش عمیق‌تر اطلاعات</li>
+                    <li><strong>Encoder-Decoder:</strong> معماری کامل برای تسک‌های sequence-to-sequence</li>
+                    <li><strong>Residual Connections:</strong> جلوگیری از vanishing gradient</li>
+                    <li><strong>Layer Normalization:</strong> پایدارسازی آموزش</li>
+                </ol>
+            </div>
+            
+            <div class="grid" style="margin-top: 30px;">
+                <div class="success box">
+                    <h4><span class="emoji">✅</span> مزایای Transformer</h4>
+                    <ul>
+                        <li>پردازش موازی کامل</li>
+                        <li>درک روابط دور در متن</li>
+                        <li>مقیاس‌پذیری عالی</li>
+                        <li>عملکرد برتر در تمام تسک‌ها</li>
+                        <li>قابلیت transfer learning</li>
+                    </ul>
+                </div>
+                
+                <div class="warning box">
+                    <h4><span class="emoji">⚠️</span> چالش‌ها</h4>
+                    <ul>
+                        <li>نیاز به حافظه و محاسبات زیاد</li>
+                        <li>طول محدود ورودی</li>
+                        <li>نیاز به داده زیاد برای آموزش</li>
+                        <li>تفسیرپذیری کم</li>
+                        <li>هزینه بالای آموزش</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info box" style="margin-top: 30px;">
+                <h3><span class="emoji">🚀</span> مراحل بعدی</h3>
+                <ul>
+                    <li><strong>پیاده‌سازی عملی:</strong> یک پروژه کوچک با Transformer بسازید</li>
+                    <li><strong>مطالعه مقالات:</strong> "Attention Is All You Need" را بخوانید</li>
+                    <li><strong>کار با مدل‌های پیش‌آموزش شده:</strong> BERT، GPT را امتحان کنید</li>
+                    <li><strong>Fine-tuning:</strong> مدل‌ها را برای تسک خاص خود تنظیم کنید</li>
+                    <li><strong>بهینه‌سازی:</strong> تکنیک‌های بهینه‌سازی را یاد بگیرید</li>
+                </ul>
+            </div>
+            
+            <div class="key-point" style="margin-top: 30px;">
+                <h3 style="text-align: center;"><span class="emoji">💡</span> نکته طلایی</h3>
+                <p style="text-align: center; font-size: 1.3em; font-weight: 600;">
+                    "Transformer تنها یک معماری نیست، بلکه پایه‌ای است که انقلاب هوش مصنوعی مدرن بر آن بنا شده است."
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px;">
+                <h2 style="color: white; border: none; margin-bottom: 20px;"><span class="emoji">🎉</span> تبریک!</h2>
+                <p style="font-size: 1.4em; line-height: 2;">
+                    شما با موفقیت معماری Transformer را یاد گرفتید!
+                </p>
+                <p style="font-size: 1.2em; margin-top: 20px;">
+                    حالا آماده‌اید تا مدل‌های پیشرفته NLP بسازید و در دنیای هوش مصنوعی نوآوری کنید!
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 21: منابع -->
+        <div class="slide">
+            <div class="slide-number">21</div>
+            <h2>📚 منابع ومطالعه بیشتر</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">📄</span> مقالات کلیدی</h4>
+                    <ul>
+                        <li><strong>"Attention Is All You Need"</strong> (Vaswani et al., 2017) - مقاله اصلی Transformer</li>
+                        <li><strong>"BERT: Pre-training of Deep Bidirectional Transformers"</strong> (Devlin et al., 2018)</li>
+                        <li><strong>"Language Models are Few-Shot Learners"</strong> (Brown et al., 2020) - GPT-3</li>
+                        <li><strong>"An Image is Worth 16x16 Words"</strong> (Dosovitskiy et al., 2020) - Vision Transformer</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📖</span> کتاب‌ها</h4>
+                    <ul>
+                        <li><strong>"Natural Language Processing with Transformers"</strong> - Lewis Tunstall et al.</li>
+                        <li><strong>"Deep Learning"</strong> - Ian Goodfellow et al.</li>
+                        <li><strong>"Speech and Language Processing"</strong> - Dan Jurafsky & James H. Martin</li>
+                        <li><strong>"Dive into Deep Learning"</strong> - Aston Zhang et al.</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎥</span> دوره‌های آنلاین</h4>
+                    <ul>
+                        <li><strong>Stanford CS224N:</strong> Natural Language Processing with Deep Learning</li>
+                        <li><strong>Hugging Face Course:</strong> دوره رایگان و جامع</li>
+                        <li><strong>Fast.ai:</strong> Practical Deep Learning for Coders</li>
+                        <li><strong>DeepLearning.AI:</strong> Natural Language Processing Specialization</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💻</span> کتابخانه‌ها و ابزارها</h4>
+                    <ul>
+                        <li><strong>Hugging Face Transformers:</strong> کتابخانه اصلی</li>
+                        <li><strong>PyTorch:</strong> فریمورک deep learning</li>
+                        <li><strong>TensorFlow:</strong> فریمورک جایگزین</li>
+                        <li><strong>JAX:</strong> برای تحقیق پیشرفته</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> وب‌سایت‌های مفید</h4>
+                    <ul>
+                        <li><strong>Papers With Code:</strong> مقالات با کد پیاده‌سازی</li>
+                        <li><strong>ArXiv:</strong> آخرین تحقیقات</li>
+                        <li><strong>Towards Data Science:</strong> مقالات آموزشی</li>
+                        <li><strong>Distill.pub:</strong> توضیحات بصری</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎓</span> دانشگاه‌ها و مراکز تحقیقاتی</h4>
+                    <ul>
+                        <li><strong>Stanford NLP Group</strong></li>
+                        <li><strong>MIT CSAIL</strong></li>
+                        <li><strong>Google AI Research</strong></li>
+                        <li><strong>OpenAI</strong></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info box" style="margin-top: 30px;">
+                <h3><span class="emoji">🔗</span> لینک‌های مستقیم</h3>
+                <table style="margin-top: 20px;">
+                    <tr>
+                        <th>منبع</th>
+                        <th>توضیحات</th>
+                        <th>سطح</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Illustrated Transformer</strong></td>
+                        <td>توضیح تصویری عالی از Jay Alammar</td>
+                        <td>مبتدی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Annotated Transformer</strong></td>
+                        <td>کد کامل با توضیحات خط به خط</td>
+                        <td>متوسط</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hugging Face Documentation</strong></td>
+                        <td>مستندات کامل و مثال‌های عملی</td>
+                        <td>همه سطوح</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PyTorch Transformer Tutorial</strong></td>
+                        <td>آموزش رسمی PyTorch</td>
+                        <td>متوسط</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Attention Mechanism Papers</strong></td>
+                        <td>مجموعه مقالات مرتبط</td>
+                        <td>پیشرفته</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="success box" style="margin-top: 30px;">
+                <h3><span class="emoji">🎯</span> پروژه‌های پیشنهادی برای تمرین</h3>
+                <ol style="font-size: 1.1em;">
+                    <li><strong>ترجمه ماشینی ساده:</strong> انگلیسی به فارسی با dataset کوچک</li>
+                    <li><strong>خلاصه‌سازی متن:</strong> خلاصه کردن اخبار فارسی</li>
+                    <li><strong>چت‌بات ساده:</strong> پاسخ به سوالات متداول</li>
+                    <li><strong>تحلیل احساسات:</strong> مثبت/منفی بودن نظرات</li>
+                    <li><strong>تولید متن:</strong> ادامه دادن داستان</li>
+                    <li><strong>Named Entity Recognition:</strong> شناسایی نام اشخاص و مکان‌ها</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- اسلاید 22: پیاده‌سازی کامل -->
+        <div class="slide">
+            <div class="slide-number">22</div>
+            <h2>🛠️ کد کامل Transformer (خلاصه)</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">📦</span> کد کامل و قابل اجرا</h3>
+                <p>این کد شامل تمام اجزای Transformer است و می‌توانید مستقیماً استفاده کنید:</p>
+            </div>
+            
+            <div class="code">
+<span class="comment">"""
+پیاده‌سازی کامل Transformer از ابتدا
+نویسنده: آموزش Transformer
+"""</span>
+
+<span class="keyword">import</span> torch
+<span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn
+<span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F
+<span class="keyword">import</span> math
+
+<span class="comment"># ===================== کلاس‌های اصلی =====================</span>
+
+<span class="keyword">class</span> <span class="function">PositionalEncoding</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, max_len=<span class="number">5000</span>):
+        <span class="keyword">super</span>().__init__()
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(<span class="number">0</span>, max_len).unsqueeze(<span class="number">1</span>)
+        div_term = torch.exp(torch.arange(<span class="number">0</span>, d_model, <span class="number">2</span>) * 
+                           -(math.log(<span class="number">10000.0</span>) / d_model))
+        pe[:, <span class="number">0</span>::<span class="number">2</span>] = torch.sin(position * div_term)
+        pe[:, <span class="number">1</span>::<span class="number">2</span>] = torch.cos(position * div_term)
+        self.register_buffer(<span class="string">'pe'</span>, pe.unsqueeze(<span class="number">0</span>))
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="keyword">return</span> x + self.pe[:, :x.size(<span class="number">1</span>)]
+
+<span class="keyword">class</span> <span class="function">MultiHeadAttention</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, num_heads):
+        <span class="keyword">super</span>().__init__()
+        <span class="keyword">assert</span> d_model % num_heads == <span class="number">0</span>
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.d_k = d_model // num_heads
+        
+        self.W_q = nn.Linear(d_model, d_model)
+        self.W_k = nn.Linear(d_model, d_model)
+        self.W_v = nn.Linear(d_model, d_model)
+        self.W_o = nn.Linear(d_model, d_model)
+    
+    <span class="keyword">def</span> <span class="function">split_heads</span>(self, x):
+        batch_size, seq_len, d_model = x.size()
+        <span class="keyword">return</span> x.view(batch_size, seq_len, self.num_heads, self.d_k).transpose(<span class="number">1</span>, <span class="number">2</span>)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, query, key, value, mask=<span class="keyword">None</span>):
+        Q = self.split_heads(self.W_q(query))
+        K = self.split_heads(self.W_k(key))
+        V = self.split_heads(self.W_v(value))
+        
+        scores = torch.matmul(Q, K.transpose(-<span class="number">2</span>, -<span class="number">1</span>)) / math.sqrt(self.d_k)
+        
+        <span class="keyword">if</span> mask <span class="keyword">is not None</span>:
+            scores = scores.masked_fill(mask == <span class="number">0</span>, <span class="number">-1e9</span>)
+        
+        attention = F.softmax(scores, dim=-<span class="number">1</span>)
+        output = torch.matmul(attention, V)
+        
+        output = output.transpose(<span class="number">1</span>, <span class="number">2</span>).contiguous()
+        output = output.view(output.size(<span class="number">0</span>), -<span class="number">1</span>, self.d_model)
+        
+        <span class="keyword">return</span> self.W_o(output)
+
+<span class="keyword">class</span> <span class="function">FeedForward</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, d_ff, dropout=<span class="number">0.1</span>):
+        <span class="keyword">super</span>().__init__()
+        self.linear1 = nn.Linear(d_model, d_ff)
+        self.dropout = nn.Dropout(dropout)
+        self.linear2 = nn.Linear(d_ff, d_model)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x):
+        <span class="keyword">return</span> self.linear2(self.dropout(F.relu(self.linear1(x))))
+
+<span class="keyword">class</span> <span class="function">EncoderLayer</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, num_heads, d_ff, dropout=<span class="number">0.1</span>):
+        <span class="keyword">super</span>().__init__()
+        self.self_attn = MultiHeadAttention(d_model, num_heads)
+        self.feed_forward = FeedForward(d_model, d_ff, dropout)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, mask=<span class="keyword">None</span>):
+        attn_output = self.self_attn(x, x, x, mask)
+        x = self.norm1(x + self.dropout(attn_output))
+        ff_output = self.feed_forward(x)
+        x = self.norm2(x + self.dropout(ff_output))
+        <span class="keyword">return</span> x
+
+<span class="keyword">class</span> <span class="function">Encoder</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, vocab_size, d_model, num_layers, num_heads, d_ff, dropout, max_len):
+        <span class="keyword">super</span>().__init__()
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.pos_encoding = PositionalEncoding(d_model, max_len)
+        self.layers = nn.ModuleList([
+            EncoderLayer(d_model, num_heads, d_ff, dropout)
+            <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)
+        ])
+        self.dropout = nn.Dropout(dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, mask=<span class="keyword">None</span>):
+        x = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
+        x = self.pos_encoding(x)
+        x = self.dropout(x)
+        
+        <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:
+            x = layer(x, mask)
+        
+        <span class="keyword">return</span> x
+
+<span class="keyword">class</span> <span class="function">DecoderLayer</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, d_model, num_heads, d_ff, dropout=<span class="number">0.1</span>):
+        <span class="keyword">super</span>().__init__()
+        self.self_attn = MultiHeadAttention(d_model, num_heads)
+        self.cross_attn = MultiHeadAttention(d_model, num_heads)
+        self.feed_forward = FeedForward(d_model, d_ff, dropout)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.norm3 = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, enc_output, src_mask=<span class="keyword">None</span>, tgt_mask=<span class="keyword">None</span>):
+        attn_output = self.self_attn(x, x, x, tgt_mask)
+        x = self.norm1(x + self.dropout(attn_output))
+        
+        attn_output = self.cross_attn(x, enc_output, enc_output, src_mask)
+        x = self.norm2(x + self.dropout(attn_output))
+        
+        ff_output = self.feed_forward(x)
+        x = self.norm3(x + self.dropout(ff_output))
+        
+        <span class="keyword">return</span> x
+
+<span class="keyword">class</span> <span class="function">Decoder</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, vocab_size, d_model, num_layers, num_heads, d_ff, dropout, max_len):
+        <span class="keyword">super</span>().__init__()
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.pos_encoding = PositionalEncoding(d_model, max_len)
+        self.layers = nn.ModuleList([
+            DecoderLayer(d_model, num_heads, d_ff, dropout)
+            <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)
+        ])
+        self.dropout = nn.Dropout(dropout)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, x, enc_output, src_mask=<span class="keyword">None</span>, tgt_mask=<span class="keyword">None</span>):
+        x = self.embedding(x) * math.sqrt(self.embedding.embedding_dim)
+        x = self.pos_encoding(x)
+        x = self.dropout(x)
+        
+        <span class="keyword">for</span> layer <span class="keyword">in</span> self.layers:
+            x = layer(x, enc_output, src_mask, tgt_mask)
+        
+        <span class="keyword">return</span> x
+
+<span class="keyword">class</span> <span class="function">Transformer</span>(nn.Module):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, src_vocab_size, tgt_vocab_size, d_model=<span class="number">512</span>,
+                 num_layers=<span class="number">6</span>, num_heads=<span class="number">8</span>, d_ff=<span class="number">2048</span>, dropout=<span class="number">0.1</span>, max_len=<span class="number">5000</span>):
+        <span class="keyword">super</span>().__init__()
+        self.encoder = Encoder(src_vocab_size, d_model, num_layers, 
+                              num_heads, d_ff, dropout, max_len)
+        self.decoder = Decoder(tgt_vocab_size, d_model, num_layers,
+                              num_heads, d_ff, dropout, max_len)
+        self.output_layer = nn.Linear(d_model, tgt_vocab_size)
+    
+    <span class="keyword">def</span> <span class="function">forward</span>(self, src, tgt, src_mask=<span class="keyword">None</span>, tgt_mask=<span class="keyword">None</span>):
+        enc_output = self.encoder(src, src_mask)
+        dec_output = self.decoder(tgt, enc_output, src_mask, tgt_mask)
+        output = self.output_layer(dec_output)
+        <span class="keyword">return</span> output
+
+<span class="comment"># ===================== استفاده =====================</span>
+
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    <span class="comment"># پارامترها</span>
+    src_vocab_size = <span class="number">10000</span>
+    tgt_vocab_size = <span class="number">8000</span>
+    d_model = <span class="number">512</span>
+    num_layers = <span class="number">6</span>
+    num_heads = <span class="number">8</span>
+    d_ff = <span class="number">2048</span>
+    
+    <span class="comment"># ساخت مدل</span>
+    model = Transformer(src_vocab_size, tgt_vocab_size, d_model,
+                       num_layers, num_heads, d_ff)
+    
+    <span class="comment"># داده نمونه</span>
+    src = torch.randint(<span class="number">0</span>, src_vocab_size, (<span class="number">32</span>, <span class="number">20</span>))
+    tgt = torch.randint(<span class="number">0</span>, tgt_vocab_size, (<span class="number">32</span>, <span class="number">15</span>))
+    
+    <span class="comment"># Forward pass</span>
+    output = model(src, tgt)
+    
+    <span class="keyword">print</span>(<span class="string">f"Input shape: {src.shape}"</span>)
+    <span class="keyword">print</span>(<span class="string">f"Output shape: {output.shape}"</span>)
+    <span class="keyword">print</span>(<span class="string">f"Model parameters: {sum(p.numel() for p in model.parameters()):,}"</span>)
+    
+    <span class="keyword">print</span>(<span class="string">"\n✅ Transformer successfully created!"</span>)
+            </div>
+            
+            <div class="success box">
+                <h4><span class="emoji">🎉</span> این کد شامل:</h4>
+                <ul>
+                    <li>✅ Positional Encoding</li>
+                    <li>✅ Multi-Head Attention</li>
+                    <li>✅ Feed Forward Network</li>
+                    <li>✅ Encoder و Decoder کامل</li>
+                    <li>✅ Layer Normalization</li>
+                    <li>✅ Residual Connections</li>
+                    <li>✅ Masking</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید پایانی -->
+        <div class="slide">
+            <div class="slide-number">23</div>
+            
+            <div style="text-align: center; padding: 60px 20px;">
+                <h1 style="font-size: 3.5em; margin-bottom: 30px; color: #667eea;">
+                    <span class="emoji" style="font-size: 1.2em;">🎓</span><br>
+                    پایان آموزش Transformer
+                </h1>
+                
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 50px; border-radius: 25px; margin: 40px 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <h2 style="color: white; border: none; font-size: 2.5em; margin-bottom: 25px;">
+                        <span class="emoji">🌟</span> تبریک!
+                    </h2>
+                    <p style="font-size: 1.5em; line-height: 2.2; margin-bottom: 30px;">
+                        شما با موفقیت یکی از مهم‌ترین معماری‌های یادگیری عمیق را فرا گرفتید!
+                    </p>
+                    <p style="font-size: 1.3em; line-height: 2;">
+                        حالا می‌توانید مدل‌های پیشرفته NLP بسازید،<br>
+                        با مدل‌های بزرگ زبانی کار کنید،<br>
+                        و در دنیای هوش مصنوعی نوآوری کنید!
+                    </p>
+                </div>
+                
+                <div class="grid" style="margin-top: 50px;">
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">📚</span></h3>
+                        <h4>مطالعه مستمر</h4>
+                        <p>مقالات جدید را دنبال کنید</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">💻</span></h3>
+                        <h4>تمرین عملی</h4>
+                        <p>پروژه‌های واقعی بسازید</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">🤝</span></h3>
+                        <h4>همکاری</h4>
+                        <p>با جامعه در ارتباط باشید</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">🚀</span></h3>
+                        <h4>نوآوری</h4>
+                        <p>ایده‌های جدید را امتحان کنید</p>
+                    </div>
+                </div>
+                
+                <div class="highlight box" style="margin-top: 50px; text-align: center;">
+                    <h3 style="font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">💡</span> یادتان باشد
+                    </h3>
+                    <p style="font-size: 1.4em; line-height: 2.2; font-weight: 600;">
+                        "بهترین راه برای یادگیری، انجام دادن است.<br>
+                        پس شروع کنید، اشتباه کنید، یاد بگیرید، و پیشرفت کنید!"
+                    </p>
+                </div>
+                
+                <div style="margin-top: 60px; padding: 40px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 20px; border: 3px solid #4caf50;">
+                    <h3 style="color: #2e7d32; font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">📧</span> تماس با ما
+                    </h3>
+                    <p style="font-size: 1.2em; color: #1b5e20;">
+                        برای سوالات، پیشنهادات، یا همکاری:<br>
+                        <strong>وب‌سایت:</strong> araz.me<br>
+                        <strong>سایت آموزشی:</strong> gistalk.ir
+                    </p>
+                </div>
+                
+                <div style="margin-top: 50px; font-size: 1.3em; color: #667eea;">
+                    <p><strong>آرزوی موفقیت برای شما! 🎉</strong></p>
+                    <p style="margin-top: 15px;">ساخته شده با ❤️ برای یادگیرندگان علاقه‌مند</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        // اضافه کردن انیمیشن ساده برای اسلایدها
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            entry.target.style.transition = 'all 0.6s ease-out';
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            slides.forEach(slide => {
+                observer.observe(slide);
+            });
+            
+            // اضافه کردن smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            console.log('🎉 آموزش Transformer بارگذاری شد!');
+            console.log('📚 تعداد اسلایدها:', slides.length);
+        });
+    </script>
+</body>
+</html>
+
+
