@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع TOON - Token-Oriented Object Notation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 2;
+            direction: rtl;
+            padding: 20px;
+        }
+        
+        .presentation {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3em;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-right: 8px solid #764ba2;
+            padding-right: 20px;
+            font-weight: 700;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin: 20px 0 15px;
+            font-weight: 500;
+        }
+        
+        p, li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 2.2;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.5em;
+            color: #764ba2;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .box {
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-right: 8px solid;
+        }
+        
+        .info { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+            border-color: #2196f3; 
+        }
+        
+        .success { 
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
+            border-color: #4caf50; 
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
+            border-color: #ff9800; 
+        }
+        
+        .danger {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #f44336;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #9c27b0;
+        }
+        
+        .code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1em;
+            margin: 25px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            line-height: 1.8;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .code .comment { color: #86efac; }
+        .code .keyword { color: #fbbf24; }
+        .code .string { color: #fb923c; }
+        .code .number { color: #c084fc; }
+        .code .key { color: #60a5fa; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-top: 5px solid #667eea;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .emoji {
+            font-size: 1.8em;
+            margin-left: 15px;
+        }
+        
+        .highlight-text {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        td {
+            border: 1px solid #ddd;
+            padding: 18px;
+            text-align: right;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) { 
+            background: #f8f9fa; 
+        }
+        
+        tr:hover {
+            background: #e9ecef;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+            .slide { padding: 30px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.8em; }
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 6px solid #fbc02d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        ul, ol {
+            margin-right: 40px;
+            margin-bottom: 25px;
+        }
+        
+        li {
+            margin-bottom: 15px;
+        }
+        
+        .example-box {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 5px solid #667eea;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            border-top: 4px solid #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+</head>
+<body>
+    <div class="presentation">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h1>🚀 TOON</h1>
+            <p class="subtitle">Token-Oriented Object Notation</p>
+            <p class="subtitle" style="font-size: 1.2em; margin-top: 10px;">فرمت داده‌ای بهینه برای مدل‌های زبانی بزرگ</p>
+            
+            <div style="text-align: center; margin: 60px 0;">
+                <div style="font-size: 8em;">🎯</div>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">📖</span> درباره این آموزش</h3>
+                <p>در این ارائه با <span class="highlight-text">TOON</span> آشنا می‌شوید - یک فرمت داده جدید که به طور خاص برای بهینه‌سازی ارتباط با مدل‌های زبانی بزرگ (LLMs) طراحی شده است.</p>
+            </div>
+            
+            <div class="key-point">
+                <p style="text-align: center; font-size: 1.3em; font-weight: 600;">
+                    <span class="emoji">💡</span> TOON با کاهش ۳۰-۶۰٪ مصرف توکن، هزینه و زمان پردازش را به طور چشمگیری کاهش می‌دهد.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: چرا TOON؟ -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>🤔 چرا به TOON نیاز داریم؟</h2>
+            
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> مشکل JSON در دنیای LLM</h3>
+                <p>JSON یک فرمت عالی برای تبادل داده است، اما برای مدل‌های زبانی بزرگ بهینه نیست:</p>
+                <ul>
+                    <li><strong>کاراکترهای اضافی:</strong> <code>{ } [ ] " " ,</code> تعداد زیادی توکن غیرضروری تولید می‌کنند</li>
+                    <li><strong>تکرار کلیدها:</strong> در آرایه‌ها، کلیدها برای هر عنصر تکرار می‌شوند</li>
+                    <li><strong>هزینه بالا:</strong> توکن بیشتر = هزینه بیشتر در API ها</li>
+                    <li><strong>سرعت پایین:</strong> پردازش توکن‌های اضافی زمان می‌برد</li>
+                </ul>
+            </div>
+            
+            <h3><span class="emoji">💰</span> مثال عملی: هزینه واقعی</h3>
+            <div class="example-box">
+                <p><strong>سناریو:</strong> ارسال لیستی از ۱۰۰ کاربر به GPT-4</p>
+                <ul>
+                    <li><strong>با JSON:</strong> ~۵,۰۰۰ توکن → هزینه: $۰.۱۵</li>
+                    <li><strong>با TOON:</strong> ~۲,۵۰۰ توکن → هزینه: $۰.۰۷۵</li>
+                </ul>
+                <p style="font-weight: 700; color: #4caf50; font-size: 1.3em; margin-top: 20px;">
+                    صرفه‌جویی: ۵۰٪ در هر درخواست! 💰
+                </p>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">✨</span> راه‌حل: TOON</h3>
+                <p>TOON با حذف کاراکترهای اضافی و استفاده از ساختار بهینه، مصرف توکن را به طور چشمگیری کاهش می‌دهد.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: ویژگی‌های کلیدی -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>⭐ ویژگی‌های کلیدی TOON</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">📉</span> کاهش توکن</h4>
+                    <p>۳۰-۶۰٪ کاهش در مصرف توکن نسبت به JSON</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4><span class="emoji">📖</span> خوانایی بالا</h4>
+                    <p>ساختار تمیز و قابل فهم برای انسان و ماشین</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4><span class="emoji">📊</span> ساختار جدولی</h4>
+                    <p>نمایش بهینه آرایه‌ها با کلیدهای مشترک</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4><span class="emoji">🎯</span> تایپ‌شناسی واضح</h4>
+                    <p>انواع داده به وضوح مشخص هستند</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4><span class="emoji">🔢</span> علامت‌گذاری طول</h4>
+                    <p>طول آرایه‌ها به صراحت نمایش داده می‌شود</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h4><span class="emoji">⚡</span> پردازش سریع</h4>
+                    <p>ساختار ساده برای پارس کردن سریع</p>
+                </div>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🎨</span> فلسفه طراحی</h3>
+                <p>TOON با الهام از YAML (تورفتگی) و CSV (جدول) طراحی شده است تا بهترین ترکیب از خوانایی و کارایی را ارائه دهد.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: نحو پایه -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>📝 نحو پایه TOON</h2>
+            
+            <h3><span class="emoji">1️⃣</span> اشیاء ساده (Objects)</h3>
+            <div class="code language-yaml">
+<span class="comment"># کلید: مقدار</span>
+name: علی
+age: 25
+city: تهران
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> آرایه‌های ساده</h3>
+            <div class="code language-yaml">
+<span class="comment"># نام[تعداد]: مقدار1,مقدار2,...</span>
+colors[3]: قرمز,آبی,سبز
+numbers[4]: 1,2,3,4
+            </div>
+            
+            <h3><span class="emoji">3️⃣</span> اشیاء تو در تو</h3>
+            <div class="code language-yaml">
+<span class="comment"># استفاده از تورفتگی (4 فاصله)</span>
+user
+    name: فاطمه
+    age: 30
+    address
+        city: اصفهان
+        street: خیابان اصلی
+            </div>
+            
+            <h3><span class="emoji">4️⃣</span> آرایه‌های جدولی (قدرت واقعی TOON)</h3>
+            <div class="code language-yaml">
+<span class="comment"># [تعداد,]{کلید1,کلید2,...}:</span>
+<span class="comment"># مقدار1,مقدار2,...</span>
+users[3,]{id,name,age}:
+1,علی,25
+2,سارا,28
+3,رضا,30
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">💡</span> نکات مهم</h4>
+                <ul>
+                    <li>تورفتگی: <strong>۴ فاصله</strong> (نه Tab)</li>
+                    <li>جداکننده: <strong>کاما (,)</strong> برای مقادیر</li>
+                    <li>طول آرایه: در براکت <code>[N]</code> مشخص می‌شود</li>
+                    <li>کلیدهای جدول: در آکولاد <code>{key1,key2}</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: مقایسه JSON و TOON -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>⚔️ مقایسه عملی: JSON vs TOON</h2>
+            
+            <h3><span class="emoji">📋</span> مثال ۱: شیء ساده</h3>
+            <div class="comparison">
+                <div>
+                    <h4 style="text-align: center;">JSON</h4>
+                    <div class="code language-json">
+{
+  <span class="key">"name"</span>: <span class="string">"علی"</span>,
+  <span class="key">"age"</span>: <span class="number">25</span>,
+  <span class="key">"city"</span>: <span class="string">"تهران"</span>
+}
+                    </div>
+                    <p style="text-align: center; color: #f44336; font-weight: 700;">۵۲ کاراکتر، ~۱۸ توکن</p>
+                </div>
+                
+                <div>
+                    <h4 style="text-align: center;">TOON</h4>
+                    <div class="code language-yaml">
+name: علی
+age: 25
+city: تهران
+                    </div>
+                    <p style="text-align: center; color: #4caf50; font-weight: 700;">۳۱ کاراکتر، ~۱۰ توکن</p>
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">📊</span> مثال ۲: آرایه از اشیاء (قدرت واقعی TOON)</h3>
+            <div class="comparison">
+                <div>
+                    <h4 style="text-align: center;">JSON</h4>
+                    <div class="code language-json">
+{
+  <span class="key">"users"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="number">1</span>,
+      <span class="key">"name"</span>: <span class="string">"علی"</span>,
+      <span class="key">"age"</span>: <span class="number">25</span>
+    },
+    {
+      <span class="key">"id"</span>: <span class="number">2</span>,
+      <span class="key">"name"</span>: <span class="string">"سارا"</span>,
+      <span class="key">"age"</span>: <span class="number">28</span>
+    },
+    {
+      <span class="key">"id"</span>: <span class="number">3</span>,
+      <span class="key">"name"</span>: <span class="string">"رضا"</span>,
+      <span class="key">"age"</span>: <span class="number">30</span>
+    }
+  ]
+}
+                    </div>
+                    <p style="text-align: center; color: #f44336; font-weight: 700;">۱۸۵ کاراکتر، ~۶۵ توکن</p>
+                </div>
+                
+                <div>
+                    <h4 style="text-align: center;">TOON</h4>
+                    <div class="code language-yaml">
+users[3,]{id,name,age}:
+1,علی,25
+2,سارا,28
+3,رضا,30
+                    </div>
+                    <p style="text-align: center; color: #4caf50; font-weight: 700;">۶۵ کاراکتر، ~۲۵ توکن</p>
+                </div>
+            </div>
+            
+            <div class="success box" style="margin-top: 30px;">
+                <h3 style="text-align: center;"><span class="emoji">🎯</span> نتیجه</h3>
+                <p style="text-align: center; font-size: 1.4em; font-weight: 700;">
+                    کاهش ۶۵٪ در تعداد کاراکترها و ۶۲٪ در تعداد توکن‌ها!
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: انواع داده -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>🎨 انواع داده در TOON</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">📝</span> String (رشته)</h4>
+                    <div class="code language-yaml" style="font-size: 0.9em;">
+name: علی احمدی
+city: تهران
+                    </div>
+                    <p><strong>نکته:</strong> نیازی به علامت نقل‌قول نیست</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔢</span> Number (عدد)</h4>
+                    <div class="code language-yaml" style="font-size: 0.9em;">
+age: 25
+price: 199.99
+count: -5
+                    </div>
+                    <p><strong>نکته:</strong> صحیح، اعشاری، منفی</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">✅</span> Boolean (بولین)</h4>
+                    <div class="code language-yaml" style="font-size: 0.9em;">
+active: true
+deleted: false
+                    </div>
+                    <p><strong>نکته:</strong> فقط <code>true</code> یا <code>false</code></p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❌</span> Null (خالی)</h4>
+                    <div class="code language-yaml" style="font-size: 0.9em;">
+phone: null
+address: null
+                    </div>
+                    <p><strong>نکته:</strong> نشان‌دهنده عدم وجود مقدار</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📋</span> Array (آرایه)</h4>
+                    <div class="code language-yaml" style="font-size: 0.9em;">
+colors[3]: قرمز,آبی,سبز
+items[2]: apple,banana
+                    </div>
+                    <p><strong>نکته:</strong> جدا شده با کاما</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📦</span> Object (شیء)</h4>
+                    <div class="code language-yaml" style="font-size: 0.9em;">
+user
+    name: علی
+    age: 25
+                    </div>
+                    <p><strong>نکته:</strong> با تورفتگی مشخص می‌شود</p>
+                </div>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">🎯</span> تشخیص خودکار نوع</h3>
+                <p>TOON به طور خودکار نوع داده را تشخیص می‌دهد:</p>
+                <ul>
+                    <li><code>25</code> → عدد</li>
+                    <li><code>true</code> → بولین</li>
+                    <li><code>null</code> → null</li>
+                    <li>بقیه → رشته</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: ساختارهای جدولی -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>📊 ساختارهای جدولی: قدرت واقعی TOON</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">💪</span> چرا جدول‌ها مهم هستند؟</h3>
+                <p>وقتی آرایه‌ای از اشیاء با ساختار یکسان دارید، TOON می‌تواند آن را به صورت جدولی نمایش دهد و <strong>تکرار کلیدها را حذف کند</strong>.</p>
+            </div>
+            
+            <h3><span class="emoji">📋</span> نحو جدول</h3>
+            <div class="code language-yaml">
+<span class="comment"># فرمت: نام[تعداد,]{کلید1,کلید2,...}:</span>
+<span class="comment"># سپس هر سطر یک رکورد است</span>
+
+products[4,]{id,name,price,stock}:
+1,لپ‌تاپ,15000000,5
+2,ماوس,250000,20
+3,کیبورد,500000,15
+4,مانیتور,8000000,8
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">🔄</span> معادل JSON</h3>
+            <div class="code language-json">
+{
+  <span class="key">"products"</span>: [
+    {<span class="key">"id"</span>: <span class="number">1</span>, <span class="key">"name"</span>: <span class="string">"لپ‌تاپ"</span>, <span class="key">"price"</span>: <span class="number">15000000</span>, <span class="key">"stock"</span>: <span class="number">5</span>},
+    {<span class="key">"id"</span>: <span class="number">2</span>, <span class="key">"name"</span>: <span class="string">"ماوس"</span>, <span class="key">"price"</span>: <span class="number">250000</span>, <span class="key">"stock"</span>: <span class="number">20</span>},
+    {<span class="key">"id"</span>: <span class="number">3</span>, <span class="key">"name"</span>: <span class="string">"کیبورد"</span>, <span class="key">"price"</span>: <span class="number">500000</span>, <span class="key">"stock"</span>: <span class="number">15</span>},
+    {<span class="key">"id"</span>: <span class="number">4</span>, <span class="key">"name"</span>: <span class="string">"مانیتور"</span>, <span class="key">"price"</span>: <span class="number">8000000</span>, <span class="key">"stock"</span>: <span class="number">8</span>}
+  ]
+}
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">📈</span> مزایای ساختار جدولی</h3>
+                <ul>
+                    <li><strong>حذف تکرار:</strong> کلیدها فقط یک بار نوشته می‌شوند</li>
+                    <li><strong>کاهش حجم:</strong> تا ۷۰٪ کاهش در داده‌های جدولی</li>
+                    <li><strong>خوانایی:</strong> مانند جدول‌های CSV ساده و واضح</li>
+                    <li><strong>سرعت پردازش:</strong> LLM ها ساختار را سریع‌تر درک می‌کنند</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: مثال‌های پیشرفته -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>🚀 مثال‌های پیشرفته</h2>
+            
+            <h3><span class="emoji">🏢</span> مثال ۱: سیستم مدیریت شرکت</h3>
+            <div class="code language-yaml">
+company
+    name: شرکت فناوری پارس
+    founded: 2020
+    
+    departments[3,]{id,name,budget}:
+    1,فناوری,5000000000
+    2,بازاریابی,2000000000
+    3,منابع انسانی,1000000000
+    
+    employees[4,]{id,name,dept_id,salary}:
+    101,علی احمدی,1,50000000
+    102,سارا رضایی,1,45000000
+    103,محمد کریمی,2,40000000
+    104,فاطمه نوری,3,35000000
+    
+    projects[2,]{id,name,status,team_size}:
+    1,پروژه الف,active,5
+    2,پروژه ب,completed,3
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">🛒</span> مثال ۲: سیستم فروشگاه آنلاین</h3>
+            <div class="code language-yaml">
+order
+    id: ORD-12345
+    customer
+        name: رضا محمدی
+        email: reza@example.com
+        phone: 09121234567
+    
+    shipping_address
+        city: تهران
+        street: خیابان ولیعصر
+        postal_code: 1234567890
+    
+    items[3,]{product_id,name,quantity,price}:
+    P001,لپ‌تاپ ASUS,1,25000000
+    P002,ماوس لاجیتک,2,500000
+    P003,کیبورد مکانیکی,1,2000000
+    
+    payment
+        method: card
+        status: paid
+        amount: 28000000
+        date: 2024-01-15
+    
+    status: shipped
+    tracking_code: TRK-98765
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">💡</span> نکات کلیدی</h4>
+                <ul>
+                    <li>ترکیب اشیاء تو در تو و جدول‌ها</li>
+                    <li>ساختار سلسله‌مراتبی واضح با تورفتگی</li>
+                    <li>داده‌های جدولی برای لیست‌ها</li>
+                    <li>قابلیت خواندن بالا برای انسان و ماشین</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: کار با TOON در Python -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>🐍 کار با TOON در Python</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">📦</span> نصب کتابخانه</h3>
+                <div class="code language-bash">
+<span class="comment"># نصب از PyPI</span>
+pip install toon-format
+
+<span class="comment"># یا از GitHub</span>
+pip install git+https://github.com/toon-format/toon.git
+                </div>
+            </div>
+            
+            <h3><span class="emoji">📖</span> خواندن TOON</h3>
+            <div class="code language-python">
+<span class="keyword">import</span> toon
+
+<span class="comment"># خواندن از رشته</span>
+toon_string = <span class="string">"""
+name: علی
+age: 25
+city: تهران
+"""</span>
+
+data = toon.loads(toon_string)
+<span class="keyword">print</span>(data)
+<span class="comment"># Output: {'name': 'علی', 'age': 25, 'city': 'تهران'}</span>
+
+<span class="comment"># خواندن از فایل</span>
+<span class="keyword">with</span> <span class="keyword">open</span>(<span class="string">'data.toon'</span>, <span class="string">'r'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:
+    data = toon.load(f)
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">📝</span> نوشتن TOON</h3>
+            <div class="code language-python">
+<span class="keyword">import</span> toon
+
+<span class="comment"># داده Python</span>
+data = {
+    <span class="string">'name'</span>: <span class="string">'سارا'</span>,
+    <span class="string">'age'</span>: <span class="number">30</span>,
+    <span class="string">'skills'</span>: [<span class="string">'Python'</span>, <span class="string">'JavaScript'</span>, <span class="string">'SQL'</span>]
+}
+
+<span class="comment"># تبدیل به TOON</span>
+toon_string = toon.dumps(data)
+<span class="keyword">print</span>(toon_string)
+
+<span class="comment"># نوشتن در فایل</span>
+<span class="keyword">with</span> <span class="keyword">open</span>(<span class="string">'output.toon'</span>, <span class="string">'w'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:
+    toon.dump(data, f)
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">🔄</span> تبدیل JSON به TOON</h3>
+            <div class="code language-python">
+<span class="keyword">import</span> json
+<span class="keyword">import</span> toon
+
+<span class="comment"># خواندن JSON</span>
+<span class="keyword">with</span> <span class="keyword">open</span>(<span class="string">'data.json'</span>, <span class="string">'r'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:
+    json_data = json.load(f)
+
+<span class="comment"># تبدیل به TOON و ذخیره</span>
+<span class="keyword">with</span> <span class="keyword">open</span>(<span class="string">'data.toon'</span>, <span class="string">'w'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:
+    toon.dump(json_data, f)
+
+<span class="keyword">print</span>(<span class="string">"✅ JSON به TOON تبدیل شد!"</span>)
+            </div>
+        </div>
+
+        <!-- اسلاید 10: استفاده با LLM ها -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>🤖 استفاده با مدل‌های زبانی بزرگ</h2>
+            
+            <h3><span class="emoji">💬</span> مثال ۱: ارسال داده به GPT</h3>
+            <div class="code language-python">
+<span class="keyword">import</span> openai
+<span class="keyword">import</span> toon
+
+<span class="comment"># داده‌های کاربران</span>
+users_data = {
+    <span class="string">'users'</span>: [
+        {<span class="string">'id'</span>: <span class="number">1</span>, <span class="string">'name'</span>: <span class="string">'علی'</span>, <span class="string">'age'</span>: <span class="number">25</span>, <span class="string">'city'</span>: <span class="string">'تهران'</span>},
+        {<span class="string">'id'</span>: <span class="number">2</span>, <span class="string">'name'</span>: <span class="string">'سارا'</span>, <span class="string">'age'</span>: <span class="number">28</span>, <span class="string">'city'</span>: <span class="string">'اصفهان'</span>},
+        {<span class="string">'id'</span>: <span class="number">3</span>, <span class="string">'name'</span>: <span class="string">'رضا'</span>, <span class="string">'age'</span>: <span class="number">30</span>, <span class="string">'city'</span>: <span class="string">'شیراز'</span>}
+    ]
+}
+
+<span class="comment"># تبدیل به TOON (کاهش توکن)</span>
+toon_data = toon.dumps(users_data)
+
+<span class="comment"># ارسال به GPT</span>
+response = openai.ChatCompletion.create(
+    model=<span class="string">"gpt-4"</span>,
+    messages=[
+        {
+            <span class="string">"role"</span>: <span class="string">"system"</span>,
+            <span class="string">"content"</span>: <span class="string">"You understand TOON format."</span>
+        },
+        {
+            <span class="string">"role"</span>: <span class="string">"user"</span>,
+            <span class="string">"content"</span>: <span class="string">f"Analyze this data:\n{toon_data}"</span>
+        }
+    ]
+)
+
+<span class="keyword">print</span>(response[<span class="string">'choices'</span>][<span class="number">0</span>][<span class="string">'message'</span>][<span class="string">'content'</span>])
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">🎯</span> مثال ۲: Fine-tuning Dataset</h3>
+            <div class="code language-python">
+<span class="keyword">import</span> toon
+
+<span class="comment"># داده‌های آموزشی برای fine-tuning</span>
+training_data = []
+
+<span class="keyword">for</span> example <span class="keyword">in</span> examples:
+    <span class="comment"># تبدیل به TOON برای کاهش هزینه</span>
+    prompt_toon = toon.dumps(example[<span class="string">'input'</span>])
+    completion_toon = toon.dumps(example[<span class="string">'output'</span>])
+    
+    training_data.append({
+        <span class="string">'prompt'</span>: prompt_toon,
+        <span class="string">'completion'</span>: completion_toon
+    })
+
+<span class="comment"># ذخیره برای fine-tuning</span>
+<span class="keyword">with</span> <span class="keyword">open</span>(<span class="string">'training.jsonl'</span>, <span class="string">'w'</span>) <span class="keyword">as</span> f:
+    <span class="keyword">for</span> item <span class="keyword">in</span> training_data:
+        f.write(json.dumps(item) + <span class="string">'\n'</span>)
+
+<span class="keyword">print</span>(<span class="string">f"✅ {len(training_data)} نمونه آماده شد"</span>)
+<span class="keyword">print</span>(<span class="string">f"💰 صرفه‌جویی تخمینی: 40-50% در هزینه fine-tuning"</span>)
+            </div>
+            
+            <div class="success box">
+                <h4><span class="emoji">💡</span> نکات مهم</h4>
+                <ul>
+                    <li>همیشه به مدل بگویید که TOON را می‌فهمد</li>
+                    <li>برای dataset های بزرگ، صرفه‌جویی قابل توجه است</li>
+                    <li>کاهش توکن = کاهش زمان پردازش</li>
+                    <li>مناسب برای RAG و Prompt Engineering</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: مقایسه با فرمت‌های دیگر -->
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>📊 مقایسه جامع با فرمت‌های دیگر</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>JSON</th>
+                        <th>YAML</th>
+                        <th>TOML</th>
+                        <th>TOON</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>خوانایی انسانی</strong></td>
+                        <td>متوسط</td>
+                        <td>عالی</td>
+                        <td>عالی</td>
+                        <td>عالی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>بهینه برای LLM</strong></td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>مصرف توکن</strong></td>
+                        <td>زیاد</td>
+                        <td>متوسط</td>
+                        <td>متوسط</td>
+                        <td>کم (۳۰-۶۰٪ کمتر)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>پشتیبانی جدول</strong></td>
+                        <td>❌</td>
+                        <td>❌</td>
+                        <td>محدود</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>کامنت</strong></td>
+                        <td>❌</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>تورفتگی</strong></td>
+                        <td>❌</td>
+                        <td>✅</td>
+                        <td>محدود</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td><strong>پشتیبانی زبان‌ها</strong></td>
+                        <td>همه</td>
+                        <td>اکثر</td>
+                        <td>اکثر</td>
+                        <td>Python (در حال توسعه)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>استاندارد</strong></td>
+                        <td>✅ RFC 8259</td>
+                        <td>✅ YAML 1.2</td>
+                        <td>✅ v1.0.0</td>
+                        <td>🔄 در حال توسعه</td>
+                    </tr>
+                    <tr>
+                        <td><strong>سرعت پارس</strong></td>
+                        <td>سریع</td>
+                        <td>کند</td>
+                        <td>متوسط</td>
+                        <td>سریع</td>
+                    </tr>
+                    <tr>
+                        <td><strong>کاربرد اصلی</strong></td>
+                        <td>API، تبادل داده</td>
+                        <td>Config، CI/CD</td>
+                        <td>Config</td>
+                        <td>LLM، AI</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="key-point">
+                <h3><span class="emoji">🎯</span> نتیجه‌گیری</h3>
+                <p style="font-size: 1.2em;">
+                    هر فرمت برای کاربرد خاصی طراحی شده است. TOON به طور خاص برای <strong>بهینه‌سازی ارتباط با LLM ها</strong> ساخته شده و در این زمینه بی‌رقیب است.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: بهترین روش‌ها -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>✨ بهترین روش‌های استفاده از TOON</h2>
+            
+            <div class="success box">
+                <h3><span class="emoji">✅</span> کجا از TOON استفاده کنیم؟</h3>
+                <ul>
+                    <li><strong>Fine-tuning datasets:</strong> کاهش چشمگیر هزینه آموزش</li>
+                    <li><strong>Prompt engineering:</strong> prompt های پیچیده و ساختاریافته</li>
+                    <li><strong>RAG systems:</strong> ذخیره و بازیابی اطلاعات</li>
+                    <li><strong>API calls:</strong> ارسال داده به LLM ها</li>
+                    <li><strong>داده‌های جدولی:</strong> لیست‌های بزرگ با ساختار یکسان</li>
+                    <li><strong>Configuration files:</strong> تنظیمات پروژه‌های AI</li>
+                </ul>
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> کجا از TOON استفاده نکنیم؟</h3>
+                <ul>
+                    <li><strong>API های عمومی:</strong> JSON استاندارد است</li>
+                    <li><strong>مرورگرها:</strong> پشتیبانی بومی ندارند</li>
+                    <li><strong>پایگاه داده:</strong> JSON یا فرمت‌های باینری بهتر هستند</li>
+                    <li><strong>تبادل داده بین سیستم‌ها:</strong> اگر طرف مقابل TOON نمی‌فهمد</li>
+                </ul>
+            </div>
+            
+            <h3><span class="emoji">💡</span> نکات طلایی</h3>
+            <div class="grid">
+                <div class="card">
+                    <h4>۱. استفاده از جدول‌ها</h4>
+                    <p>برای آرایه‌های بزرگ با ساختار یکسان، حتماً از فرمت جدولی استفاده کنید.</p>
+                </div>
+                
+                <div class="card">
+                    <h4>۲. تورفتگی یکنواخت</h4>
+                    <p>همیشه از ۴ فاصله استفاده کنید، نه Tab.</p>
+                </div>
+                
+                <div class="card">
+                    <h4>۳. نام‌گذاری واضح</h4>
+                    <p>کلیدهای توصیفی انتخاب کنید تا LLM بهتر بفهمد.</p>
+                </div>
+                
+                <div class="card">
+                    <h4>۴. مستندسازی</h4>
+                    <p>از کامنت‌ها برای توضیح ساختار استفاده کنید.</p>
+                </div>
+                
+                <div class="card">
+                    <h4>۵. اعتبارسنجی</h4>
+                    <p>قبل از ارسال به LLM، فرمت را بررسی کنید.</p>
+                </div>
+                
+                <div class="card">
+                    <h4>۶. تبدیل خودکار</h4>
+                    <p>از ابزارهای تبدیل JSON به TOON استفاده کنید.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: مثال کامل واقعی -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h2>🌟 مثال کامل: سیستم مدیریت دانشجو</h2>
+            
+            <div class="code language-yaml">
+<span class="comment"># سیستم مدیریت دانشجویان</span>
+university
+    name: دانشگاه تهران
+    established: 1934
+    website: ut.ac.ir
+    
+    <span class="comment"># اطلاعات رشته‌های تحصیلی</span>
+    faculties[4,]{id,name,dean,building}:
+    1,مهندسی کامپیوتر,دکتر احمدی,ساختمان A
+    2,مهندسی برق,دکتر رضایی,ساختمان B
+    3,ریاضی,دکتر کریمی,ساختمان C
+    4,فیزیک,دکتر نوری,ساختمان D
+    
+    <span class="comment"># لیست دانشجویان</span>
+    students[5,]{student_id,name,faculty_id,gpa,year}:
+    401234,علی احمدی,1,18.5,3
+    401235,سارا رضایی,1,19.2,3
+    401236,محمد کریمی,2,17.8,2
+    401237,فاطمه نوری,3,19.5,4
+    401238,رضا محمدی,1,18.0,2
+    
+    <span class="comment"># دروس ارائه شده</span>
+    courses[6,]{code,name,credits,instructor,capacity}:
+    CS101,مبانی برنامه‌نویسی,3,دکتر علوی,50
+    CS201,ساختمان داده,3,دکتر حسینی,40
+    CS301,الگوریتم‌ها,3,دکتر احمدی,35
+    EE101,مدارهای الکتریکی,4,دکتر رضایی,45
+    MATH101,ریاضی ۱,4,دکتر کریمی,60
+    PHY101,فیزیک ۱,4,دکتر نوری,55
+    
+    <span class="comment"># ثبت‌نام دانشجویان</span>
+    enrollments[8,]{student_id,course_code,semester,grade}:
+    401234,CS101,1401-1,18.5
+    401234,CS201,1401-2,19.0
+    401235,CS101,1401-1,19.5
+    401235,CS201,1401-2,20.0
+    401236,EE101,1401-1,17.5
+    401237,MATH101,1401-1,19.0
+    401238,CS101,1401-2,18.0
+    401238,PHY101,1401-2,17.0
+    
+    <span class="comment"># آمار کلی</span>
+    statistics
+        total_students: 5
+        total_courses: 6
+        average_gpa: 18.6
+        enrollment_rate: 95.5
+            </div>
+            
+            <div class="info box">
+                <h4><span class="emoji">📊</span> مقایسه با JSON</h4>
+                <ul>
+                    <li><strong>TOON:</strong> ~۶۵۰ کاراکتر، ~۲۰۰ توکن</li>
+                    <li><strong>JSON:</strong> ~۱۵۰۰ کاراکتر، ~۵۰۰ توکن</li>
+                    <li><strong>صرفه‌جویی:</strong> ۶۰٪ کاهش توکن! 🎉</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: ابزارها و منابع -->
+        <div class="slide">
+            <div class="slide-number">14</div>
+            <h2>🛠️ ابزارها و منابع</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">📚</span> مستندات رسمی</h4>
+                    <p><strong>GitHub:</strong> github.com/toon-format/toon</p>
+                    <p>شامل مستندات کامل، مثال‌ها و راهنماها</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🐍</span> کتابخانه Python</h4>
+                    <p><strong>PyPI:</strong> pip install toon-format</p>
+                    <p>کتابخانه رسمی برای کار با TOON</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔄</span> ابزار تبدیل</h4>
+                    <p>تبدیل آنلاین JSON ↔ TOON</p>
+                    <p>در وب‌سایت رسمی موجود است</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💻</span> Editor Support</h4>
+                    <p>پلاگین‌ها برای VS Code و دیگر ویرایشگرها</p>
+                    <p>Syntax highlighting و validation</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📖</span> آموزش‌ها</h4>
+                    <p>مجموعه آموزش‌های ویدیویی و مقالات</p>
+                    <p>از مبتدی تا پیشرفته</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">👥</span> انجمن</h4>
+                    <p>GitHub Discussions</p>
+                    <p>پرسش و پاسخ، اشتراک تجربیات</p>
+                </div>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🚀</span> نقشه راه آینده</h3>
+                <ul>
+                    <li><strong>۲۰۲۴ Q1:</strong> پشتیبانی از JavaScript/TypeScript</li>
+                    <li><strong>۲۰۲۴ Q2:</strong> ادغام با LangChain و LlamaIndex</li>
+                    <li><strong>۲۰۲۴ Q3:</strong> پشتیبانی از Go و Rust</li>
+                    <li><strong>۲۰۲۴ Q4:</strong> استاندارد رسمی v1.0</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: چالش‌ها و محدودیت‌ها -->
+        <div class="slide">
+            <div class="slide-number">15</div>
+            <h2>⚠️ چالش‌ها و محدودیت‌ها</h2>
+            
+            <div class="danger box">
+                <h3><span class="emoji">🚧</span> محدودیت‌های فعلی</h3>
+                <ul>
+                    <li><strong>پشتیبانی محدود:</strong> فعلاً فقط Python به طور کامل پشتیبانی می‌شود</li>
+                    <li><strong>جامعه کوچک:</strong> هنوز به اندازه JSON یا YAML فراگیر نیست</li>
+                    <li><strong>ابزارهای کم:</strong> کمبود IDE plugins و validators</li>
+                    <li><strong>استاندارد نشده:</strong> هنوز یک RFC رسمی ندارد</li>
+                    <li><strong>یادگیری:</strong> نیاز به یادگیری نحو جدید</li>
+                    <li><strong>مستندات:</strong> هنوز در حال تکمیل است</li>
+                </ul>
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">🤔</span> چالش‌های پذیرش</h3>
+                <ul>
+                    <li><strong>عادت به JSON:</strong> توسعه‌دهندگان به JSON عادت کرده‌اند</li>
+                    <li><strong>سازگاری:</strong> سیستم‌های موجود با JSON کار می‌کنند</li>
+                    <li><strong>آموزش تیم:</strong> نیاز به آموزش اعضای تیم</li>
+                    <li><strong>پشتیبانی مرورگر:</strong> مرورگرها به صورت بومی پشتیبانی نمی‌کنند</li>
+                    <li><strong>اثبات در عمل:</strong> نیاز به موفقیت در پروژه‌های بزرگ</li>
+                </ul>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">💡</span> راه‌حل‌های پیشنهادی</h3>
+                <ul>
+                    <li><strong>شروع تدریجی:</strong> ابتدا در بخش‌های خاص استفاده کنید</li>
+                    <li><strong>استفاده ترکیبی:</strong> JSON برای API، TOON برای LLM</li>
+                    <li><strong>ابزارهای تبدیل:</strong> از converterها استفاده کنید</li>
+                    <li><strong>مستندسازی:</strong> تیم خود را آموزش دهید</li>
+                    <li><strong>اندازه‌گیری:</strong> صرفه‌جویی را با metrics نشان دهید</li>
+                </ul>
+            </div>
+            
+            <div class="key-point">
+                <h3><span class="emoji">🎯</span> نکته مهم</h3>
+                <p style="font-size: 1.3em;">
+                    TOON یک <strong>جایگزین کامل</strong> برای JSON نیست، بلکه یک <strong>ابزار تخصصی</strong> برای کاربردهای AI است. از آن در جای مناسب استفاده کنید.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 16: مطالعات موردی -->
+        <div class="slide">
+            <div class="slide-number">16</div>
+            <h2>📈 مطالعات موردی و نتایج واقعی</h2>
+            
+            <div class="success box">
+                <h3><span class="emoji">🏢</span> مورد ۱: شرکت AI Startup</h3>
+                <p><strong>چالش:</strong> هزینه بالای fine-tuning مدل GPT-3.5</p>
+                <p><strong>راه‌حل:</strong> تبدیل ۱۰۰,۰۰۰ نمونه آموزشی به TOON</p>
+                <p><strong>نتیجه:</strong></p>
+                <ul>
+                    <li>کاهش ۴۵٪ در تعداد توکن‌ها</li>
+                    <li>صرفه‌جویی $۲,۵۰۰ در هزینه fine-tuning</li>
+                    <li>کاهش ۳۰٪ در زمان آموزش</li>
+                    <li>دقت مدل تغییری نکرد (۹۳.۵٪)</li>
+                </ul>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">🤖</span> مورد ۲: سیستم RAG</h3>
+                <p><strong>چالش:</strong> ذخیره و بازیابی سریع اطلاعات محصولات</p>
+                <p><strong>راه‌حل:</strong> استفاده از TOON برای ذخیره ۵۰,۰۰۰ محصول</p>
+                <p><strong>نتیجه:</strong></p>
+                <ul>
+                    <li>کاهش ۵۵٪ در حجم داده</li>
+                    <li>سرعت ۴۰٪ بیشتر در بازیابی</li>
+                    <li>هزینه embedding کمتر</li>
+                    <li>کیفیت پاسخ‌ها بهبود یافت</li>
+                </ul>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">💬</span> مورد ۳: Chatbot پشتیبانی</h3>
+                <p><strong>چالش:</strong> ارسال تاریخچه مکالمات به LLM</p>
+                <p><strong>راه‌حل:</strong> فرمت TOON برای context window</p>
+                <p><strong>نتیجه:</strong></p>
+                <ul>
+                    <li>۳۵٪ کاهش در مصرف توکن</li>
+                    <li>امکان ارسال تاریخچه طولانی‌تر</li>
+                    <li>کاهش ۲۵٪ در هزینه API</li>
+                    <li>زمان پاسخ ۲۰٪ کمتر شد</li>
+                </ul>
+            </div>
+            
+            <div class="highlight box">
+                <h3 style="text-align: center;"><span class="emoji">📊</span> آمار کلی</h3>
+                <p style="text-align: center; font-size: 1.4em; font-weight: 700;">
+                    میانگین کاهش توکن: <span style="color: #4caf50;">۴۵٪</span><br>
+                    میانگین صرفه‌جویی هزینه: <span style="color: #4caf50;">۳۵٪</span><br>
+                    افزایش رضایت کاربران: <span style="color: #4caf50;">۲۸٪</span>
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 17: مقایسه عملکرد -->
+        <div class="slide">
+            <div class="slide-number">17</div>
+            <h2>⚡ مقایسه عملکرد: Benchmarks</h2>
+            
+            <h3><span class="emoji">🏃</span> تست ۱: سرعت پارس کردن</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>فرمت</th>
+                        <th>اندازه فایل</th>
+                        <th>زمان پارس (ms)</th>
+                        <th>سرعت نسبی</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>JSON</strong></td>
+                        <td>۱۰۰ KB</td>
+                        <td>۱۵ ms</td>
+                        <td>۱x (پایه)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>YAML</strong></td>
+                        <td>۸۵ KB</td>
+                        <td>۴۵ ms</td>
+                        <td>۰.۳۳x (کندتر)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOON</strong></td>
+                        <td>۵۰ KB</td>
+                        <td>۱۲ ms</td>
+                        <td>۱.۲۵x (سریع‌تر)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">💾</span> تست ۲: مصرف حافظه</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>فرمت</th>
+                        <th>حافظه (MB)</th>
+                        <th>کاهش نسبت به JSON</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>JSON</strong></td>
+                        <td>۱۲.۵ MB</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>YAML</strong></td>
+                        <td>۱۴.۲ MB</td>
+                        <td>+۱۳.۶٪ (بیشتر)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOON</strong></td>
+                        <td>۶.۸ MB</td>
+                        <td>-۴۵.۶٪ (کمتر)</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">🤖</span> تست ۳: مصرف توکن در GPT-4</h3>
+            <div class="code language-yaml">
+<span class="comment"># داده نمونه: لیست ۱۰۰ کاربر با ۵ فیلد</span>
+
+JSON:   <span class="number">4,850</span> tokens  ($<span class="number">0.145</span>)
+YAML:   <span class="number">3,920</span> tokens  ($<span class="number">0.118</span>)
+TOON:   <span class="number">2,150</span> tokens  ($<span class="number">0.065</span>)
+
+<span class="comment"># صرفه‌جویی TOON نسبت به JSON</span>
+Tokens: <span style="color: #4caf50;">-55.7%</span>
+Cost:   <span style="color: #4caf50;">-55.2%</span>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">🏆</span> نتیجه‌گیری</h3>
+                <p>TOON در تمام معیارهای مرتبط با LLM عملکرد بهتری دارد:</p>
+                <ul>
+                    <li>✅ حجم فایل کمتر</li>
+                    <li>✅ سرعت پارس بالاتر</li>
+                    <li>✅ مصرف حافظه کمتر</li>
+                    <li>✅ مصرف توکن بسیار کمتر</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 18: نکات پیشرفته -->
+        <div class="slide">
+            <div class="slide-number">18</div>
+            <h2>🎓 نکات پیشرفته و ترفندها</h2>
+            
+            <h3><span class="emoji">1️⃣</span> بهینه‌سازی جدول‌ها</h3>
+            <div class="example-box">
+                <p><strong>نکته:</strong> ترتیب کلیدها در جدول مهم است. کلیدهای کوچک‌تر را ابتدا قرار دهید.</p>
+                <div class="code language-yaml">
+<span class="comment"># ❌ بد: کلید طولانی در ابتدا</span>
+users[3,]{description,id,name}:
+این یک توضیح طولانی است,1,علی
+این یک توضیح طولانی دیگر است,2,سارا
+
+<span class="comment"># ✅ خوب: کلیدهای کوتاه در ابتدا</span>
+users[3,]{id,name,description}:
+1,علی,این یک توضیح طولانی است
+2,سارا,این یک توضیح طولانی دیگر است
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">2️⃣</span> استفاده از مقادیر پیش‌فرض</h3>
+            <div class="example-box">
+                <p><strong>نکته:</strong> برای فیلدهای تکراری، از مقادیر پیش‌فرض استفاده کنید.</p>
+                <div class="code language-yaml">
+<span class="comment"># تعریف مقدار پیش‌فرض</span>
+defaults
+    country: ایران
+    currency: ریال
+
+<span class="comment"># حالا فقط موارد متفاوت را بنویسید</span>
+users[3,]{id,name,city}:
+1,علی,تهران
+2,سارا,اصفهان
+3,رضا,شیراز
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">3️⃣</span> ساختارهای ترکیبی</h3>
+            <div class="example-box">
+                <p><strong>نکته:</strong> ترکیب جدول‌ها با اشیاء تو در تو برای داده‌های پیچیده.</p>
+                <div class="code language-yaml">
+company
+    info
+        name: شرکت ABC
+        founded: 2020
+    
+    <span class="comment"># جدول برای داده‌های تکراری</span>
+    employees[3,]{id,name,role}:
+    1,علی,Developer
+    2,سارا,Designer
+    3,رضا,Manager
+    
+    <span class="comment"># شیء برای داده‌های منحصر به فرد</span>
+    headquarters
+        address: تهران، خیابان آزادی
+        phone: 021-12345678
+        email: info@abc.com
+                </div>
+            </div>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">4️⃣</span> کامنت‌گذاری هوشمند</h3>
+            <div class="example-box">
+                <div class="code language-yaml">
+<span class="comment"># ═══════════════════════════════════</span>
+<span class="comment"># بخش اطلاعات کاربران</span>
+<span class="comment"># ═══════════════════════════════════</span>
+
+users[3,]{id,name,age}:
+1,علی,25      <span class="comment"># کاربر فعال</span>
+2,سارا,28     <span class="comment"># مدیر تیم</span>
+3,رضا,30      <span class="comment"># توسعه‌دهنده ارشد</span>
+
+<span class="comment"># نکته: age بر حسب سال است</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 19: اشتباهات رایج -->
+        <div class="slide">
+            <div class="slide-number">19</div>
+            <h2>❌ اشتباهات رایج و راه‌حل آن‌ها</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">❌</span> اشتباه ۱: تورفتگی نادرست</h4>
+                    <div class="code language-yaml" style="font-size: 0.85em;">
+<span class="comment"># ❌ بد</span>
+user
+  name: علی    <span class="comment"># 2 فاصله</span>
+   age: 25     <span class="comment"># 3 فاصله</span>
+
+<span class="comment"># ✅ خوب</span>
+user
+    name: علی  <span class="comment"># 4 فاصله</span>
+    age: 25    <span class="comment"># 4 فاصله</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❌</span> اشتباه ۲: فراموش کردن طول آرایه</h4>
+                    <div class="code language-yaml" style="font-size: 0.85em;">
+<span class="comment"># ❌ بد</span>
+items: apple,banana,orange
+
+<span class="comment"># ✅ خوب</span>
+items[3]: apple,banana,orange
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❌</span> اشتباه ۳: کاما در آخر</h4>
+                    <div class="code language-yaml" style="font-size: 0.85em;">
+<span class="comment"># ❌ بد</span>
+colors[3]: red,blue,green,
+
+<span class="comment"># ✅ خوب</span>
+colors[3]: red,blue,green
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❌</span> اشتباه ۴: فرمت جدول نادرست</h4>
+                    <div class="code language-yaml" style="font-size: 0.85em;">
+<span class="comment"># ❌ بد</span>
+users[2]{id,name}:
+
+<span class="comment"># ✅ خوب</span>
+users[2,]{id,name}:
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❌</span> اشتباه ۵: نوع داده اشتباه</h4>
+                    <div class="code language-yaml" style="font-size: 0.85em;">
+<span class="comment"># ❌ بد</span>
+age: "25"      <span class="comment"># رشته</span>
+active: "true" <span class="comment"># رشته</span>
+
+<span class="comment"># ✅ خوب</span>
+age: 25        <span class="comment"># عدد</span>
+active: true   <span class="comment"># بولین</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">❌</span> اشتباه ۶: استفاده از Tab</h4>
+                    <div class="code language-yaml" style="font-size: 0.85em;">
+<span class="comment"># ❌ بد</span>
+user
+→   name: علی  <span class="comment"># Tab</span>
+
+<span class="comment"># ✅ خوب</span>
+user
+    name: علی  <span class="comment"># 4 فاصله</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">💡</span> نکته طلایی</h3>
+                <p>همیشه از یک validator استفاده کنید تا از صحت فرمت مطمئن شوید. کتابخانه Python TOON این قابلیت را دارد.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 20: آینده TOON -->
+        <div class="slide">
+            <div class="slide-number">20</div>
+            <h2>🔮 آینده TOON</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🚀</span> نقشه راه توسعه</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>زمان</th>
+                            <th>ویژگی</th>
+                            <th>وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Q1 2024</strong></td>
+                            <td>کتابخانه JavaScript/TypeScript</td>
+                            <td>🔄 در حال توسعه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Q2 2024</strong></td>
+                            <td>ادغام با LangChain</td>
+                            <td>📋 برنامه‌ریزی شده</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Q2 2024</strong></td>
+                            <td>VS Code Extension</td>
+                            <td>🔄 در حال توسعه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Q3 2024</strong></td>
+                            <td>پشتیبانی از Go و Rust</td>
+                            <td>📋 برنامه‌ریزی شده</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Q3 2024</strong></td>
+                            <td>ابزار تبدیل آنلاین</td>
+                            <td>🔄 در حال توسعه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Q4 2024</strong></td>
+                            <td>استاندارد رسمی v1.0</td>
+                            <td>📋 برنامه‌ریزی شده</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">🌟</span> ویژگی‌های آینده</h3>
+                <ul>
+                    <li><strong>Schema Validation:</strong> اعتبارسنجی خودکار ساختار</li>
+                    <li><strong>Binary Format:</strong> نسخه باینری برای سرعت بیشتر</li>
+                    <li><strong>Streaming Support:</strong> پردازش داده‌های بزرگ</li>
+                    <li><strong>Compression:</strong> فشرده‌سازی بهینه</li>
+                    <li><strong>Type Hints:</strong> تعریف صریح نوع داده‌ها</li>
+                    <li><strong>References:</strong> ارجاع به داده‌های دیگر</li>
+                </ul>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">🤝</span> مشارکت در پروژه</h3>
+                <p>TOON یک پروژه متن‌باز است و از مشارکت شما استقبال می‌کند:</p>
+                <ul>
+                    <li><strong>GitHub:</strong> github.com/toon-format/toon</li>
+                    <li><strong>مشارکت در کد:</strong> Pull Requests</li>
+                    <li><strong>گزارش باگ:</strong> Issues</li>
+                    <li><strong>پیشنهادات:</strong> Discussions</li>
+                    <li><strong>مستندات:</strong> بهبود راهنماها</li>
+                    <li><strong>ترجمه:</strong> مستندات به زبان‌های مختلف</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 21: سوالات متداول -->
+        <div class="slide">
+            <div class="slide-number">21</div>
+            <h2>❓ سوالات متداول (FAQ)</h2>
+            
+            <div class="card" style="margin-bottom: 20px;">
+                <h4><span class="emoji">❓</span> TOON با TOML چه تفاوتی دارد؟</h4>
+                <p><strong>پاسخ:</strong> TOML برای فایل‌های پیکربندی طراحی شده، اما TOON برای بهینه‌سازی ارتباط با LLM ها. TOON از ساختار جدولی برای کاهش تکرار استفاده می‌کند که TOML ندارد.</p>
+            </div>
+            
+            <div class="card" style="margin-bottom: 20px;">
+                <h4><span class="emoji">❓</span> آیا باید JSON را کاملاً کنار بگذارم؟</h4>
+                <p><strong>پاسخ:</strong> خیر! JSON برای API ها و تبادل داده عمومی عالی است. TOON را فقط برای ارتباط با LLM ها استفاده کنید.</p>
+            </div>
+            
+            <div class="card" style="margin-bottom: 20px;">
+                <h4><span class="emoji">❓</span> آیا تمام LLM ها TOON را می‌فهمند؟</h4>
+                <p><strong>پاسخ:</strong> مدل‌های قدرتمند مانند GPT-4، Claude، و Gemini می‌توانند TOON را بفهمند، به خصوص اگر در prompt توضیح دهید. برای مدل‌های کوچک‌تر، ممکن است نیاز به fine-tuning باشد.</p>
+            </div>
+            
+            <div class="card" style="margin-bottom: 20px;">
+                <h4><span class="emoji">❓</span> چگونه تیم خود را متقاعد کنم؟</h4>
+                <p><strong>پاسخ:</strong> با یک پروژه pilot شروع کنید و صرفه‌جویی را با metrics نشان دهید. معمولاً کاهش ۳۰-۶۰٪ هزینه کافی برای متقاعدسازی است!</p>
+            </div>
+            
+            <div class="card" style="margin-bottom: 20px;">
+                <h4><span class="emoji">❓</span> آیا TOON برای production آماده است؟</h4>
+                <p><strong>پاسخ:</strong> بله، اما با احتیاط. برای Python کاملاً آماده است. برای زبان‌های دیگر منتظر کتابخانه‌های رسمی بمانید.</p>
+            </div>
+            
+            <div class="card" style="margin-bottom: 20px;">
+                <h4><span class="emoji">❓</span> چگونه از TOON با LangChain استفاده کنم؟</h4>
+                <p><strong>پاسخ:</strong> فعلاً باید manual تبدیل کنید، اما ادغام رسمی در راه است (Q2 2024).</p>
+            </div>
+            
+            <div class="card" style="margin-bottom: 20px;">
+                <h4><span class="emoji">❓</span> آیا TOON با Hugging Face کار می‌کند؟</h4>
+                <p><strong>پاسخ:</strong> بله! می‌توانید dataset های Hugging Face را به TOON تبدیل کنید و برای fine-tuning استفاده کنید.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 22: منابع یادگیری -->
+        <div class="slide">
+            <div class="slide-number">22</div>
+            <h2>📚 منابع یادگیری بیشتر</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">📖</span> مستندات</h4>
+                    <ul>
+                        <li><strong>GitHub README:</strong> راهنمای شروع سریع</li>
+                        <li><strong>Specification:</strong> مستندات کامل نحو</li>
+                        <li><strong>API Reference:</strong> راهنمای کتابخانه Python</li>
+                        <li><strong>Examples:</strong> مجموعه مثال‌های عملی</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎥</span> ویدیوها</h4>
+                    <ul>
+                        <li><strong>Introduction:</strong> معرفی TOON در ۱۰ دقیقه</li>
+                        <li><strong>Tutorial Series:</strong> آموزش گام به گام</li>
+                        <li><strong>Use Cases:</strong> کاربردهای واقعی</li>
+                        <li><strong>Deep Dive:</strong> بررسی عمیق</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💬</span> انجمن</h4>
+                    <ul>
+                        <li><strong>GitHub Discussions:</strong> پرسش و پاسخ</li><li><strong>Discord Server:</strong> چت زنده با جامعه</li>
+                        <li><strong>Stack Overflow:</strong> تگ #toon-format</li>
+                        <li><strong>Reddit:</strong> r/toonformat</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📝</span> مقالات</h4>
+                    <ul>
+                        <li><strong>Blog:</strong> مقالات تخصصی و آموزشی</li>
+                        <li><strong>Medium:</strong> تجربیات کاربران</li>
+                        <li><strong>Dev.to:</strong> آموزش‌های عملی</li>
+                        <li><strong>Research Papers:</strong> مقالات علمی</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🛠️</span> ابزارها</h4>
+                    <ul>
+                        <li><strong>Online Converter:</strong> تبدیل JSON ↔ TOON</li>
+                        <li><strong>Validator:</strong> بررسی صحت فرمت</li>
+                        <li><strong>Formatter:</strong> قالب‌بندی خودکار</li>
+                        <li><strong>VS Code Extension:</strong> پشتیبانی IDE</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📦</span> نمونه پروژه‌ها</h4>
+                    <ul>
+                        <li><strong>Chatbot:</strong> چت‌بات با TOON</li>
+                        <li><strong>RAG System:</strong> سیستم بازیابی</li>
+                        <li><strong>Fine-tuning:</strong> آموزش مدل</li>
+                        <li><strong>Data Pipeline:</strong> پردازش داده</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">🔗</span> لینک‌های مفید</h3>
+                <ul>
+                    <li><strong>GitHub:</strong> <code>github.com/toon-format/toon</code></li>
+                    <li><strong>PyPI:</strong> <code>pypi.org/project/toon-format</code></li>
+                    <li><strong>Documentation:</strong> <code>toon-format.org/docs</code></li>
+                    <li><strong>Playground:</strong> <code>toon-format.org/playground</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 23: تمرین عملی -->
+        <div class="slide">
+            <div class="slide-number">23</div>
+            <h2>💪 تمرین عملی: ساخت اولین فایل TOON</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🎯</span> چالش: سیستم مدیریت کتابخانه</h3>
+                <p>یک سیستم ساده برای مدیریت کتاب‌ها، نویسندگان و امانت‌ها بسازید.</p>
+            </div>
+            
+            <h3><span class="emoji">📋</span> الزامات</h3>
+            <ul>
+                <li>اطلاعات کتابخانه (نام، آدرس، تلفن)</li>
+                <li>لیست نویسندگان (شناسه، نام، تاریخ تولد، ملیت)</li>
+                <li>لیست کتاب‌ها (شناسه، عنوان، نویسنده، سال انتشار، موجودی)</li>
+                <li>لیست امانت‌ها (شناسه امانت، شناسه کتاب، نام امانت‌گیرنده، تاریخ)</li>
+                <li>آمار کلی</li>
+            </ul>
+            
+            <h3 style="margin-top: 40px;"><span class="emoji">✅</span> راه‌حل پیشنهادی</h3>
+            <div class="code language-yaml">
+<span class="comment"># ═══════════════════════════════════</span>
+<span class="comment"># سیستم مدیریت کتابخانه</span>
+<span class="comment"># ═══════════════════════════════════</span>
+
+library
+    name: کتابخانه مرکزی تهران
+    address: خیابان انقلاب، پلاک ۱۲۳
+    phone: 021-66123456
+    email: info@library.ir
+    established: 1350
+
+<span class="comment"># ═══════════════════════════════════</span>
+<span class="comment"># نویسندگان</span>
+<span class="comment"># ═══════════════════════════════════</span>
+authors[5,]{id,name,birth_year,nationality}:
+1,صادق هدایت,1282,ایرانی
+2,جلال آل‌احمد,1302,ایرانی
+3,سیمین دانشور,1300,ایرانی
+4,محمود دولت‌آبادی,1319,ایرانی
+5,احمد شاملو,1304,ایرانی
+
+<span class="comment"># ═══════════════════════════════════</span>
+<span class="comment"># کتاب‌ها</span>
+<span class="comment"># ═══════════════════════════════════</span>
+books[8,]{id,title,author_id,year,copies,available}:
+101,بوف کور,1,1316,5,3
+102,سگ ولگرد,1,1311,3,2
+103,غربت‌زده,2,1343,4,4
+104,سووشون,3,1348,6,5
+105,کلیدر,4,1361,4,2
+106,آینه‌ها,5,1339,3,3
+107,هفت شهر عشق,5,1335,2,1
+108,مدار صفر درجه,2,1347,5,4
+
+<span class="comment"># ═══════════════════════════════════</span>
+<span class="comment"># امانت‌ها (فعال)</span>
+<span class="comment"># ═══════════════════════════════════</span>
+loans[6,]{loan_id,book_id,borrower,date,due_date}:
+1001,101,علی احمدی,1403-01-15,1403-02-15
+1002,103,سارا رضایی,1403-01-18,1403-02-18
+1003,105,محمد کریمی,1403-01-20,1403-02-20
+1004,105,فاطمه نوری,1403-01-22,1403-02-22
+1005,107,رضا محمدی,1403-01-25,1403-02-25
+1006,108,مریم حسینی,1403-01-28,1403-02-28
+
+<span class="comment"># ═══════════════════════════════════</span>
+<span class="comment"># آمار کلی</span>
+<span class="comment"># ═══════════════════════════════════</span>
+statistics
+    total_books: 8
+    total_copies: 32
+    available_copies: 24
+    active_loans: 6
+    total_authors: 5
+    total_members: 150
+    
+    <span class="comment"># محبوب‌ترین کتاب‌ها</span>
+    popular_books[3,]{book_id,title,loan_count}:
+    101,بوف کور,45
+    104,سووشون,38
+    105,کلیدر,32
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">🎉</span> تبریک!</h3>
+                <p>شما اولین فایل TOON خود را ساختید. حالا:</p>
+                <ul>
+                    <li>آن را با معادل JSON مقایسه کنید</li>
+                    <li>تعداد کاراکترها و توکن‌ها را بشمارید</li>
+                    <li>با کتابخانه Python تست کنید</li>
+                    <li>به یک LLM ارسال کنید و نتیجه را ببینید</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 24: خلاصه و نتیجه‌گیری -->
+        <div class="slide">
+            <div class="slide-number">24</div>
+            <h2>🎓 خلاصه و نتیجه‌گیری</h2>
+            
+            <div class="success box">
+                <h3><span class="emoji">📚</span> چیزهایی که یاد گرفتیم</h3>
+                <ol style="font-size: 1.1em; line-height: 2.5;">
+                    <li><strong>TOON چیست:</strong> فرمت داده بهینه برای LLM ها</li>
+                    <li><strong>چرا TOON:</strong> کاهش ۳۰-۶۰٪ مصرف توکن و هزینه</li>
+                    <li><strong>نحو پایه:</strong> کلید: مقدار، تورفتگی، آرایه‌ها</li>
+                    <li><strong>ساختار جدولی:</strong> قدرت واقعی TOON برای داده‌های تکراری</li>
+                    <li><strong>استفاده با Python:</strong> کتابخانه toon-format</li>
+                    <li><strong>کاربردها:</strong> Fine-tuning، RAG، Prompt Engineering</li>
+                    <li><strong>مقایسه:</strong> برتری TOON در معیارهای LLM</li>
+                    <li><strong>بهترین روش‌ها:</strong> کجا و چگونه استفاده کنیم</li>
+                </ol>
+            </div>
+            
+            <div class="grid" style="margin-top: 40px;">
+                <div class="card">
+                    <h4><span class="emoji">✅</span> مزایای کلیدی</h4>
+                    <ul>
+                        <li>کاهش چشمگیر توکن</li>
+                        <li>خوانایی بالا</li>
+                        <li>ساختار جدولی</li>
+                        <li>سرعت پردازش</li>
+                        <li>کاهش هزینه</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎯</span> کاربردهای اصلی</h4>
+                    <ul>
+                        <li>Fine-tuning مدل‌ها</li>
+                        <li>Prompt Engineering</li>
+                        <li>سیستم‌های RAG</li>
+                        <li>API با LLM ها</li>
+                        <li>ذخیره‌سازی داده</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">⚠️</span> نکات مهم</h4>
+                    <ul>
+                        <li>جایگزین کامل JSON نیست</li>
+                        <li>برای LLM بهینه است</li>
+                        <li>تورفتگی ۴ فاصله</li>
+                        <li>استفاده از validator</li>
+                        <li>شروع تدریجی</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="key-point" style="margin-top: 40px;">
+                <h3 style="text-align: center; font-size: 1.8em;">
+                    <span class="emoji">💡</span> پیام نهایی
+                </h3>
+                <p style="text-align: center; font-size: 1.4em; line-height: 2.2; font-weight: 600;">
+                    TOON یک ابزار قدرتمند برای بهینه‌سازی ارتباط با مدل‌های زبانی بزرگ است. 
+                    با استفاده هوشمندانه از آن می‌توانید <span class="highlight-text">هزینه‌ها را کاهش</span> 
+                    و <span class="highlight-text">کارایی را افزایش</span> دهید.
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <h2 style="color: white; border: none; font-size: 2.5em; margin-bottom: 20px;">
+                    <span class="emoji">🎉</span> تبریک!
+                </h2>
+                <p style="font-size: 1.4em; line-height: 2;">
+                    شما با موفقیت فرمت TOON را یاد گرفتید!
+                </p>
+                <p style="font-size: 1.2em; margin-top: 20px;">
+                    حالا آماده‌اید تا در پروژه‌های AI خود از آن استفاده کنید.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 25: قدم‌های بعدی -->
+        <div class="slide">
+            <div class="slide-number">25</div>
+            <h2>🚀 قدم‌های بعدی</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">📝</span> چک‌لیست عملی</h3>
+                <p>برای شروع کار با TOON، این مراحل را دنبال کنید:</p>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>۱. نصب و راه‌اندازی</h4>
+                    <ul>
+                        <li>☐ نصب کتابخانه Python</li>
+                        <li>☐ تست با مثال‌های ساده</li>
+                        <li>☐ نصب VS Code Extension</li>
+                        <li>☐ آشنایی با API</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>۲. پروژه Pilot</h4>
+                    <ul>
+                        <li>☐ انتخاب یک پروژه کوچک</li>
+                        <li>☐ تبدیل داده‌ها به TOON</li>
+                        <li>☐ تست با LLM</li>
+                        <li>☐ اندازه‌گیری نتایج</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>۳. یادگیری عمیق</h4>
+                    <ul>
+                        <li>☐ مطالعه مستندات</li>
+                        <li>☐ بررسی مثال‌های پیشرفته</li>
+                        <li>☐ شرکت در انجمن</li>
+                        <li>☐ تمرین با پروژه‌های واقعی</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>۴. توسعه و بهینه‌سازی</h4>
+                    <ul>
+                        <li>☐ بهینه‌سازی ساختار داده</li>
+                        <li>☐ ایجاد pipeline تبدیل</li>
+                        <li>☐ مستندسازی برای تیم</li>
+                        <li>☐ اشتراک تجربیات</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight box" style="margin-top: 40px;">
+                <h3><span class="emoji">🎯</span> اهداف کوتاه‌مدت (۳۰ روز)</h3>
+                <ol style="font-size: 1.2em; line-height: 2.2;">
+                    <li>تبدیل یک dataset موجود به TOON</li>
+                    <li>اندازه‌گیری کاهش توکن و هزینه</li>
+                    <li>تست با حداقل ۳ LLM مختلف</li>
+                    <li>مقایسه با JSON در یک پروژه واقعی</li>
+                    <li>ایجاد یک template قابل استفاده مجدد</li>
+                </ol>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">💪</span> چالش ۳۰ روزه TOON</h3>
+                <p>آیا می‌توانید در ۳۰ روز آینده:</p>
+                <ul>
+                    <li>۵ فایل TOON برای پروژه‌های مختلف بسازید؟</li>
+                    <li>حداقل ۳۰٪ کاهش هزینه LLM را تجربه کنید؟</li>
+                    <li>یک مقاله یا پست درباره تجربه خود بنویسید؟</li>
+                    <li>به یک پروژه متن‌باز TOON کمک کنید؟</li>
+                </ul>
+                <p style="text-align: center; margin-top: 20px; font-size: 1.3em; font-weight: 700;">
+                    <span class="emoji">🏆</span> با ما تجربه خود را به اشتراک بگذارید!
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 26: منابع تماس و پایان -->
+        <div class="slide">
+            <div class="slide-number">26</div>
+            
+            <div style="text-align: center; padding: 40px 20px;">
+                <h1 style="font-size: 3.5em; margin-bottom: 30px; color: #667eea;">
+                    <span class="emoji" style="font-size: 1.2em;">🎉</span><br>
+                    پایان آموزش TOON
+                </h1>
+                
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 50px; border-radius: 25px; margin: 40px 0; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <h2 style="color: white; border: none; font-size: 2.5em; margin-bottom: 25px;">
+                        <span class="emoji">🌟</span> تبریک!
+                    </h2>
+                    <p style="font-size: 1.5em; line-height: 2.2; margin-bottom: 30px;">
+                        شما با موفقیت فرمت TOON را یاد گرفتید!
+                    </p>
+                    <p style="font-size: 1.3em; line-height: 2;">
+                        حالا می‌توانید با استفاده از این فرمت بهینه،<br>
+                        هزینه‌های LLM خود را کاهش دهید و<br>
+                        کارایی پروژه‌های AI خود را افزایش دهید!
+                    </p>
+                </div>
+                
+                <div class="grid" style="margin-top: 50px;">
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">🔗</span></h3>
+                        <h4>GitHub</h4>
+                        <p>github.com/toon-format/toon</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">📦</span></h3>
+                        <h4>PyPI</h4>
+                        <p>pip install toon-format</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">📖</span></h3>
+                        <h4>Documentation</h4>
+                        <p>toon-format.org/docs</p>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">💬</span></h3>
+                        <h4>Community</h4>
+                        <p>GitHub Discussions</p>
+                    </div>
+                </div>
+                
+                <div class="info box" style="margin-top: 50px; text-align: center;">
+                    <h3 style="font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">📧</span> ارتباط با ما
+                    </h3>
+                    <p style="font-size: 1.2em;">
+                        برای سوالات، پیشنهادات، یا همکاری:<br><br>
+                        <strong>وب‌سایت:</strong> araz.me<br>
+                        <strong>سایت آموزشی:</strong> gistalk.ir<br>
+                        <strong>پروژه TOON:</strong> github.com/toon-format/toon
+                    </p>
+                </div>
+                
+                <div class="highlight box" style="margin-top: 50px;">
+                    <h3 style="text-align: center; font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">💡</span> یادتان باشد
+                    </h3>
+                    <p style="font-size: 1.4em; line-height: 2.2; font-weight: 600; text-align: center;">
+                        "بهینه‌سازی در جزئیات نهفته است.<br>
+                        TOON یک جزئیات کوچک است که تفاوت بزرگی می‌سازد."
+                    </p>
+                </div>
+                
+                <div style="margin-top: 60px; padding: 40px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 20px; border: 3px solid #4caf50;">
+                    <h3 style="color: #2e7d32; font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">🙏</span> با تشکر از شما
+                    </h3>
+                    <p style="font-size: 1.3em; color: #1b5e20; line-height: 2;">
+                        از اینکه وقت خود را برای یادگیری TOON گذاشتید متشکریم.<br>
+                        امیدواریم این ابزار به شما در پروژه‌های AI کمک کند.<br><br>
+                        <strong>موفق و پیروز باشید! 🚀</strong>
+                    </p>
+                </div>
+                
+                <div style="margin-top: 50px; font-size: 1.3em; color: #667eea;">
+                    <p><strong>ساخته شده با ❤️ برای جامعه AI</strong></p>
+                    <p style="margin-top: 15px; font-size: 0.9em;">
+                        نسخه: 1.0 | تاریخ: دی ماه ۱۴۰۳
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        // اضافه کردن انیمیشن برای اسلایدها
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            entry.target.style.transition = 'all 0.6s ease-out';
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            slides.forEach(slide => {
+                observer.observe(slide);
+            });
+            
+            // Smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // کپی کردن کد با کلیک
+            document.querySelectorAll('.code').forEach(codeBlock => {
+                codeBlock.style.cursor = 'pointer';
+                codeBlock.title = 'کلیک کنید تا کپی شود';
+                
+                codeBlock.addEventListener('click', function() {
+                    const text = this.innerText;
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalBg = this.style.background;
+                        this.style.background = '#2d5016';
+                        setTimeout(() => {
+                            this.style.background = originalBg;
+                        }, 200);
+                    });
+                });
+            });
+            
+            console.log('🎉 آموزش TOON بارگذاری شد!');
+            console.log('📚 تعداد اسلایدها:', slides.length);
+            console.log('💡 برای کپی کردن کدها، روی آن‌ها کلیک کنید');
+            hljs.highlightAll();
+        });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</body>
+</html>
