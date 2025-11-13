@@ -1,0 +1,2023 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش تمرین: گشت و مسیر در نظریه گراف</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 2;
+            direction: rtl;
+            padding: 20px;
+        }
+        
+        .presentation {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3em;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-right: 8px solid #764ba2;
+            padding-right: 20px;
+            font-weight: 700;
+        }
+        
+        h3 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin: 20px 0 15px;
+            font-weight: 500;
+        }
+        
+        p, li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 2.2;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .box {
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-right: 8px solid;
+        }
+        
+        .definition { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+            border-color: #2196f3; 
+        }
+        
+        .theorem { 
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
+            border-color: #4caf50; 
+        }
+        
+        .proof { 
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
+            border-color: #ff9800; 
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #9c27b0;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-color: #009688;
+        }
+        
+        .note {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            border-color: #e91e63;
+        }
+        
+        .formula {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1.1em;
+            margin: 25px 0;
+            text-align: center;
+            direction: ltr;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .math {
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: 600;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+        
+        .graph {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #667eea;
+        }
+        
+        .graph svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .step {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-right: 6px solid #3f51b5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        
+        .step h4 {
+            color: #3f51b5;
+            margin-bottom: 10px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-top: 5px solid #667eea;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .emoji {
+            font-size: 1.8em;
+            margin-left: 15px;
+        }
+        
+        .highlight-text {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        td {
+            border: 1px solid #ddd;
+            padding: 18px;
+            text-align: right;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) { 
+            background: #f8f9fa; 
+        }
+        
+        tr:hover {
+            background: #e9ecef;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+            .slide { padding: 30px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.8em; }
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 6px solid #fbc02d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        ul, ol {
+            margin-right: 40px;
+            margin-bottom: 25px;
+        }
+        
+        li {
+            margin-bottom: 15px;
+        }
+        
+        .proof-steps {
+            counter-reset: step-counter;
+        }
+        
+        .proof-step {
+            counter-increment: step-counter;
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            border-right: 6px solid #8bc34a;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .proof-step::before {
+            content: "گام " counter(step-counter);
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #8bc34a;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 700;
+        }
+        
+        .graph-vertex {
+            fill: #667eea;
+            stroke: #764ba2;
+            stroke-width: 3;
+        }
+        
+        .graph-edge {
+            stroke: #333;
+            stroke-width: 2;
+            marker-end: url(#arrowhead);
+        }
+        
+        .graph-label {
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            fill: white;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        
+        .walk-path {
+            stroke: #e91e63;
+            stroke-width: 4;
+            stroke-dasharray: 5,5;
+            animation: dash 2s linear infinite;
+        }
+        
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h1>📊 نظریه گراف</h1>
+            <p class="subtitle">تمرین: رابطه بین گشت و مسیر</p>
+            <p class="subtitle" style="font-size: 1.2em; margin-top: 10px;">اثبات: وجود گشت ⟸ وجود مسیر</p>
+            
+            <div style="text-align: center; font-size: 8em; margin: 40px 0;">🔗</div>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> صورت مسئله</h3>
+                <p style="font-size: 1.3em; text-align: center; font-weight: 600;">
+                    نشان دهید اگر یک <span class="highlight-text">(u,v) گشت</span> در G وجود داشته باشد، 
+                    آنگاه یک <span class="highlight-text">(u,v) مسیر</span> نیز در G وجود دارد.
+                </p>
+            </div>
+            
+            <div class="key-point">
+                <p style="text-align: center; font-size: 1.2em; font-weight: 600;">
+                    <span class="emoji">💡</span> این تمرین از کتاب "نظریه گراف و کاربردها" است
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: تعاریف اساسی -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>📚 تعاریف اساسی</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🔍</span> تعریف گشت (Walk)</h3>
+                <p>یک <strong>گشت</strong> در گراف G دنباله‌ای از رئوس است به صورت:</p>
+                <div class="math">
+                    W = v₀, v₁, v₂, ..., vₖ
+                </div>
+                <p>که برای هر i (0 ≤ i < k)، یال (vᵢ, vᵢ₊₁) در گراف موجود باشد.</p>
+                <ul>
+                    <li><strong>رأس شروع:</strong> v₀</li>
+                    <li><strong>رأس پایان:</strong> vₖ</li>
+                    <li><strong>طول گشت:</strong> k (تعداد یال‌ها)</li>
+                    <li><strong>ویژگی:</strong> رئوس و یال‌ها می‌توانند تکرار شوند</li>
+                </ul>
+            </div>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🛤️</span> تعریف مسیر (Path)</h3>
+                <p>یک <strong>مسیر</strong> گشتی است که:</p>
+                <ul>
+                    <li>همه رئوس آن <strong>متمایز</strong> باشند</li>
+                    <li>در نتیجه همه یال‌های آن نیز متمایز خواهند بود</li>
+                </ul>
+                <div class="math">
+                    P = v₀, v₁, v₂, ..., vₖ
+                </div>
+                <p style="text-align: center;">که vᵢ ≠ vⱼ برای همه i ≠ j</p>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">⚖️</span> رابطه بین گشت و مسیر</h3>
+                <p>هر مسیر یک گشت است، اما هر گشتی مسیر نیست.</p>
+                <div class="math">
+                    مسیر ⊆ گشت
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: مثال‌های بصری -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>🎨 مثال‌های بصری</h2>
+            
+            <div class="grid">
+                <div class="example box">
+                    <h4><span class="emoji">🔗</span> مثال گشت</h4>
+                    <div class="graph">
+                        <svg width="300" height="200" viewBox="0 0 300 200">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                                        refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                                </marker>
+                            </defs>
+                            
+                            <!-- یال‌ها -->
+                            <line x1="50" y1="100" x2="150" y2="50" class="graph-edge" />
+                            <line x1="150" y1="50" x2="250" y2="100" class="graph-edge" />
+                            <line x1="250" y1="100" x2="150" y2="150" class="graph-edge" />
+                            <line x1="150" y1="150" x2="50" y2="100" class="graph-edge" />
+                            <line x1="50" y1="100" x2="150" y2="150" class="graph-edge" />
+                            
+                            <!-- رئوس -->
+                            <circle cx="50" cy="100" r="20" class="graph-vertex" />
+                            <circle cx="150" cy="50" r="20" class="graph-vertex" />
+                            <circle cx="250" cy="100" r="20" class="graph-vertex" />
+                            <circle cx="150" cy="150" r="20" class="graph-vertex" />
+                            
+                            <!-- برچسب‌ها -->
+                            <text x="50" y="100" class="graph-label">u</text>
+                            <text x="150" y="50" class="graph-label">a</text>
+                            <text x="250" y="100" class="graph-label">b</text>
+                            <text x="150" y="150" class="graph-label">v</text>
+                        </svg>
+                    </div>
+                    <p><strong>گشت:</strong> u → a → b → v → u → v</p>
+                    <p style="color: #e91e63;">رأس u و v تکرار شده‌اند</p>
+                </div>
+                
+                <div class="example box">
+                    <h4><span class="emoji">🛤️</span> مثال مسیر</h4>
+                    <div class="graph">
+                        <svg width="300" height="200" viewBox="0 0 300 200">
+                            <!-- یال‌ها -->
+                            <line x1="50" y1="100" x2="150" y2="50" class="graph-edge" />
+                            <line x1="150" y1="50" x2="250" y2="100" class="graph-edge" />
+                            <line x1="250" y1="100" x2="150" y2="150" class="graph-edge" />
+                            <line x1="150" y1="150" x2="50" y2="100" class="graph-edge" />
+                            <line x1="50" y1="100" x2="150" y2="150" class="graph-edge" />
+                            
+                            <!-- مسیر برجسته -->
+                            <line x1="50" y1="100" x2="150" y2="50" class="walk-path" />
+                            <line x1="150" y1="50" x2="250" y2="100" class="walk-path" />
+                            <line x1="250" y1="100" x2="150" y2="150" class="walk-path" />
+                            
+                            <!-- رئوس -->
+                            <circle cx="50" cy="100" r="20" class="graph-vertex" />
+                            <circle cx="150" cy="50" r="20" class="graph-vertex" />
+                            <circle cx="250" cy="100" r="20" class="graph-vertex" />
+                            <circle cx="150" cy="150" r="20" class="graph-vertex" />
+                            
+                            <!-- برچسب‌ها -->
+                            <text x="50" y="100" class="graph-label">u</text>
+                            <text x="150" y="50" class="graph-label">a</text>
+                            <text x="250" y="100" class="graph-label">b</text>
+                            <text x="150" y="150" class="graph-label">v</text>
+                        </svg>
+                    </div>
+                    <p><strong>مسیر:</strong> u → a → b → v</p>
+                    <p style="color: #4caf50;">همه رئوس متمایز هستند</p>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <h3><span class="emoji">🎯</span> هدف</h3>
+                <p>ما باید نشان دهیم که اگر گشتی از u به v وجود دارد، می‌توانیم از آن یک مسیر از u به v استخراج کنیم.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: بیان قضیه -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>📐 بیان دقیق قضیه</h2>
+            
+            <div class="theorem box">
+                <h3><span class="emoji">🏛️</span> قضیه</h3>
+                <p>فرض کنید G = (V, E) یک گراف باشد و u, v ∈ V دو رأس از این گراف باشند.</p>
+                <div class="math">
+                    اگر یک (u,v) گشت در G وجود داشته باشد ⟹ یک (u,v) مسیر در G وجود دارد
+                </div>
+            </div>
+            
+            <div class="definition box">
+                <h3><span class="emoji">📝</span> بیان ریاضی</h3>
+                <p><strong>فرض:</strong> گشت W = u = v₀, v₁, v₂, ..., vₖ = v در گراف G موجود است</p>
+                <p><strong>نتیجه:</strong> مسیر P = u = u₀, u₁, u₂, ..., uₘ = v در گراف G موجود است</p>
+                <p>که در آن:</p>
+                <ul>
+                    <li>uᵢ ≠ uⱼ برای همه i ≠ j (رئوس متمایز)</li>
+                    <li>P زیرمجموعه‌ای از W است</li>
+                </ul>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🔍</span> ایده اثبات</h3>
+                <p>اگر گشت W یک مسیر است، کار تمام است. در غیر این صورت، W دارای رئوس تکراری است. 
+                ما می‌توانیم این تکرارها را حذف کنیم و یک مسیر بسازیم.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: شروع اثبات -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>🔬 اثبات قضیه</h2>
+            
+            <div class="proof box">
+                <h3><span class="emoji">📋</span> اثبات</h3>
+                <p>فرض کنید W = v₀, v₁, v₂, ..., vₖ یک (u,v) گشت در گراف G باشد، 
+                که در آن v₀ = u و vₖ = v.</p>
+            </div>
+            
+            <div class="proof-steps">
+                <div class="proof-step">
+                    <h4>بررسی حالت اول</h4>
+                    <p><strong>اگر همه رئوس W متمایز باشند:</strong></p>
+                    <p>در این صورت W خود یک مسیر است و اثبات تمام می‌شود.</p>
+                    <div class="math">
+                        W = مسیر مطلوب
+                    </div>
+                </div>
+                
+                <div class="proof-step">
+                    <h4>بررسی حالت دوم</h4>
+                    <p><strong>اگر حداقل یک رأس در W تکرار شده باشد:</strong></p>
+                    <p>فرض کنید vᵢ = vⱼ برای برخی i < j. یعنی رأس vᵢ در دو موقعیت مختلف ظاهر شده است.</p>
+                </div>
+                
+                <div class="proof-step">
+                    <h4>حذف حلقه</h4>
+                    <p>گشت W را می‌توان به صورت زیر نوشت:</p>
+                    <div class="math">
+                        W = v₀, v₁, ..., vᵢ, vᵢ₊₁, ..., vⱼ, vⱼ₊₁, ..., vₖ
+                    </div>
+                    <p>از آنجا که vᵢ = vⱼ، می‌توانیم قسمت vᵢ₊₁, ..., vⱼ را حذف کنیم:</p>
+                    <div class="math">
+                        W' = v₀, v₁, ..., vᵢ, vⱼ₊₁, ..., vₖ
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: ادامه اثبات -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>🔬 ادامه اثبات</h2>
+            
+            <div class="proof-steps">
+                <div class="proof-step">
+                    <h4>اعتبار گشت جدید</h4>
+                    <p>گشت جدید W' همچنان معتبر است زیرا:</p>
+                    <ul>
+                        <li>همه یال‌های باقی‌مانده در گراف G موجودند</li>
+                        <li>رأس شروع همچنان u = v₀ است</li>
+                        <li>رأس پایان همچنان v = vₖ است</li>
+                        <li>طول گشت کاهش یافته است</li>
+                    </ul>
+                </div>
+                
+                <div class="proof-step">
+                    <h4>تکرار فرآیند</h4>
+                    <p>اگر W' همچنان دارای رئوس تکراری باشد، همین فرآیند را تکرار می‌کنیم.</p>
+                    <p>از آنجا که در هر مرحله طول گشت کاهش می‌یابد و طول نمی‌تواند منفی شود، 
+                    این فرآیند در تعداد محدودی مرحله متوقف می‌شود.</p>
+                </div>
+                
+                <div class="proof-step">
+                    <h4>نتیجه نهایی</h4>
+                    <p>در نهایت به گشتی می‌رسیم که:</p>
+                    <ul>
+                        <li>همه رئوس آن متمایز هستند</li>
+                        <li>از u شروع و به v ختم می‌شود</li>
+                        <li>همه یال‌هایش در گراف G موجودند</li>
+                    </ul>
+                    <p>این گشت دقیقاً تعریف یک مسیر است.</p>
+                    <div class="math">
+                        ∴ مسیر مطلوب (u,v) وجود دارد ∎
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: مثال عملی -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>💡 مثال عملی اثبات</h2>
+            
+            <div class="example box">
+                <h3><span class="emoji">🎯</span> مثال کامل</h3>
+                <p>گراف زیر را در نظر بگیرید:</p>
+                
+                <div class="graph">
+                    <svg width="400" height="300" viewBox="0 0 400 300">
+                        <defs>
+                            <marker id="arrowhead2" markerWidth="10" markerHeight="7" 
+                                    refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                            </marker>
+                        </defs>
+                        
+                        <!-- یال‌ها -->
+                        <line x1="50" y1="150" x2="150" y2="50" class="graph-edge" />
+                        <line x1="150" y1="50" x2="250" y2="50" class="graph-edge" />
+                        <line x1="250" y1="50" x2="350" y2="150" class="graph-edge" />
+                        <line x1="350" y1="150" x2="250" y2="250" class="graph-edge" />
+                        <line x1="250" y1="250" x2="150" y2="250" class="graph-edge" />
+                        <line x1="150" y1="250" x2="50" y2="150" class="graph-edge" />
+                        <line x1="150" y1="50" x2="150" y2="250" class="graph-edge" />
+                        <line x1="250" y1="50" x2="250" y2="250" class="graph-edge" />
+                        
+                        <!-- رئوس -->
+                        <circle cx="50" cy="150" r="25" class="graph-vertex" />
+                        <circle cx="150" cy="50" r="25" class="graph-vertex" />
+                        <circle cx="250" cy="50" r="25" class="graph-vertex" />
+                        <circle cx="350" cy="150" r="25" class="graph-vertex" />
+                        <circle cx="250" cy="250" r="25" class="graph-vertex" />
+                        <circle cx="150" cy="250" r="25" class="graph-vertex" />
+                        
+                        <!-- برچسب‌ها -->
+                        <text x="50" y="150" class="graph-label">A</text>
+                        <text x="150" y="50" class="graph-label">B</text>
+                        <text x="250" y="50" class="graph-label">C</text>
+                        <text x="350" y="150" class="graph-label">D</text>
+                        <text x="250" y="250" class="graph-label">E</text>
+                        <text x="150" y="250" class="graph-label">F</text>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h4>گام ۱: گشت اولیه</h4>
+                <p><strong>گشت داده شده:</strong> W = A → B → C → E → F → B → C → D</p>
+                <p>این گشت از A شروع شده و به D ختم می‌شود، اما رئوس B و C تکرار شده‌اند.</p>
+            </div>
+            
+            <div class="step">
+                <h4>گام ۲: شناسایی اولین تکرار</h4>
+                <p>اولین رأس تکراری: <strong>B</strong> (در موقعیت‌های 1 و 5)</p>
+                <div class="math">
+                    W = A → B → C → E → F → B → C → D
+                    <br>
+                    موقعیت: 0 → 1 → 2 → 3 → 4 → 5 → 6 → 7
+                </div>
+            </div>
+            
+            <div class="step">
+                <h4>گام ۳: حذف حلقه اول</h4>
+                <p>حلقه B → C → E → F → B را حذف می‌کنیم:</p>
+                <div class="math">
+                    W₁ = A → B → C → D
+                </div>
+                <p>این گشت جدید کوتاه‌تر است و همچنان از A به D می‌رود.</p>
+            </div>
+            
+            <div class="step">
+                <h4>گام ۴: بررسی نهایی</h4>
+                <p>گشت W₁ = A → B → C → D دارای رئوس متمایز است:</p>
+                <ul>
+                    <li>A ≠ B ≠ C ≠ D</li>
+                    <li>همه یال‌ها در گراف موجودند</li>
+                    <li>از A شروع و به D ختم می‌شود</li>
+                </ul>
+                <p><strong>نتیجه:</strong> W₁ یک مسیر معتبر از A به D است! ✅</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: الگوریتم استخراج مسیر -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>⚙️ الگوریتم استخراج مسیر</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🔧</span> الگوریتم: تبدیل گشت به مسیر</h3>
+            </div>
+            
+            <div class="formula">
+Algorithm ExtractPath(Walk W):
+    Input: W = v₀, v₁, v₂, ..., vₖ (a walk from u to v)
+    Output: P (a path from u to v)
+    
+    1. P ← W
+    2. WHILE P has repeated vertices DO:
+    3.     Find first repeated vertex vᵢ = vⱼ where i < j
+    4.     Remove vertices vᵢ₊₁, vᵢ₊₂, ..., vⱼ from P
+    5.     Update P
+    6. END WHILE
+    7. RETURN P
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">⏱️</span> پیچیدگی زمانی</h4>
+                    <p><strong>بدترین حالت:</strong> O(n²)</p>
+                    <p>که n تعداد رئوس گشت است.</p>
+                    <p><strong>دلیل:</strong> در هر مرحله باید رئوس تکراری را پیدا کنیم.</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">💾</span> پیچیدگی مکانی</h4>
+                    <p><strong>فضا:</strong> O(n)</p>
+                    <p>برای ذخیره گشت و مسیر نهایی.</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">✅</span> صحت الگوریتم</h4>
+                    <p>الگوریتم همیشه متوقف می‌شود زیرا:</p>
+                    <ul>
+                        <li>در هر مرحله طول کاهش می‌یابد</li>
+                        <li>طول نمی‌تواند منفی شود</li>
+                        <li>اتصال حفظ می‌شود</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎯</span> کاربردها</h4>
+                    <p>این الگوریتم در موارد زیر مفید است:</p>
+                    <ul>
+                        <li>مسیریابی در شبکه</li>
+                        <li>تحلیل گراف</li>
+                        <li>بهینه‌سازی مسیر</li>
+                        <li>الگوریتم‌های جستجو</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: اثبات ریاضی دقیق -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>📐 اثبات ریاضی دقیق</h2>
+            
+            <div class="theorem box">
+                <h3><span class="emoji">🏛️</span> قضیه (بیان دقیق)</h3>
+                <p>برای هر گراف G = (V, E) و هر دو رأس u, v ∈ V:</p>
+                <div class="math">
+                    ∃ (u,v)-walk در G ⟹ ∃ (u,v)-path در G
+                </div>
+            </div>
+            
+            <div class="proof box">
+                <h3><span class="emoji">📋</span> اثبات کامل</h3>
+                
+                <p><strong>فرض:</strong> W = v₀, v₁, ..., vₖ یک (u,v)-walk در G باشد که v₀ = u و vₖ = v.</p>
+                
+                <p><strong>اثبات به روش استقرای قوی بر طول گشت:</strong></p>
+                
+                <div class="step">
+                    <h4>پایه استقرا (k = 0)</h4>
+                    <p>اگر k = 0، آنگاه W = v₀ = u = v.</p>
+                    <p>این یک مسیر تک‌رأسی است که خود یک مسیر معتبر محسوب می‌شود.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>فرض استقرا</h4>
+                    <p>فرض کنیم قضیه برای همه گشت‌های با طول کمتر از k صادق است.</p>
+                </div>
+                
+                <div class="step">
+                    <h4>گام استقرا</h4>
+                    <p>گشت W = v₀, v₁, ..., vₖ با طول k را در نظر بگیرید.</p>
+                    
+                    <p><strong>حالت ۱:</strong> همه رئوس W متمایز هستند.</p>
+                    <p>در این صورت W خود یک مسیر است. ∎</p>
+                    
+                    <p><strong>حالت ۲:</strong> حداقل دو رأس یکسان وجود دارد.</p>
+                    <p>فرض کنیم vᵢ = vⱼ برای i < j کوچک‌ترین چنین جفتی باشد.</p>
+                    
+                    <p>گشت جدید W' = v₀, v₁, ..., vᵢ, vⱼ₊₁, ..., vₖ را تعریف کنیم.</p>
+                    
+                    <p>W' یک گشت معتبر از u به v است زیرا:</p>
+                    <ul>
+                        <li>v₀ = u (رأس شروع حفظ شده)</li>
+                        <li>vₖ = v (رأس پایان حفظ شده)</li>
+                        <li>همه یال‌های باقی‌مانده در E موجودند</li>
+                        <li>طول W' کمتر از k است</li>
+                    </ul>
+                    
+                    <p>بر اساس فرض استقرا، مسیری از u به v در W' وجود دارد.</p>
+                    <p>این مسیر همان مسیر مطلوب در W است. ∎</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: کاربردهای عملی -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>🌟 کاربردهای عملی</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🗺️</span> مسیریابی GPS</h4>
+                    <p>وقتی GPS مسیری پیدا می‌کند، ممکن است ابتدا یک گشت (با تکرار) پیدا کند، سپس آن را به مسیر بهینه تبدیل کند.</p>
+                    <ul>
+                        <li>حذف مسیرهای اضافی</li>
+                        <li>بهینه‌سازی مسافت</li>
+                        <li>کاهش زمان سفر</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> مسیریابی شبکه</h4>
+                    <p>در شبکه‌های کامپیوتری، بسته‌ها ممکن است مسیرهای تکراری طی کنند. این قضیه کمک می‌کند مسیر بهینه پیدا شود.</p>
+                    <ul>
+                        <li>کاهش تأخیر</li>
+                        <li>جلوگیری از حلقه</li>
+                        <li>بهبود کارایی</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🤖</span> هوش مصنوعی</h4>
+                    <p>در الگوریتم‌های جستجو، ممکن است حالت‌های تکراری بازدید شوند. این قضیه راه حل بهینه‌تری ارائه می‌دهد.</p>
+                    <ul>
+                        <li>الگوریتم‌های جستجو</li>
+                        <li>برنامه‌ریزی مسیر ربات</li>
+                        <li>بازی‌های استراتژیک</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">⚡</span> شبکه‌های برق</h4>
+                    <p>در شبکه‌های توزیع برق، یافتن مسیر بهینه برای انتقال انرژی بسیار مهم است.</p>
+                    <ul>
+                        <li>کاهش تلفات</li>
+                        <li>بهبود پایداری</li>
+                        <li>مدیریت بار</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🚚</span> لجستیک</h4>
+                    <p>در حمل و نقل کالا، یافتن مسیر بهینه برای کاهش هزینه و زمان ضروری است.</p>
+                    <ul>
+                        <li>بهینه‌سازی مسیر</li>
+                        <li>کاهش هزینه سوخت</li>
+                        <li>مدیریت زمان</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🧬</span> بیوانفورماتیک</h4>
+                    <p>در تحلیل توالی‌های DNA، یافتن مسیرهای بهینه در گراف‌های بیولوژیکی کاربرد دارد.</p>
+                    <ul>
+                        <li>تحلیل ژنوم</li>
+                        <li>پیش‌بینی ساختار پروتئین</li>
+                        <li>داروسازی</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: مثال‌های پیشرفته -->
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>🎓 مثال‌های پیشرفته</h2>
+            
+            <div class="example box">
+                <h3><span class="emoji">🔄</span> مثال ۱: گشت با چندین تکرار</h3>
+                <p><strong>گشت:</strong> A → B → C → B → D → C → E → F</p>
+                
+                <div class="step">
+                    <h4>مرحله ۱: حذف اولین تکرار (B)</h4>
+                    <p>B در موقعیت‌های 1 و 3 تکرار شده است.</p>
+                    <p><strong>نتیجه:</strong> A → B → D → C → E → F</p>
+                </div>
+                
+                <div class="step">
+                    <h4>مرحله ۲: بررسی تکرار جدید (C)</h4>
+                    <p>C در موقعیت‌های 2 و 3 تکرار شده است.</p>
+                    <p><strong>نتیجه:</strong> A → B → D → E → F</p>
+                </div>
+                
+                <div class="step">
+                    <h4>مرحله ۳: بررسی نهایی</h4>
+                    <p>همه رئوس متمایز هستند.</p>
+                    <p><strong>مسیر نهایی:</strong> A → B → D → E → F</p>
+                </div>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">🔄</span> مثال ۲: گشت با حلقه‌های تو در تو</h3>
+                <p><strong>گشت:</strong> X → Y → Z → Y → W → Z → T</p>
+                
+                <div class="comparison">
+                    <div>
+                        <h4>تحلیل گام به گام</h4>
+                        <ol>
+                            <li><strong>تکرار اول:</strong> Y (موقعیت‌های 1 و 3)</li>
+                            <li><strong>حذف:</strong> Y → Z → Y</li>
+                            <li><strong>نتیجه:</strong> X → Y → W → Z → T</li>
+                            <li><strong>بررسی:</strong> همه رئوس متمایز ✅</li>
+                        </ol>
+                    </div>
+                    <div>
+                        <h4>نمایش بصری</h4>
+                        <div class="graph">
+                            <svg width="300" height="200" viewBox="0 0 300 200">
+                                <!-- یال‌های اصلی -->
+                                <line x1="50" y1="100" x2="100" y2="50" class="graph-edge" />
+                                <line x1="100" y1="50" x2="200" y2="100" class="graph-edge" />
+                                <line x1="200" y1="100" x2="250" y2="150" class="graph-edge" />
+                                
+                                <!-- یال‌های حذف شده -->
+                                <line x1="100" y1="50" x2="150" y2="100" stroke="#ff5722" stroke-width="2" stroke-dasharray="5,5" />
+                                <line x1="150" y1="100" x2="100" y2="50" stroke="#ff5722" stroke-width="2" stroke-dasharray="5,5" />
+                                
+                                <!-- رئوس -->
+                                <circle cx="50" cy="100" r="20" class="graph-vertex" />
+                                <circle cx="100" cy="50" r="20" class="graph-vertex" />
+                                <circle cx="150" cy="100" r="20" fill="#ff5722" stroke="#764ba2" stroke-width="3" />
+                                <circle cx="200" cy="100" r="20" class="graph-vertex" />
+                                <circle cx="250" cy="150" r="20" class="graph-vertex" />
+                                
+                                <!-- برچسب‌ها -->
+                                <text x="50" y="100" class="graph-label">X</text>
+                                <text x="100" y="50" class="graph-label">Y</text>
+                                <text x="150" y="100" style="fill: white; font-family: 'Vazirmatn', sans-serif; font-size: 14px; font-weight: 700; text-anchor: middle; dominant-baseline: central;">W</text>
+                                <text x="200" y="100" class="graph-label">Z</text>
+                                <text x="250" y="150" class="graph-label">T</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: تمرینات و مسائل -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>📝 تمرینات و مسائل</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">📚</span> تمرین ۱</h4>
+                    <p>گشت زیر را به مسیر تبدیل کنید:</p>
+                    <div class="math">
+                        W = A → B → C → D → B → E → F → C → G
+                    </div>
+                    <p><strong>راهنمایی:</strong> ابتدا تکرارهای B و سپس C را حذف کنید.</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📚</span> تمرین ۲</h4>
+                    <p>ثابت کنید که اگر گرافی متصل باشد، بین هر دو رأس آن مسیر وجود دارد.</p>
+                    <p><strong>راهنمایی:</strong> از تعریف گراف متصل و قضیه اثبات شده استفاده کنید.</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📚</span> تمرین ۳</h4>
+                    <p>الگوریتمی بنویسید که کوتاه‌ترین مسیر را از یک گشت استخراج کند.</p>
+                    <p><strong>راهنمایی:</strong> از الگوریتم ارائه شده در اسلاید ۸ استفاده کنید.</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📚</span> تمرین ۴</h4>
+                    <p>نشان دهید که عکس این قضیه لزوماً صادق نیست. یعنی وجود مسیر لزوماً به معنای وجود گشت خاص نیست.</p>
+                    <p><strong>راهنمایی:</strong> هر مسیر خود یک گشت است!</p>
+                </div>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🎯</span> مسئله چالشی</h3>
+                <p><strong>سوال:</strong> فرض کنید گشتی با طول n داریم. در بدترین حالت، چند مرحله برای تبدیل آن به مسیر نیاز است؟</p>
+                
+                <div class="step">
+                    <h4>تحلیل</h4>
+                    <p>در بدترین حالت، گشت به صورت زیر است:</p>
+                    <div class="math">
+                        u → v → u → v → ... → u → w
+                    </div>
+                    <p>که در آن u و v به طور متناوب تکرار می‌شوند.</p>
+                    <p><strong>پاسخ:</strong> حداکثر ⌊n/2⌋ مرحله نیاز است.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: ارتباط با مفاهیم دیگر -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h2>🔗 ارتباط با مفاهیم دیگر</h2>
+            
+            <div class="grid">
+                <div class="theorem box">
+                    <h4><span class="emoji">🏛️</span> قضیه‌های مرتبط</h4>
+                    <ul>
+                        <li><strong>قضیه اتصال:</strong> گراف متصل است ⟺ بین هر دو رأس مسیر وجود دارد</li>
+                        <li><strong>قضیه اویلر:</strong> شرایط وجود مسیر اویلری</li>
+                        <li><strong>قضیه همیلتون:</strong> شرایط وجود مسیر همیلتونی</li>
+                    </ul>
+                </div>
+                
+                <div class="definition box">
+                    <h4><span class="emoji">📖</span> مفاهیم مرتبط</h4>
+                    <ul>
+                        <li><strong>Trail:</strong> گشت بدون یال تکراری</li>
+                        <li><strong>Circuit:</strong> گشت بسته</li>
+                        <li><strong>Cycle:</strong> مسیر بسته</li>
+                        <li><strong>Simple Path:</strong> مسیر ساده</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">📊</span> جدول مقایسه انواع مسیرها</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع</th>
+                            <th>رئوس تکراری</th>
+                            <th>یال‌های تکراری</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Walk (گشت)</strong></td>
+                            <td>مجاز</td>
+                            <td>مجاز</td>
+                            <td>A→B→A→C</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Trail</strong></td>
+                            <td>مجاز</td>
+                            <td>غیرمجاز</td>
+                            <td>A→B→C→A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Path (مسیر)</strong></td>
+                            <td>غیرمجاز</td>
+                            <td>غیرمجاز</td>
+                            <td>A→B→C→D</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Circuit</strong></td>
+                            <td>مجاز</td>
+                            <td>غیرمجاز</td>
+                            <td>A→B→C→A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cycle</strong></td>
+                            <td>فقط شروع=پایان</td>
+                            <td>غیرمجاز</td>
+                            <td>A→B→C→A</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="key-point">
+                <h3><span class="emoji">💡</span> نکته مهم</h3>
+                <p>قضیه ما نشان می‌دهد که در سلسله‌مراتب بالا، همیشه می‌توان از یک مفهوم کلی‌تر (گشت) به مفهوم خاص‌تر (مسیر) رسید.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: کاربرد در الگوریتم‌ها -->
+        <div class="slide">
+            <div class="slide-number">14</div>
+            <h2>⚙️ کاربرد در الگوریتم‌ها</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🔍</span> جستجوی عمق‌اول (DFS)</h4>
+                    <p>در DFS ممکن است به یک رأس چندین بار برسیم. این قضیه تضمین می‌کند که همیشه مسیر ساده‌ای وجود دارد.</p>
+                    <div class="formula">
+DFS-Path(G, u, v):
+    path = DFS(G, u, v)  // ممکن است تکرار داشته باشد
+    return ExtractPath(path)  // مسیر ساده
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📏</span> کوتاه‌ترین مسیر</h4>
+                    <p>الگوریتم‌هایی مثل Dijkstra ممکن است ابتدا مسیرهای پیچیده پیدا کنند که بعداً بهینه‌سازی می‌شوند.</p>
+                    <div class="formula">
+Dijkstra-Optimized(G, u, v):
+    walk = Dijkstra(G, u, v)
+    path = ExtractPath(walk)
+    return path
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌳</span> درخت پوشا</h4>
+                    <p>در ساخت درخت پوشا، اگر مسیری بین دو رأس وجود داشته باشد، می‌توان آن را ساده‌سازی کرد.</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔄</span> تشخیص چرخه</h4>
+                    <p>اگر در جستجو به رأس قبلی برگردیم، چرخه‌ای وجود دارد. این قضیهکمک می‌کند چرخه را شناسایی کنیم.</p>
+                    <div class="formula">
+DetectCycle(G):
+    for each vertex u in G:
+        walk = DFS(G, u)
+        if walk has repeated vertex:
+            return true
+    return false
+                    </div>
+                </div>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> پیاده‌سازی در Python</h3>
+                <div class="formula">
+def extract_path(walk):
+    """
+    تبدیل گشت به مسیر با حذف رئوس تکراری
+    """
+    if not walk:
+        return []
+    
+    path = [walk[0]]
+    visited = {walk[0]: 0}
+    
+    for i in range(1, len(walk)):
+        vertex = walk[i]
+        
+        if vertex in visited:
+            # رأس تکراری پیدا شد - حلقه را حذف کن
+            loop_start = visited[vertex]
+            path = path[:loop_start + 1]
+            # آپدیت کردن visited
+            visited = {v: j for j, v in enumerate(path)}
+        else:
+            path.append(vertex)
+            visited[vertex] = len(path) - 1
+    
+    return path
+
+# مثال استفاده
+walk = ['A', 'B', 'C', 'B', 'D', 'E']
+path = extract_path(walk)
+print(f"گشت: {walk}")
+print(f"مسیر: {path}")
+# خروجی: مسیر: ['A', 'B', 'D', 'E']
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: تعمیم‌ها و گسترش‌ها -->
+        <div class="slide">
+            <div class="slide-number">15</div>
+            <h2>🚀 تعمیم‌ها و گسترش‌ها</h2>
+            
+            <div class="theorem box">
+                <h3><span class="emoji">🏛️</span> تعمیم ۱: گراف‌های جهت‌دار</h3>
+                <p>قضیه برای گراف‌های جهت‌دار نیز صادق است:</p>
+                <div class="math">
+                    اگر یک (u,v) گشت جهت‌دار در G وجود داشته باشد ⟹ یک (u,v) مسیر جهت‌دار وجود دارد
+                </div>
+                <p><strong>اثبات:</strong> دقیقاً مشابه حالت غیرجهت‌دار، با این تفاوت که جهت یال‌ها را رعایت می‌کنیم.</p>
+            </div>
+            
+            <div class="theorem box">
+                <h3><span class="emoji">🏛️</span> تعمیم ۲: گراف‌های وزن‌دار</h3>
+                <p>در گراف‌های وزن‌دار، علاوه بر وجود مسیر، می‌توانیم وزن آن را نیز بهینه کنیم:</p>
+                <div class="math">
+                    وزن(مسیر استخراج شده) ≤ وزن(گشت اولیه)
+                </div>
+                <p>زیرا با حذف حلقه‌ها، وزن کل کاهش می‌یابد یا ثابت می‌ماند.</p>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🔬</span> تعمیم ۳: مولتی‌گراف</h3>
+                <p>در مولتی‌گراف (گراف با یال‌های موازی)، قضیه همچنان صادق است:</p>
+                <ul>
+                    <li>یال‌های موازی تأثیری در اثبات ندارند</li>
+                    <li>فقط وجود یال مهم است، نه تعداد آن</li>
+                    <li>الگوریتم استخراج مسیر تغییری نمی‌کند</li>
+                </ul>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">∞</span> گراف‌های نامتناهی</h4>
+                    <p>برای گراف‌های نامتناهی با درجه محدود، قضیه همچنان صادق است.</p>
+                    <p><strong>نکته:</strong> باید از اصل انتخاب یا لم زورن استفاده کرد.</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎯</span> مسیرهای خاص</h4>
+                    <p>می‌توان قضیه را برای انواع خاص مسیر تعمیم داد:</p>
+                    <ul>
+                        <li>مسیرهای اویلری</li>
+                        <li>مسیرهای همیلتونی</li>
+                        <li>مسیرهای رنگی</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> ساختارهای پیچیده</h4>
+                    <p>قضیه برای ساختارهای پیچیده‌تر نیز کاربرد دارد:</p>
+                    <ul>
+                        <li>هایپرگراف‌ها</li>
+                        <li>گراف‌های چندلایه</li>
+                        <li>شبکه‌های پیچیده</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 16: مسائل پیشرفته -->
+        <div class="slide">
+            <div class="slide-number">16</div>
+            <h2>🎓 مسائل پیشرفته</h2>
+            
+            <div class="card" style="margin-bottom: 25px;">
+                <h4><span class="emoji">🧩</span> مسئله ۱: بهینه‌ترین استخراج</h4>
+                <p><strong>سوال:</strong> از یک گشت، کوتاه‌ترین مسیر ممکن را استخراج کنید.</p>
+                <div class="step">
+                    <h4>راه‌حل</h4>
+                    <p>الگوریتم ارائه شده لزوماً کوتاه‌ترین مسیر را نمی‌دهد. برای بهینه‌سازی:</p>
+                    <ol>
+                        <li>همه مسیرهای ممکن را از گشت استخراج کنید</li>
+                        <li>کوتاه‌ترین را انتخاب کنید</li>
+                        <li>پیچیدگی: O(2^n) در بدترین حالت</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-bottom: 25px;">
+                <h4><span class="emoji">🧩</span> مسئله ۲: تعداد مسیرهای قابل استخراج</h4>
+                <p><strong>سوال:</strong> از یک گشت، چند مسیر مختلف می‌توان استخراج کرد؟</p>
+                <div class="step">
+                    <h4>تحلیل</h4>
+                    <p>اگر گشت دارای k رأس تکراری باشد، تعداد مسیرهای قابل استخراج حداکثر 2^k است.</p>
+                    <div class="math">
+                        تعداد مسیرها ≤ 2^(تعداد رئوس تکراری)
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-bottom: 25px;">
+                <h4><span class="emoji">🧩</span> مسئله ۳: حفظ ویژگی‌های خاص</h4>
+                <p><strong>سوال:</strong> آیا می‌توان مسیری استخراج کرد که ویژگی خاصی (مثل مجموع وزن‌ها) را حفظ کند؟</p>
+                <div class="step">
+                    <h4>پاسخ</h4>
+                    <p>بستگی به ویژگی دارد:</p>
+                    <ul>
+                        <li><strong>وزن کل:</strong> همیشه کاهش می‌یابد یا ثابت می‌ماند</li>
+                        <li><strong>تعداد رئوس خاص:</strong> ممکن است تغییر کند</li>
+                        <li><strong>ویژگی‌های توپولوژیک:</strong> معمولاً حفظ می‌شوند</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 17: کاربردهای صنعتی -->
+        <div class="slide">
+            <div class="slide-number">17</div>
+            <h2>🏭 کاربردهای صنعتی</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🚗</span> صنعت خودرو</h4>
+                    <ul>
+                        <li><strong>سیستم‌های ناوبری:</strong> بهینه‌سازی مسیر در زمان واقعی</li>
+                        <li><strong>خودروهای خودران:</strong> برنامه‌ریزی مسیر بدون تصادف</li>
+                        <li><strong>مدیریت ترافیک:</strong> کاهش ازدحام</li>
+                    </ul>
+                    <div class="math">
+                        مسیر بهینه = ExtractPath(مسیر GPS اولیه)
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📱</span> فناوری اطلاعات</h4>
+                    <ul>
+                        <li><strong>شبکه‌های اجتماعی:</strong> یافتن کوتاه‌ترین رابطه بین افراد</li>
+                        <li><strong>موتورهای جستجو:</strong> بهینه‌سازی crawling</li>
+                        <li><strong>CDN:</strong> مسیریابی محتوا</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">⚡</span> انرژی</h4>
+                    <ul>
+                        <li><strong>شبکه‌های هوشمند:</strong> بهینه‌سازی توزیع برق</li>
+                        <li><strong>انرژی‌های تجدیدپذیر:</strong> مسیریابی انرژی</li>
+                        <li><strong>ذخیره‌سازی انرژی:</strong> مدیریت بار</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🏥</span> پزشکی</h4>
+                    <ul>
+                        <li><strong>تصویربرداری پزشکی:</strong> بهینه‌سازی مسیر اسکن</li>
+                        <li><strong>جراحی رباتیک:</strong> برنامه‌ریزی حرکت</li>
+                        <li><strong>دارورسانی:</strong> مسیریابی دارو در بدن</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🏭</span> تولید</h4>
+                    <ul>
+                        <li><strong>خطوط تولید:</strong> بهینه‌سازی فرآیند</li>
+                        <li><strong>رباتیک صنعتی:</strong> برنامه‌ریزی حرکت</li>
+                        <li><strong>کنترل کیفیت:</strong> مسیریابی بازرسی</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌾</span> کشاورزی</h4>
+                    <ul>
+                        <li><strong>کشاورزی دقیق:</strong> مسیریابی ماشین‌آلات</li>
+                        <li><strong>سیستم‌های آبیاری:</strong> بهینه‌سازی شبکه</li>
+                        <li><strong>نظارت محصولات:</strong> برنامه‌ریزی بازدید</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 18: ابزارها و نرم‌افزارها -->
+        <div class="slide">
+            <div class="slide-number">18</div>
+            <h2>🛠️ ابزارها و نرم‌افزارها</h2>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🐍</span> Python</h4>
+                    <div class="formula">
+# NetworkX
+import networkx as nx
+
+G = nx.Graph()
+G.add_edges_from([('A','B'), ('B','C'), ('C','A')])
+
+# یافتن مسیر
+path = nx.shortest_path(G, 'A', 'C')
+print(path)  # ['A', 'C'] یا ['A', 'B', 'C']
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">☕</span> Java</h4>
+                    <div class="formula">
+// JGraphT
+import org.jgrapht.*;
+import org.jgrapht.graph.*;
+
+Graph&lt;String, DefaultEdge&gt; g = 
+    new SimpleGraph&lt;&gt;(DefaultEdge.class);
+
+g.addVertex("A");
+g.addVertex("B");
+g.addEdge("A", "B");
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">++</span> C++</h4>
+                    <div class="formula">
+// Boost Graph Library
+#include &lt;boost/graph/adjacency_list.hpp&gt;
+#include &lt;boost/graph/dijkstra_shortest_paths.hpp&gt;
+
+typedef boost::adjacency_list&lt;
+    boost::vecS, boost::vecS, 
+    boost::undirectedS&gt; Graph;
+
+Graph g(5);
+boost::add_edge(0, 1, g);
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📊</span> MATLAB</h4>
+                    <div class="formula">
+% Graph Theory Toolbox
+G = graph([1 2 3], [2 3 1]);
+plot(G);
+
+% کوتاه‌ترین مسیر
+path = shortestpath(G, 1, 3);
+disp(path);
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📈</span> R</h4>
+                    <div class="formula">
+# igraph package
+library(igraph)
+
+g &lt;- graph_from_literal(A-B-C-A)
+plot(g)
+
+# کوتاه‌ترین مسیر
+shortest_paths(g, from="A", to="C")
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> JavaScript</h4>
+                    <div class="formula">
+// Cytoscape.js
+var cy = cytoscape({
+  elements: [
+    { data: { id: 'A' } },
+    { data: { id: 'B' } },
+    { data: { id: 'AB', source: 'A', target: 'B' } }
+  ]
+});
+
+// الگوریتم Dijkstra
+var dijkstra = cy.elements().dijkstra('#A');
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 19: خلاصه و نتیجه‌گیری -->
+        <div class="slide">
+            <div class="slide-number">19</div>
+            <h2>🎓 خلاصه و نتیجه‌گیری</h2>
+            
+            <div class="theorem box">
+                <h3><span class="emoji">📚</span> چیزهایی که یاد گرفتیم</h3>
+                <ol style="font-size: 1.1em; line-height: 2.5;">
+                    <li><strong>تعاریف:</strong> گشت، مسیر، و تفاوت‌های آن‌ها</li>
+                    <li><strong>قضیه اصلی:</strong> وجود گشت ⟹ وجود مسیر</li>
+                    <li><strong>اثبات:</strong> روش حذف حلقه‌های تکراری</li>
+                    <li><strong>الگوریتم:</strong> تبدیل گشت به مسیر</li>
+                    <li><strong>کاربردها:</strong> مسیریابی، بهینه‌سازی، شبکه</li>
+                    <li><strong>تعمیم‌ها:</strong> گراف‌های جهت‌دار، وزن‌دار</li>
+                    <li><strong>پیاده‌سازی:</strong> کدنویسی در زبان‌های مختلف</li>
+                </ol>
+            </div>
+            
+            <div class="grid" style="margin-top: 40px;">
+                <div class="highlight box">
+                    <h4><span class="emoji">✅</span> نکات کلیدی</h4>
+                    <ul>
+                        <li>هر مسیر یک گشت است</li>
+                        <li>نه هر گشتی مسیر است</li>
+                        <li>از گشت می‌توان مسیر استخراج کرد</li>
+                        <li>الگوریتم همیشه متوقف می‌شود</li>
+                        <li>پیچیدگی زمانی O(n²)</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight box">
+                    <h4><span class="emoji">🎯</span> کاربردهای اصلی</h4>
+                    <ul>
+                        <li>مسیریابی GPS</li>
+                        <li>شبکه‌های کامپیوتری</li>
+                        <li>الگوریتم‌های گراف</li>
+                        <li>بهینه‌سازی</li>
+                        <li>هوش مصنوعی</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight box">
+                    <h4><span class="emoji">🔍</span> روش‌های اثبات</h4>
+                    <ul>
+                        <li>اثبات مستقیم</li>
+                        <li>استقرای ریاضی</li>
+                        <li>روش سازنده</li>
+                        <li>الگوریتم‌محور</li>
+                        <li>تحلیل پیچیدگی</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="key-point" style="margin-top: 40px;">
+                <h3 style="text-align: center; font-size: 1.8em;">
+                    <span class="emoji">💡</span> پیام نهایی
+                </h3>
+                <p style="text-align: center; font-size: 1.4em; line-height: 2.2; font-weight: 600;">
+                    این قضیه ساده اما قدرتمند، پایه بسیاری از الگوریتم‌های گراف است. 
+                    درک آن به شما کمک می‌کند تا <span class="highlight-text">مسائل پیچیده‌تر</span> 
+                    را حل کنید و <span class="highlight-text">الگوریتم‌های بهتری</span> طراحی کنید.
+                </p>
+            </div>
+            
+            <div style="text-align: center; margin-top: 50px; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <h2 style="color: white; border: none; font-size: 2.5em; margin-bottom: 20px;">
+                    <span class="emoji">🎉</span> تبریک!
+                </h2>
+                <p style="font-size: 1.4em; line-height: 2;">
+                    شما با موفقیت این تمرین مهم از نظریه گراف را یاد گرفتید!
+                </p>
+                <p style="font-size: 1.2em; margin-top: 20px;">
+                    حالا آماده‌اید برای حل مسائل پیچیده‌تر!
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 20: منابع و مراجع -->
+        <div class="slide">
+            <div class="slide-number">20</div>
+            
+            <div style="text-align: center; padding: 40px 20px;">
+                <h1 style="font-size: 3.5em; margin-bottom: 30px; color: #667eea;">
+                    <span class="emoji" style="font-size: 1.2em;">📚</span><br>
+                    منابع و مراجع
+                </h1>
+                
+                <div class="grid" style="margin-top: 50px;">
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">📖</span></h3>
+                        <h4>کتاب‌های مرجع</h4>
+                        <ul style="text-align: right;">
+                            <li>نظریه گراف و کاربردها</li>
+                            <li>Introduction to Graph Theory - West</li>
+                            <li>Graph Theory - Diestel</li>
+                            <li>Algorithms - Cormen et al.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">🌐</span></h3>
+                        <h4>منابع آنلاین</h4>
+                        <ul style="text-align: right;">
+                            <li>Khan Academy - Graph Theory</li>
+                            <li>MIT OpenCourseWare</li>
+                            <li>Coursera - Algorithms</li>
+                            <li>Wikipedia - Graph Theory</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">💻</span></h3>
+                        <h4>ابزارهای نرم‌افزاری</h4>
+                        <ul style="text-align: right;">
+                            <li>NetworkX (Python)</li>
+                            <li>igraph (R)</li>
+                            <li>JGraphT (Java)</li>
+                            <li>Boost Graph Library (C++)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card" style="text-align: center;">
+                        <h3><span class="emoji">🎓</span></h3>
+                        <h4>دوره‌های آموزشی</h4>
+                        <ul style="text-align: right;">
+                            <li>الگوریتم‌ها و ساختمان داده</li>
+                            <li>ریاضیات گسسته</li>
+                            <li>نظریه محاسبه</li>
+                            <li>بهینه‌سازی</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="definition box" style="margin-top: 50px; text-align: center;">
+                    <h3 style="font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">📧</span> ارتباط با ما
+                    </h3>
+                    <p style="font-size: 1.2em;">
+                        برای سوالات، پیشنهادات، یا درخواست آموزش موضوعات بیشتر:<br><br>
+                        <strong>وب‌سایت:</strong> araz.me<br>
+                    </p>
+                </div>
+                
+                <div class="highlight box" style="margin-top: 50px;">
+                    <h3 style="text-align: center; font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">🎯</span> تمرین‌های بیشتر
+                    </h3>
+                    <p style="font-size: 1.3em; line-height: 2;">
+                        برای تقویت یادگیری، تمرین‌های زیر را انجام دهید:
+                    </p>
+                    <ol style="font-size: 1.1em; line-height: 2.2; text-align: right; margin-top: 20px;">
+                        <li>قضیه عکس را بررسی کنید: آیا وجود مسیر به معنای وجود گشت است؟</li>
+                        <li>الگوریتمی برای یافتن همه مسیرهای ممکن از یک گشت بنویسید</li>
+                        <li>پیچیدگی زمانی الگوریتم را در حالت‌های مختلف تحلیل کنید</li>
+                        <li>قضیه را برای گراف‌های جهت‌دار اثبات کنید</li>
+                        <li>کاربرد این قضیه را در یک مسئله واقعی پیاده‌سازی کنید</li>
+                    </ol>
+                </div>
+                
+                <div style="margin-top: 60px; padding: 40px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 20px; border: 3px solid #4caf50;">
+                    <h3 style="color: #2e7d32; font-size: 2em; margin-bottom: 20px;">
+                        <span class="emoji">🙏</span> با تشکر از شما
+                    </h3>
+                    <p style="font-size: 1.3em; color: #1b5e20; line-height: 2;">
+                        از اینکه وقت خود را برای یادگیری این مبحث مهم از نظریه گراف گذاشتید متشکریم.<br>
+                        امیدواریم این آموزش به درک بهتر شما از مفاهیم ریاضی کمک کرده باشد.<br><br>
+                        <strong>موفق و پیروز باشید! 🌟</strong>
+                    </p>
+                </div>
+                
+                <div style="margin-top: 50px; font-size: 1.3em; color: #667eea;">
+                    <p><strong>ساخته شده با ❤️ برای دانشجویان ریاضی و علوم کامپیوتر</strong></p>
+                    <p style="margin-top: 15px; font-size: 0.9em;">
+                        نسخه: 1.0 | تاریخ: دی ماه ۱۴۰۳
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        // اضافه کردن انیمیشن برای اسلایدها
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            
+            const observer = new IntersectionObserver((entries) => {entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            entry.target.style.transition = 'all 0.6s ease-out';
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            slides.forEach(slide => {
+                observer.observe(slide);
+            });
+            
+            // Smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // کپی کردن فرمول‌ها با کلیک
+            document.querySelectorAll('.formula, .math').forEach(formulaBlock => {
+                formulaBlock.style.cursor = 'pointer';
+                formulaBlock.title = 'کلیک کنید تا کپی شود';
+                
+                formulaBlock.addEventListener('click', function() {
+                    const text = this.innerText;
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalBg = this.style.background;
+                        this.style.background = '#667eea';
+                        this.style.color = 'white';
+                        setTimeout(() => {
+                            this.style.background = originalBg;
+                            this.style.color = '';
+                        }, 300);
+                    });
+                });
+            });
+            
+            // انیمیشن برای گراف‌ها
+            document.querySelectorAll('.graph svg').forEach(svg => {
+                const edges = svg.querySelectorAll('.graph-edge');
+                const vertices = svg.querySelectorAll('.graph-vertex');
+                
+                // انیمیشن ظاهر شدن یال‌ها
+                edges.forEach((edge, index) => {
+                    edge.style.strokeDasharray = '1000';
+                    edge.style.strokeDashoffset = '1000';
+                    edge.style.animation = `drawEdge 2s ease-in-out ${index * 0.2}s forwards`;
+                });
+                
+                // انیمیشن ظاهر شدن رئوس
+                vertices.forEach((vertex, index) => {
+                    vertex.style.transform = 'scale(0)';
+                    vertex.style.animation = `scaleIn 0.5s ease-out ${index * 0.1 + 1}s forwards`;
+                });
+            });
+            
+            // اضافه کردن CSS برای انیمیشن‌ها
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes drawEdge {
+                    to {
+                        stroke-dashoffset: 0;
+                    }
+                }
+                
+                @keyframes scaleIn {
+                    to {
+                        transform: scale(1);
+                    }
+                }
+                
+                .proof-step {
+                    transform: translateX(-20px);
+                    opacity: 0;
+                    animation: slideInRight 0.6s ease-out forwards;
+                }
+                
+                .proof-step:nth-child(1) { animation-delay: 0.1s; }
+                .proof-step:nth-child(2) { animation-delay: 0.3s; }
+                .proof-step:nth-child(3) { animation-delay: 0.5s; }
+                .proof-step:nth-child(4) { animation-delay: 0.7s; }
+                
+                @keyframes slideInRight {
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+                
+                .card:hover .emoji {
+                    transform: scale(1.2);
+                    transition: transform 0.3s ease;
+                }
+                
+                .math:hover {
+                    transform: scale(1.02);
+                    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+                    transition: all 0.3s ease;
+                }
+                
+                .formula:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+                    transition: all 0.3s ease;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // اضافه کردن شماره‌گذاری خودکار برای فرمول‌ها
+            const mathElements = document.querySelectorAll('.math');
+            mathElements.forEach((math, index) => {
+                if (!math.querySelector('.equation-number')) {
+                    const number = document.createElement('span');
+                    number.className = 'equation-number';
+                    number.style.cssText = `
+                        position: absolute;
+                        left: 10px;
+                        top: 50%;
+                        transform: translateY(-50%);
+                        background: #667eea;
+                        color: white;
+                        padding: 2px 8px;
+                        border-radius: 10px;
+                        font-size: 0.8em;
+                        font-weight: bold;
+                    `;
+                    number.textContent = `(${index + 1})`;
+                    math.style.position = 'relative';
+                    math.appendChild(number);
+                }
+            });
+            
+            // اضافه کردن قابلیت جستجو
+            const searchBox = document.createElement('div');
+            searchBox.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; z-index: 1000; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+                    <input type="text" id="searchInput" placeholder="جستجو در محتوا..." style="padding: 8px; border: 2px solid #667eea; border-radius: 5px; font-family: 'Vazirmatn', sans-serif;">
+                    <button onclick="searchContent()" style="padding: 8px 12px; background: #667eea; color: white; border: none; border-radius: 5px; margin-right: 5px; cursor: pointer;">🔍</button>
+                </div>
+            `;
+            document.body.appendChild(searchBox);
+            
+            // تابع جستجو
+            window.searchContent = function() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const slides = document.querySelectorAll('.slide');
+                
+                slides.forEach(slide => {
+                    const content = slide.textContent.toLowerCase();
+                    if (content.includes(searchTerm) && searchTerm.length > 0) {
+                        slide.style.border = '3px solid #ff9800';
+                        slide.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        slide.style.border = 'none';
+                    }
+                });
+            };
+            
+            // اضافه کردن دکمه برگشت به بالا
+            const backToTop = document.createElement('div');
+            backToTop.innerHTML = `
+                <button id="backToTopBtn" style="
+                    position: fixed;
+                    bottom: 30px;
+                    left: 30px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 60px;
+                    height: 60px;
+                    font-size: 24px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    display: none;
+                    transition: all 0.3s ease;
+                " onclick="scrollToTop()">⬆️</button>
+            `;
+            document.body.appendChild(backToTop);
+            
+            // نمایش/مخفی کردن دکمه برگشت به بالا
+            window.addEventListener('scroll', function() {
+                const btn = document.getElementById('backToTopBtn');
+                if (window.scrollY > 300) {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+            
+            // تابع برگشت به بالا
+            window.scrollToTop = function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+            
+            // اضافه کردن منوی ناوبری
+            const nav = document.createElement('div');
+            nav.innerHTML = `
+                <div style="position: fixed; top: 50%; right: 20px; transform: translateY(-50%); z-index: 1000;">
+                    <div style="background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+                        <h4 style="margin: 0 0 10px 0; color: #667eea; font-size: 1em;">فهرست مطالب</h4>
+                        <div id="navMenu" style="max-height: 300px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(nav);
+            
+            // ساخت منوی ناوبری
+            const navMenu = document.getElementById('navMenu');
+            slides.forEach((slide, index) => {
+                const title = slide.querySelector('h2')?.textContent || `اسلاید ${index + 1}`;
+                const navItem = document.createElement('div');
+                navItem.innerHTML = `
+                    <a href="#" onclick="scrollToSlide(${index})" style="
+                        display: block;
+                        padding: 5px 10px;
+                        color: #667eea;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        margin-bottom: 5px;
+                        font-size: 0.9em;
+                        transition: background 0.3s ease;
+                    " onmouseover="this.style.background='#f0f2ff'" onmouseout="this.style.background='transparent'">
+                        ${index + 1}. ${title.substring(0, 30)}...
+                    </a>
+                `;
+                navMenu.appendChild(navItem);
+            });
+            
+            // تابع اسکرول به اسلاید
+            window.scrollToSlide = function(index) {
+                slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            };
+            
+            // اضافه کردن progress bar
+            const progressBar = document.createElement('div');
+            progressBar.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 4px; background: rgba(0,0,0,0.1); z-index: 1001;">
+                    <div id="progressFill" style="height: 100%; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); width: 0%; transition: width 0.3s ease;"></div>
+                </div>
+            `;
+            document.body.appendChild(progressBar);
+            
+            // به‌روزرسانی progress bar
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / docHeight) * 100;
+                document.getElementById('progressFill').style.width = scrollPercent + '%';
+            });
+            
+            // اضافه کردن tooltip برای المان‌ها
+            document.querySelectorAll('.emoji').forEach(emoji => {
+                emoji.title = 'نماد تزیینی';
+                emoji.style.cursor = 'help';
+            });
+            
+            document.querySelectorAll('.graph-vertex').forEach(vertex => {
+                vertex.addEventListener('mouseover', function() {
+                    this.style.fill = '#ff9800';
+                    this.style.transform = 'scale(1.2)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+                
+                vertex.addEventListener('mouseout', function() {
+                    this.style.fill = '#667eea';
+                    this.style.transform = 'scale(1)';
+                });
+            });
+            
+            // پیام‌های کنسول
+            console.log('📊 آموزش نظریه گراف بارگذاری شد!');
+            console.log('📚 تعداد اسلایدها:', slides.length);
+            console.log('💡 برای کپی کردن فرمول‌ها، روی آن‌ها کلیک کنید');
+            console.log('🔍 از جعبه جستجو برای یافتن محتوا استفاده کنید');
+            console.log('🧮 آماده برای یادگیری ریاضیات!');
+            
+            // اضافه کردن کیبورد shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'f':
+                            e.preventDefault();
+                            document.getElementById('searchInput').focus();
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            scrollToTop();
+                            break;
+                    }
+                }
+                
+                // پیمایش با کلیدهای جهت‌دار
+                if (e.key === 'ArrowDown' && e.ctrlKey) {
+                    e.preventDefault();
+                    const currentScroll = window.scrollY;
+                    const slideHeight = window.innerHeight;
+                    window.scrollTo({ top: currentScroll + slideHeight, behavior: 'smooth' });
+                }
+                
+                if (e.key === 'ArrowUp' && e.ctrlKey) {
+                    e.preventDefault();
+                    const currentScroll = window.scrollY;
+                    const slideHeight = window.innerHeight;
+                    window.scrollTo({ top: currentScroll - slideHeight, behavior: 'smooth' });
+                }
+            });
+            
+            // اضافه کردن راهنمای کیبورد
+            const helpButton = document.createElement('div');
+            helpButton.innerHTML = `
+                <button onclick="showHelp()" style="
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    background: #4caf50;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 60px;
+                    height: 60px;
+                    font-size: 24px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                ">❓</button>
+            `;
+            document.body.appendChild(helpButton);
+            
+            // تابع نمایش راهنما
+            window.showHelp = function() {
+                const helpModal = document.createElement('div');
+                helpModal.innerHTML = `
+                    <div style="
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.8);
+                        z-index: 2000;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    " onclick="this.remove()">
+                        <div style="
+                            background: white;
+                            padding: 40px;
+                            border-radius: 20px;
+                            max-width: 600px;
+                            text-align: center;
+                        " onclick="event.stopPropagation()">
+                            <h3 style="color: #667eea; margin-bottom: 20px;">راهنمای استفاده</h3>
+                            <div style="text-align: right; line-height: 2;">
+                                <p><strong>🔍 جستجو:</strong> Ctrl+F یا استفاده از جعبه جستجو</p>
+                                <p><strong>⬆️ برگشت به بالا:</strong> کلیک روی دکمه یا Ctrl+Home</p>
+                                <p><strong>📄 پیمایش:</strong> Ctrl+Arrow Up/Down</p>
+                                <p><strong>📋 کپی فرمول:</strong> کلیک روی فرمول‌ها</p>
+                                <p><strong>🗂️ فهرست:</strong> استفاده از منوی سمت راست</p>
+                            </div>
+                            <button onclick="this.parentElement.parentElement.remove()" style="
+                                margin-top: 20px;
+                                padding: 10px 20px;
+                                background: #667eea;
+                                color: white;
+                                border: none;
+                                border-radius: 10px;
+                                cursor: pointer;
+                            ">بستن</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(helpModal);
+            };
+            
+        });
+    </script>
+</body>
+</html>
