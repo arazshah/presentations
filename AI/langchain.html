@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع LangChain - از صفر تا صد</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            line-height: 2;
+            direction: rtl;
+            padding: 20px;
+        }
+        
+        .presentation {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.3em;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 3.5em;
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-right: 8px solid #764ba2;
+            padding-right: 20px;
+            font-weight: 700;
+        }
+        
+        h3 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin: 30px 0 20px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin: 20px 0 15px;
+            font-weight: 500;
+        }
+        
+        p, li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-align: justify;
+            line-height: 2.2;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.5em;
+            color: #667eea;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .box {
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-right: 8px solid;
+        }
+        
+        .definition { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+            border-color: #2196f3; 
+        }
+        
+        .info { 
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); 
+            border-color: #4caf50; 
+        }
+        
+        .warning { 
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); 
+            border-color: #ff9800; 
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #9c27b0;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-color: #009688;
+        }
+        
+        .danger {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #f44336;
+        }
+        
+        .success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #4caf50;
+        }
+        
+        .code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', 'Consolas', monospace;
+            font-size: 1em;
+            margin: 25px 0;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            white-space: pre;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .code span {
+            display: inline;
+        }
+        
+        .code::before {
+            content: 'Python';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+        
+        .keyword { color: #c792ea; font-weight: 700; }
+        .string { color: #c3e88d; }
+        .comment { color: #676e95; font-style: italic; }
+        .function { color: #82aaff; }
+        .number { color: #f78c6c; }
+        .operator { color: #89ddff; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border-top: 5px solid #667eea;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .emoji {
+            font-size: 1.8em;
+            margin-left: 15px;
+        }
+        
+        .highlight-text {
+            background: linear-gradient(120deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+        
+        td {
+            border: 1px solid #ddd;
+            padding: 18px;
+            text-align: right;
+            vertical-align: top;
+        }
+        
+        tr:nth-child(even) { 
+            background: #f8f9fa; 
+        }
+        
+        tr:hover {
+            background: #e9ecef;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+            .slide { padding: 30px; }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.8em; }
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-right: 6px solid #fbc02d;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        ul, ol {
+            margin-right: 40px;
+            margin-bottom: 25px;
+        }
+        
+        li {
+            margin-bottom: 15px;
+        }
+        
+        .architecture-diagram {
+            text-align: center;
+            margin: 30px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 2px solid #667eea;
+        }
+        
+        .flow-step {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-right: 6px solid #3f51b5;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .flow-step::before {
+            content: '→';
+            position: absolute;
+            left: -30px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2em;
+            color: #667eea;
+        }
+        
+        .flow-step:first-child::before {
+            content: '';
+        }
+        
+        .component-box {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px;
+            display: inline-block;
+            min-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            display: inline-block;
+            margin: 0 20px;
+        }
+        
+        .step {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            border-right: 6px solid #3f51b5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        
+        .step h4 {
+            color: #3f51b5;
+            margin-bottom: 10px;
+        }
+        
+        .langchain-logo {
+            text-align: center;
+            font-size: 8em;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h1>🦜 LangChain</h1>
+            <p class="subtitle">آموزش جامع از صفر تا صد</p>
+            <p class="subtitle" style="font-size: 1.2em; margin-top: 10px;">
+                فریمورک قدرتمند برای ساخت اپلیکیشن‌های AI
+            </p>
+            
+            <div style="text-align: center; font-size: 8em; margin: 40px 0;">🔗⚡</div>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> LangChain چیست؟</h3>
+                <p style="font-size: 1.3em; text-align: center; font-weight: 600;">
+                    LangChain یک فریمورک متن‌باز است که توسعه اپلیکیشن‌های مبتنی بر 
+                    <span class="highlight-text">مدل‌های زبانی بزرگ (LLM)</span> را آسان می‌کند.
+                </p>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🚀</span> سرعت توسعه</h4>
+                    <p>ساخت سریع اپلیکیشن‌های AI پیچیده</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔗</span> یکپارچگی</h4>
+                    <p>اتصال آسان به LLM ها و منابع داده</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🧩</span> ماژولار</h4>
+                    <p>اجزای قابل ترکیب و قابل استفاده مجدد</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📚</span> متن‌باز</h4>
+                    <p>جامعه بزرگ و مستندات کامل</p>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <p style="text-align: center; font-size: 1.2em; font-weight: 600;">
+                    <span class="emoji">💡</span> با LangChain می‌توانید چت‌بات‌ها، سیستم‌های پرسش و پاسخ، 
+                    و اپلیکیشن‌های هوشمند بسازید!
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: نصب و راه‌اندازی -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>⚙️ نصب و راه‌اندازی</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">📦</span> پیش‌نیازها</h3>
+                <ul>
+                    <li><strong>Python 3.8+</strong></li>
+                    <li><strong>pip</strong> (مدیر بسته Python)</li>
+                    <li><strong>API Key</strong> از OpenAI یا سایر ارائه‌دهندگان</li>
+                </ul>
+            </div>
+            
+            <h3><span class="emoji">🔧</span> نصب LangChain</h3>
+            <div class="code">
+<span class="comment"># نصب LangChain</span>
+pip install langchain
+
+<span class="comment"># نصب OpenAI (برای استفاده از GPT)</span>
+pip install openai
+
+<span class="comment"># نصب کتابخانه‌های اضافی</span>
+pip install langchain-openai
+pip install langchain-community
+
+<span class="comment"># نصب کامل همه وابستگی‌ها</span>
+pip install langchain[all]
+            </div>
+            
+            <h3><span class="emoji">🔑</span> تنظیم API Key</h3>
+            <div class="code">
+<span class="keyword">import</span> os
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> ChatOpenAI
+
+<span class="comment"># روش 1: تنظیم مستقیم در کد</span>
+os.environ[<span class="string">"OPENAI_API_KEY"</span>] = <span class="string">"your-api-key-here"</span>
+
+<span class="comment"># روش 2: استفاده از فایل .env</span>
+<span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv
+load_dotenv()
+
+<span class="comment"># ساخت اولین LLM</span>
+llm = ChatOpenAI(
+    model=<span class="string">"gpt-3.5-turbo"</span>,
+    temperature=<span class="number">0.7</span>
+)
+
+<span class="comment"># تست ساده</span>
+response = llm.invoke(<span class="string">"سلام! LangChain چیست؟"</span>)
+<span class="keyword">print</span>(response.content)
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> نکات امنیتی</h3>
+                <ul>
+                    <li>هرگز API Key را در کد commit نکنید</li>
+                    <li>از متغیرهای محیطی یا فایل .env استفاده کنید</li>
+                    <li>فایل .env را به .gitignore اضافه کنید</li>
+                    <li>برای production از secret managers استفاده کنید</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: معماری LangChain -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>🏗️ معماری LangChain</h2>
+            
+            <div class="architecture-diagram">
+                <h3 style="color: #667eea; margin-bottom: 30px;">اجزای اصلی LangChain</h3>
+                
+                <div style="margin: 40px 0;">
+                    <div class="component-box">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Models</h4>
+                        <p style="font-size: 0.9em;">LLM, Chat Models, Embeddings</p>
+                    </div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Prompts</h4>
+                        <p style="font-size: 0.9em;">LLM, Chat Models, Embeddings</p>
+                    </div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Prompts</h4>
+                        <p style="font-size: 0.9em;">Templates, Examples, Selectors</p>
+                    </div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Chains</h4>
+                        <p style="font-size: 0.9em;">Sequential, Router, Transform</p>
+                    </div>
+                </div>
+                
+                <div style="margin: 40px 0;">
+                    <div class="component-box">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Memory</h4>
+                        <p style="font-size: 0.9em;">Buffer, Summary, Vector Store</p>
+                    </div>
+                    <span class="arrow">←→</span>
+                    <div class="component-box">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Agents</h4>
+                        <p style="font-size: 0.9em;">ReAct, Plan-Execute, Tools</p>
+                    </div>
+                    <span class="arrow">←→</span>
+                    <div class="component-box">
+                        <h4 style="color: #667eea; margin-bottom: 10px;">Callbacks</h4>
+                        <p style="font-size: 0.9em;">Logging, Streaming, Monitoring</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid">
+                <div class="definition box">
+                    <h4><span class="emoji">🤖</span> Models</h4>
+                    <p>مدل‌های زبانی و embedding که قلب سیستم هستند.</p>
+                    <ul>
+                        <li><strong>LLMs:</strong> GPT-4, Claude, Llama</li>
+                        <li><strong>Chat Models:</strong> مدل‌های مکالمه‌ای</li>
+                        <li><strong>Embeddings:</strong> تبدیل متن به وکتور</li>
+                    </ul>
+                </div>
+                
+                <div class="definition box">
+                    <h4><span class="emoji">📝</span> Prompts</h4>
+                    <p>مدیریت و بهینه‌سازی ورودی به مدل‌ها.</p>
+                    <ul>
+                        <li><strong>Templates:</strong> قالب‌های از پیش تعریف شده</li>
+                        <li><strong>Few-Shot:</strong> مثال‌های آموزشی</li>
+                        <li><strong>Dynamic:</strong> prompt های پویا</li>
+                    </ul>
+                </div>
+                
+                <div class="definition box">
+                    <h4><span class="emoji">⛓️</span> Chains</h4>
+                    <p>ترکیب چندین عملیات به صورت زنجیره‌ای.</p>
+                    <ul>
+                        <li><strong>Sequential:</strong> اجرای ترتیبی</li>
+                        <li><strong>Router:</strong> مسیریابی هوشمند</li>
+                        <li><strong>MapReduce:</strong> پردازش موازی</li>
+                    </ul>
+                </div>
+                
+                <div class="definition box">
+                    <h4><span class="emoji">🧠</span> Memory</h4>
+                    <p>ذخیره و مدیریت تاریخچه مکالمات.</p>
+                    <ul>
+                        <li><strong>Buffer:</strong> ذخیره ساده</li>
+                        <li><strong>Summary:</strong> خلاصه‌سازی</li>
+                        <li><strong>Vector:</strong> جستجوی معنایی</li>
+                    </ul>
+                </div>
+                
+                <div class="definition box">
+                    <h4><span class="emoji">🤖</span> Agents</h4>
+                    <p>سیستم‌های هوشمند با قابلیت تصمیم‌گیری.</p>
+                    <ul>
+                        <li><strong>Tools:</strong> ابزارهای خارجی</li>
+                        <li><strong>ReAct:</strong> استدلال و عمل</li>
+                        <li><strong>Planning:</strong> برنامه‌ریزی</li>
+                    </ul>
+                </div>
+                
+                <div class="definition box">
+                    <h4><span class="emoji">📞</span> Callbacks</h4>
+                    <p>نظارت و مدیریت رویدادها.</p>
+                    <ul>
+                        <li><strong>Logging:</strong> ثبت رویدادها</li>
+                        <li><strong>Streaming:</strong> پاسخ تدریجی</li>
+                        <li><strong>Metrics:</strong> سنجش عملکرد</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: Models - مدل‌های زبانی -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>🤖 Models - مدل‌های زبانی</h2>
+            
+            <div class="info box">
+                <h3><span class="emoji">🎯</span> انواع Models در LangChain</h3>
+                <p>LangChain از سه نوع اصلی مدل پشتیبانی می‌کند:</p>
+            </div>
+            
+            <h3><span class="emoji">💬</span> 1. Chat Models</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> ChatOpenAI
+<span class="keyword">from</span> langchain.schema <span class="keyword">import</span> HumanMessage, SystemMessage, AIMessage
+
+<span class="comment"># ساخت Chat Model</span>
+chat = ChatOpenAI(
+    model=<span class="string">"gpt-4"</span>,
+    temperature=<span class="number">0.7</span>,
+    max_tokens=<span class="number">1000</span>
+)
+
+<span class="comment"># استفاده با پیام‌ها</span>
+messages = [
+    SystemMessage(content=<span class="string">"شما یک دستیار هوشمند هستید."</span>),
+    HumanMessage(content=<span class="string">"LangChain چه کاربردهایی دارد؟"</span>)
+]
+
+response = chat.invoke(messages)
+<span class="keyword">print</span>(response.content)
+
+<span class="comment"># استفاده ساده</span>
+result = chat.invoke(<span class="string">"سلام! حالت چطوره؟"</span>)
+<span class="keyword">print</span>(result.content)
+            </div>
+            
+            <h3><span class="emoji">📝</span> 2. LLMs (Text Completion)</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+<span class="comment"># ساخت LLM</span>
+llm = OpenAI(
+    model=<span class="string">"gpt-3.5-turbo-instruct"</span>,
+    temperature=<span class="number">0.9</span>,
+    max_tokens=<span class="number">500</span>
+)
+
+<span class="comment"># استفاده ساده</span>
+response = llm.invoke(<span class="string">"یک شعر کوتاه درباره هوش مصنوعی بنویس:"</span>)
+<span class="keyword">print</span>(response)
+
+<span class="comment"># تولید چندین پاسخ</span>
+responses = llm.generate([
+    <span class="string">"نام 3 زبان برنامه‌نویسی محبوب:"</span>,
+    <span class="string">"نام 3 فریمورک AI:"</span>
+])
+
+<span class="keyword">for</span> generation <span class="keyword">in</span> responses.generations:
+    <span class="keyword">print</span>(generation[<span class="number">0</span>].text)
+            </div>
+            
+            <h3><span class="emoji">🔢</span> 3. Embeddings</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAIEmbeddings
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+
+<span class="comment"># ساخت Embedding Model</span>
+embeddings = OpenAIEmbeddings(model=<span class="string">"text-embedding-3-small"</span>)
+
+<span class="comment"># تبدیل متن به وکتور</span>
+text = <span class="string">"LangChain یک فریمورک قدرتمند است"</span>
+vector = embeddings.embed_query(text)
+
+<span class="keyword">print</span>(<span class="string">f"طول وکتور: {len(vector)}"</span>)
+<span class="keyword">print</span>(<span class="string">f"نمونه: {vector[:5]}"</span>)
+
+<span class="comment"># تبدیل چند متن</span>
+texts = [
+    <span class="string">"هوش مصنوعی"</span>,
+    <span class="string">"یادگیری ماشین"</span>,
+    <span class="string">"شبکه عصبی"</span>
+]
+vectors = embeddings.embed_documents(texts)
+
+<span class="keyword">print</span>(<span class="string">f"تعداد وکتورها: {len(vectors)}"</span>)
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> مدل‌های پشتیبانی شده</h4>
+                    <ul>
+                        <li>OpenAI (GPT-4, GPT-3.5)</li>
+                        <li>Anthropic (Claude)</li>
+                        <li>Google (PaLM, Gemini)</li>
+                        <li>Hugging Face</li>
+                        <li>Cohere</li>
+                        <li>مدل‌های محلی (Ollama, LlamaCpp)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">⚙️</span> پارامترهای مهم</h4>
+                    <ul>
+                        <li><strong>temperature:</strong> خلاقیت (0-2)</li>
+                        <li><strong>max_tokens:</strong> طول پاسخ</li>
+                        <li><strong>top_p:</strong> تنوع پاسخ</li>
+                        <li><strong>frequency_penalty:</strong> جلوگیری از تکرار</li>
+                        <li><strong>presence_penalty:</strong> تشویق به تنوع</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: Prompts - مدیریت Prompt -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>📝 Prompts - مدیریت Prompt</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Prompt Template چیست؟</h3>
+                <p>قالب‌های از پیش تعریف شده که به شما امکان می‌دهند prompt های پویا و قابل استفاده مجدد بسازید.</p>
+            </div>
+            
+            <h3><span class="emoji">📄</span> 1. Prompt Template ساده</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.prompts <span class="keyword">import</span> PromptTemplate
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+<span class="comment"># ایجاد قالب</span>
+template = <span class="string">"""
+شما یک {role} حرفه‌ای هستید.
+لطفاً درباره {topic} توضیح دهید.
+سطح توضیحات: {level}
+"""</span>
+
+prompt = PromptTemplate(
+    input_variables=[<span class="string">"role"</span>, <span class="string">"topic"</span>, <span class="string">"level"</span>],
+    template=template
+)
+
+<span class="comment"># استفاده از قالب</span>
+formatted_prompt = prompt.format(
+    role=<span class="string">"معلم برنامه‌نویسی"</span>,
+    topic=<span class="string">"متغیرها در Python"</span>,
+    level=<span class="string">"مبتدی"</span>
+)
+
+llm = OpenAI()
+response = llm.invoke(formatted_prompt)
+<span class="keyword">print</span>(response)
+            </div>
+            
+            <h3><span class="emoji">💬</span> 2. Chat Prompt Template</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.prompts <span class="keyword">import</span> ChatPromptTemplate
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> ChatOpenAI
+
+<span class="comment"># ایجاد قالب چت</span>
+chat_template = ChatPromptTemplate.from_messages([
+    (<span class="string">"system"</span>, <span class="string">"شما یک {role} هستید که به {language} پاسخ می‌دهد."</span>),
+    (<span class="string">"human"</span>, <span class="string">"{question}"</span>)
+])
+
+<span class="comment"># فرمت کردن</span>
+messages = chat_template.format_messages(
+    role=<span class="string">"دستیار هوشمند"</span>,
+    language=<span class="string">"فارسی"</span>,
+    question=<span class="string">"هوش مصنوعی چیست؟"</span>
+)
+
+chat = ChatOpenAI()
+response = chat.invoke(messages)
+<span class="keyword">print</span>(response.content)
+            </div>
+            
+            <h3><span class="emoji">📚</span> 3. Few-Shot Prompting</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.prompts <span class="keyword">import</span> FewShotPromptTemplate, PromptTemplate
+
+<span class="comment"># مثال‌های آموزشی</span>
+examples = [
+    {
+        <span class="string">"question"</span>: <span class="string">"آسمان چه رنگی است؟"</span>,
+        <span class="string">"answer"</span>: <span class="string">"آبی"</span>
+    },
+    {
+        <span class="string">"question"</span>: <span class="string">"برف چه رنگی است؟"</span>,
+        <span class="string">"answer"</span>: <span class="string">"سفید"</span>
+    }
+]
+
+<span class="comment"># قالب هر مثال</span>
+example_template = <span class="string">"""
+سوال: {question}
+پاسخ: {answer}
+"""</span>
+
+example_prompt = PromptTemplate(
+    input_variables=[<span class="string">"question"</span>, <span class="string">"answer"</span>],
+    template=example_template
+)
+
+<span class="comment"># قالب Few-Shot</span>
+few_shot_prompt = FewShotPromptTemplate(
+    examples=examples,
+    example_prompt=example_prompt,
+    prefix=<span class="string">"به سوالات زیر پاسخ کوتاه دهید:"</span>,
+    suffix=<span class="string">"سوال: {input}\nپاسخ:"</span>,
+    input_variables=[<span class="string">"input"</span>]
+)
+
+<span class="comment"># استفاده</span>
+formatted = few_shot_prompt.format(input=<span class="string">"گل رز چه رنگی است؟"</span>)
+<span class="keyword">print</span>(formatted)
+            </div>
+        </div>
+
+        <!-- اسلاید 6: Output Parsers -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>🔍 Output Parsers - پردازش خروجی</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Output Parser چیست؟</h3>
+                <p>ابزاری برای تبدیل خروجی متنی LLM به ساختارهای داده‌ای قابل استفاده (JSON، لیست، و غیره).</p>
+            </div>
+            
+            <h3><span class="emoji">📋</span> 1. Structured Output Parser</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.output_parsers <span class="keyword">import</span> StructuredOutputParser, ResponseSchema
+<span class="keyword">from</span> langchain.prompts <span class="keyword">import</span> PromptTemplate
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+<span class="comment"># تعریف ساختار خروجی</span>
+response_schemas = [
+    ResponseSchema(name=<span class="string">"name"</span>, description=<span class="string">"نام شخص"</span>),
+    ResponseSchema(name=<span class="string">"age"</span>, description=<span class="string">"سن شخص"</span>),
+    ResponseSchema(name=<span class="string">"job"</span>, description=<span class="string">"شغل شخص"</span>)
+]
+
+output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+
+<span class="comment"># دستورالعمل فرمت</span>
+format_instructions = output_parser.get_format_instructions()
+
+<span class="comment"># ایجاد prompt</span>
+template = <span class="string">"""
+اطلاعات زیر را استخراج کنید:
+{text}
+
+{format_instructions}
+"""</span>
+
+prompt = PromptTemplate(
+    template=template,
+    input_variables=[<span class="string">"text"</span>],
+    partial_variables={<span class="string">"format_instructions"</span>: format_instructions}
+)
+
+<span class="comment"># استفاده</span>
+llm = OpenAI()
+text = <span class="string">"علی 25 ساله است و برنامه‌نویس است."</span>
+formatted_prompt = prompt.format(text=text)
+response = llm.invoke(formatted_prompt)
+
+<span class="comment"># پردازش خروجی</span>
+parsed = output_parser.parse(response)
+<span class="keyword">print</span>(parsed)
+<span class="comment"># {'name': 'علی', 'age': '25', 'job': 'برنامه‌نویس'}</span>
+            </div>
+            
+            <h3><span class="emoji">📝</span> 2. List Output Parser</h3>
+            <div class="example box">
+                <div class="code">
+<span class="keyword">from</span> langchain.output_parsers <span class="keyword">import</span> CommaSeparatedListOutputParser
+
+<span class="comment"># ایجاد parser</span>
+output_parser = CommaSeparatedListOutputParser()
+
+<span class="comment"># دستورالعمل فرمت</span>
+format_instructions = output_parser.get_format_instructions()
+
+prompt = PromptTemplate(
+    template=<span class="string">"5 زبان برنامه‌نویسی محبوب را نام ببرید.\n{format_instructions}"</span>,
+    input_variables=[],
+    partial_variables={<span class="string">"format_instructions"</span>: format_instructions}
+)
+
+llm = OpenAI()
+response = llm.invoke(prompt.format())
+
+<span class="comment"># پردازش به لیست</span>
+parsed = output_parser.parse(response)
+<span class="keyword">print</span>(parsed)
+<span class="comment"># ['Python', 'JavaScript', 'Java', 'C++', 'Go']</span>
+                </div>
+            </div>
+            
+            <h3><span class="emoji">🎯</span> 3. Pydantic Output Parser</h3>
+            <div class="example box">
+                <div class="code">
+<span class="keyword">from</span> langchain.output_parsers <span class="keyword">import</span> PydanticOutputParser
+<span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel, Field
+
+<span class="comment"># تعریف مدل داده</span>
+<span class="keyword">class</span> <span class="function">Person</span>(BaseModel):
+    name: <span class="function">str</span> = Field(description=<span class="string">"نام شخص"</span>)
+    age: <span class="function">int</span> = Field(description=<span class="string">"سن شخص"</span>)
+    email: <span class="function">str</span> = Field(description=<span class="string">"ایمیل شخص"</span>)
+
+<span class="comment"># ایجاد parser</span>
+parser = PydanticOutputParser(pydantic_object=Person)
+
+prompt = PromptTemplate(
+    template=<span class="string">"اطلاعات شخص را استخراج کنید.\n{format_instructions}\n{query}"</span>,
+    input_variables=[<span class="string">"query"</span>],
+    partial_variables={<span class="string">"format_instructions"</span>: parser.get_format_instructions()}
+)
+
+llm = OpenAI()
+query = <span class="string">"رضا 30 ساله است و ایمیلش reza@example.com است"</span>
+response = llm.invoke(prompt.format(query=query))
+
+<span class="comment"># پردازش به شیء Pydantic</span>
+person = parser.parse(response)
+<span class="keyword">print</span>(person.name, person.age, person.email)
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: Chains - زنجیره‌ها -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>⛓️ Chains - زنجیره‌ها</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Chain چیست؟</h3>
+                <p>ترکیب چندین عملیات (LLM، Prompt، Parser) به صورت زنجیره‌ای برای انجام وظایف پیچیده.</p>
+            </div>
+            
+            <h3><span class="emoji">🔗</span> 1. LLMChain - زنجیره ساده</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> LLMChain
+<span class="keyword">from</span> langchain.prompts <span class="keyword">import</span> PromptTemplate
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+<span class="comment"># ایجاد prompt</span>
+prompt = PromptTemplate(
+    input_variables=[<span class="string">"product"</span>],
+    template=<span class="string">"یک نام خلاقانه برای شرکتی که {product} می‌سازد پیشنهاد دهید."</span>
+)
+
+<span class="comment"># ایجاد LLM</span>
+llm = OpenAI(temperature=<span class="number">0.9</span>)
+
+<span class="comment"># ایجاد Chain</span>
+chain = LLMChain(llm=llm, prompt=prompt)
+
+<span class="comment"># اجرای chain</span>
+result = chain.invoke(<span class="string">"گوشی هوشمند"</span>)
+<span class="keyword">print</span>(result[<span class="string">"text"</span>])
+
+<span class="comment"># اجرای چندتایی</span>
+results = chain.batch([
+    {<span class="string">"product"</span>: <span class="string">"لپ‌تاپ"</span>},
+    {<span class="string">"product"</span>: <span class="string">"ساعت هوشمند"</span>}
+])
+<span class="keyword">print</span>(results)
+            </div>
+            
+            <h3><span class="emoji">➡️</span> 2. Sequential Chain - زنجیره ترتیبی</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> SimpleSequentialChain
+
+<span class="comment"># Chain 1: تولید نام شرکت</span>
+prompt1 = PromptTemplate(
+    input_variables=[<span class="string">"product"</span>],
+    template=<span class="string">"نام شرکتی که {product} می‌سازد:"</span>
+)
+chain1 = LLMChain(llm=llm, prompt=prompt1)
+
+<span class="comment"># Chain 2: تولید شعار</span>
+prompt2 = PromptTemplate(
+    input_variables=[<span class="string">"company"</span>],
+    template=<span class="string">"یک شعار جذاب برای شرکت {company}:"</span>
+)
+chain2 = LLMChain(llm=llm, prompt=prompt2)
+
+<span class="comment"># ترکیب chains</span>
+overall_chain = SimpleSequentialChain(
+    chains=[chain1, chain2],
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># اجرا</span>
+result = overall_chain.invoke(<span class="string">"هدفون بی‌سیم"</span>)
+<span class="keyword">print</span>(result[<span class="string">"text"</span>])
+            </div>
+            
+            <h3><span class="emoji">🔀</span> 3. Sequential Chain با چند ورودی/خروجی</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> SequentialChain
+
+<span class="comment"># Chain 1: بررسی محصول</span>
+chain1 = LLMChain(
+    llm=llm,
+    prompt=PromptTemplate(
+        input_variables=[<span class="string">"product"</span>],
+        template=<span class="string">"ویژگی‌های {product}:"</span>
+    ),
+    output_key=<span class="string">"features"</span>
+)
+
+<span class="comment"># Chain 2: تحلیل بازار</span>
+chain2 = LLMChain(
+    llm=llm,
+    prompt=PromptTemplate(
+        input_variables=[<span class="string">"product"</span>, <span class="string">"features"</span>],
+        template=<span class="string">"بازار هدف برای {product} با ویژگی‌های {features}:"</span>
+    ),
+    output_key=<span class="string">"market"</span>
+)
+
+<span class="comment"># Chain 3: استراتژی قیمت‌گذاری</span>
+chain3 = LLMChain(
+    llm=llm,
+    prompt=PromptTemplate(
+        input_variables=[<span class="string">"market"</span>, <span class="string">"features"</span>],
+        template=<span class="string">"استراتژی قیمت برای بازار {market} با ویژگی‌های {features}:"</span>
+    ),
+    output_key=<span class="string">"pricing"</span>
+)
+
+<span class="comment"># ترکیب</span>
+overall_chain = SequentialChain(
+    chains=[chain1, chain2, chain3],
+    input_variables=[<span class="string">"product"</span>],
+    output_variables=[<span class="string">"features"</span>, <span class="string">"market"</span>, <span class="string">"pricing"</span>],
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># اجرا</span>
+result = overall_chain.invoke(<span class="string">"تبلت آموزشی"</span>)
+<span class="keyword">print</span>(result)
+            </div>
+        </div>
+
+        <!-- اسلاید 8: Router Chain -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>🔀 Router Chain - مسیریابی هوشمند</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Router Chain چیست؟</h3>
+                <p>زنجیره‌ای که بر اساس ورودی، مسیر اجرا را انتخاب می‌کند. مناسب برای وقتی که نیاز به پردازش‌های مختلف داریم.</p>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">🛤️</span> مثال: سیستم پاسخگویی چندموضوعی</h3>
+                <div class="code">
+<span class="keyword">from</span> langchain.chains.router <span class="keyword">import</span> MultiPromptChain
+<span class="keyword">from</span> langchain.chains.router.llm_router <span class="keyword">import</span> LLMRouterChain, RouterOutputParser
+<span class="keyword">from</span> langchain.prompts <span class="keyword">import</span> PromptTemplate
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+llm = OpenAI(temperature=<span class="number">0</span>)
+
+<span class="comment"># تعریف prompt های مختلف برای موضوعات مختلف</span>
+physics_template = <span class="string">"""شما یک فیزیکدان هستید.
+سوال: {input}
+پاسخ فیزیکی:"""</span>
+
+math_template = <span class="string">"""شما یک ریاضیدان هستید.
+سوال: {input}
+پاسخ ریاضی:"""</span>
+
+programming_template = <span class="string">"""شما یک برنامه‌نویس هستید.
+سوال: {input}
+پاسخ برنامه‌نویسی:"""</span>
+
+<span class="comment"># تعریف اطلاعات هر prompt</span>
+prompt_infos = [
+    {
+        <span class="string">"name"</span>: <span class="string">"physics"</span>,
+        <span class="string">"description"</span>: <span class="string">"برای سوالات فیزیک مناسب است"</span>,
+        <span class="string">"prompt_template"</span>: physics_template
+    },
+    {
+        <span class="string">"name"</span>: <span class="string">"math"</span>,
+        <span class="string">"description"</span>: <span class="string">"برای سوالات ریاضی مناسب است"</span>,
+        <span class="string">"prompt_template"</span>: math_template
+    },
+    {
+        <span class="string">"name"</span>: <span class="string">"programming"</span>,
+        <span class="string">"description"</span>: <span class="string">"برای سوالات برنامه‌نویسی مناسب است"</span>,
+        <span class="string">"prompt_template"</span>: programming_template
+    }
+]
+
+<span class="comment"># ساخت destination chains</span>
+destination_chains = {}
+<span class="keyword">for</span> p_info <span class="keyword">in</span> prompt_infos:
+    name = p_info[<span class="string">"name"</span>]
+    prompt_template = p_info[<span class="string">"prompt_template"</span>]
+    prompt = PromptTemplate(template=prompt_template, input_variables=[<span class="string">"input"</span>])
+    chain = LLMChain(llm=llm, prompt=prompt)
+    destination_chains[name] = chain
+
+<span class="comment"># Default chain</span>
+default_chain = LLMChain(
+    llm=llm,
+    prompt=PromptTemplate(
+        template=<span class="string">"پاسخ عمومی: {input}"</span>,
+        input_variables=[<span class="string">"input"</span>]
+    )
+)
+
+<span class="comment"># ساخت router chain</span>
+destinations = [<span class="string">f"{p['name']}: {p['description']}"</span> <span class="keyword">for</span> p <span class="keyword">in</span> prompt_infos]
+destinations_str = <span class="string">"\n"</span>.join(destinations)
+
+router_template = <span class="string">f"""با توجه به ورودی کاربر، مناسب‌ترین متخصص را انتخاب کنید.
+
+موضوعات موجود:
+{destinations_str}
+
+ورودی: {{input}}
+متخصص مناسب:"""</span>
+
+router_prompt = PromptTemplate(
+    template=router_template,
+    input_variables=[<span class="string">"input"</span>],
+    output_parser=RouterOutputParser()
+)
+
+router_chain = LLMRouterChain.from_llm(llm, router_prompt)
+
+<span class="comment"># ساخت MultiPromptChain</span>
+chain = MultiPromptChain(
+    router_chain=router_chain,
+    destination_chains=destination_chains,
+    default_chain=default_chain,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># تست</span>
+<span class="keyword">print</span>(chain.invoke(<span class="string">"نیروی جاذبه چیست؟"</span>)[<span class="string">"text"</span>])
+<span class="keyword">print</span>(chain.invoke(<span class="string">"انتگرال را توضیح دهید"</span>)[<span class="string">"text"</span>])
+<span class="keyword">print</span>(chain.invoke(<span class="string">"حلقه for در Python چگونه کار می‌کند؟"</span>)[<span class="string">"text"</span>])
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: Memory - حافظه -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>🧠 Memory - سیستم حافظه</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Memory چیست؟</h3>
+                <p>سیستمی برای ذخیره و مدیریت تاریخچه مکالمات تا LLM بتواند context را حفظ کند.</p>
+            </div>
+            
+            <h3><span class="emoji">💾</span> 1. ConversationBufferMemory</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.memory <span class="keyword">import</span> ConversationBufferMemory
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> ConversationChain
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+llm = OpenAI(temperature=<span class="number">0.7</span>)
+
+<span class="comment"># ایجاد حافظه</span>
+memory = ConversationBufferMemory()
+
+<span class="comment"># ایجاد chain با حافظه</span>
+conversation = ConversationChain(
+    llm=llm,
+    memory=memory,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># مکالمه</span>
+conversation.invoke(<span class="string">"سلام! اسم من علی است"</span>)
+conversation.invoke(<span class="string">"اسم من چیه؟"</span>)
+conversation.invoke(<span class="string">"درباره هوش مصنوعی بگو"</span>)
+
+<span class="comment"># مشاهده تاریخچه</span>
+<span class="keyword">print</span>(memory.load_memory_variables({}))
+            </div>
+            
+            <h3><span class="emoji">🔢</span> 2. ConversationBufferWindowMemory</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.memory <span class="keyword">import</span> ConversationBufferWindowMemory
+
+<span class="comment"># حافظه با پنجره 2 پیام</span>
+memory = ConversationBufferWindowMemory(k=<span class="number">2</span>)
+
+conversation = ConversationChain(
+    llm=llm,
+    memory=memory,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># مکالمات</span>
+conversation.invoke(<span class="string">"سلام"</span>)
+conversation.invoke(<span class="string">"اسم من رضاست"</span>)
+conversation.invoke(<span class="string">"من برنامه‌نویسم"</span>)
+conversation.invoke(<span class="string">"شغل من چیه؟"</span>)  <span class="comment"># یادش هست</span>
+conversation.invoke(<span class="string">"اسم من چیه؟"</span>)   <span class="comment"># فراموش کرده!</span>
+            </div>
+            
+            <h3><span class="emoji">📝</span> 3. ConversationSummaryMemory</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.memory <span class="keyword">import</span> ConversationSummaryMemory
+
+<span class="comment"># حافظه خلاصه‌ساز</span>
+memory = ConversationSummaryMemory(llm=llm)
+
+conversation = ConversationChain(
+    llm=llm,
+    memory=memory,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># مکالمه طولانی</span>
+conversation.invoke(<span class="string">"سلام! من دانشجوی کامپیوتر هستم و علاقه زیادی به هوش مصنوعی دارم."</span>)
+conversation.invoke(<span class="string">"الان دارم Python یاد می‌گیرم و روی پروژه چت‌بات کار می‌کنم."</span>)
+conversation.invoke(<span class="string">"درباره من چی می‌دونی؟"</span>)
+
+<span class="comment"># مشاهده خلاصه</span>
+<span class="keyword">print</span>(memory.load_memory_variables({}))
+            </div>
+            
+            <h3><span class="emoji">🎯</span> 4. ConversationSummaryBufferMemory</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.memory <span class="keyword">import</span> ConversationSummaryBufferMemory
+
+memory = ConversationSummaryBufferMemory(
+    llm=llm,
+    max_token_limit=<span class="number">100</span>  <span class="comment"># حد توکن</span>
+)
+
+conversation = ConversationChain(
+    llm=llm,
+    memory=memory,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># استفاده</span>
+conversation.invoke(<span class="string">"سلام"</span>)
+conversation.invoke(<span class="string">"من علی هستم"</span>)
+conversation.invoke(<span class="string">"برنامه‌نویس وب هستم"</span>)
+conversation.invoke(<span class="string">"درباره من بگو"</span>)
+            </div>
+        </div>
+
+        <!-- اسلاید 10: Vector Store Memory -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>🔍 Vector Store Memory - حافظه برداری</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Vector Store Memory چیست؟</h3>
+                <p>ذخیره مکالمات به صورت embedding و بازیابی بر اساس شباهت معنایی.</p>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💡</span> مثال کامل</h3>
+                <div class="code">
+<span class="keyword">from</span> langchain.memory <span class="keyword">import</span> ConversationSummaryBufferMemory
+
+memory = ConversationSummaryBufferMemory(
+    llm=llm,
+    max_token_limit=<span class="number">100</span>  <span class="comment"># حد توکن</span>
+)
+
+conversation = ConversationChain(
+    llm=llm,
+    memory=memory,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># استفاده</span>
+conversation.invoke(<span class="string">"سلام"</span>)
+conversation.invoke(<span class="string">"من علی هستم"</span>)
+conversation.invoke(<span class="string">"برنامه‌نویس وب هستم"</span>)
+conversation.invoke(<span class="string">"درباره من بگو"</span>)
+                </div>
+            </div>
+            
+            <div class="grid">
+                <div class="info box">
+                    <h4><span class="emoji">✅</span> مزایا</h4>
+                    <ul>
+                        <li>جستجوی معنایی هوشمند</li>
+                        <li>مناسب برای مکالمات طولانی</li>
+                        <li>بازیابی اطلاعات مرتبط</li>
+                        <li>مقیاس‌پذیر</li>
+                    </ul>
+                </div>
+                
+                <div class="warning box">
+                    <h4><span class="emoji">⚠️</span> نکات</h4>
+                    <ul>
+                        <li>نیاز به embedding model</li>
+                        <li>هزینه بیشتر</li>
+                        <li>پیچیدگی بیشتر</li>
+                        <li>نیاز به vector database</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: Document Loaders -->
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>📄 Document Loaders - بارگذاری اسناد</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Document Loader چیست؟</h3>
+                <p>ابزارهایی برای خواندن و بارگذاری انواع فایل‌ها (PDF، Word، Web، و غیره) به فرمت قابل استفاده.</p>
+            </div>
+            
+            <h3><span class="emoji">📝</span> 1. بارگذاری فایل متنی</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.document_loaders <span class="keyword">import</span> TextLoader
+
+<span class="comment"># بارگذاری فایل txt</span>
+loader = TextLoader(<span class="string">"document.txt"</span>)
+documents = loader.load()
+
+<span class="keyword">print</span>(<span class="function">len</span>(documents))
+<span class="keyword">print</span>(documents[<span class="number">0</span>].page_content)
+<span class="keyword">print</span>(documents[<span class="number">0</span>].metadata)
+            </div>
+            
+            <h3><span class="emoji">📕</span> 2. بارگذاری PDF</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.document_loaders <span class="keyword">import</span> PyPDFLoader
+
+<span class="comment"># بارگذاری PDF</span>
+loader = PyPDFLoader(<span class="string">"document.pdf"</span>)
+pages = loader.load_and_split()
+
+<span class="keyword">print</span>(<span class="function">len</span>(pages))
+<span class="keyword">print</span>(pages[<span class="number">0</span>].page_content)
+            </div>
+            
+            <h3><span class="emoji">🌐</span> 3. بارگذاری از وب</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.document_loaders <span class="keyword">import</span> WebBaseLoader
+
+<span class="comment"># بارگذاری از URL</span>
+loader = WebBaseLoader(<span class="string">"https://example.com"</span>)
+documents = loader.load()
+
+<span class="keyword">print</span>(documents[<span class="number">0</span>].page_content)
+            </div>
+            
+            <h3><span class="emoji">📊</span> 4. بارگذاری CSV</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.document_loaders <span class="keyword">import</span> CSVLoader
+
+loader = CSVLoader(file_path=<span class="string">"data.csv"</span>)
+documents = loader.load()
+
+<span class="keyword">for</span> doc <span class="keyword">in</span> documents:
+    <span class="keyword">print</span>(doc.page_content)
+            </div>
+            
+            <h3><span class="emoji">📁</span> 5. بارگذاری پوشه</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.document_loaders <span class="keyword">import</span> DirectoryLoader
+
+<span class="comment"># بارگذاری تمام فایل‌های txt در پوشه</span>
+loader = DirectoryLoader(
+    <span class="string">"./documents"</span>,
+    glob=<span class="string">"**/*.txt"</span>
+)
+documents = loader.load()
+
+<span class="keyword">print</span>(<span class="function">len</span>(documents))
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>📄 فرمت‌های پشتیبانی شده</h4>
+                    <ul>
+                        <li>PDF</li>
+                        <li>Word (docx)</li>
+                        <li>Excel</li>
+                        <li>CSV</li>
+                        <li>JSON</li>
+                        <li>HTML</li>
+                        <li>Markdown</li>
+                        <li>و بیش از 50 فرمت دیگر!</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🌐 منابع آنلاین</h4>
+                    <ul>
+                        <li>وب‌سایت‌ها</li>
+                        <li>YouTube</li>
+                        <li>GitHub</li>
+                        <li>Google Drive</li>
+                        <li>Notion</li>
+                        <li>Slack</li>
+                        <li>Discord</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: Text Splitters -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>✂️ Text Splitters - تقسیم متن</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Text Splitter چیست؟</h3>
+                <p>ابزاری برای تقسیم متن‌های بلند به بخش‌های کوچک‌تر که با محدودیت context window سازگار باشند.</p>
+            </div>
+            
+            <h3><span class="emoji">📏</span> 1. Character Text Splitter</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> CharacterTextSplitter
+
+text = <span class="string">"""
+این یک متن طولانی است که باید تقسیم شود.
+ما می‌خواهیم آن را به بخش‌های کوچک‌تر تبدیل کنیم.
+هر بخش باید اندازه مناسبی داشته باشد.
+"""</span>
+
+<span class="comment"># ایجاد splitter</span>
+splitter = CharacterTextSplitter(
+    separator=<span class="string">"\n"</span>,
+    chunk_size=<span class="number">100</span>,
+    chunk_overlap=<span class="number">20</span>,
+    length_function=<span class="function">len</span>
+)
+
+chunks = splitter.split_text(text)
+<span class="keyword">for</span> i, chunk <span class="keyword">in</span> <span class="function">enumerate</span>(chunks):
+    <span class="keyword">print</span>(<span class="string">f"Chunk {i}: {chunk}"</span>)
+            </div>
+            
+            <h3><span class="emoji">🔢</span> 2. Recursive Character Text Splitter</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> RecursiveCharacterTextSplitter
+
+text = <span class="string">"""
+# عنوان اصلی
+
+## زیرعنوان 1
+محتوای بخش اول که شامل چندین پاراگراف است.
+
+## زیرعنوان 2
+محتوای بخش دوم.
+"""</span>
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=<span class="number">100</span>,
+    chunk_overlap=<span class="number">20</span>,
+    separators=[<span class="string">"\n\n"</span>, <span class="string">"\n"</span>, <span class="string">" "</span>, <span class="string">""</span>]
+)
+
+chunks = splitter.split_text(text)
+<span class="keyword">print</span>(chunks)
+            </div>
+            
+            <h3><span class="emoji">💻</span> 3. Code Splitter</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> (
+    RecursiveCharacterTextSplitter,
+    Language
+)
+
+<span class="comment"># برای کد Python</span>
+python_splitter = RecursiveCharacterTextSplitter.from_language(
+    language=Language.PYTHON,
+    chunk_size=<span class="number">50</span>,
+    chunk_overlap=<span class="number">0</span>
+)
+
+python_code = <span class="string">"""
+def hello():
+    print("Hello")
+
+class MyClass:
+    def __init__(self):
+        self.value = 0
+"""</span>
+
+chunks = python_splitter.split_text(python_code)
+<span class="keyword">print</span>(chunks)
+            </div>
+            
+            <h3><span class="emoji">📄</span> 4. Token Splitter</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> TokenTextSplitter
+
+<span class="comment"># تقسیم بر اساس تعداد توکن</span>
+splitter = TokenTextSplitter(
+    chunk_size=<span class="number">100</span>,
+    chunk_overlap=<span class="number">10</span>
+)
+
+text = <span class="string">"متن طولانی که باید به توکن‌ها تقسیم شود..."</span>
+chunks = splitter.split_text(text)
+            </div>
+        </div>
+
+        <!-- اسلاید 13: Vector Stores -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h2>🗄️ Vector Stores - پایگاه داده برداری</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Vector Store چیست؟</h3>
+                <p>پایگاه داده‌ای برای ذخیره و جستجوی embedding ها (بردارهای عددی متن).</p>
+            </div>
+            
+            <h3><span class="emoji">⚡</span> 1. FAISS - سریع و محلی</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.vectorstores <span class="keyword">import</span> FAISS
+<span class="keyword">from</span> langchain.embeddings <span class="keyword">import</span> OpenAIEmbeddings
+<span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> CharacterTextSplitter
+
+<span class="comment"># متن نمونه</span>
+text = <span class="string">"""
+LangChain یک فریمورک قدرتمند است.
+Python زبان محبوب برنامه‌نویسی است.
+هوش مصنوعی آینده تکنولوژی است.
+"""</span>
+
+<span class="comment"># تقسیم متن</span>
+splitter = CharacterTextSplitter(chunk_size=<span class="number">50</span>)
+chunks = splitter.split_text(text)
+
+<span class="comment"># ایجاد embeddings</span>
+embeddings = OpenAIEmbeddings()
+
+<span class="comment"># ایجاد vector store</span>
+vectorstore = FAISS.from_texts(chunks, embeddings)
+
+<span class="comment"># جستجو</span>
+query = <span class="string">"برنامه‌نویسی"</span>
+results = vectorstore.similarity_search(query, k=<span class="number">2</span>)
+
+<span class="keyword">for</span> result <span class="keyword">in</span> results:
+    <span class="keyword">print</span>(result.page_content)
+
+<span class="comment"># ذخیره به دیسک</span>
+vectorstore.save_local(<span class="string">"faiss_index"</span>)
+
+<span class="comment"># بارگذاری</span>
+new_vectorstore = FAISS.load_local(<span class="string">"faiss_index"</span>, embeddings)
+            </div>
+            
+            <h3><span class="emoji">🔍</span> 2. Chroma - پیشرفته</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.vectorstores <span class="keyword">import</span> Chroma
+
+<span class="comment"># ایجاد Chroma vector store</span>
+vectorstore = Chroma.from_texts(
+    texts=chunks,
+    embedding=embeddings,
+    persist_directory=<span class="string">"./chroma_db"</span>
+)
+
+<span class="comment"># جستجو با فیلتر</span>
+results = vectorstore.similarity_search(
+    query=<span class="string">"Python"</span>,
+    k=<span class="number">3</span>,
+    filter={<span class="string">"source"</span>: <span class="string">"document.pdf"</span>}
+)
+
+<span class="comment"># جستجو با امتیاز</span>
+results_with_scores = vectorstore.similarity_search_with_score(
+    query=<span class="string">"AI"</span>,
+    k=<span class="number">3</span>
+)
+
+<span class="keyword">for</span> doc, score <span class="keyword">in</span> results_with_scores:
+    <span class="keyword">print</span>(<span class="string">f"Score: {score}, Content: {doc.page_content}"</span>)
+            </div>
+            
+            <h3><span class="emoji">🌐</span> 3. Pinecone - ابری</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.vectorstores <span class="keyword">import</span> Pinecone
+<span class="keyword">import</span> pinecone
+
+<span class="comment"># راه‌اندازی Pinecone</span>
+pinecone.init(
+    api_key=<span class="string">"your-api-key"</span>,
+    environment=<span class="string">"us-west1-gcp"</span>
+)
+
+index_name = <span class="string">"langchain-demo"</span>
+
+<span class="comment"># ایجاد vector store</span>
+vectorstore = Pinecone.from_texts(
+    texts=chunks,
+    embedding=embeddings,
+    index_name=index_name
+)
+
+<span class="comment"># جستجو</span>
+results = vectorstore.similarity_search(<span class="string">"Python"</span>, k=<span class="number">3</span>)
+            </div>
+            
+            <div class="comparison">
+                <div class="info box">
+                    <h4><span class="emoji">⚡</span> FAISS</h4>
+                    <ul>
+                        <li>✅ سریع و رایگان</li>
+                        <li>✅ نصب محلی</li>
+                        <li>❌ مقیاس‌پذیری محدود</li>
+                        <li>✅ مناسب توسعه</li>
+                    </ul>
+                </div>
+                
+                <div class="info box">
+                    <h4><span class="emoji">🌐</span> Pinecone</h4>
+                    <ul>
+                        <li>✅ مقیاس‌پذیر</li>
+                        <li>✅ مدیریت شده</li>
+                        <li>❌ هزینه دارد</li>
+                        <li>✅ مناسب production</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: Retrieval QA -->
+        <div class="slide">
+            <div class="slide-number">14</div>
+            <h2>🔎 Retrieval QA - پرسش و پاسخ</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Retrieval QA چیست؟</h3>
+                <p>سیستمی که ابتدا اسناد مرتبط را پیدا می‌کند، سپس بر اساس آن‌ها پاسخ می‌دهد.</p>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💡</span> مثال کامل: سیستم پرسش و پاسخ از اسناد</h3>
+                <div class="code">
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> RetrievalQA
+<span class="keyword">from</span> langchain.document_loaders <span class="keyword">import</span> TextLoader
+<span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> CharacterTextSplitter
+<span class="keyword">from</span> langchain.vectorstores <span class="keyword">import</span> FAISS
+<span class="keyword">from</span> langchain.embeddings <span class="keyword">import</span> OpenAIEmbeddings
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+<span class="comment"># 1. بارگذاری اسناد</span>
+loader = TextLoader(<span class="string">"knowledge_base.txt"</span>)
+documents = loader.load()
+
+<span class="comment"># 2. تقسیم به chunks</span>
+text_splitter = CharacterTextSplitter(
+    chunk_size=<span class="number">1000</span>,
+    chunk_overlap=<span class="number">200</span>
+)
+texts = text_splitter.split_documents(documents)
+
+<span class="comment"># 3. ایجاد vector store</span>
+embeddings = OpenAIEmbeddings()
+vectorstore = FAISS.from_documents(texts, embeddings)
+
+<span class="comment"># 4. ایجاد retriever</span>
+retriever = vectorstore.as_retriever(
+    search_type=<span class="string">"similarity"</span>,
+    search_kwargs={<span class="string">"k"</span>: <span class="number">3</span>}
+)
+
+<span class="comment"># 5. ایجاد QA chain</span>
+qa_chain = RetrievalQA.from_chain_type(
+    llm=OpenAI(temperature=<span class="number">0</span>),
+    chain_type=<span class="string">"stuff"</span>,
+    retriever=retriever,
+    return_source_documents=<span class="keyword">True</span>,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># 6. پرسش</span>
+query = <span class="string">"LangChain چیست؟"</span>
+result = qa_chain.invoke({<span class="string">"query"</span>: query})
+
+<span class="keyword">print</span>(<span class="string">"پاسخ:"</span>, result[<span class="string">"result"</span>])
+<span class="keyword">print</span>(<span class="string">"\nمنابع:"</span>)
+<span class="keyword">for</span> doc <span class="keyword">in</span> result[<span class="string">"source_documents"</span>]:
+    <span class="keyword">print</span>(<span class="string">f"- {doc.page_content[:100]}..."</span>)
+                </div>
+            </div>
+            
+            <h3><span class="emoji">🔧</span> انواع Chain Types</h3>
+            <div class="grid">
+                <div class="card">
+                    <h4>stuff</h4>
+                    <p>همه اسناد را در یک prompt قرار می‌دهد</p>
+                    <p><strong>مناسب:</strong> اسناد کوتاه</p>
+                </div>
+                
+                <div class="card">
+                    <h4>map_reduce</h4>
+                    <p>هر سند را جداگانه پردازش کرده، سپس ترکیب</p>
+                    <p><strong>مناسب:</strong> اسناد زیاد</p>
+                </div>
+                
+                <div class="card">
+                    <h4>refine</h4>
+                    <p>پاسخ را تدریجی بهبود می‌دهد</p>
+                    <p><strong>مناسب:</strong> دقت بالا</p>
+                </div>
+                
+                <div class="card">
+                    <h4>map_rerank</h4>
+                    <p>امتیازدهی و انتخاب بهترین</p>
+                    <p><strong>مناسب:</strong> کیفیت بالا</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: RAG - Retrieval Augmented Generation -->
+        <div class="slide">
+            <div class="slide-number">15</div>
+            <h2>🔍 RAG - بازیابی و تولید</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> RAG چیست؟</h3>
+                <p><strong>Retrieval Augmented Generation:</strong> ترکیب جستجوی اطلاعات از پایگاه دانش با قدرت تولید متن LLM.</p>
+            </div>
+            
+            <div class="architecture-diagram">
+                <h3 style="color: #667eea; margin-bottom: 20px;">معماری RAG</h3>
+                <div style="margin: 40px 0;">
+                    <div class="component-box" style="background: #4caf50;">سوال کاربر</div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box">Embedding</div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box">Vector Search</div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box">مستندات مرتبط</div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box">LLM + Context</div>
+                    <span class="arrow">↓</span>
+                    <div class="component-box" style="background: #4caf50;">پاسخ نهایی</div>
+                </div>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">📚</span> پیاده‌سازی RAG</h3>
+                <div class="code">
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> RetrievalQA
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+<span class="keyword">from</span> langchain.vectorstores <span class="keyword">import</span> FAISS
+<span class="keyword">from</span> langchain.embeddings <span class="keyword">import</span> OpenAIEmbeddings
+<span class="keyword">from</span> langchain.document_loaders <span class="keyword">import</span> TextLoader
+<span class="keyword">from</span> langchain.text_splitter <span class="keyword">import</span> CharacterTextSplitter
+
+<span class="comment"># 1. بارگذاری اسناد</span>
+loader = TextLoader(<span class="string">"knowledge_base.txt"</span>)
+documents = loader.load()
+
+<span class="comment"># 2. تقسیم متن</span>
+text_splitter = CharacterTextSplitter(
+    chunk_size=<span class="number">1000</span>,
+    chunk_overlap=<span class="number">200</span>
+)
+texts = text_splitter.split_documents(documents)
+
+<span class="comment"># 3. ایجاد vector store</span>
+embeddings = OpenAIEmbeddings()
+db = FAISS.from_documents(texts, embeddings)
+
+<span class="comment"># 4. ایجاد retriever</span>
+retriever = db.as_retriever(search_kwargs={<span class="string">"k"</span>: <span class="number">3</span>})
+
+<span class="comment"># 5. ایجاد QA chain</span>
+llm = OpenAI(temperature=<span class="number">0</span>)
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type=<span class="string">"stuff"</span>,
+    retriever=retriever,
+    return_source_documents=<span class="keyword">True</span>
+)
+
+<span class="comment"># 6. پرسش</span>
+query = <span class="string">"LangChain چه کاربردهایی دارد؟"</span>
+result = qa_chain.invoke({<span class="string">"query"</span>: query})
+
+<span class="keyword">print</span>(<span class="string">"پاسخ:"</span>, result[<span class="string">"result"</span>])
+<span class="keyword">print</span>(<span class="string">"\nمنابع:"</span>)
+<span class="keyword">for</span> doc <span class="keyword">in</span> result[<span class="string">"source_documents"</span>]:
+    <span class="keyword">print</span>(doc.page_content)
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 16: Conversational RAG -->
+        <div class="slide">
+            <div class="slide-number">16</div>
+            <h2>💬 Conversational RAG - چت با اسناد</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Conversational RAG چیست؟</h3>
+                <p>ترکیب RAG با حافظه مکالمه برای چت پیوسته با اسناد.</p>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💡</span> مثال کامل</h3>
+                <div class="code">
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> ConversationalRetrievalChain
+<span class="keyword">from</span> langchain.memory <span class="keyword">import</span> ConversationBufferMemory
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> ChatOpenAI
+
+<span class="comment"># ایجاد حافظه</span>
+memory = ConversationBufferMemory(
+    memory_key=<span class="string">"chat_history"</span>,
+    return_messages=<span class="keyword">True</span>,
+    output_key=<span class="string">"answer"</span>
+)
+
+<span class="comment"># ایجاد conversational chain</span>
+llm = ChatOpenAI(temperature=<span class="number">0</span>)
+qa = ConversationalRetrievalChain.from_llm(
+    llm=llm,
+    retriever=retriever,
+    memory=memory,
+    return_source_documents=<span class="keyword">True</span>,
+    verbose=<span class="keyword">True</span>
+)
+
+<span class="comment"># مکالمه پیوسته</span>
+qa.invoke({<span class="string">"question"</span>: <span class="string">"LangChain چیست؟"</span>})
+qa.invoke({<span class="string">"question"</span>: <span class="string">"کاربردهای آن چیست؟"</span>})
+qa.invoke({<span class="string">"question"</span>: <span class="string">"یک مثال عملی بزن"</span>})
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 17: Streaming -->
+        <div class="slide">
+            <div class="slide-number">17</div>
+            <h2>📡 Streaming - پاسخ تدریجی</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Streaming چیست؟</h3>
+                <p>دریافت پاسخ به صورت تدریجی (کلمه به کلمه) به جای انتظار برای پاسخ کامل.</p>
+            </div>
+            
+            <h3><span class="emoji">💬</span> 1. Streaming با LLM</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+<span class="keyword">from</span> langchain.callbacks.streaming_stdout <span class="keyword">import</span> StreamingStdOutCallbackHandler
+
+<span class="comment"># LLM با streaming</span>
+llm = OpenAI(
+    streaming=<span class="keyword">True</span>,
+    callbacks=[StreamingStdOutCallbackHandler()],
+    temperature=<span class="number">0.7</span>
+)
+
+<span class="comment"># پاسخ تدریجی</span>
+response = llm.invoke(<span class="string">"یک داستان کوتاه درباره هوش مصنوعی بنویس"</span>)
+            </div>
+            
+            <h3><span class="emoji">🔗</span> 2. Streaming با Chain</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.chains <span class="keyword">import</span> LLMChain
+<span class="keyword">from</span> langchain.prompts <span class="keyword">import</span> PromptTemplate
+<span class="keyword">from</span> langchain.callbacks.base <span class="keyword">import</span> BaseCallbackHandler
+
+<span class="comment"># Callback سفارشی</span>
+<span class="keyword">class</span> <span class="function">StreamingHandler</span>(BaseCallbackHandler):
+    <span class="keyword">def</span> <span class="function">on_llm_new_token</span>(<span class="keyword">self</span>, token: <span class="function">str</span>, **kwargs) -> <span class="keyword">None</span>:
+        <span class="keyword">print</span>(token, end=<span class="string">""</span>, flush=<span class="keyword">True</span>)
+
+<span class="comment"># استفاده</span>
+llm = OpenAI(
+    streaming=<span class="keyword">True</span>,
+    callbacks=[StreamingHandler()]
+)
+
+prompt = PromptTemplate(
+    input_variables=[<span class="string">"topic"</span>],
+    template=<span class="string">"درباره {topic} توضیح بده:"</span>
+)
+
+chain = LLMChain(llm=llm, prompt=prompt)
+chain.invoke(<span class="string">"LangChain"</span>)
+            </div>
+        </div>
+
+        <!-- اسلاید 18: Callbacks -->
+        <div class="slide">
+            <div class="slide-number">18</div>
+            <h2>📞 Callbacks - نظارت و کنترل</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> Callback چیست؟</h3>
+                <p>مکانیزمی برای نظارت و کنترل اجرای LangChain - logging، monitoring، debugging.</p>
+            </div>
+            
+            <h3><span class="emoji">📝</span> 1. Callback سفارشی</h3>
+            <div class="code">
+<span class="keyword">from</span> langchain.callbacks.base <span class="keyword">import</span> BaseCallbackHandler
+<span class="keyword">from</span> langchain_openai <span class="keyword">import</span> OpenAI
+
+<span class="keyword">class</span> <span class="function">MyCallbackHandler</span>(BaseCallbackHandler):
+    <span class="keyword">def</span> <span class="function">on_llm_start</span>(<span class="keyword">self</span>, serialized, prompts, **kwargs):
+        <span class="keyword">print</span>(<span class="string">f"🚀 شروع LLM با {len(prompts)} prompt"</span>)
+    
+    <span class="keyword">def</span> <span class="function">on_llm_end</span>(<span class="keyword">self</span>, response, **kwargs):
+        <span class="keyword">print</span>(<span class="string">f"✅ پایان LLM"</span>)
+    
+    <span class="keyword">def</span> <span class="function">on_llm_error</span>(<span class="keyword">self</span>, error, **kwargs):
+        <span class="keyword">print</span>(<span class="string">f"❌ خطا: {error}"</span>)
+    
+    <span class="keyword">def</span> <span class="function">on_chain_start</span>(<span class="keyword">self</span>, serialized, inputs, **kwargs):
+        <span class="keyword">print</span>(<span class="string">f"⛓️ شروع Chain"</span>)
+    
+    <span class="keyword">def</span> <span class="function">on_chain_end</span>(<span class="keyword">self</span>, outputs, **kwargs):
+        <span class="keyword">print</span>(<span class="string">f"✅ پایان Chain"</span>)
+
+<span class="comment"># استفاده</span>
+handler = MyCallbackHandler()
+llm = OpenAI(callbacks=[handler])
+
+response = llm.invoke(<span class="string">"سلام!"</span>)
+            </div>
+            
+            <h3><span class="emoji">📊</span> 2. Logging Callback</h3>
+            <div class="code">
+<span class="keyword">import</span> logging
+<span class="keyword">from</span> langchain.callbacks <span class="keyword">import</span> get_openai_callback
+
+<span class="comment"># تنظیم logging</span>
+logging.basicConfig(level=logging.INFO)
+
+<span class="comment"># ردیابی هزینه و استفاده</span>
+<span class="keyword">with</span> get_openai_callback() <span class="keyword">as</span> cb:
+    llm = OpenAI()
+    result = llm.invoke(<span class="string">"یک پاراگراف درباره Python بنویس"</span>)
+    
+    <span class="keyword">print</span>(<span class="string">f"تعداد توکن‌ها: {cb.total_tokens}"</span>)
+    <span class="keyword">print</span>(<span class="string">f"هزینه: ${cb.total_cost}"</span>)
+    <span class="keyword">print</span>(<span class="string">f"تعداد فراخوانی: {cb.successful_requests}"</span>)
+            </div>
+        </div>
+
+        <!-- اسلاید 19: خلاصه و نتیجه‌گیری -->
+        <div class="slide">
+            <div class="slide-number">19</div>
+            <h2>🎓 خلاصه و نتیجه‌گیری</h2>
+            
+            <div class="success box">
+                <h3><span class="emoji">🎉</span> چیزهایی که یاد گرفتیم</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4><span class="emoji">🤖</span> Models</h4>
+                        <ul>
+                            <li>LLMs</li>
+                            <li>Chat Models</li>
+                            <li>Embeddings</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4><span class="emoji">📝</span> Prompts</h4>
+                        <ul>
+                            <li>Templates</li>
+                            <li>Few-Shot</li>
+                            <li>Output Parsers</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4><span class="emoji">⛓️</span> Chains</h4>
+                        <ul>
+                            <li>LLM Chain</li>
+                            <li>Sequential</li>
+                            <li>Router</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4><span class="emoji">🧠</span> Memory</h4>
+                        <ul>
+                            <li>Buffer</li>
+                            <li>Summary</li>
+                            <li>Vector Store</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <p style="text-align: center; font-size: 1.2em; font-weight: 600;">
+                    <span class="emoji">💡</span> با LangChain می‌توانید اپلیکیشن‌های قدرتمند AI بسازید!
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 20: صفحه پایانی -->
+        <div class="slide">
+            <div class="slide-number">20</div>
+            <div style="text-align: center; padding: 60px 20px;">
+                <h1 style="font-size: 4em; margin-bottom: 30px;">🎉</h1>
+                <h1 style="color: #667eea; font-size: 3.5em; margin-bottom: 30px;">
+                    تبریک!
+                </h1>
+                <p style="font-size: 1.8em; color: #667eea; margin-bottom: 40px;">
+                    شما با موفقیت آموزش LangChain را تکمیل کردید
+                </p>
+                
+                <div style="margin-top: 60px; font-size: 1.2em; color: #667eea;">
+                    <p><strong>موفق و پیروز باشید! 🚀</strong></p>
+                    <p style="margin-top: 20px;">
+                        ساخته شده با ❤️ برای علاقه‌مندان به هوش مصنوعی
+                    </p>
+                    <p style="margin-top: 10px; font-size: 0.9em;">
+                        نسخه 1.0 | آذر ۱۴۰۳
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        // JavaScript for interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            
+            // Animation for slides
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            entry.target.style.transition = 'all 0.6s ease-out';
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 100);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            slides.forEach(slide => observer.observe(slide));
+            
+            // Copy code blocks
+            document.querySelectorAll('.code').forEach(codeBlock => {
+                codeBlock.style.cursor = 'pointer';
+                codeBlock.title = 'کلیک کنید تا کپی شود';
+                
+                codeBlock.addEventListener('click', function() {
+                    const code = this.innerText;
+                    navigator.clipboard.writeText(code).then(() => {
+                        const originalBg = this.style.background;
+                        this.style.background = '#4caf50';
+                        setTimeout(() => this.style.background = originalBg, 300);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
