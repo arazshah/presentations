@@ -1,0 +1,3701 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع PostGIS - از صفر تا صد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: #2d3748;
+            line-height: 1.8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        h1 {
+            color: #2ecc71;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        h2 {
+            color: #2ecc71;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+            border-bottom: 3px solid #2ecc71;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: #27ae60;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: #2ecc71;
+            font-size: 1.4em;
+            margin: 20px 0 15px 0;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #4a5568;
+            text-align: justify;
+        }
+
+        .emoji {
+            font-size: 1.3em;
+            margin-left: 10px;
+        }
+
+        .code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 2px solid #334155;
+            position: relative;
+            line-height: 1.6;
+            cursor: pointer;
+            white-space: pre;
+        }
+
+        .code::before {
+            content: 'SQL';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #2ecc71;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .code.bash::before {
+            content: 'Bash';
+            background: #3498db;
+        }
+
+        .code.python::before {
+            content: 'Python';
+            background: #e74c3c;
+        }
+
+        .code.json::before {
+            content: 'JSON';
+            background: #f39c12;
+        }
+
+        .keyword {
+            color: #c792ea;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #c3e88d;
+        }
+
+        .comment {
+            color: #676e95;
+            font-style: italic;
+        }
+
+        .function {
+            color: #82aaff;
+        }
+
+        .number {
+            color: #f78c6c;
+        }
+
+        .box {
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-right: 5px solid;
+        }
+
+        .definition {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #2ecc71;
+        }
+
+        .example {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #9c27b0;
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-color: #ff9800;
+        }
+
+        .danger {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #f44336;
+        }
+
+        .info {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            border-color: #03a9f4;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #4caf50;
+        }
+
+        .key-point {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-color: #fbc02d;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-color: #009688;
+        }
+
+        ul, ol {
+            margin: 20px 0 20px 40px;
+            font-size: 1.2em;
+        }
+
+        li {
+            margin: 12px 0;
+            color: #4a5568;
+            line-height: 2;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #2ecc71;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(46, 204, 113, 0.3);
+        }
+
+        .card h4 {
+            color: #2ecc71;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 18px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        td {
+            padding: 18px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 1.05em;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        tr:hover {
+            background: #e8f5e9;
+        }
+
+        .architecture-diagram {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 30px 0;
+            text-align: center;
+            border: 3px solid #2ecc71;
+        }
+
+        .component-box {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 15px auto;
+            max-width: 600px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #2ecc71;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #2d3748;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #2ecc71;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .comparison-item {
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #2ecc71;
+        }
+
+        .comparison-item.left {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        }
+
+        .comparison-item.right {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        a {
+            color: #2ecc71;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: #27ae60;
+            text-decoration: underline;
+        }
+
+        .terminal {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            border: 2px solid #2ecc71;
+        }
+
+        .terminal::before {
+            content: '$ ';
+            color: #2ecc71;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h1>🗺️ آموزش جامع PostGIS</h1>
+            <h2 style="text-align: center; color: #27ae60; margin-top: 40px; border: none;">
+                از صفر تا صد - کامل و کاربردی
+            </h2>
+            
+            <div class="highlight box" style="margin-top: 60px;">
+                <h3 style="text-align: center;"><span class="emoji">🎯</span> PostGIS چیست؟</h3>
+                <p style="text-align: center; font-size: 1.4em; line-height: 2.2;">
+                    PostGIS یک <strong>افزونه (Extension)</strong> برای پایگاه داده PostgreSQL است که 
+                    قابلیت <strong>ذخیره، مدیریت، و تحلیل داده‌های جغرافیایی</strong> را فراهم می‌کند.
+                </p>
+            </div>
+
+            <div class="grid" style="margin-top: 50px;">
+                <div class="card">
+                    <h4><span class="emoji">📍</span> انواع داده</h4>
+                    <p>Point, LineString, Polygon, MultiPoint و...</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔧</span> توابع قدرتمند</h4>
+                    <p>2000+ تابع برای تحلیل فضایی</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🚀</span> عملکرد بالا</h4>
+                    <p>ایندکس‌های فضایی (Spatial Index)</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌍</span> استاندارد</strong></h4>
+                    <p>پشتیبانی از OGC و ISO</p>
+                </div>
+            </div>
+
+            <div class="key-point box" style="margin-top: 50px;">
+                <h3><span class="emoji">💡</span> چرا PostGIS؟</h3>
+                <ul style="font-size: 1.3em; line-height: 2.5;">
+                    <li>🎯 <strong>متن‌باز و رایگان</strong> (Open Source)</li>
+                    <li>⚡ <strong>سریع و مقیاس‌پذیر</strong> (میلیون‌ها رکورد)</li>
+                    <li>🔒 <strong>امن و قابل اعتماد</strong> (PostgreSQL)</li>
+                    <li>🛠️ <strong>ابزارهای کامل</strong> (QGIS, pgAdmin, ...)</li>
+                    <li>🌐 <strong>پشتیبانی عالی</strong> (جامعه بزرگ)</li>
+                    <li>📊 <strong>تحلیل‌های پیشرفته</strong> (Buffer, Intersection, ...)</li>
+                </ul>
+            </div>
+
+            <div class="info box" style="margin-top: 40px;">
+                <h3><span class="emoji">📚</span> سرفصل‌های آموزش</h3>
+                <ol style="font-size: 1.2em; line-height: 2.5;">
+                    <li>نصب و راه‌اندازی PostGIS</li>
+                    <li>انواع داده‌های جغرافیایی</li>
+                    <li>ایجاد و مدیریت جداول مکانی</li>
+                    <li>توابع پایه PostGIS</li>
+                    <li>تحلیل‌های فضایی</li>
+                    <li>ایندکس‌های فضایی</li>
+                    <li>Import/Export داده</li>
+                    <li>ادغام با Django</li>
+                    <li>پروژه‌های عملی</li>
+                    <li>بهینه‌سازی و Performance</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: نصب و راه‌اندازی -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>⚙️ نصب و راه‌اندازی PostGIS</h2>
+            
+            <h3><span class="emoji">🐧</span> نصب در Ubuntu/Debian</h3>
+            
+            <div class="example box">
+                <h4>مرحله 1: نصب PostgreSQL</h4>
+                <div class="code bash">
+<span class="comment"># به‌روزرسانی پکیج‌ها</span>
+sudo apt update
+sudo apt upgrade -y
+
+<span class="comment"># نصب PostgreSQL</span>
+sudo apt install postgresql postgresql-contrib -y
+
+<span class="comment"># بررسی نسخه</span>
+psql --version
+
+<span class="comment"># شروع سرویس</span>
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+
+<span class="comment"># بررسی وضعیت</span>
+sudo systemctl status postgresql
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>مرحله 2: نصب PostGIS</h4>
+                <div class="code bash">
+<span class="comment"># نصب PostGIS</span>
+sudo apt install postgis postgresql-<span class="number">14</span>-postgis-<span class="number">3</span> -y
+
+<span class="comment"># نصب ابزارهای اضافی</span>
+sudo apt install postgis-gui -y
+
+<span class="comment"># بررسی نسخه PostGIS</span>
+sudo -u postgres psql -c <span class="string">"SELECT PostGIS_Version();"</span>
+                </div>
+            </div>
+
+            <h3><span class="emoji">🍎</span> نصب در macOS</h3>
+            
+            <div class="example box">
+                <div class="code bash">
+<span class="comment"># نصب با Homebrew</span>
+brew install postgresql
+brew install postgis
+
+<span class="comment"># شروع سرویس</span>
+brew services start postgresql
+
+<span class="comment"># بررسی نصب</span>
+psql --version
+                </div>
+            </div>
+
+            <h3><span class="emoji">🪟</span> نصب در Windows</h3>
+            
+            <div class="info box">
+                <h4>روش 1: استفاده از Installer</h4>
+                <ol>
+                    <li>دانلود <a href="https://www.enterprisedb.com/downloads/postgres-postgresql-downloads" target="_blank">PostgreSQL Installer</a></li>
+                    <li>اجرای فایل نصب و انتخاب PostGIS در Stack Builder</li>
+                    <li>تکمیل نصب و راه‌اندازی</li>
+                </ol>
+                
+                <h4>روش 2: استفاده از Docker</h4>
+                <div class="code bash">
+<span class="comment"># دانلود و اجرای PostGIS با Docker</span>
+docker pull postgis/postgis:<span class="number">14</span>-<span class="number">3.2</span>
+
+docker run --name my-postgis \
+  -e POSTGRES_PASSWORD=mypassword \
+  -p <span class="number">5432</span>:<span class="number">5432</span> \
+  -d postgis/postgis:<span class="number">14</span>-<span class="number">3.2</span>
+                </div>
+            </div>
+
+            <h3><span class="emoji">🔧</span> ایجاد دیتابیس و فعال‌سازی PostGIS</h3>
+            
+            <div class="example box">
+                <div class="code bash">
+<span class="comment"># ورود به PostgreSQL</span>
+sudo -u postgres psql
+
+<span class="comment"># یا با یوزر خودتان</span>
+psql -U postgres
+                </div>
+                
+                <div class="code">
+<span class="comment">-- ایجاد دیتابیس جدید</span>
+<span class="keyword">CREATE DATABASE</span> gis_database;
+
+<span class="comment">-- اتصال به دیتابیس</span>
+\c gis_database
+
+<span class="comment">-- فعال‌سازی PostGIS Extension</span>
+<span class="keyword">CREATE EXTENSION</span> postgis;
+
+<span class="comment">-- فعال‌سازی Topology (اختیاری)</span>
+<span class="keyword">CREATE EXTENSION</span> postgis_topology;
+
+<span class="comment">-- فعال‌سازی Raster (اختیاری)</span>
+<span class="keyword">CREATE EXTENSION</span> postgis_raster;
+
+<span class="comment">-- بررسی نسخه PostGIS</span>
+<span class="keyword">SELECT</span> PostGIS_Version();
+
+<span class="comment">-- لیست Extension های نصب شده</span>
+\dx
+
+<span class="comment">-- خروجی نمونه:</span>
+<span class="comment">-- postgis | 3.2.0 | public | PostGIS geometry and geography spatial types</span>
+                </div>
+            </div>
+
+            <div class="success box">
+                <h3><span class="emoji">✅</span> تست نصب</h3>
+                <div class="code">
+<span class="comment">-- ایجاد جدول تست</span>
+<span class="keyword">CREATE TABLE</span> test_points (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    geom <span class="keyword">GEOMETRY</span>(Point, <span class="number">4326</span>)
+);
+
+<span class="comment">-- درج یک نقطه تست</span>
+<span class="keyword">INSERT INTO</span> test_points (name, geom)
+<span class="keyword">VALUES</span> (
+    <span class="string">'تهران'</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)
+);
+
+<span class="comment">-- نمایش داده</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_AsText</span>(geom) <span class="keyword">AS</span> location,
+    <span class="function">ST_X</span>(geom) <span class="keyword">AS</span> longitude,
+    <span class="function">ST_Y</span>(geom) <span class="keyword">AS</span> latitude
+<span class="keyword">FROM</span> test_points;
+
+<span class="comment">-- خروجی:</span>
+<span class="comment">--  name  |        location         | longitude | latitude</span>
+<span class="comment">-- -------+-------------------------+-----------+----------</span>
+<span class="comment">--  تهران | POINT(51.4231 35.7219)  | 51.4231   | 35.7219</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: انواع داده‌های جغرافیایی -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>📐 انواع داده‌های جغرافیایی در PostGIS</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">📖</span> GEOMETRY vs GEOGRAPHY</h3>
+                <div class="comparison">
+                    <div class="comparison-item left">
+                        <h4>GEOMETRY</h4>
+                        <ul>
+                            <li>صفحه مسطح (Cartesian)</li>
+                            <li>سریع‌تر</li>
+                            <li>برای مناطق کوچک</li>
+                            <li>واحد: درجه یا متر</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-item right">
+                        <h4>GEOGRAPHY</h4>
+                        <ul>
+                            <li>کروی (Spherical)</li>
+                            <li>دقیق‌تر</li>
+                            <li>برای کل زمین</li>
+                            <li>واحد: متر</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3><span class="emoji">📍</span> انواع Geometry</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>نوع</th>
+                        <th>توضیح</th>
+                        <th>مثال</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Point</strong></td>
+                        <td>یک نقطه</td>
+                        <td>POINT(51.42 35.72)</td>
+                        <td>مکان رستوران، مغازه</td>
+                    </tr>
+                    <tr>
+                        <td><strong>LineString</strong></td>
+                        <td>خط (دنباله نقاط)</td>
+                        <td>LINESTRING(...)</td>
+                        <td>خیابان، رودخانه</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Polygon</strong></td>
+                        <td>چندضلعی</td>
+                        <td>POLYGON(...)</td>
+                        <td>ساختمان، پارک</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MultiPoint</strong></td>
+                        <td>مجموعه نقاط</td>
+                        <td>MULTIPOINT(...)</td>
+                        <td>شعبه‌های یک بانک</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MultiLineString</strong></td>
+                        <td>مجموعه خطوط</td>
+                        <td>MULTILINESTRING(...)</td>
+                        <td>شبکه راه</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MultiPolygon</strong></td>
+                        <td>مجموعه چندضلعی</td>
+                        <td>MULTIPOLYGON(...)</td>
+                        <td>جزایر، استان‌ها</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GeometryCollection</strong></td>
+                        <td>ترکیبی</td>
+                        <td>GEOMETRYCOLLECTION(...)</td>
+                        <td>ترکیب انواع مختلف</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3><span class="emoji">💻</span> ایجاد انواع Geometry</h3>
+            
+            <div class="example box">
+                <h4>1. Point - نقطه</h4>
+                <div class="code">
+<span class="comment">-- روش 1: با ST_MakePoint</span>
+<span class="keyword">SELECT</span> <span class="function">ST_AsText</span>(
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)
+);
+<span class="comment">-- نتیجه: POINT(51.4231 35.7219)</span>
+
+<span class="comment">-- روش 2: با WKT (Well-Known Text)</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromText</span>(<span class="string">'POINT(51.4231 35.7219)'</span>, <span class="number">4326</span>);
+
+<span class="comment">-- روش 3: با EWKT (Extended Well-Known Text)</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromEWKT</span>(<span class="string">'SRID=4326;POINT(51.4231 35.7219)'</span>);
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>2. LineString - خط</h4>
+                <div class="code">
+<span class="comment">-- ایجاد خط بین دو نقطه</span>
+<span class="keyword">SELECT</span> <span class="function">ST_AsText</span>(
+    <span class="function">ST_MakeLine</span>(
+        <span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>),  <span class="comment">-- تهران</span>
+        <span class="function">ST_MakePoint</span>(<span class="number">51.3347</span>, <span class="number">35.6892</span>)   <span class="comment">-- کرج</span>
+    )
+);
+<span class="comment">-- نتیجه: LINESTRING(51.4231 35.7219, 51.3347 35.6892)</span>
+
+<span class="comment">-- ایجاد خط با چند نقطه</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromText</span>(
+    <span class="string">'LINESTRING(
+        51.4231 35.7219,
+        51.3900 35.7100,
+        51.3347 35.6892
+    )'</span>,
+    <span class="number">4326</span>
+);
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>3. Polygon - چندضلعی</h4>
+                <div class="code">
+<span class="comment">-- ایجاد مربع</span>
+<span class="keyword">SELECT</span>
+<span class="function">ST_AsText</span>(
+    <span class="function">ST_GeomFromText</span>(
+        <span class="string">'POLYGON((
+            51.4200 35.7200,
+            51.4250 35.7200,
+            51.4250 35.7250,
+            51.4200 35.7250,
+            51.4200 35.7200
+        ))'</span>,
+        <span class="number">4326</span>
+    )
+);
+
+<span class="comment">-- نکته: اولین و آخرین نقطه باید یکسان باشند</span>
+
+<span class="comment">-- ایجاد Polygon با سوراخ (hole)</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromText</span>(
+    <span class="string">'POLYGON((
+        -- حلقه بیرونی
+        0 0, 10 0, 10 10, 0 10, 0 0
+    ),(
+        -- حلقه داخلی (سوراخ)
+        2 2, 8 2, 8 8, 2 8, 2 2
+    ))'</span>,
+    <span class="number">4326</span>
+);
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>4. MultiPoint - چند نقطه</h4>
+                <div class="code">
+<span class="comment">-- چند شعبه بانک</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromText</span>(
+    <span class="string">'MULTIPOINT(
+        51.4231 35.7219,
+        51.3347 35.6892,
+        51.5000 35.7500
+    )'</span>,
+    <span class="number">4326</span>
+);
+
+<span class="comment">-- یا با پرانتز</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromText</span>(
+    <span class="string">'MULTIPOINT((51.4231 35.7219), (51.3347 35.6892))'</span>,
+    <span class="number">4326</span>
+);
+                </div>
+            </div>
+
+            <div class="key-point box">
+                <h3><span class="emoji">🎯</span> SRID - سیستم مختصات</h3>
+                <p><strong>SRID (Spatial Reference System Identifier)</strong> شناسه سیستم مختصات است:</p>
+                <ul>
+                    <li><strong>4326:</strong> WGS 84 (GPS، Google Maps) - رایج‌ترین</li>
+                    <li><strong>3857:</strong> Web Mercator (نقشه‌های وب)</li>
+                    <li><strong>32639:</strong> UTM Zone 39N (ایران)</li>
+                    <li><strong>32640:</strong> UTM Zone 40N (شرق ایران)</li>
+                </ul>
+                
+                <div class="code">
+<span class="comment">-- تبدیل بین SRID ها</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_AsText</span>(geom) <span class="keyword">AS</span> wgs84,
+    <span class="function">ST_AsText</span>(<span class="function">ST_Transform</span>(geom, <span class="number">3857</span>)) <span class="keyword">AS</span> web_mercator,
+    <span class="function">ST_AsText</span>(<span class="function">ST_Transform</span>(geom, <span class="number">32639</span>)) <span class="keyword">AS</span> utm
+<span class="keyword">FROM</span> (
+    <span class="keyword">SELECT</span> <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>) <span class="keyword">AS</span> geom
+) <span class="keyword">AS</span> t;
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: ایجاد و مدیریت جداول -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>🗂️ ایجاد و مدیریت جداول مکانی</h2>
+            
+            <h3><span class="emoji">📝</span> ایجاد جدول با ستون مکانی</h3>
+            
+            <div class="example box">
+                <h4>مثال 1: جدول رستوران‌ها</h4>
+                <div class="code">
+<span class="comment">-- ایجاد جدول</span>
+<span class="keyword">CREATE TABLE</span> restaurants (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span>,
+    cuisine <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    rating <span class="keyword">DECIMAL</span>(<span class="number">3</span>, <span class="number">2</span>),
+    phone <span class="keyword">VARCHAR</span>(<span class="number">20</span>),
+    address <span class="keyword">TEXT</span>,
+    created_at <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>,
+    location <span class="keyword">GEOMETRY</span>(Point, <span class="number">4326</span>) <span class="keyword">NOT NULL</span>
+);
+
+<span class="comment">-- اضافه کردن کامنت</span>
+<span class="keyword">COMMENT ON TABLE</span> restaurants <span class="keyword">IS</span> <span class="string">'جدول رستوران‌ها'</span>;
+<span class="keyword">COMMENT ON COLUMN</span> restaurants.location <span class="keyword">IS</span> <span class="string">'موقعیت جغرافیایی (WGS 84)'</span>;
+
+<span class="comment">-- درج داده</span>
+<span class="keyword">INSERT INTO</span> restaurants (name, cuisine, rating, phone, address, location)
+<span class="keyword">VALUES</span> (
+    <span class="string">'رستوران سنتی شمال'</span>,
+    <span class="string">'ایرانی'</span>,
+    <span class="number">4.5</span>,
+    <span class="string">'021-12345678'</span>,
+    <span class="string">'تهران، خیابان ولیعصر'</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)
+);
+
+<span class="comment">-- درج چند رستوران دیگر</span>
+<span class="keyword">INSERT INTO</span> restaurants (name, cuisine, rating, phone, address, location)
+<span class="keyword">VALUES</span> 
+    (
+        <span class="string">'پیتزا ایتالیا'</span>,
+        <span class="string">'ایتالیایی'</span>,
+        <span class="number">4.3</span>,
+        <span class="string">'021-87654321'</span>,
+        <span class="string">'تهران، میدان ونک'</span>,
+        <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4089</span>, <span class="number">35.7576</span>), <span class="number">4326</span>)
+    ),
+    (
+        <span class="string">'سوشی توکیو'</span>,
+        <span class="string">'ژاپنی'</span>,
+        <span class="number">4.7</span>,
+        <span class="string">'021-99887766'</span>,
+        <span class="string">'تهران، الهیه'</span>,
+        <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4413</span>, <span class="number">35.7897</span>), <span class="number">4326</span>)
+    );
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>مثال 2: جدول خیابان‌ها (LineString)</h4>
+                <div class="code">
+<span class="keyword">CREATE TABLE</span> streets (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span>,
+    street_type <span class="keyword">VARCHAR</span>(<span class="number">50</span>), <span class="comment">-- اتوبان، خیابان، کوچه</span>
+    length_meters <span class="keyword">DECIMAL</span>(<span class="number">10</span>, <span class="number">2</span>),
+    one_way <span class="keyword">BOOLEAN DEFAULT FALSE</span>,
+    geom <span class="keyword">GEOMETRY</span>(LineString, <span class="number">4326</span>) <span class="keyword">NOT NULL</span>
+);
+
+<span class="comment">-- درج یک خیابان</span>
+<span class="keyword">INSERT INTO</span> streets (name, street_type, one_way, geom)
+<span class="keyword">VALUES</span> (
+    <span class="string">'خیابان ولیعصر'</span>,
+    <span class="string">'خیابان اصلی'</span>,
+    <span class="keyword">FALSE</span>,
+    <span class="function">ST_GeomFromText</span>(
+        <span class="string">'LINESTRING(
+            51.4231 35.7219,
+            51.4200 35.7300,
+            51.4180 35.7400,
+            51.4160 35.7500
+        )'</span>,
+        <span class="number">4326</span>
+    )
+);
+
+<span class="comment">-- محاسبه طول واقعی خیابان</span>
+<span class="keyword">UPDATE</span> streets
+<span class="keyword">SET</span> length_meters = <span class="function">ST_Length</span>(<span class="function">ST_Transform</span>(geom, <span class="number">32639</span>))
+<span class="keyword">WHERE</span> length_meters <span class="keyword">IS NULL</span>;
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>مثال 3: جدول پارک‌ها (Polygon)</h4>
+                <div class="code">
+<span class="keyword">CREATE TABLE</span> parks (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span>,
+    park_type <span class="keyword">VARCHAR</span>(<span class="number">50</span>), <span class="comment">-- شهری، جنگلی، ملی</span>
+    area_sqm <span class="keyword">DECIMAL</span>(<span class="number">15</span>, <span class="number">2</span>),
+    facilities <span class="keyword">TEXT</span>[], <span class="comment">-- آرایه از امکانات</span>
+    opening_hours <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    geom <span class="keyword">GEOMETRY</span>(Polygon, <span class="number">4326</span>) <span class="keyword">NOT NULL</span>
+);
+
+<span class="comment">-- درج یک پارک</span>
+<span class="keyword">INSERT INTO</span> parks (name, park_type, facilities, opening_hours, geom)
+<span class="keyword">VALUES</span> (
+    <span class="string">'پارک ملت'</span>,
+    <span class="string">'شهری'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'زمین بازی'</span>, <span class="string">'دوچرخه‌سواری'</span>, <span class="string">'کافه'</span>],
+    <span class="string">'6:00 - 23:00'</span>,
+    <span class="function">ST_GeomFromText</span>(
+        <span class="string">'POLYGON((
+            51.4200 35.7200,
+            51.4250 35.7200,
+            51.4250 35.7250,
+            51.4200 35.7250,
+            51.4200 35.7200
+        ))'</span>,
+        <span class="number">4326</span>
+    )
+);
+
+<span class="comment">-- محاسبه مساحت</span>
+<span class="keyword">UPDATE</span> parks
+<span class="keyword">SET</span> area_sqm = <span class="function">ST_Area</span>(<span class="function">ST_Transform</span>(geom, <span class="number">32639</span>))
+<span class="keyword">WHERE</span> area_sqm <span class="keyword">IS NULL</span>;
+                </div>
+            </div>
+
+            <h3><span class="emoji">🔧</span> مدیریت ستون‌های مکانی</h3>
+            
+            <div class="example box">
+                <h4>اضافه کردن ستون مکانی به جدول موجود</h4>
+                <div class="code">
+<span class="comment">-- فرض: جدول customers از قبل وجود دارد</span>
+<span class="keyword">CREATE TABLE</span> customers (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>),
+    email <span class="keyword">VARCHAR</span>(<span class="number">100</span>)
+);
+
+<span class="comment">-- اضافه کردن ستون location</span>
+<span class="keyword">SELECT</span> AddGeometryColumn(
+    <span class="string">'customers'</span>,      <span class="comment">-- نام جدول</span>
+    <span class="string">'location'</span>,       <span class="comment">-- نام ستون</span>
+    <span class="number">4326</span>,              <span class="comment">-- SRID</span>
+    <span class="string">'POINT'</span>,          <span class="comment">-- نوع</span>
+    <span class="number">2</span>                  <span class="comment">-- ابعاد (2D)</span>
+);
+
+<span class="comment">-- یا با ALTER TABLE</span>
+<span class="keyword">ALTER TABLE</span> customers
+<span class="keyword">ADD COLUMN</span> location <span class="keyword">GEOMETRY</span>(Point, <span class="number">4326</span>);
+
+<span class="comment">-- حذف ستون مکانی</span>
+<span class="keyword">ALTER TABLE</span> customers
+<span class="keyword">DROP COLUMN</span> location;
+
+<span class="comment">-- تغییر نوع ستون</span>
+<span class="keyword">ALTER TABLE</span> customers
+<span class="keyword">ALTER COLUMN</span> location <span class="keyword">TYPE</span> <span class="keyword">GEOMETRY</span>(MultiPoint, <span class="number">4326</span>)
+<span class="keyword">USING</span> <span class="function">ST_Multi</span>(location);
+                </div>
+            </div>
+
+            <div class="info box">
+                <h3><span class="emoji">📊</span> نمایش اطلاعات جداول مکانی</h3>
+                <div class="code">
+<span class="comment">-- لیست تمام جداول مکانی</span>
+<span class="keyword">SELECT</span> 
+    f_table_schema,
+    f_table_name,
+    f_geometry_column,
+    coord_dimension,
+    srid,
+    type
+<span class="keyword">FROM</span> geometry_columns;
+
+<span class="comment">-- اطلاعات یک جدول خاص</span>
+<span class="keyword">SELECT</span> * 
+<span class="keyword">FROM</span> geometry_columns 
+<span class="keyword">WHERE</span> f_table_name = <span class="string">'restaurants'</span>;
+
+<span class="comment">-- تعداد رکوردها</span>
+<span class="keyword">SELECT</span> <span class="function">COUNT</span>(*) <span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- Bounding Box کل جدول</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_AsText</span>(<span class="function">ST_Extent</span>(location)) <span class="keyword">AS</span> bbox
+<span class="keyword">FROM</span> restaurants;
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: توابع پایه PostGIS -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>🔧 توابع پایه PostGIS</h2>
+            
+            <h3><span class="emoji">📍</span> دسته 1: توابع ساخت (Constructor)</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- ST_MakePoint: ساخت نقطه</span>
+<span class="keyword">SELECT</span> <span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>);
+
+<span class="comment">-- ST_MakePoint با ارتفاع</span>
+<span class="keyword">SELECT</span> <span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>, <span class="number">1200</span>); <span class="comment">-- Z = 1200 متر</span>
+
+<span class="comment">-- ST_MakeLine: ساخت خط</span>
+<span class="keyword">SELECT</span> <span class="function">ST_MakeLine</span>(
+    <span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>),
+    <span class="function">ST_MakePoint</span>(<span class="number">51.3347</span>, <span class="number">35.6892</span>)
+);
+
+<span class="comment">-- ST_MakePolygon: ساخت چندضلعی</span>
+<span class="keyword">SELECT</span> <span class="function">ST_MakePolygon</span>(
+    <span class="function">ST_GeomFromText</span>(<span class="string">'LINESTRING(0 0, 10 0, 10 10, 0 10, 0 0)'</span>)
+);
+
+<span class="comment">-- ST_GeomFromText: از WKT</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromText</span>(<span class="string">'POINT(51.4231 35.7219)'</span>, <span class="number">4326</span>);
+
+<span class="comment">-- ST_GeomFromGeoJSON: از GeoJSON</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromGeoJSON</span>(<span class="string">'{
+    "type": "Point",
+    "coordinates": [51.4231, 35.7219]
+}'</span>);
+
+<span class="comment">-- ST_GeomFromKML: از KML</span>
+<span class="keyword">SELECT</span> <span class="function">ST_GeomFromKML</span>(<span class="string">'<Point><coordinates>51.4231,35.7219</coordinates></Point>'</span>);
+                </div>
+            </div>
+
+            <h3><span class="emoji">🔍</span> دسته 2: توابع خروجی (Accessor)</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- ST_AsText: تبدیل به WKT</span>
+<span class="keyword">SELECT</span> <span class="function">ST_AsText</span>(location) <span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ST_AsGeoJSON: تبدیل به GeoJSON</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_AsGeoJSON</span>(location) <span class="keyword">AS</span> geojson
+<span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ST_AsKML: تبدیل به KML</span>
+<span class="keyword">SELECT</span> <span class="function">ST_AsKML</span>(location) <span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ST_X و ST_Y: دریافت مختصات</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_X</span>(location) <span class="keyword">AS</span> longitude,
+    <span class="function">ST_Y</span>(location) <span class="keyword">AS</span> latitude
+<span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ST_SRID: دریافت SRID</span>
+<span class="keyword">SELECT</span> <span class="function">ST_SRID</span>(location) <span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ST_GeometryType: نوع هندسه</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_GeometryType</span>(location) <span class="keyword">AS</span> geom_type
+<span class="keyword">FROM</span> restaurants;
+<span class="comment">-- نتیجه: ST_Point</span>
+
+<span class="comment">-- ST_Dimension: ابعاد (0=Point, 1=Line, 2=Polygon)</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Dimension</span>(location) <span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ST_NPoints: تعداد نقاط</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_NPoints</span>(geom) <span class="keyword">AS</span> num_points
+<span class="keyword">FROM</span> streets;
+                </div>
+            </div>
+
+            <h3><span class="emoji">📏</span> دسته 3: توابع اندازه‌گیری (Measurement)</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- ST_Distance: فاصله بین دو نقطه (درجه)</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Distance</span>(
+    <span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>),
+    <span class="function">ST_MakePoint</span>(<span class="number">51.3347</span>, <span class="number">35.6892</span>)
+);
+<span class="comment">-- نتیجه: 0.0995... درجه</span>
+
+<span class="comment">-- ST_Distance با Geography (متر)</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Distance</span>(
+    <span class="function">ST_GeographyFromText</span>(<span class="string">'POINT(51.4231 35.7219)'</span>),
+    <span class="function">ST_GeographyFromText</span>(<span class="string">'POINT(51.3347 35.6892)'</span>)
+) / <span class="number">1000</span> <span class="keyword">AS</span> distance_km;
+<span class="comment">-- نتیجه: ~12.5 کیلومتر</span>
+
+<span class="comment">-- فاصله بین رستوران‌ها</span>
+<span class="keyword">SELECT</span> 
+    r1.name <span class="keyword">AS</span> restaurant1,
+    r2.name <span class="keyword">AS</span> restaurant2,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Distance</span>(
+            r1.location::<span class="keyword">geography</span>,
+            r2.location::<span class="keyword">geography</span>
+        ) / <span class="number">1000</span>, 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> distance_km
+<span class="keyword">FROM</span> restaurants r1
+<span class="keyword">CROSS JOIN</span> restaurants r2
+<span class="keyword">WHERE</span> r1.id < r2.id;
+
+<span class="comment">-- ST_Length: طول خط (متر)</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Length</span>(<span class="function">ST_Transform</span>(geom, <span class="number">32639</span>)), 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> length_meters
+<span class="keyword">FROM</span> streets;
+
+<span class="comment">-- ST_Area: مساحت (متر مربع)</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Area</span>(<span class="function">ST_Transform</span>(geom, <span class="number">32639</span>)), 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> area_sqm
+<span class="keyword">FROM</span> parks;
+
+<span class="comment">-- ST_Perimeter: محیط (متر)</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Perimeter</span>(<span class="function">ST_Transform</span>(geom, <span class="number">32639</span>)), 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> perimeter_meters
+<span class="keyword">FROM</span> parks;
+
+<span class="comment">-- ST_Azimuth: زاویه بین دو نقطه (رادیان)</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">DEGREES</span>(
+        <span class="function">ST_Azimuth</span>(
+            <span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>),
+            <span class="function">ST_MakePoint</span>(<span class="number">51.3347</span>, <span class="number">35.6892</span>)
+        )
+    ) <span class="keyword">AS</span> bearing_degrees;
+                </div>
+            </div>
+
+            <h3><span class="emoji">✂️</span> دسته 4: توابع پردازش (Processing)</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- ST_Buffer: ایجاد بافر (حاشیه)</span>
+<span class="comment">-- 500 متر دور تا دور یک نقطه</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_AsText</span>(
+        <span class="function">ST_Transform</span>(
+            <span class="function">ST_Buffer</span>(
+                <span class="function">ST_Transform</span>(location, <span class="number">32639</span>),
+                <span class="number">500</span>
+            ),
+            <span class="number">4326</span>
+        )
+    ) <span class="keyword">AS</span> buffer_500m
+<span class="keyword">FROM</span> restaurants
+<span class="keyword">WHERE</span> name = <span class="string">'رستوران سنتی شمال'</span>;
+
+<span class="comment">-- ST_Centroid: مرکز هندسه</span>
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_AsText</span>(<span class="function">ST_Centroid</span>(geom)) <span class="keyword">AS</span> center
+<span class="keyword">FROM</span> parks;
+
+<span class="comment">-- ST_Envelope: مستطیل محیطی (Bounding Box)</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_AsText</span>(<span class="function">ST_Envelope</span>(geom)) <span class="keyword">AS</span> bbox
+<span class="keyword">FROM</span> parks;
+
+<span class="comment">-- ST_ConvexHull: پوسته محدب</span>
+<span class="keyword">SELECT</span> <span class="function">ST_AsText</span>(
+    <span class="function">ST_ConvexHull</span>(
+        <span class="function">ST_Collect</span>(<span class="keyword">ARRAY</span>[
+            <span class="function">ST_MakePoint</span>(<span class="number">0</span>, <span class="number">0</span>),
+            <span class="function">ST_MakePoint</span>(<span class="number">1</span>, <span class="number">1</span>),
+            <span class="function">ST_MakePoint</span>(<span class="number">2</span>, <span class="number">0</span>)
+        ])
+    )
+);
+
+<span class="comment">-- ST_Simplify: ساده‌سازی هندسه</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_NPoints</span>(geom) <span class="keyword">AS</span> original_points,
+    <span class="function>ST_NPoints</span>(<span class="function">ST_Simplify</span>(geom, <span class="number">0.001</span>)) <span class="keyword">AS</span> simplified_points
+<span class="keyword">FROM</span> streets;
+
+<span class="comment">-- ST_Union: ترکیب چند هندسه</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_AsText</span>(
+        <span class="function">ST_Union</span>(geom)
+    ) <span class="keyword">AS</span> combined_parks
+<span class="keyword">FROM</span> parks;
+
+<span class="comment">-- ST_Intersection: اشتراک دو هندسه</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_AsText</span>(
+        <span class="function">ST_Intersection</span>(
+            <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))'</span>),
+            <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((1 1, 3 1, 3 3, 1 3, 1 1))'</span>)
+        )
+    );
+
+<span class="comment">-- ST_Difference: تفاضل دو هندسه</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_AsText</span>(
+        <span class="function">ST_Difference</span>(
+            <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))'</span>),
+            <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((1 1, 3 1, 3 3, 1 3, 1 1))'</span>)
+        )
+    );
+                </div>
+            </div>
+
+            <h3><span class="emoji">🔍</span> دسته 5: توابع رابطه‌ای (Relationship)</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- ST_Contains: آیا A شامل B است؟</span>
+<span class="keyword">SELECT</span> 
+    p.name <span class="keyword">AS</span> park_name,
+    r.name <span class="keyword">AS</span> restaurant_name
+<span class="keyword">FROM</span> parks p
+<span class="keyword">JOIN</span> restaurants r 
+    <span class="keyword">ON</span> <span class="function">ST_Contains</span>(p.geom, r.location);
+
+<span class="comment">-- ST_Within: آیا A داخل B است؟</span>
+<span class="keyword">SELECT</span> 
+    r.name <span class="keyword">AS</span> restaurant_name,
+    p.name <span class="keyword">AS</span> park_name
+<span class="keyword">FROM</span> restaurants r
+<span class="keyword">JOIN</span> parks p 
+    <span class="keyword">ON</span> <span class="function">ST_Within</span>(r.location, p.geom);
+
+<span class="comment">-- ST_Intersects: آیا A و B تقاطع دارند؟</span>
+<span class="keyword">SELECT</span> 
+    s1.name <span class="keyword">AS</span> street1,
+    s2.name <span class="keyword">AS</span> street2
+<span class="keyword">FROM</span> streets s1
+<span class="keyword">JOIN</span> streets s2 
+    <span class="keyword">ON</span> s1.id < s2.id 
+    <span class="keyword">AND</span> <span class="function">ST_Intersects</span>(s1.geom, s2.geom);
+
+<span class="comment">-- ST_Disjoint: آیا A و B جدا هستند؟</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Disjoint</span>(
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POINT(0 0)'</span>),
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POINT(5 5)'</span>)
+); <span class="comment">-- TRUE</span>
+
+<span class="comment">-- ST_Touches: آیا A و B مماس هستند؟</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Touches</span>(
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))'</span>),
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((1 0, 2 0, 2 1, 1 1, 1 0))'</span>)
+); <span class="comment">-- TRUE</span>
+
+<span class="comment">-- ST_Overlaps: آیا A و B همپوشانی دارند؟</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Overlaps</span>(
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((0 0, 2 0, 2 2, 0 2, 0 0))'</span>),
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POLYGON((1 1, 3 1, 3 3, 1 3, 1 1))'</span>)
+); <span class="comment">-- TRUE</span>
+
+<span class="comment">-- ST_Crosses: آیا A از B عبور می‌کند؟</span>
+<span class="keyword">SELECT</span> 
+    s.name <span class="keyword">AS</span> street,
+    p.name <span class="keyword">AS</span> park
+<span class="keyword">FROM</span> streets s
+<span class="keyword">JOIN</span> parks p 
+    <span class="keyword">ON</span> <span class="function">ST_Crosses</span>(s.geom, p.geom);
+
+<span class="comment">-- ST_Equals: آیا A و B برابر هستند؟</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Equals</span>(
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POINT(1 1)'</span>),
+    <span class="function">ST_GeomFromText</span>(<span class="string">'POINT(1 1)'</span>)
+); <span class="comment">-- TRUE</span>
+                </div>
+            </div>
+
+            <div class="key-point box">
+                <h3><span class="emoji">💡</span> خلاصه توابع مهم</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>دسته</th>
+                            <th>تابع</th>
+                            <th>کاربرد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3"><strong>ساخت</strong></td>
+                            <td>ST_MakePoint</td>
+                            <td>ساخت نقطه</td>
+                        </tr>
+                        <tr>
+                            <td>ST_GeomFromText</td>
+                            <td>از WKT</td>
+                        </tr>
+                        <tr>
+                            <td>ST_GeomFromGeoJSON</td>
+                            <td>از GeoJSON</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>خروجی</strong></td>
+                            <td>ST_AsText</td>
+                            <td>به WKT</td>
+                        </tr>
+                        <tr>
+                            <td>ST_AsGeoJSON</td>
+                            <td>به GeoJSON</td>
+                        </tr>
+                        <tr>
+                            <td>ST_X, ST_Y</td>
+                            <td>مختصات</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>اندازه‌گیری</strong></td>
+                            <td>ST_Distance</td>
+                            <td>فاصله</td>
+                        </tr>
+                        <tr>
+                            <td>ST_Length</td>
+                            <td>طول</td>
+                        </tr>
+                        <tr>
+                            <td>ST_Area</td>
+                            <td>مساحت</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>پردازش</strong></td>
+                            <td>ST_Buffer</td>
+                            <td>بافر</td>
+                        </tr>
+                        <tr>
+                            <td>ST_Intersection</td>
+                            <td>اشتراک</td>
+                        </tr>
+                        <tr>
+                            <td>ST_Union</td>
+                            <td>ترکیب</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>رابطه</strong></td>
+                            <td>ST_Contains</td>
+                            <td>شامل بودن</td>
+                        </tr>
+                        <tr>
+                            <td>ST_Intersects</td>
+                            <td>تقاطع</td>
+                        </tr>
+                        <tr>
+                            <td>ST_DWithin</td>
+                            <td>در شعاع</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: تحلیل‌های فضایی -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>🔬 تحلیل‌های فضایی پیشرفته</h2>
+            
+            <h3><span class="emoji">📍</span> 1. جستجوی نزدیک‌ترین (Nearest Neighbor)</h3>
+            
+            <div class="example box">
+                <h4>نزدیک‌ترین رستوران به یک نقطه</h4>
+                <div class="code">
+<span class="comment">-- نزدیک‌ترین رستوران به میدان آزادی</span>
+<span class="keyword">WITH</span> target_point <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.3381</span>, <span class="number">35.6995</span>), <span class="number">4326</span>) <span class="keyword">AS</span> geom
+)
+<span class="keyword">SELECT</span> 
+    r.name,
+    r.cuisine,
+    r.rating,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Distance</span>(
+            r.location::<span class="keyword">geography</span>,
+            tp.geom::<span class="keyword">geography</span>
+        ) / <span class="number">1000</span>, 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> distance_km
+<span class="keyword">FROM</span> restaurants r, target_point tp
+<span class="keyword">ORDER BY</span> r.location <-> tp.geom  <span class="comment">-- عملگر KNN</span>
+<span class="keyword">LIMIT</span> <span class="number">5</span>;
+
+<span class="comment">-- 3 رستوران نزدیک به هر پارک</span>
+<span class="keyword">SELECT</span> 
+    p.name <span class="keyword">AS</span> park_name,
+    r.name <span class="keyword">AS</span> restaurant_name,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Distance</span>(
+            p.geom::<span class="keyword">geography</span>,
+            r.location::<span class="keyword">geography</span>
+        ), 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> distance_meters
+<span class="keyword">FROM</span> parks p
+<span class="keyword">CROSS JOIN LATERAL</span> (
+    <span class="keyword">SELECT</span> *
+    <span class="keyword">FROM</span> restaurants r
+    <span class="keyword">ORDER BY</span> r.location <-> p.geom
+    <span class="keyword">LIMIT</span> <span class="number">3</span>
+) r
+<span class="keyword">ORDER BY</span> p.name, distance_meters;
+                </div>
+            </div>
+
+            <h3><span class="emoji">⭕</span> 2. جستجوی شعاعی (Radius Search)</h3>
+            
+            <div class="example box">
+                <h4>رستوران‌های در شعاع 2 کیلومتری</h4>
+                <div class="code">
+<span class="comment">-- روش 1: با ST_DWithin (سریع‌تر)</span>
+<span class="keyword">SELECT</span> 
+    name,
+    cuisine,
+    rating,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Distance</span>(
+            location::<span class="keyword">geography</span>,
+            <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)::<span class="keyword">geography</span>
+        ) / <span class="number">1000</span>, 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> distance_km
+<span class="keyword">FROM</span> restaurants
+<span class="keyword">WHERE</span> <span class="function">ST_DWithin</span>(
+    location::<span class="keyword">geography</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)::<span class="keyword">geography</span>,
+    <span class="number">2000</span>  <span class="comment">-- 2000 متر</span>
+)
+<span class="keyword">ORDER BY</span> distance_km;
+
+<span class="comment">-- روش 2: با Buffer</span>
+<span class="keyword">WITH</span> search_area <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> 
+        <span class="function">ST_Buffer</span>(
+            <span class="function">ST_Transform</span>(
+                <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>),
+                <span class="number">32639</span>
+            ),
+            <span class="number">2000</span>
+        ) <span class="keyword">AS</span> geom
+)
+<span class="keyword">SELECT</span> 
+    r.name,
+    r.cuisine
+<span class="keyword">FROM</span> restaurants r, search_area sa
+<span class="keyword">WHERE</span> <span class="function">ST_Intersects</span>(
+    <span class="function">ST_Transform</span>(r.location, <span class="number">32639</span>),
+    sa.geom
+);
+                </div>
+            </div>
+
+            <h3><span class="emoji">🔷</span> 3. Point in Polygon</h3>
+            
+            <div class="example box">
+                <h4>رستوران‌های داخل پارک</h4>
+                <div class="code">
+<span class="comment">-- رستوران‌هایی که داخل پارک هستند</span>
+<span class="keyword">SELECT</span> 
+    p.name <span class="keyword">AS</span> park_name,
+    r.name <span class="keyword">AS</span> restaurant_name,
+    r.cuisine
+<span class="keyword">FROM</span> parks p
+<span class="keyword">JOIN</span> restaurants r 
+    <span class="keyword">ON</span> <span class="function">ST_Contains</span>(p.geom, r.location);
+
+<span class="comment">-- تعداد رستوران‌ها در هر پارک</span>
+<span class="keyword">SELECT</span> 
+    p.name <span class="keyword">AS</span> park_name,
+    <span class="function">COUNT</span>(r.id) <span class="keyword">AS</span> restaurant_count
+<span class="keyword">FROM</span> parks p
+<span class="keyword">LEFT JOIN</span> restaurants r 
+    <span class="keyword">ON</span> <span class="function">ST_Contains</span>(p.geom, r.location)
+<span class="keyword">GROUP BY</span> p.name;
+
+<span class="comment">-- چک کردن یک نقطه خاص</span>
+<span class="keyword">SELECT</span> 
+    <span class="keyword">CASE</span> 
+        <span class="keyword">WHEN EXISTS</span> (
+            <span class="keyword">SELECT</span> <span class="number">1</span> 
+            <span class="keyword">FROM</span> parks 
+            <span class="keyword">WHERE</span> <span class="function">ST_Contains</span>(
+                geom, 
+                <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4220</span>, <span class="number">35.7220</span>), <span class="number">4326</span>)
+            )
+        ) 
+        <span class="keyword">THEN</span> <span class="string">'داخل پارک'</span>
+        <span class="keyword">ELSE</span> <span class="string">'خارج از پارک'</span>
+    <span class="keyword">END</span> <span class="keyword">AS</span> status;
+                </div>
+            </div>
+
+            <h3><span class="emoji">🔗</span> 4. Spatial Join</h3>
+            
+            <div class="example box">
+                <h4>Join مکانی پیشرفته</h4>
+                <div class="code">
+<span class="comment">-- رستوران‌ها و نزدیک‌ترین پارک</span>
+<span class="keyword">SELECT</span> 
+    r.name <span class="keyword">AS</span> restaurant,
+    p.name <span class="keyword">AS</span> nearest_park,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Distance</span>(
+            r.location::<span class="keyword">geography</span>,
+            p.geom::<span class="keyword">geography</span>
+        ), 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> distance_meters
+<span class="keyword">FROM</span> restaurants r
+<span class="keyword">CROSS JOIN LATERAL</span> (
+    <span class="keyword">SELECT</span> *
+    <span class="keyword">FROM</span> parks
+    <span class="keyword">ORDER BY</span> geom <-> r.location
+    <span class="keyword">LIMIT</span> <span class="number">1</span>
+) p;
+
+<span class="comment">-- خیابان‌هایی که از پارک عبور می‌کنند</span>
+<span class="keyword">SELECT</span> 
+    s.name <span class="keyword">AS</span> street_name,
+    p.name <span class="keyword">AS</span> park_name,
+    <span class="function">ST_AsText</span>(
+        <span class="function">ST_Intersection</span>(s.geom, p.geom)
+    ) <span class="keyword">AS</span> intersection_line
+<span class="keyword">FROM</span> streets s
+<span class="keyword">JOIN</span> parks p 
+    <span class="keyword">ON</span> <span class="function">ST_Intersects</span>(s.geom, p.geom);
+
+<span class="comment">-- رستوران‌ها در بافر 500 متری خیابان‌ها</span>
+<span class="keyword">SELECT</span> 
+    s.name <span class="keyword">AS</span> street,
+    r.name <span class="keyword">AS</span> restaurant,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Distance</span>(
+            <span class="function">ST_Transform</span>(s.geom, <span class="number">32639</span>),
+            <span class="function">ST_Transform</span>(r.location, <span class="number">32639</span>)
+        ), 
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> distance_meters
+<span class="keyword">FROM</span> streets s
+<span class="keyword">JOIN</span> restaurants r 
+    <span class="keyword">ON</span> <span class="function">ST_DWithin</span>(
+        <span class="function">ST_Transform</span>(s.geom, <span class="number">32639</span>),
+        <span class="function">ST_Transform</span>(r.location, <span class="number">32639</span>),
+        <span class="number">500</span>
+    );
+                </div>
+            </div>
+
+            <h3><span class="emoji">📊</span> 5. تحلیل خوشه‌ای (Clustering)</h3>
+            
+            <div class="example box">
+                <h4>خوشه‌بندی رستوران‌ها</h4>
+                <div class="code">
+<span class="comment">-- خوشه‌بندی با ST_ClusterKMeans</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_ClusterKMeans</span>(
+        <span class="function">ST_Transform</span>(location, <span class="number">32639</span>), 
+        <span class="number">3</span>  <span class="comment">-- تعداد خوشه</span>
+    ) <span class="keyword">OVER</span>() <span class="keyword">AS</span> cluster_id,
+    name,
+    cuisine,
+    <span class="function">ST_X</span>(location) <span class="keyword">AS</span> lon,
+    <span class="function">ST_Y</span>(location) <span class="keyword">AS</span> lat
+<span class="keyword">FROM</span> restaurants
+<span class="keyword">ORDER BY</span> cluster_id;
+
+<span class="comment">-- خوشه‌بندی با ST_ClusterDBSCAN</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">ST_ClusterDBSCAN</span>(
+        <span class="function">ST_Transform</span>(location, <span class="number">32639</span>),
+        eps := <span class="number">1000</span>,      <span class="comment">-- شعاع (متر)</span>
+        minpoints := <span class="number">2</span>   <span class="comment">-- حداقل نقاط</span>
+    ) <span class="keyword">OVER</span>() <span class="keyword">AS</span> cluster_id,
+    name,
+    cuisine
+<span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- مرکز هر خوشه</span>
+<span class="keyword">WITH</span> clusters <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> 
+        <span class="function">ST_ClusterKMeans</span>(location, <span class="number">3</span>) <span class="keyword">OVER</span>() <span class="keyword">AS</span> cid,
+        location
+    <span class="keyword">FROM</span> restaurants
+)
+<span class="keyword">SELECT</span> 
+    cid <span class="keyword">AS</span> cluster_id,
+    <span class="function">COUNT</span>(*) <span class="keyword">AS</span> count,
+    <span class="function">ST_AsText</span>(
+        <span class="function">ST_Centroid</span>(<span class="function">ST_Collect</span>(location))
+    ) <span class="keyword">AS</span> cluster_center
+<span class="keyword">FROM</span> clusters
+<span class="keyword">GROUP BY</span> cid;
+                </div>
+            </div>
+
+            <h3><span class="emoji">🗺️</span> 6. Heatmap و Density</h3>
+            
+            <div class="example box">
+                <h4>تراکم رستوران‌ها</h4>
+                <div class="code">
+<span class="comment">-- تعداد رستوران‌ها در شبکه 1km x 1km</span>
+<span class="keyword">WITH</span> grid <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> 
+        (<span class="function">ST_SquareGrid</span>(
+            <span class="number">1000</span>,  <span class="comment">-- 1km</span>
+            <span class="function">ST_Transform</span>(<span class="function">ST_Extent</span>(location), <span class="number">32639</span>)
+        )).*
+    <span class="keyword">FROM</span> restaurants
+)
+<span class="keyword">SELECT</span> 
+    g.i,
+    g.j,
+    <span class="function">COUNT</span>(r.id) <span class="keyword">AS</span> restaurant_count,
+    <span class="function">ST_AsText</span>(<span class="function">ST_Transform</span>(g.geom, <span class="number">4326</span>)) <span class="keyword">AS</span> cell
+<span class="keyword">FROM</span> grid g
+<span class="keyword">LEFT JOIN</span> restaurants r 
+    <span class="keyword">ON</span> <span class="function">ST_Intersects</span>(
+        g.geom,
+        <span class="function">ST_Transform</span>(r.location, <span class="number">32639</span>)
+    )
+<span class="keyword">GROUP BY</span> g.i, g.j, g.geom
+<span class="keyword">HAVING</span> <span class="function">COUNT</span>(r.id) > <span class="number">0</span>
+<span class="keyword">ORDER BY</span> restaurant_count <span class="keyword">DESC</span>;
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: ایندکس‌های فضایی -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>⚡ ایندکس‌های فضایی (Spatial Indexes)</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">📖</span> ایندکس فضایی چیست؟</h3>
+                <p>
+                    ایندکس فضایی ساختار داده‌ای است که جستجوهای مکانی را <strong>بسیار سریع‌تر</strong> می‌کند.
+                    PostGIS از <strong>GiST (Generalized Search Tree)</strong> و <strong>SP-GiST</strong> استفاده می‌کند.
+                </p>
+            </div>
+
+            <h3><span class="emoji">🔧</span> ایجاد ایندکس</h3>
+            
+            <div class="example box">
+                <h4>1. ایندکس GiST (رایج‌ترین)</h4>
+                <div class="code">
+<span class="comment">-- ایجاد ایندکس برای جدول restaurants</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_location
+<span class="keyword">ON</span> restaurants
+<span class="keyword">USING</span> GIST (location);
+
+<span class="comment">-- ایندکس برای جدول parks</span>
+<span class="keyword">CREATE INDEX</span> idx_parks_geom
+<span class="keyword">ON</span> parks
+<span class="keyword">USING</span> GIST (geom);
+
+<span class="comment">-- ایندکس برای جدول streets</span>
+<span class="keyword">CREATE INDEX</span> idx_streets_geom
+<span class="keyword">ON</span> streets
+<span class="keyword">USING</span> GIST (geom);
+
+<span class="comment">-- بررسی ایندکس‌ها</span>
+\di
+
+<span class="comment">-- حذف ایندکس</span>
+<span class="keyword">DROP INDEX</span> idx_restaurants_location;
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>2. ایندکس SP-GiST (برای Point)</h4>
+                <div class="code">
+<span class="comment">-- ایندکس SP-GiST برای نقاط</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_location_spgist
+<span class="keyword">ON</span> restaurants
+<span class="keyword">USING</span> SPGIST (location);
+
+<span class="comment">-- SP-GiST برای داده‌های Point سریع‌تر است</span>
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>3. ایندکس BRIN (برای داده‌های بزرگ)</h4>
+                <div class="code">
+<span class="comment">-- BRIN برای جداول بسیار بزرگ</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_location_brin
+<span class="keyword">ON</span> restaurants
+<span class="keyword">USING</span> BRIN (location);
+
+<span class="comment">-- مصرف حافظه کمتر، سرعت کمی کمتر</span></div>
+            </div>
+
+            <h3><span class="emoji">📊</span> تست عملکرد (Performance Testing)</h3>
+            
+            <div class="example box">
+                <h4>مقایسه با و بدون ایندکس</h4>
+                <div class="code">
+<span class="comment">-- حذف ایندکس برای تست</span>
+<span class="keyword">DROP INDEX IF EXISTS</span> idx_restaurants_location;
+
+<span class="comment">-- تست بدون ایندکس</span>
+<span class="keyword">EXPLAIN ANALYZE</span>
+<span class="keyword">SELECT</span> name, cuisine
+<span class="keyword">FROM</span> restaurants
+<span class="keyword">WHERE</span> <span class="function">ST_DWithin</span>(
+    location::<span class="keyword">geography</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)::<span class="keyword">geography</span>,
+    <span class="number">2000</span>
+);
+<span class="comment">-- Planning Time: 0.5 ms</span>
+<span class="comment">-- Execution Time: 15.2 ms (Seq Scan)</span>
+
+<span class="comment">-- ایجاد ایندکس</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_location
+<span class="keyword">ON</span> restaurants
+<span class="keyword">USING</span> GIST (location);
+
+<span class="comment">-- تست با ایندکس</span>
+<span class="keyword">EXPLAIN ANALYZE</span>
+<span class="keyword">SELECT</span> name, cuisine
+<span class="keyword">FROM</span> restaurants
+<span class="keyword">WHERE</span> <span class="function">ST_DWithin</span>(
+    location::<span class="keyword">geography</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)::<span class="keyword">geography</span>,
+    <span class="number">2000</span>
+);
+<span class="comment">-- Planning Time: 0.3 ms</span>
+<span class="comment">-- Execution Time: 1.8 ms (Index Scan) - 8x سریع‌تر!</span>
+                </div>
+            </div>
+
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> نکات مهم ایندکس</h3>
+                <ul>
+                    <li>✅ <strong>همیشه</strong> برای ستون‌های مکانی ایندکس بسازید</li>
+                    <li>⚡ GiST برای اکثر موارد بهترین است</li>
+                    <li>📍 SP-GiST برای Point سریع‌تر است</li>
+                    <li>💾 BRIN برای جداول بزرگ (میلیون‌ها رکورد)</li>
+                    <li>🔄 بعد از INSERT/UPDATE زیاد، VACUUM کنید</li>
+                    <li>📊 با EXPLAIN ANALYZE عملکرد را بررسی کنید</li>
+                </ul>
+            </div>
+
+            <h3><span class="emoji">🔧</span> نگهداری ایندکس</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- VACUUM برای بهینه‌سازی</span>
+<span class="keyword">VACUUM ANALYZE</span> restaurants;
+
+<span class="comment">-- REINDEX برای بازسازی</span>
+<span class="keyword">REINDEX INDEX</span> idx_restaurants_location;
+
+<span class="comment">-- بررسی سایز ایندکس</span>
+<span class="keyword">SELECT</span> 
+    indexname,
+    <span class="function">pg_size_pretty</span>(<span class="function">pg_relation_size</span>(indexname::regclass)) <span class="keyword">AS</span> index_size
+<span class="keyword">FROM</span> pg_indexes
+<span class="keyword">WHERE</span> tablename = <span class="string">'restaurants'</span>;
+
+<span class="comment">-- آمار استفاده از ایندکس</span>
+<span class="keyword">SELECT</span> 
+    schemaname,
+    tablename,
+    indexname,
+    idx_scan <span class="keyword">AS</span> index_scans,
+    idx_tup_read <span class="keyword">AS</span> tuples_read,
+    idx_tup_fetch <span class="keyword">AS</span> tuples_fetched
+<span class="keyword">FROM</span> pg_stat_user_indexes
+<span class="keyword">WHERE</span> tablename = <span class="string">'restaurants'</span>;
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: Import/Export -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>📥📤 Import و Export داده‌ها</h2>
+            
+            <h3><span class="emoji">📥</span> Import از فرمت‌های مختلف</h3>
+            
+            <div class="example box">
+                <h4>1. Import از Shapefile</h4>
+                <div class="code bash">
+<span class="comment"># نصب ابزار shp2pgsql</span>
+sudo apt install postgis
+
+<span class="comment"># Import فایل Shapefile</span>
+shp2pgsql -I -s <span class="number">4326</span> \
+    /path/to/file.shp \
+    public.imported_data \
+    | psql -U postgres -d gis_database
+
+<span class="comment"># پارامترها:</span>
+<span class="comment"># -I : ایجاد ایندکس فضایی</span>
+<span class="comment"># -s : SRID</span>
+<span class="comment"># -d : حذف جدول قبلی</span>
+<span class="comment"># -a : Append (اضافه کردن)</span>
+<span class="comment"># -c : ایجاد جدول جدید</span>
+
+<span class="comment"># مثال کامل:</span>
+shp2pgsql -I -s <span class="number">4326</span> -d \
+    iran_provinces.shp \
+    public.provinces \
+    | psql -U postgres -d gis_database
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>2. Import از GeoJSON</h4>
+                <div class="code bash">
+<span class="comment"># با استفاده از ogr2ogr</span>
+ogr2ogr -f <span class="string">"PostgreSQL"</span> \
+    PG:<span class="string">"host=localhost dbname=gis_database user=postgres password=mypass"</span> \
+    restaurants.geojson \
+    -nln restaurants \
+    -overwrite
+
+<span class="comment"># پارامترها:</span>
+<span class="comment"># -f : فرمت خروجی</span>
+<span class="comment"># -nln : نام جدول (New Layer Name)</span>
+<span class="comment"># -overwrite : بازنویسی</span>
+<span class="comment"># -append : اضافه کردن</span>
+                </div>
+                
+                <div class="code">
+<span class="comment">-- یا مستقیم در SQL</span>
+<span class="keyword">CREATE TABLE</span> temp_geojson (data jsonb);
+
+<span class="comment">-- کپی محتوای GeoJSON</span>
+\<span class="keyword">COPY</span> temp_geojson <span class="keyword">FROM</span> <span class="string">'/path/to/file.geojson'</span>;
+
+<span class="comment">-- تبدیل به جدول مکانی</span>
+<span class="keyword">CREATE TABLE</span> restaurants_from_json <span class="keyword">AS</span>
+<span class="keyword">SELECT</span> 
+    (feature-><span class="string">'properties'</span>->><span class="string">'name'</span>)::<span class="keyword">varchar</span> <span class="keyword">AS</span> name,
+    (feature-><span class="string">'properties'</span>->><span class="string">'cuisine'</span>)::<span class="keyword">varchar</span> <span class="keyword">AS</span> cuisine,
+    <span class="function">ST_SetSRID</span>(
+        <span class="function">ST_GeomFromGeoJSON</span>(feature-><span class="string">'geometry'</span>),
+        <span class="number">4326</span>
+    ) <span class="keyword">AS</span> location
+<span class="keyword">FROM</span> (
+    <span class="keyword">SELECT</span> jsonb_array_elements(data-><span class="string">'features'</span>) <span class="keyword">AS</span> feature
+    <span class="keyword">FROM</span> temp_geojson
+) features;
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>3. Import از CSV با مختصات</h4>
+                <div class="code">
+<span class="comment">-- فرض: فایل CSV با ستون‌های: name, lat, lon</span>
+
+<span class="comment">-- ایجاد جدول موقت</span>
+<span class="keyword">CREATE TEMP TABLE</span> temp_csv (
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>),
+    latitude <span class="keyword">DECIMAL</span>(<span class="number">10</span>, <span class="number">8</span>),
+    longitude <span class="keyword">DECIMAL</span>(<span class="number">11</span>, <span class="number">8</span>)
+);
+
+<span class="comment">-- Import از CSV</span>
+\<span class="keyword">COPY</span> temp_csv <span class="keyword">FROM</span> <span class="string">'/path/to/locations.csv'</span> 
+<span class="keyword">WITH</span> (FORMAT csv, HEADER <span class="keyword">true</span>, DELIMITER <span class="string">','</span>);
+
+<span class="comment">-- تبدیل به جدول مکانی</span>
+<span class="keyword">INSERT INTO</span> restaurants (name, location)
+<span class="keyword">SELECT</span> 
+    name,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(longitude, latitude), <span class="number">4326</span>)
+<span class="keyword">FROM</span> temp_csv
+<span class="keyword">WHERE</span> latitude <span class="keyword">IS NOT NULL</span> 
+    <span class="keyword">AND</span> longitude <span class="keyword">IS NOT NULL</span>;
+
+<span class="comment">-- حذف جدول موقت</span>
+<span class="keyword">DROP TABLE</span> temp_csv;
+                </div>
+            </div>
+
+            <h3><span class="emoji">📤</span> Export به فرمت‌های مختلف</h3>
+            
+            <div class="example box">
+                <h4>1. Export به Shapefile</h4>
+                <div class="code bash">
+<span class="comment"># با pgsql2shp</span>
+pgsql2shp -f output_file.shp \
+    -h localhost \
+    -u postgres \
+    -P mypassword \
+    gis_database \
+    <span class="string">"SELECT * FROM restaurants"</span>
+
+<span class="comment"># با ogr2ogr</span>
+ogr2ogr -f <span class="string">"ESRI Shapefile"</span> \
+    restaurants.shp \
+    PG:<span class="string">"host=localhost dbname=gis_database user=postgres"</span> \
+    -sql <span class="string">"SELECT * FROM restaurants"</span>
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>2. Export به GeoJSON</h4>
+                <div class="code">
+<span class="comment">-- روش 1: در SQL</span>
+<span class="keyword">SELECT</span> jsonb_build_object(
+    <span class="string">'type'</span>, <span class="string">'FeatureCollection'</span>,
+    <span class="string">'features'</span>, jsonb_agg(
+        jsonb_build_object(
+            <span class="string">'type'</span>, <span class="string">'Feature'</span>,
+            <span class="string">'geometry'</span>, <span class="function">ST_AsGeoJSON</span>(location)::jsonb,
+            <span class="string">'properties'</span>, jsonb_build_object(
+                <span class="string">'name'</span>, name,
+                <span class="string">'cuisine'</span>, cuisine,
+                <span class="string">'rating'</span>, rating
+            )
+        )
+    )
+) <span class="keyword">AS</span> geojson
+<span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ذخیره در فایل</span>
+\o /path/to/output.geojson
+<span class="keyword">SELECT</span> ... <span class="comment">-- کوئری بالا</span>
+\o
+                </div>
+                
+                <div class="code bash">
+<span class="comment"># روش 2: با ogr2ogr</span>
+ogr2ogr -f GeoJSON \
+    restaurants.geojson \
+    PG:<span class="string">"host=localhost dbname=gis_database user=postgres"</span> \
+    -sql <span class="string">"SELECT * FROM restaurants"</span>
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>3. Export به KML</h4>
+                <div class="code">
+<span class="comment">-- تولید KML</span>
+<span class="keyword">SELECT</span> 
+    <span class="string">'<?xml version="1.0" encoding="UTF-8"?>'</span> ||
+    <span class="string">'<kml xmlns="http://www.opengis.net/kml/2.2">'</span> ||
+    <span class="string">'<Document>'</span> ||
+    <span class="function">string_agg</span>(
+        <span class="string">'<Placemark>'</span> ||
+        <span class="string">'<name>'</span> || name || <span class="string">'</name>'</span> ||
+        <span class="string">'<description>'</span> || cuisine || <span class="string">'</description>'</span> ||
+        <span class="function">ST_AsKML</span>(location) ||
+        <span class="string">'</Placemark>'</span>,
+        <span class="string">''</span>
+    ) ||
+    <span class="string">'</Document></kml>'</span> <span class="keyword">AS</span> kml
+<span class="keyword">FROM</span> restaurants;
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>4. Export به CSV با مختصات</h4>
+                <div class="code">
+<span class="comment">-- Export به CSV</span>
+\<span class="keyword">COPY</span> (
+    <span class="keyword">SELECT</span> 
+        name,
+        cuisine,
+        rating,
+        <span class="function">ST_X</span>(location) <span class="keyword">AS</span> longitude,
+        <span class="function">ST_Y</span>(location) <span class="keyword">AS</span> latitude
+    <span class="keyword">FROM</span> restaurants
+) <span class="keyword">TO</span> <span class="string">'/path/to/restaurants.csv'</span> 
+<span class="keyword">WITH</span> (FORMAT CSV, HEADER <span class="keyword">true</span>);
+                </div>
+            </div>
+
+            <div class="info box">
+                <h3><span class="emoji">🛠️</span> ابزارهای مفید</h3>
+                <ul>
+                    <li><strong>shp2pgsql / pgsql2shp:</strong> Shapefile ↔ PostGIS</li>
+                    <li><strong>ogr2ogr:</strong> تبدیل بین فرمت‌های مختلف (GDAL)</li>
+                    <li><strong>QGIS:</strong> رابط گرافیکی برای Import/Export</li>
+                    <li><strong>pgAdmin:</strong> مدیریت دیتابیس</li>
+                    <li><strong>PostGIS Shapefile Import/Export Manager:</strong> GUI ساده</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: ادغام با Django -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>🐍 ادغام PostGIS با Django</h2>
+            
+            <h3><span class="emoji">⚙️</span> نصب و پیکربندی</h3>
+            
+            <div class="example box">
+                <h4>1. نصب کتابخانه‌ها</h4>
+                <div class="code bash">
+<span class="comment"># نصب Django و GeoDjango</span>
+pip install django
+pip install psycopg2-binary
+
+<span class="comment"># نصب GDAL (سیستم)</span>
+sudo apt install gdal-bin libgdal-dev
+
+<span class="comment"># نصب GEOS (سیستم)</span>
+sudo apt install libgeos-dev
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>2. تنظیمات Django (settings.py)</h4>
+                <div class="code python">
+<span class="comment"># settings.py</span>
+
+<span class="keyword">INSTALLED_APPS</span> = [
+    <span class="string">'django.contrib.admin'</span>,
+    <span class="string">'django.contrib.auth'</span>,
+    <span class="string">'django.contrib.contenttypes'</span>,
+    <span class="string">'django.contrib.sessions'</span>,
+    <span class="string">'django.contrib.messages'</span>,
+    <span class="string">'django.contrib.staticfiles'</span>,
+    
+    <span class="comment"># GeoDjango</span>
+    <span class="string">'django.contrib.gis'</span>,
+    
+    <span class="string">'myapp'</span>,
+]
+
+<span class="keyword">DATABASES</span> = {
+    <span class="string">'default'</span>: {
+        <span class="string">'ENGINE'</span>: <span class="string">'django.contrib.gis.db.backends.postgis'</span>,
+        <span class="string">'NAME'</span>: <span class="string">'gis_database'</span>,
+        <span class="string">'USER'</span>: <span class="string">'postgres'</span>,
+        <span class="string">'PASSWORD'</span>: <span class="string">'mypassword'</span>,
+        <span class="string">'HOST'</span>: <span class="string">'localhost'</span>,
+        <span class="string">'PORT'</span>: <span class="string">'5432'</span>,
+    }
+}
+                </div>
+            </div>
+
+            <h3><span class="emoji">📝</span> تعریف Model</h3>
+            
+            <div class="example box">
+                <h4>models.py</h4>
+                <div class="code python">
+<span class="keyword">from</span> django.contrib.gis.db <span class="keyword">import</span> models
+<span class="keyword">from</span> django.contrib.gis.geos <span class="keyword">import</span> Point
+
+<span class="keyword">class</span> <span class="function">Restaurant</span>(models.Model):
+    name = models.CharField(max_length=<span class="number">200</span>)
+    cuisine = models.CharField(max_length=<span class="number">100</span>)
+    rating = models.DecimalField(max_digits=<span class="number">3</span>, decimal_places=<span class="number">2</span>)
+    phone = models.CharField(max_length=<span class="number">20</span>, blank=<span class="keyword">True</span>)
+    address = models.TextField(blank=<span class="keyword">True</span>)
+    
+    <span class="comment"># فیلد مکانی</span>
+    location = models.PointField(srid=<span class="number">4326</span>)
+    
+    created_at = models.DateTimeField(auto_now_add=<span class="keyword">True</span>)
+    updated_at = models.DateTimeField(auto_now=<span class="keyword">True</span>)
+    
+    <span class="keyword">class</span> <span class="function">Meta</span>:
+        db_table = <span class="string">'restaurants'</span>
+        ordering = [<span class="string">'-rating'</span>]
+    
+    <span class="keyword">def</span> <span class="function">__str__</span>(<span class="keyword">self</span>):
+        <span class="keyword">return</span> <span class="keyword">self</span>.name
+
+<span class="keyword">class</span> <span class="function">Park</span>(models.Model):
+    name = models.CharField(max_length=<span class="number">200</span>)
+    park_type = models.CharField(max_length=<span class="number">50</span>)
+    area_sqm = models.DecimalField(
+        max_digits=<span class="number">15</span>, 
+        decimal_places=<span class="number">2</span>,
+        blank=<span class="keyword">True</span>,
+        null=<span class="keyword">True</span>
+    )
+    facilities = models.JSONField(default=<span class="function">list</span>, blank=<span class="keyword">True</span>)
+    opening_hours = models.CharField(max_length=<span class="number">100</span>, blank=<span class="keyword">True</span>)
+    
+    <span class="comment"># فیلد مکانی Polygon</span>
+    geom = models.PolygonField(srid=<span class="number">4326</span>)
+    
+    <span class="keyword">class</span> <span class="function">Meta</span>:
+        db_table = <span class="string">'parks'</span>
+    
+    <span class="keyword">def</span> <span class="function">__str__</span>(<span class="keyword">self</span>):
+        <span class="keyword">return</span> <span class="keyword">self</span>.name
+
+<span class="keyword">class</span> <span class="function">Street</span>(models.Model):
+    name = models.CharField(max_length=<span class="number">200</span>)
+    street_type = models.CharField(max_length=<span class="number">50</span>)
+    length_meters = models.DecimalField(
+        max_digits=<span class="number">10</span>, 
+        decimal_places=<span class="number">2</span>,
+        blank=<span class="keyword">True</span>,
+        null=<span class="keyword">True</span>
+    )
+    one_way = models.BooleanField(default=<span class="keyword">False</span>)
+    
+    <span class="comment"># فیلد مکانی LineString</span>
+    geom = models.LineStringField(srid=<span class="number">4326</span>)
+    
+    <span class="keyword">class</span> <span class="function">Meta</span>:
+        db_table = <span class="string">'streets'</span>
+    
+    <span class="keyword">def</span> <span class="function">__str__</span>(<span class="keyword">self</span>):
+        <span class="keyword">return</span> <span class="keyword">self</span>.name
+                </div>
+            </div>
+
+            <h3><span class="emoji">🔍</span> Query های مکانی</h3>
+            
+            <div class="example box">
+                <h4>views.py - جستجوهای مکانی</h4>
+                <div class="code python">
+<span class="keyword">from</span> django.contrib.gis.geos <span class="keyword">import</span> Point
+<span class="keyword">from</span> django.contrib.gis.measure <span class="keyword">import</span> D
+<span class="keyword">from</span> django.contrib.gis.db.models.functions <span class="keyword">import</span> Distance
+<span class="keyword">from</span> .models <span class="keyword">import</span> Restaurant, Park
+
+<span class="comment"># 1. رستوران‌های در شعاع 2 کیلومتری</span>
+<span class="keyword">def</span> <span class="function">restaurants_nearby</span>(request):
+    <span class="comment"># موقعیت کاربر</span>
+    user_location = Point(<span class="number">51.4231</span>, <span class="number">35.7219</span>, srid=<span class="number">4326</span>)
+    
+    restaurants = Restaurant.objects.filter(
+        location__distance_lte=(user_location, D(km=<span class="number">2</span>))
+    ).annotate(
+        distance=Distance(<span class="string">'location'</span>, user_location)
+    ).order_by(<span class="string">'distance'</span>)
+    
+    <span class="keyword">return</span> restaurants
+
+<span class="comment"># 2. نزدیک‌ترین رستوران</span>
+<span class="keyword">def</span> <span class="function">nearest_restaurant</span>(lat, lon):
+    user_location = Point(lon, lat, srid=<span class="number">4326</span>)
+    
+    nearest = Restaurant.objects.annotate(
+        distance=Distance(<span class="string">'location'</span>, user_location)
+    ).order_by(<span class="string">'distance'</span>).first()
+    
+    <span class="keyword">return</span> nearest
+
+<span class="comment"># 3. رستوران‌های داخل پارک</span>
+<span class="keyword">def</span> <span class="function">restaurants_in_park</span>(park_id):
+    park = Park.objects.get(id=park_id)
+    
+    restaurants = Restaurant.objects.filter(
+        location__within=park.geom
+    )
+    
+    <span class="keyword">return</span> restaurants
+
+<span class="comment"># 4. رستوران‌های با فیلتر پیشرفته</span>
+<span class="keyword">def</span> <span class="function">search_restaurants</span>(lat, lon, radius_km, cuisine=<span class="keyword">None</span>, min_rating=<span class="keyword">None</span>):
+    user_location = Point(lon, lat, srid=<span class="number">4326</span>)
+    
+    <span class="comment"># Query اولیه</span>
+    qs = Restaurant.objects.filter(
+        location__distance_lte=(user_location, D(km=radius_km))
+    )
+    
+    <span class="comment"># فیلتر نوع غذا</span>
+    <span class="keyword">if</span> cuisine:
+        qs = qs.filter(cuisine__icontains=cuisine)
+    
+    <span class="comment"># فیلتر امتیاز</span>
+    <span class="keyword">if</span> min_rating:
+        qs = qs.filter(rating__gte=min_rating)
+    
+    <span class="comment"># محاسبه فاصله و مرتب‌سازی</span>
+    qs = qs.annotate(
+        distance=Distance(<span class="string">'location'</span>, user_location)
+    ).order_by(<span class="string">'distance'</span>)
+    
+    <span class="keyword">return</span> qs
+
+<span class="comment"># 5. Buffer - پارک‌های در محدوده</span>
+<span class="keyword">def</span> <span class="function">parks_in_buffer</span>(lat, lon, radius_meters):
+    <span class="keyword">from</span> django.contrib.gis.geos <span class="keyword">import</span> Point
+    <span class="keyword">from</span> django.contrib.gis.db.models.functions <span class="keyword">import</span> Transform
+    
+    point = Point(lon, lat, srid=<span class="number">4326</span>)
+    
+    <span class="comment"># تبدیل به UTM برای Buffer دقیق</span>
+    point_utm = point.transform(<span class="number">32639</span>, clone=<span class="keyword">True</span>)
+    buffer = point_utm.buffer(radius_meters)
+    buffer.srid = <span class="number">32639</span>
+    
+    <span class="comment"># تبدیل به WGS84</span>
+    buffer_wgs84 = buffer.transform(<span class="number">4326</span>, clone=<span class="keyword">True</span>)
+    
+    parks = Park.objects.filter(
+        geom__intersects=buffer_wgs84
+    )
+    
+    <span class="keyword">return</span> parks
+                </div>
+            </div>
+
+            <h3><span class="emoji">🌐</span> API View</h3>
+            
+            <div class="example box">
+                <h4>Django REST Framework</h4>
+                <div class="code python">
+<span class="keyword">from</span> rest_framework <span class="keyword">import</span> serializers, viewsets
+<span class="keyword">from</span> rest_framework_gis.serializers <span class="keyword">import</span> GeoFeatureModelSerializer
+<span class="keyword">from</span> django.contrib.gis.geos <span class="keyword">import</span> Point
+<span class="keyword">from</span> django.contrib.gis.measure <span class="keyword">import</span> D
+
+<span class="comment"># Serializer</span>
+<span class="keyword">class</span> <span class="function">RestaurantSerializer</span>(GeoFeatureModelSerializer):<span class="keyword">class</span> <span class="function">Meta</span>:
+        model = Restaurant
+        geo_field = <span class="string">'location'</span>
+        fields = (<span class="string">'id'</span>, <span class="string">'name'</span>, <span class="string">'cuisine'</span>, <span class="string">'rating'</span>, <span class="string">'phone'</span>, <span class="string">'address'</span>)
+
+<span class="comment"># ViewSet</span>
+<span class="keyword">class</span> <span class="function">RestaurantViewSet</span>(viewsets.ModelViewSet):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
+    
+    <span class="keyword">def</span> <span class="function">get_queryset</span>(<span class="keyword">self</span>):
+        qs = <span class="keyword">super</span>().get_queryset()
+        
+        <span class="comment"># جستجوی شعاعی</span>
+        lat = <span class="keyword">self</span>.request.query_params.get(<span class="string">'lat'</span>)
+        lon = <span class="keyword">self</span>.request.query_params.get(<span class="string">'lon'</span>)
+        radius = <span class="keyword">self</span>.request.query_params.get(<span class="string">'radius'</span>, <span class="number">5</span>)  <span class="comment"># کیلومتر</span>
+        
+        <span class="keyword">if</span> lat <span class="keyword">and</span> lon:
+            point = Point(<span class="function">float</span>(lon), <span class="function">float</span>(lat), srid=<span class="number">4326</span>)
+            qs = qs.filter(
+                location__distance_lte=(point, D(km=<span class="function">float</span>(radius)))
+            ).annotate(
+                distance=Distance(<span class="string">'location'</span>, point)
+            ).order_by(<span class="string">'distance'</span>)
+        
+        <span class="keyword">return</span> qs
+
+<span class="comment"># urls.py</span>
+<span class="keyword">from</span> rest_framework.routers <span class="keyword">import</span> DefaultRouter
+
+router = DefaultRouter()
+router.register(<span class="string">r'restaurants'</span>, RestaurantViewSet)
+
+urlpatterns = [
+    path(<span class="string">''</span>, include(router.urls)),
+]
+
+<span class="comment"># استفاده:</span>
+<span class="comment"># GET /api/restaurants/?lat=35.7219&lon=51.4231&radius=2</span>
+                </div>
+            </div>
+
+            <h3><span class="emoji">🗺️</span> Admin با نقشه</h3>
+            
+            <div class="example box">
+                <h4>admin.py</h4>
+                <div class="code python">
+<span class="keyword">from</span> django.contrib.gis <span class="keyword">import</span> admin
+<span class="keyword">from</span> .models <span class="keyword">import</span> Restaurant, Park, Street
+
+<span class="comment"># Admin با نقشه OpenStreetMap</span>
+<span class="keyword">class</span> <span class="function">RestaurantAdmin</span>(admin.GISModelAdmin):
+    list_display = (<span class="string">'name'</span>, <span class="string">'cuisine'</span>, <span class="string">'rating'</span>, <span class="string">'phone'</span>)
+    list_filter = (<span class="string">'cuisine'</span>, <span class="string">'rating'</span>)
+    search_fields = (<span class="string">'name'</span>, <span class="string">'address'</span>)
+    
+    <span class="comment"># تنظیمات نقشه</span>
+    default_lon = <span class="number">5716000</span>  <span class="comment"># تهران در Web Mercator</span>
+    default_lat = <span class="number">4240000</span>
+    default_zoom = <span class="number">11</span>
+    
+    <span class="comment"># نوع نقشه</span>
+    map_template = <span class="string">'gis/admin/osm.html'</span>
+    modifiable = <span class="keyword">True</span>
+
+<span class="keyword">class</span> <span class="function">ParkAdmin</span>(admin.GISModelAdmin):
+    list_display = (<span class="string">'name'</span>, <span class="string">'park_type'</span>, <span class="string">'area_sqm'</span>)
+    list_filter = (<span class="string">'park_type'</span>,)
+    
+    default_lon = <span class="number">5716000</span>
+    default_lat = <span class="number">4240000</span>
+    default_zoom = <span class="number">11</span>
+
+<span class="keyword">class</span> <span class="function">StreetAdmin</span>(admin.GISModelAdmin):
+    list_display = (<span class="string">'name'</span>, <span class="string">'street_type'</span>, <span class="string">'length_meters'</span>, <span class="string">'one_way'</span>)
+    list_filter = (<span class="string">'street_type'</span>, <span class="string">'one_way'</span>)
+
+admin.site.register(Restaurant, RestaurantAdmin)
+admin.site.register(Park, ParkAdmin)
+admin.site.register(Street, StreetAdmin)
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: پروژه عملی -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>🎯 پروژه عملی: سیستم یابنده رستوران</h2>
+            
+            <div class="highlight box">
+                <h3 style="text-align: center;"><span class="emoji">🎯</span> هدف پروژه</h3>
+                <p style="text-align: center; font-size: 1.3em;">
+                    ساخت یک سیستم کامل برای جستجو، فیلتر، و توصیه رستوران بر اساس موقعیت جغرافیایی
+                </p>
+            </div>
+
+            <h3><span class="emoji">1️⃣</span> ایجاد Schema و جداول</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- ایجاد دیتابیس</span>
+<span class="keyword">CREATE DATABASE</span> restaurant_finder;
+
+<span class="comment">-- اتصال و فعال‌سازی PostGIS</span>
+\c restaurant_finder
+<span class="keyword">CREATE EXTENSION</span> postgis;
+
+<span class="comment">-- جدول رستوران‌ها</span>
+<span class="keyword">CREATE TABLE</span> restaurants (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span>,
+    cuisine <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    rating <span class="keyword">DECIMAL</span>(<span class="number">3</span>, <span class="number">2</span>) <span class="keyword">CHECK</span> (rating >= <span class="number">0</span> <span class="keyword">AND</span> rating <= <span class="number">5</span>),
+    price_range <span class="keyword">VARCHAR</span>(<span class="number">20</span>), <span class="comment">-- ارزان، متوسط، گران</span>
+    phone <span class="keyword">VARCHAR</span>(<span class="number">20</span>),
+    address <span class="keyword">TEXT</span>,
+    website <span class="keyword">VARCHAR</span>(<span class="number">200</span>),
+    opening_hours <span class="keyword">JSONB</span>,
+    features <span class="keyword">TEXT</span>[], <span class="comment">-- پارکینگ، وای‌فای، ...</span>
+    capacity <span class="keyword">INTEGER</span>,
+    delivery <span class="keyword">BOOLEAN DEFAULT FALSE</span>,
+    reservation <span class="keyword">BOOLEAN DEFAULT FALSE</span>,
+    location <span class="keyword">GEOMETRY</span>(Point, <span class="number">4326</span>) <span class="keyword">NOT NULL</span>,
+    created_at <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>,
+    updated_at <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="comment">-- جدول نظرات</span>
+<span class="keyword">CREATE TABLE</span> reviews (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    restaurant_id <span class="keyword">INTEGER REFERENCES</span> restaurants(id) <span class="keyword">ON DELETE CASCADE</span>,
+    user_name <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    rating <span class="keyword">INTEGER CHECK</span> (rating >= <span class="number">1</span> <span class="keyword">AND</span> rating <= <span class="number">5</span>),
+    comment <span class="keyword">TEXT</span>,
+    created_at <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="comment">-- جدول مناطق (محله‌ها)</span>
+<span class="keyword">CREATE TABLE</span> neighborhoods (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span>,
+    city <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    population <span class="keyword">INTEGER</span>,
+    geom <span class="keyword">GEOMETRY</span>(Polygon, <span class="number">4326</span>) <span class="keyword">NOT NULL</span>
+);
+
+<span class="comment">-- ایجاد ایندکس‌ها</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_location <span class="keyword">ON</span> restaurants <span class="keyword">USING</span> GIST (location);
+<span class="keyword">CREATE INDEX</span> idx_restaurants_cuisine <span class="keyword">ON</span> restaurants (cuisine);
+<span class="keyword">CREATE INDEX</span> idx_restaurants_rating <span class="keyword">ON</span> restaurants (rating);
+<span class="keyword">CREATE INDEX</span> idx_neighborhoods_geom <span class="keyword">ON</span> neighborhoods <span class="keyword">USING</span> GIST (geom);
+<span class="keyword">CREATE INDEX</span> idx_reviews_restaurant <span class="keyword">ON</span> reviews (restaurant_id);
+
+<span class="comment">-- Trigger برای به‌روزرسانی updated_at</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> update_updated_at_column()
+<span class="keyword">RETURNS TRIGGER AS</span> $$
+<span class="keyword">BEGIN</span>
+    NEW.updated_at = <span class="function">CURRENT_TIMESTAMP</span>;
+    <span class="keyword">RETURN</span> NEW;
+<span class="keyword">END</span>;
+$$ <span class="keyword">LANGUAGE</span> plpgsql;
+
+<span class="keyword">CREATE TRIGGER</span> update_restaurants_updated_at
+<span class="keyword">BEFORE UPDATE ON</span> restaurants
+<span class="keyword">FOR EACH ROW</span>
+<span class="keyword">EXECUTE FUNCTION</span> update_updated_at_column();
+                </div>
+            </div>
+
+            <h3><span class="emoji">2️⃣</span> درج داده‌های نمونه</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- درج رستوران‌های نمونه</span>
+<span class="keyword">INSERT INTO</span> restaurants (
+    name, cuisine, rating, price_range, phone, address, 
+    features, capacity, delivery, reservation, location
+) <span class="keyword">VALUES</span>
+(
+    <span class="string">'رستوران سنتی شمال'</span>,
+    <span class="string">'ایرانی'</span>,
+    <span class="number">4.5</span>,
+    <span class="string">'متوسط'</span>,
+    <span class="string">'021-12345678'</span>,
+    <span class="string">'تهران، خیابان ولیعصر، نرسیده به میدان ونک'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'وای‌فای'</span>, <span class="string">'فضای باز'</span>],
+    <span class="number">80</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'پیتزا ایتالیا'</span>,
+    <span class="string">'ایتالیایی'</span>,
+    <span class="number">4.3</span>,
+    <span class="string">'متوسط'</span>,
+    <span class="string">'021-87654321'</span>,
+    <span class="string">'تهران، میدان ونک'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'وای‌فای'</span>, <span class="string">'پارکینگ'</span>],
+    <span class="number">50</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4089</span>, <span class="number">35.7576</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'سوشی توکیو'</span>,
+    <span class="string">'ژاپنی'</span>,
+    <span class="number">4.7</span>,
+    <span class="string">'گران'</span>,
+    <span class="string">'021-99887766'</span>,
+    <span class="string">'تهران، الهیه'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'وای‌فای'</span>, <span class="string">'موسیقی زنده'</span>],
+    <span class="number">40</span>,
+    <span class="keyword">FALSE</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4413</span>, <span class="number">35.7897</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'برگر استیشن'</span>,
+    <span class="string">'فست فود'</span>,
+    <span class="number">4.0</span>,
+    <span class="string">'ارزان'</span>,
+    <span class="string">'021-55443322'</span>,
+    <span class="string">'تهران، سعادت‌آباد'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'وای‌فای'</span>, <span class="string">'سرویس بیرون‌بر'</span>],
+    <span class="number">30</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="keyword">FALSE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.3750</span>, <span class="number">35.7650</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'کافه رستوران فرانسوی'</span>,
+    <span class="string">'فرانسوی'</span>,
+    <span class="number">4.8</span>,
+    <span class="string">'گران'</span>,
+    <span class="string">'021-22334455'</span>,
+    <span class="string">'تهران، فرمانیه'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'وای‌فای'</span>, <span class="string">'فضای VIP'</span>, <span class="string">'موسیقی زنده'</span>],
+    <span class="number">60</span>,
+    <span class="keyword">FALSE</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4680</span>, <span class="number">35.8010</span>), <span class="number">4326</span>)
+);
+
+<span class="comment">-- درج نظرات</span>
+<span class="keyword">INSERT INTO</span> reviews (restaurant_id, user_name, rating, comment)
+<span class="keyword">VALUES</span>
+    (<span class="number">1</span>, <span class="string">'علی احمدی'</span>, <span class="number">5</span>, <span class="string">'غذا عالی بود، محیط دنج و آرام'</span>),
+    (<span class="number">1</span>, <span class="string">'مریم رضایی'</span>, <span class="number">4</span>, <span class="string">'کیفیت خوب، قیمت مناسب'</span>),
+    (<span class="number">2</span>, <span class="string">'رضا محمدی'</span>, <span class="number">4</span>, <span class="string">'پیتزا خوشمزه، سرویس سریع'</span>),
+    (<span class="number">3</span>, <span class="string">'سارا کریمی'</span>, <span class="number">5</span>, <span class="string">'بهترین سوشی تهران!'</span>);
+                </div>
+            </div>
+
+            <h3><span class="emoji">3️⃣</span> توابع کاربردی</h3>
+            
+            <div class="example box">
+                <h4>تابع: جستجوی هوشمند رستوران</h4>
+                <div class="code">
+<span class="comment">-- تابع جستجوی پیشرفته</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> search_restaurants(
+    user_lat <span class="keyword">DECIMAL</span>,
+    user_lon <span class="keyword">DECIMAL</span>,
+    search_radius_km <span class="keyword">DECIMAL DEFAULT</span> <span class="number">5</span>,
+    cuisine_filter <span class="keyword">VARCHAR DEFAULT NULL</span>,
+    min_rating <span class="keyword">DECIMAL DEFAULT</span> <span class="number">0</span>,
+    price_filter <span class="keyword">VARCHAR DEFAULT NULL</span>,
+    has_delivery <span class="keyword">BOOLEAN DEFAULT NULL</span>,
+    has_parking <span class="keyword">BOOLEAN DEFAULT NULL</span>
+)
+<span class="keyword">RETURNS TABLE</span> (
+    id <span class="keyword">INTEGER</span>,
+    name <span class="keyword">VARCHAR</span>,
+    cuisine <span class="keyword">VARCHAR</span>,
+    rating <span class="keyword">DECIMAL</span>,
+    price_range <span class="keyword">VARCHAR</span>,
+    phone <span class="keyword">VARCHAR</span>,
+    address <span class="keyword">TEXT</span>,
+    distance_km <span class="keyword">DECIMAL</span>,
+    avg_review_rating <span class="keyword">DECIMAL</span>
+) <span class="keyword">AS</span> $$
+<span class="keyword">BEGIN</span>
+    <span class="keyword">RETURN QUERY</span>
+    <span class="keyword">SELECT</span> 
+        r.id,
+        r.name,
+        r.cuisine,
+        r.rating,
+        r.price_range,
+        r.phone,
+        r.address,
+        <span class="function">ROUND</span>(
+            <span class="function">ST_Distance</span>(
+                r.location::<span class="keyword">geography</span>,
+                <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(user_lon, user_lat), <span class="number">4326</span>)::<span class="keyword">geography</span>
+            ) / <span class="number">1000</span>,
+            <span class="number">2</span>
+        )::<span class="keyword">DECIMAL</span> <span class="keyword">AS</span> distance_km,
+        <span class="function">COALESCE</span>(<span class="function">AVG</span>(rv.rating), <span class="number">0</span>)::<span class="keyword">DECIMAL</span> <span class="keyword">AS</span> avg_review_rating
+    <span class="keyword">FROM</span> restaurants r
+    <span class="keyword">LEFT JOIN</span> reviews rv <span class="keyword">ON</span> r.id = rv.restaurant_id
+    <span class="keyword">WHERE</span> 
+        <span class="comment">-- فیلتر فاصله</span>
+        <span class="function">ST_DWithin</span>(
+            r.location::<span class="keyword">geography</span>,
+            <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(user_lon, user_lat), <span class="number">4326</span>)::<span class="keyword">geography</span>,
+            search_radius_km * <span class="number">1000</span>
+        )
+        <span class="comment">-- فیلتر نوع غذا</span>
+        <span class="keyword">AND</span> (cuisine_filter <span class="keyword">IS NULL OR</span> r.cuisine <span class="keyword">ILIKE</span> <span class="string">'%'</span> || cuisine_filter || <span class="string">'%'</span>)
+        <span class="comment">-- فیلتر امتیاز</span>
+        <span class="keyword">AND</span> r.rating >= min_rating
+        <span class="comment">-- فیلتر قیمت</span>
+        <span class="keyword">AND</span> (price_filter <span class="keyword">IS NULL OR</span> r.price_range = price_filter)
+        <span class="comment">-- فیلتر دلیوری</span>
+        <span class="keyword">AND</span> (has_delivery <span class="keyword">IS NULL OR</span> r.delivery = has_delivery)
+        <span class="comment">-- فیلتر پارکینگ</span>
+        <span class="keyword">AND</span> (has_parking <span class="keyword">IS NULL OR</span> <span class="string">'پارکینگ'</span> = <span class="keyword">ANY</span>(r.features))
+    <span class="keyword">GROUP BY</span> r.id
+    <span class="keyword">ORDER BY</span> distance_km;
+<span class="keyword">END</span>;
+$$ <span class="keyword">LANGUAGE</span> plpgsql;
+
+<span class="comment">-- استفاده:</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> search_restaurants(
+    <span class="number">35.7219</span>,      <span class="comment">-- latitude</span>
+    <span class="number">51.4231</span>,      <span class="comment">-- longitude</span>
+    <span class="number">3</span>,             <span class="comment">-- شعاع 3 کیلومتر</span>
+    <span class="string">'ایرانی'</span>,      <span class="comment">-- نوع غذا</span>
+    <span class="number">4.0</span>,           <span class="comment">-- حداقل امتیاز</span>
+    <span class="keyword">NULL</span>,          <span class="comment">-- قیمت (همه)</span>
+    <span class="keyword">TRUE</span>,          <span class="comment">-- دلیوری دارد</span>
+    <span class="keyword">TRUE</span>           <span class="comment">-- پارکینگ دارد</span>
+);
+                </div>
+            </div>
+
+            <h3><span class="emoji">4️⃣</span> Query های پیشرفته</h3>
+            
+            <div class="example box">
+                <h4>تحلیل‌های آماری</h4>
+                <div class="code">
+<span class="comment">-- 1. محبوب‌ترین نوع غذا در هر منطقه</span>
+<span class="keyword">WITH</span> restaurant_stats <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> 
+        n.name <span class="keyword">AS</span> neighborhood,
+        r.cuisine,
+        <span class="function">COUNT</span>(*) <span class="keyword">AS</span> restaurant_count,
+        <span class="function">AVG</span>(r.rating) <span class="keyword">AS</span> avg_rating
+    <span class="keyword">FROM</span> neighborhoods n
+    <span class="keyword">JOIN</span> restaurants r 
+        <span class="keyword">ON</span> <span class="function">ST_Contains</span>(n.geom, r.location)
+    <span class="keyword">GROUP BY</span> n.name, r.cuisine
+)
+<span class="keyword">SELECT</span> 
+    neighborhood,
+    cuisine,
+    restaurant_count,
+    <span class="function">ROUND</span>(avg_rating, <span class="number">2</span>) <span class="keyword">AS</span> avg_rating
+<span class="keyword">FROM</span> restaurant_stats
+<span class="keyword">WHERE</span> (neighborhood, restaurant_count) <span class="keyword">IN</span> (
+    <span class="keyword">SELECT</span> neighborhood, <span class="function">MAX</span>(restaurant_count)
+    <span class="keyword">FROM</span> restaurant_stats
+    <span class="keyword">GROUP BY</span> neighborhood
+)
+<span class="keyword">ORDER BY</span> restaurant_count <span class="keyword">DESC</span>;
+
+<span class="comment">-- 2. تراکم رستوران‌ها (تعداد در هر کیلومتر مربع)</span>
+<span class="keyword">SELECT</span> 
+    n.name <span class="keyword">AS</span> neighborhood,
+    <span class="function">COUNT</span>(r.id) <span class="keyword">AS</span> restaurant_count,
+    <span class="function">ROUND</span>(
+        <span class="function">ST_Area</span>(<span class="function">ST_Transform</span>(n.geom, <span class="number">32639</span>)) / <span class="number">1000000</span>,
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> area_sqkm,
+    <span class="function">ROUND</span>(
+        <span class="function">COUNT</span>(r.id)::numeric / 
+        (<span class="function">ST_Area</span>(<span class="function">ST_Transform</span>(n.geom, <span class="number">32639</span>)) / <span class="number">1000000</span>),
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> density_per_sqkm
+<span class="keyword">FROM</span> neighborhoods n
+<span class="keyword">LEFT JOIN</span> restaurants r 
+    <span class="keyword">ON</span> <span class="function">ST_Contains</span>(n.geom, r.location)
+<span class="keyword">GROUP BY</span> n.id, n.name, n.geom
+<span class="keyword">ORDER BY</span> density_per_sqkm <span class="keyword">DESC</span>;
+
+<span class="comment">-- 3. رستوران‌های پرطرفدار (بیشترین نظر)</span>
+<span class="keyword">SELECT</span> 
+    r.name,
+    r.cuisine,
+    r.rating <span class="keyword">AS</span> official_rating,
+    <span class="function">COUNT</span>(rv.id) <span class="keyword">AS</span> review_count,
+    <span class="function">ROUND</span>(<span class="function">AVG</span>(rv.rating), <span class="number">2</span>) <span class="keyword">AS</span> user_avg_rating,
+    <span class="function">ST_X</span>(r.location) <span class="keyword">AS</span> longitude,
+    <span class="function">ST_Y</span>(r.location) <span class="keyword">AS</span> latitude
+<span class="keyword">FROM</span> restaurants r
+<span class="keyword">LEFT JOIN</span> reviews rv <span class="keyword">ON</span> r.id = rv.restaurant_id
+<span class="keyword">GROUP BY</span> r.id
+<span class="keyword">HAVING</span> <span class="function">COUNT</span>(rv.id) > <span class="number">0</span>
+<span class="keyword">ORDER BY</span> review_count <span class="keyword">DESC</span>, user_avg_rating <span class="keyword">DESC</span>
+<span class="keyword">LIMIT</span> <span class="number">10</span>;
+
+<span class="comment">-- 4. توصیه رستوران بر اساس تاریخچه</span>
+<span class="comment">-- فرض: کاربر رستوران‌های ایرانی با امتیاز بالا را دوست دارد</span>
+<span class="keyword">WITH</span> user_preferences <span class="keyword">AS</span> (
+    <span class="keyword">SELECT</span> 
+        cuisine,
+        <span class="function">AVG</span>(rating) <span class="keyword">AS</span> avg_preferred_rating
+    <span class="keywor```html
+<span class="keyword">class</span> <span class="function">Meta</span>:
+        model = Restaurant
+        geo_field = <span class="string">'location'</span>
+        fields = (<span class="string">'id'</span>, <span class="string">'name'</span>, <span class="string">'cuisine'</span>, <span class="string">'rating'</span>, <span class="string">'phone'</span>, <span class="string">'address'</span>)
+
+<span class="comment"># ViewSet</span>
+<span class="keyword">class</span> <span class="function">RestaurantViewSet</span>(viewsets.ModelViewSet):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
+    
+    <span class="keyword">def</span> <span class="function">get_queryset</span>(<span class="keyword">self</span>):
+        qs = <span class="keyword">super</span>().get_queryset()
+        
+        <span class="comment"># فیلتر بر اساس موقعیت</span>
+        lat = <span class="keyword">self</span>.request.query_params.get(<span class="string">'lat'</span>)
+        lon = <span class="keyword">self</span>.request.query_params.get(<span class="string">'lon'</span>)
+        radius = <span class="keyword">self</span>.request.query_params.get(<span class="string">'radius'</span>, <span class="number">5</span>)
+        
+        <span class="keyword">if</span> lat <span class="keyword">and</span> lon:
+            point = Point(<span class="function">float</span>(lon), <span class="function">float</span>(lat), srid=<span class="number">4326</span>)
+            qs = qs.filter(
+                location__distance_lte=(point, D(km=<span class="function">float</span>(radius)))
+            ).annotate(
+                distance=Distance(<span class="string">'location'</span>, point)
+            ).order_by(<span class="string">'distance'</span>)
+        
+        <span class="keyword">return</span> qs
+
+<span class="comment"># urls.py</span>
+<span class="keyword">from</span> rest_framework.routers <span class="keyword">import</span> DefaultRouter
+
+router = DefaultRouter()
+router.register(<span class="string">r'restaurants'</span>, RestaurantViewSet)
+
+urlpatterns = [
+    path(<span class="string">'api/'</span>, include(router.urls)),
+]
+
+<span class="comment"># استفاده:</span>
+<span class="comment"># GET /api/restaurants/?lat=35.7219&lon=51.4231&radius=2</span>
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>Admin Panel با نقشه</h4>
+                <div class="code python">
+<span class="keyword">from</span> django.contrib.gis <span class="keyword">import</span> admin
+<span class="keyword">from</span> .models <span class="keyword">import</span> Restaurant, Park, Street
+
+<span class="comment"># Admin با نقشه</span>
+<span class="keyword">class</span> <span class="function">RestaurantAdmin</span>(admin.GISModelAdmin):
+    list_display = (<span class="string">'name'</span>, <span class="string">'cuisine'</span>, <span class="string">'rating'</span>, <span class="string">'phone'</span>)
+    list_filter = (<span class="string">'cuisine'</span>, <span class="string">'rating'</span>)
+    search_fields = (<span class="string">'name'</span>, <span class="string">'address'</span>)
+    
+    <span class="comment"># تنظیمات نقشه</span>
+    default_lon = <span class="number">5716500</span>  <span class="comment"># تهران در Web Mercator</span>
+    default_lat = <span class="number">4260000</span>
+    default_zoom = <span class="number">12</span>
+    
+    <span class="comment"># نوع نقشه</span>
+    map_template = <span class="string">'gis/admin/openlayers.html'</span>
+    openlayers_url = <span class="string">'https://cdn.jsdelivr.net/npm/ol@v7.2.2/dist/ol.js'</span>
+
+<span class="keyword">class</span> <span class="function">ParkAdmin</span>(admin.GISModelAdmin):
+    list_display = (<span class="string">'name'</span>, <span class="string">'park_type'</span>, <span class="string">'area_sqm'</span>)
+    list_filter = (<span class="string">'park_type'</span>,)
+    search_fields = (<span class="string">'name'</span>,)
+
+<span class="keyword">class</span> <span class="function">StreetAdmin</span>(admin.GISModelAdmin):
+    list_display = (<span class="string">'name'</span>, <span class="string">'street_type'</span>, <span class="string">'one_way'</span>)
+    list_filter = (<span class="string">'street_type'</span>, <span class="string">'one_way'</span>)
+
+admin.site.register(Restaurant, RestaurantAdmin)
+admin.site.register(Park, ParkAdmin)
+admin.site.register(Street, StreetAdmin)
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: پروژه عملی -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>🎯 پروژه عملی: سیستم یابنده رستوران</h2>
+            
+            <div class="highlight box">
+                <h3 style="text-align: center;"><span class="emoji">🎯</span> هدف پروژه</h3>
+                <p style="text-align: center; font-size: 1.3em;">
+                    ساخت یک API برای یافتن رستوران‌های نزدیک با فیلترهای پیشرفته
+                </p>
+            </div>
+
+            <h3><span class="emoji">📋</span> ویژگی‌های پروژه</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>🔍 جستجوی شعاعی</h4>
+                    <p>پیدا کردن رستوران‌ها در شعاع مشخص</p>
+                </div>
+                
+                <div class="card">
+                    <h4>⭐ فیلتر امتیاز</h4>
+                    <p>فیلتر بر اساس rating</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🍽️ فیلتر نوع غذا</h4>
+                    <p>جستجو بر اساس cuisine</p>
+                </div>
+                
+                <div class="card">
+                    <h4>📍 مرتب‌سازی</h4>
+                    <p>بر اساس فاصله یا امتیاز</p>
+                </div>
+            </div>
+
+            <h3><span class="emoji">💻</span> کد کامل پروژه</h3>
+            
+            <div class="example box">
+                <h4>1. Schema دیتابیس</h4>
+                <div class="code">
+<span class="comment">-- ایجاد دیتابیس</span>
+<span class="keyword">CREATE DATABASE</span> restaurant_finder;
+
+\c restaurant_finder
+
+<span class="comment">-- فعال‌سازی PostGIS</span>
+<span class="keyword">CREATE EXTENSION</span> postgis;
+
+<span class="comment">-- جدول رستوران‌ها</span>
+<span class="keyword">CREATE TABLE</span> restaurants (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>) <span class="keyword">NOT NULL</span>,
+    cuisine <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    rating <span class="keyword">DECIMAL</span>(<span class="number">3</span>, <span class="number">2</span>) <span class="keyword">CHECK</span> (rating >= <span class="number">0</span> <span class="keyword">AND</span> rating <= <span class="number">5</span>),
+    price_range <span class="keyword">VARCHAR</span>(<span class="number">20</span>), <span class="comment">-- ارزان، متوسط، گران</span>
+    phone <span class="keyword">VARCHAR</span>(<span class="number">20</span>),
+    address <span class="keyword">TEXT</span>,
+    website <span class="keyword">VARCHAR</span>(<span class="number">200</span>),
+    opening_hours <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    features <span class="keyword">TEXT</span>[], <span class="comment">-- پارکینگ، وای‌فای، ...</span>
+    capacity <span class="keyword">INTEGER</span>,
+    delivery <span class="keyword">BOOLEAN DEFAULT FALSE</span>,
+    location <span class="keyword">GEOMETRY</span>(Point, <span class="number">4326</span>) <span class="keyword">NOT NULL</span>,
+    created_at <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>,
+    updated_at <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="comment">-- ایندکس فضایی</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_location 
+<span class="keyword">ON</span> restaurants <span class="keyword">USING</span> GIST (location);
+
+<span class="comment">-- ایندکس‌های معمولی</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_cuisine <span class="keyword">ON</span> restaurants(cuisine);
+<span class="keyword">CREATE INDEX</span> idx_restaurants_rating <span class="keyword">ON</span> restaurants(rating);
+
+<span class="comment">-- جدول نظرات</span>
+<span class="keyword">CREATE TABLE</span> reviews (
+    id <span class="keyword">SERIAL PRIMARY KEY</span>,
+    restaurant_id <span class="keyword">INTEGER REFERENCES</span> restaurants(id) <span class="keyword">ON DELETE CASCADE</span>,
+    user_name <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    rating <span class="keyword">DECIMAL</span>(<span class="number">3</span>, <span class="number">2</span>),
+    comment <span class="keyword">TEXT</span>,
+    created_at <span class="keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="comment">-- Trigger برای به‌روزرسانی میانگین rating</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> update_restaurant_rating()
+<span class="keyword">RETURNS TRIGGER AS</span> $$
+<span class="keyword">BEGIN</span>
+    <span class="keyword">UPDATE</span> restaurants
+    <span class="keyword">SET</span> rating = (
+        <span class="keyword">SELECT</span> <span class="function">AVG</span>(rating)
+        <span class="keyword">FROM</span> reviews
+        <span class="keyword">WHERE</span> restaurant_id = <span class="keyword">NEW</span>.restaurant_id
+    )
+    <span class="keyword">WHERE</span> id = <span class="keyword">NEW</span>.restaurant_id;
+    
+    <span class="keyword">RETURN NEW</span>;
+<span class="keyword">END</span>;
+$$ <span class="keyword">LANGUAGE</span> plpgsql;
+
+<span class="keyword">CREATE TRIGGER</span> trg_update_rating
+<span class="keyword">AFTER INSERT OR UPDATE ON</span> reviews
+<span class="keyword">FOR EACH ROW</span>
+<span class="keyword">EXECUTE FUNCTION</span> update_restaurant_rating();
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>2. درج داده‌های نمونه</h4>
+                <div class="code">
+<span class="comment">-- درج رستوران‌های نمونه</span>
+<span class="keyword">INSERT INTO</span> restaurants 
+(name, cuisine, rating, price_range, phone, address, features, capacity, delivery, location)
+<span class="keyword">VALUES</span> 
+(
+    <span class="string">'رستوران سنتی شمال'</span>,
+    <span class="string">'ایرانی'</span>,
+    <span class="number">4.5</span>,
+    <span class="string">'متوسط'</span>,
+    <span class="string">'021-12345678'</span>,
+    <span class="string">'تهران، خیابان ولیعصر، نرسیده به میدان ونک'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'وای‌فای'</span>, <span class="string">'فضای باز'</span>],
+    <span class="number">80</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'پیتزا ایتالیا'</span>,
+    <span class="string">'ایتالیایی'</span>,
+    <span class="number">4.3</span>,
+    <span class="string">'متوسط'</span>,
+    <span class="string">'021-87654321'</span>,
+    <span class="string">'تهران، میدان ونک'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'دلیوری'</span>],
+    <span class="number">50</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4089</span>, <span class="number">35.7576</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'سوشی توکیو'</span>,
+    <span class="string">'ژاپنی'</span>,
+    <span class="number">4.7</span>,
+    <span class="string">'گران'</span>,
+    <span class="string">'021-99887766'</span>,
+    <span class="string">'تهران، الهیه'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'وای‌فای'</span>, <span class="string">'رزرو آنلاین'</span>],
+    <span class="number">40</span>,
+    <span class="keyword">FALSE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4413</span>, <span class="number">35.7897</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'برگر هاوس'</span>,
+    <span class="string">'فست فود'</span>,
+    <span class="number">4.0</span>,
+    <span class="string">'ارزان'</span>,
+    <span class="string">'021-55443322'</span>,
+    <span class="string">'تهران، سعادت‌آباد'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'دلیوری'</span>, <span class="string">'درب منزل'</span>],
+    <span class="number">30</span>,
+    <span class="keyword">TRUE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.3750</span>, <span class="number">35.7650</span>), <span class="number">4326</span>)
+),
+(
+    <span class="string">'کافه رستوران آرامش'</span>,
+    <span class="string">'کافه'</span>,
+    <span class="number">4.6</span>,
+    <span class="string">'متوسط'</span>,
+    <span class="string">'021-66778899'</span>,
+    <span class="string">'تهران، نیاوران'</span>,
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'وای‌فای'</span>, <span class="string">'فضای باز'</span>, <span class="string">'موسیقی زنده'</span>],
+    <span class="number">60</span>,
+    <span class="keyword">FALSE</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4700</span>, <span class="number">35.8100</span>), <span class="number">4326</span>)
+);
+
+<span class="comment">-- درج نظرات نمونه</span>
+<span class="keyword">INSERT INTO</span> reviews (restaurant_id, user_name, rating, comment)
+<span class="keyword">VALUES</span> 
+    (<span class="number">1</span>, <span class="string">'علی محمدی'</span>, <span class="number">4.5</span>, <span class="string">'غذای خوبی داشت، فضا هم دلنشین بود'</span>),
+    (<span class="number">1</span>, <span class="string">'سارا احمدی'</span>, <span class="number">5.0</span>, <span class="string">'عالی! حتما دوباره میام'</span>),
+    (<span class="number">2</span>, <span class="string">'رضا کریمی'</span>, <span class="number">4.0</span>, <span class="string">'پیتزا خوب بود ولی سرویس کند'</span>);
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>3. توابع جستجو</h4>
+                <div class="code">
+<span class="comment">-- تابع جستجوی پیشرفته</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> search_restaurants(
+    p_lat <span class="keyword">DECIMAL</span>,
+    p_lon <span class="keyword">DECIMAL</span>,
+    p_radius_km <span class="keyword">DECIMAL DEFAULT</span> <span class="number">5</span>,
+    p_cuisine <span class="keyword">VARCHAR DEFAULT NULL</span>,
+    p_min_rating <span class="keyword">DECIMAL DEFAULT</span> <span class="number">0</span>,
+    p_max_price <span class="keyword">VARCHAR DEFAULT NULL</span>,
+    p_delivery_only <span class="keyword">BOOLEAN DEFAULT FALSE</span>,
+    p_required_features <span class="keyword">TEXT</span>[] <span class="keyword">DEFAULT NULL</span>
+)
+<span class="keyword">RETURNS TABLE</span> (
+    id <span class="keyword">INTEGER</span>,
+    name <span class="keyword">VARCHAR</span>,
+    cuisine <span class="keyword">VARCHAR</span>,
+    rating <span class="keyword">DECIMAL</span>,
+    price_range <span class="keyword">VARCHAR</span>,
+    phone <span class="keyword">VARCHAR</span>,
+    address <span class="keyword">TEXT</span>,
+    features <span class="keyword">TEXT</span>[],
+    distance_km <span class="keyword">DECIMAL</span>,
+    latitude <span class="keyword">DECIMAL</span>,
+    longitude <span class="keyword">DECIMAL</span>
+) <span class="keyword">AS</span> $$
+<span class="keyword">BEGIN</span>
+    <span class="keyword">RETURN QUERY</span>
+    <span class="keyword">SELECT</span> 
+        r.id,
+        r.name,
+        r.cuisine,
+        r.rating,
+        r.price_range,
+        r.phone,
+        r.address,
+        r.features,
+        <span class="function">ROUND</span>(
+            <span class="function">ST_Distance</span>(
+                r.location::<span class="keyword">geography</span>,
+                <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(p_lon, p_lat), <span class="number">4326</span>)::<span class="keyword">geography</span>
+            ) / <span class="number">1000</span>, 
+            <span class="number">2</span>
+        )::<span class="keyword">DECIMAL</span> <span class="keyword">AS</span> distance_km,
+        <span class="function">ST_Y</span>(r.location)::<span class="keyword">DECIMAL</span> <span class="keyword">AS</span> latitude,
+        <span class="function">ST_X</span>(r.location)::<span class="keyword">DECIMAL</span> <span class="keyword">AS</span> longitude
+    <span class="keyword">FROM</span> restaurants r
+    <span class="keyword">WHERE</span> 
+        <span class="comment">-- فیلتر شعاع</span>
+        <span class="function">ST_DWithin</span>(
+            r.location::<span class="keyword">geography</span>,
+            <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(p_lon, p_lat), <span class="number">4326</span>)::<span class="keyword">geography</span>,
+            p_radius_km * <span class="number">1000</span>
+        )
+        <span class="comment">-- فیلتر نوع غذا</span>
+        <span class="keyword">AND</span> (p_cuisine <span class="keyword">IS NULL OR</span> r.cuisine <span class="keyword">ILIKE</span> <span class="string">'%'</span> || p_cuisine || <span class="string">'%'</span>)
+        <span class="comment">-- فیلتر امتیاز</span>
+        <span class="keyword">AND</span> r.rating >= p_min_rating
+        <span class="comment">-- فیلتر قیمت</span>
+        <span class="keyword">AND</span> (p_max_price <span class="keyword">IS NULL OR</span> r.price_range = p_max_price)
+        <span class="comment">-- فیلتر دلیوری</span>
+        <span class="keyword">AND</span> (<span class="keyword">NOT</span> p_delivery_only <span class="keyword">OR</span> r.delivery = <span class="keyword">TRUE</span>)
+        <span class="comment">-- فیلتر امکانات</span>
+        <span class="keyword">AND</span> (
+            p_required_features <span class="keyword">IS NULL OR</span> 
+            r.features @> p_required_features
+        )
+    <span class="keyword">ORDER BY</span> distance_km, r.rating <span class="keyword">DESC</span>;
+<span class="keyword">END</span>;
+$$ <span class="keyword">LANGUAGE</span> plpgsql;
+
+<span class="comment">-- استفاده از تابع</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> search_restaurants(
+    <span class="number">35.7219</span>,                    <span class="comment">-- latitude</span>
+    <span class="number">51.4231</span>,                    <span class="comment">-- longitude</span>
+    <span class="number">3</span>,                          <span class="comment">-- شعاع 3 کیلومتر</span>
+    <span class="string">'ایرانی'</span>,                   <span class="comment">-- نوع غذا</span>
+    <span class="number">4.0</span>,                        <span class="comment">-- حداقل امتیاز</span>
+    <span class="keyword">NULL</span>,                       <span class="comment">-- محدودیت قیمت</span>
+    <span class="keyword">FALSE</span>,                      <span class="comment">-- فقط دلیوری</span>
+    <span class="keyword">ARRAY</span>[<span class="string">'پارکینگ'</span>, <span class="string">'وای‌فای'</span>] <span class="comment">-- امکانات مورد نیاز</span>
+);
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>4. View های آماری</h4>
+                <div class="code">
+<span class="comment">-- View: آمار رستوران‌ها بر اساس نوع</span>
+<span class="keyword">CREATE OR REPLACE VIEW</span> restaurant_stats <span class="keyword">AS</span>
+<span class="keyword">SELECT</span> 
+    cuisine,
+    <span class="function">COUNT</span>(*) <span class="keyword">AS</span> total_count,
+    <span class="function">ROUND</span>(<span class="function">AVG</span>(rating), <span class="number">2</span>) <span class="keyword">AS</span> avg_rating,
+    <span class="function">COUNT</span>(<span class="keyword">CASE WHEN</span> delivery = <span class="keyword">TRUE THEN</span> <span class="number">1</span> <span class="keyword">END</span>) <span class="keyword">AS</span> delivery_count
+<span class="keyword">FROM</span> restaurants
+<span class="keyword">GROUP BY</span> cuisine
+<span class="keyword">ORDER BY</span> total_count <span class="keyword">DESC</span>;
+
+<span class="comment">-- View: رستوران‌های برتر</span>
+<span class="keyword">CREATE OR REPLACE VIEW</span> top_restaurants <span class="keyword">AS</span>
+<span class="keyword">SELECT</span> 
+    r.id,
+    r.name,
+    r.cuisine,
+    r.rating,
+    <span class="function">COUNT</span>(rv.id) <span class="keyword">AS</span> review_count,
+    <span class="function">ST_X</span>(r.location) <span class="keyword">AS</span> longitude,
+    <span class="function">ST_Y</span>(r.location) <span class="keyword">AS</span> latitude
+<span class="keyword">FROM</span> restaurants r
+<span class="keyword">LEFT JOIN</span> reviews rv <span class="keyword">ON</span> r.id = rv.restaurant_id
+<span class="keyword">WHERE</span> r.rating >= <span class="number">4.5</span>
+<span class="keyword">GROUP BY</span> r.id
+<span class="keyword">ORDER BY</span> r.rating <span class="keyword">DESC</span>, review_count <span class="keyword">DESC</span>
+<span class="keyword">LIMIT</span> <span class="number">10</span>;
+
+<span class="comment">-- مشاهده آمار</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> restaurant_stats;
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> top_restaurants;
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: بهینه‌سازی -->
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>⚡ بهینه‌سازی و Performance</h2>
+            
+            <h3><span class="emoji">🎯</span> تکنیک‌های بهینه‌سازی</h3>
+            
+            <div class="example box">
+                <h4>1. استفاده صحیح از SRID</h4>
+                <div class="code">
+<span class="comment">-- ❌ بد: محاسبه فاصله با SRID 4326</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Distance</span>(
+    <span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>),
+    location
+) <span class="keyword">FROM</span> restaurants;
+<span class="comment">-- نتیجه به درجه است، نه متر!</span>
+
+<span class="comment">-- ✅ خوب: استفاده از Geography</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Distance</span>(
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)::<span class="keyword">geography</span>,
+    location::<span class="keyword">geography</span>
+) / <span class="number">1000</span> <span class="keyword">AS</span> distance_km
+<span class="keyword">FROM</span> restaurants;
+
+<span class="comment">-- ✅ بهتر: Transform به UTM</span>
+<span class="keyword">SELECT</span> <span class="function">ST_Distance</span>(
+    <span class="function">ST_Transform</span>(<span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>), <span class="number">32639</span>),
+    <span class="function">ST_Transform</span>(location, <span class="number">32639</span>)
+) / <span class="number">1000</span> <span class="keyword">AS</span> distance_km
+<span class="keyword">FROM</span> restaurants;
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>2. استفاده از Bounding Box</h4>
+                <div class="code">
+<span class="comment">-- ❌ کند: محاسبه فاصله برای همه</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> restaurants
+<span class="keyword">WHERE</span> <span class="function">ST_Distance</span>(location::<span class="keyword">geography</span>, point::<span class="keyword">geography</span>) < <span class="number">5000</span>;
+
+<span class="comment">-- ✅ سریع: ابتدا با Bounding Box فیلتر</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> restaurants
+<span class="keyword">WHERE</span> location && <span class="function">ST_Expand</span>(point, <span class="number">0.05</span>)  <span class="comment">-- Bounding Box</span>
+  <span class="keyword">AND</span> <span class="function">ST_DWithin</span>(location::<span class="keyword">geography</span>, point::<span class="keyword">geography</span>, <span class="number">5000</span>);
+
+<span class="comment">-- ✅ بهترین: استفاده از ST_DWithin با ایندکس</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> restaurants
+<span class="keyword">WHERE</span> <span class="function">ST_DWithin</span>(
+    location::<span class="keyword">geography</span>,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.4231</span>, <span class="number">35.7219</span>), <span class="number">4326</span>)::<span class="keyword">geography</span>,
+    <span class="number">5000</span>
+);
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>3. استفاده از Materialized View</h4>
+                <div class="code">
+<span class="comment">-- ایجاد Materialized View برای آمار</span>
+<span class="keyword">CREATE MATERIALIZED VIEW</span> mv_restaurant_stats <span class="keyword">AS</span>
+<span class="keyword">SELECT</span> 
+    cuisine,
+    <span class="function">COUNT</span>(*) <span class="keyword">AS</span> total_count,
+    <span class="function">ROUND</span>(<span class="function">AVG</span>(rating), <span class="number">2</span>) <span class="keyword">AS</span> avg_rating,
+    <span class="function">MIN</span>(rating) <span class="keyword">AS</span> min_rating,
+    <span class="function">MAX</span>(rating) <span class="keyword">AS</span> max_rating,
+    <span class="function">ST_Extent</span>(location) <span class="keyword">AS</span> bbox
+<span class="keyword">FROM</span> restaurants
+<span class="keyword">GROUP BY</span> cuisine;
+
+<span class="comment">-- ایجاد ایندکس</span>
+<span class="keyword">CREATE INDEX</span> idx_mv_restaurant_stats_cuisine 
+<span class="keyword">ON</span> mv_restaurant_stats(cuisine);
+
+<span class="comment">-- استفاده (خیلی سریع)</span>
+<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mv_restaurant_stats;
+
+<span class="comment">-- به‌روزرسانی (هر شب یا هر ساعت)</span>
+<span class="keyword">REFRESH MATERIALIZED VIEW</span> mv_restaurant_stats;
+
+<span class="comment">-- به‌روزرسانی Concurrent (بدون قفل)</span>
+<span class="keyword">REFRESH MATERIALIZED VIEW CONCURRENTLY</span> mv_restaurant_stats;
+                </div>
+            </div>
+
+            <div class="example box">
+                <h4>4. Partitioning برای جداول بزرگ</h4>
+                <div class="code">
+<span class="comment">-- Partitioning بر اساس شهر</span>
+<span class="keyword">CREATE TABLE</span> restaurants_partitioned (
+    id <span class="keyword">SERIAL</span>,
+    name <span class="keyword">VARCHAR</span>(<span class="number">200</span>),
+    city <span class="keyword">VARCHAR</span>(<span class="number">100</span>),
+    location <span class="keyword">GEOMETRY</span>(Point, <span class="number">4326</span>)
+) <span class="keyword">PARTITION BY LIST</span> (city);
+
+<span class="comment">-- ایجاد partition ها</span>
+<span class="keyword">CREATE TABLE</span> restaurants_tehran 
+<span class="keyword">PARTITION OF</span> restaurants_partitioned 
+<span class="keyword">FOR VALUES IN</span> (<span class="string">'تهران'</span>);
+
+<span class="keyword">CREATE TABLE</span> restaurants_mashhad 
+<span class="keyword">PARTITION OF</span> restaurants_partitioned 
+<span class="keyword">FOR VALUES IN</span> (<span class="string">'مشهد'</span>);
+
+<span class="keyword">CREATE TABLE</span> restaurants_isfahan 
+<span class="keyword">PARTITION OF</span> restaurants_partitioned 
+<span class="keyword">FOR VALUES IN</span> (<span class="string">'اصفهان'</span>);
+
+<span class="comment">-- ایندکس برای هر partition</span>
+<span class="keyword">CREATE INDEX</span> idx_restaurants_tehran_location 
+<span class="keyword">ON</span> restaurants_tehran <span class="keyword">USING</span> GIST(location);
+
+<span class="keyword">CREATE INDEX</span> idx_restaurants_mashhad_location 
+<span class="keyword">ON</span> restaurants_mashhad <span class="keyword">USING</span> GIST(location);
+                </div>
+            </div>
+
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> نکات مهم Performance</h3>
+                <ul>
+                    <li>✅ <strong>همیشه ایندکس GIST بسازید</strong></li>
+                    <li>⚡ از ST_DWithin به جای ST_Distance استفاده کنید</li>
+                    <li>📦 برای جداول بزرگ (>1M) از Partitioning استفاده کنید</li>
+                    <li>🔄 Materialized View برای آمار</li>
+                    <li>🎯 Bounding Box قبل از محاسبات دقیق</li>
+                    <li>📊 VACUUM و ANALYZE منظم</li>
+                    <li>💾 از Connection Pooling استفاده کنید</li>
+                </ul>
+            </div>
+
+            <h3><span class="emoji">📊</span> مانیتورینگ</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="comment">-- بررسی سایز جداول</span>
+<span class="keyword">SELECT</span> 
+    schemaname,
+    tablename,
+    <span class="function">pg_size_pretty</span>(<span class="function">pg_total_relation_size</span>(schemaname||<span class="string">'.'</span>||tablename)) <span class="keyword">AS</span> size
+<span class="keyword">FROM</span> pg_tables
+<span class="keyword">WHERE</span> schemaname = <span class="string">'public'</span>
+<span class="keyword">ORDER BY</span> <span class="function">pg_total_relation_size</span>(schemaname||<span class="string">'.'</span>||tablename) <span class="keyword">DESC</span>;
+
+<span class="comment">-- بررسی سایز ایندکس‌ها</span>
+<span class="keyword">SELECT</span> 
+    indexname,
+    tablename,
+    <span class="function">pg_size_pretty</span>(<span class="function">pg_relation_size</span>(indexname::regclass)) <span class="keyword">AS</span> index_size
+<span class="keyword">FROM</span> pg_indexes
+<span class="keyword">WHERE</span> schemaname = <span class="string">'public'</span>
+<span class="keyword">ORDER BY</span> <span class="function">pg_relation_size</span>(indexname::regclass) <span class="keyword">DESC</span>;
+
+<span class="comment">-- Query های کند</span>
+<span class="keyword">SELECT</span> 
+    query,
+    calls,
+    <span class="function">ROUND</span>(total_time::numeric, <span class="number">2</span>) <span class="keyword">AS</span> total_time_ms,
+    <span class="function">ROUND</span>(mean_time::numeric, <span class="number">2</span>) <span class="keyword">AS</span> mean_time_ms,
+    <span class="function">ROUND</span>((total_time / <span class="function">SUM</span>(total_time) <span class="keyword">OVER</span>()) * <span class="number">100</span>, <span class="number">2</span>) <span class="keyword">AS</span> percentage
+<span class="keyword">FROM</span> pg_stat_statements
+<span class="keyword">WHERE</span> query <span class="keyword">LIKE</span> <span class="string">'%restaurants%'</span>
+<span class="keyword">ORDER BY</span> total_time <span class="keyword">DESC</span>
+<span class="keyword">LIMIT</span> <span class="number">10</span>;
+
+<span class="comment">-- Cache Hit Ratio</span>
+<span class="keyword">SELECT</span> 
+    <span class="function">SUM</span>(heap_blks_read) <span class="keyword">AS</span> heap_read,
+    <span class="function">SUM</span>(heap_blks_hit) <span class="keyword">AS</span> heap_hit,
+    <span class="function">ROUND</span>(
+        (<span class="function">SUM</span>(heap_blks_hit) / (<span class="function">SUM</span>(heap_blks_hit) + <span class="function">SUM</span>(heap_blks_read))) * <span class="number">100</span>,
+        <span class="number">2</span>
+    ) <span class="keyword">AS</span> cache_hit_ratio
+<span class="keyword">FROM</span> pg_statio_user_tables;
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: خلاصه و منابع -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>📚 خلاصه و منابع</h2>
+            
+            <div class="architecture-diagram">
+                <h3 style="color: #2ecc71; margin-bottom: 30px;">معماری کامل PostGIS</h3>
+                
+                <div class="component-box" style="background: #e8f5e9;">
+                    <strong>PostgreSQL</strong><br>
+                    پایگاه داده رابطه‌ای
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #c8e6c9;">
+                    <strong>PostGIS Extension</strong><br>
+                    قابلیت‌های جغرافیایی
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #a5d6a7;">
+                    <strong>Spatial Data Types</strong><br>
+                    Point, LineString, Polygon
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #81c784;">
+                    <strong>Spatial Functions</strong><br>
+                    2000+ تابع تحلیلی
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #66bb6a;">
+                    <strong>Spatial Indexes</strong><br>
+                    GiST, SP-GiST, BRIN
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #4caf50;">
+                    <strong>Applications</strong><br>
+                    Django, Node.js, Python
+                </div>
+            </div>
+
+            <div class="grid" style="margin-top: 50px;">
+                <div class="success box">
+                    <h3><span class="emoji">✅</span> چیزهایی که یاد گرفتیم</h3>
+                    <ul>
+                        <li>✅ نصب و راه‌اندازی PostGIS</li>
+                        <li>✅ انواع داده‌های مکانی</li>
+                        <li>✅ ایجاد و مدیریت جداول</li>
+                        <li>✅ توابع پایه و پیشرفته</li>
+                        <li>✅ تحلیل‌های فضایی</li>
+                        <li>✅ ایندکس‌های فضایی</li>
+                        <li>✅ Import/Export داده</li>
+                        <li>✅ ادغام با Django</li>
+                        <li>✅ بهینه‌سازی</li>
+                        <li>✅ پروژه عملی</li>
+                    </ul>
+                </div>
+                
+                <div class="key-point box">
+                    <h3><span class="emoji">🎯</span> کاربردهای واقعی</h3>
+                    <ul>
+                        <li>🗺️ سیستم‌های GIS</li>
+                        <li>📍 Location-Based Services</li>
+                        <li>🚗 ناوبری و مسیریابی</li>
+                        <li>🏪 یابنده فروشگاه/رستوران</li>
+                        <li>🏘️ برنامه‌ریزی شهری</li>
+                        <li>🌍 تحلیل محیط زیست</li>
+                        <li>📊 داشبوردهای مکانی</li>
+                        <li>🚕 سرویس‌های تاکسی</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info box" style="margin-top: 40px;">
+                <h3><span class="emoji">📖</span> منابع یادگیری</h3>
+                
+                <h4>مستندات رسمی:</h4>
+                <ul>
+                    <li>🔗 <a href="https://postgis.net/docs/" target="_blank">PostGIS Documentation</a></li>
+                    <li>🔗 <a href="https://www.postgresql.org/docs/" target="_blank">PostgreSQL Documentation</a></li>
+                    <li>🔗 <a href="https://docs.djangoproject.com/en/stable/ref/contrib/gis/" target="_blank">GeoDjango Documentation</a></li>
+                </ul>
+                
+                <h4>کتاب‌ها:</h4>
+                <ul>
+                    <li>📚 PostGIS in Action (3rd Edition)</li>
+                    <li>📚 PostgreSQL: Up and Running</li>
+                    <li>📚 Learning PostgreSQL</li>
+                </ul>
+                
+                <h4>ابزارها:</h4>
+                <ul>
+                    <li>🛠️ <strong>QGIS:</strong> نرم‌افزار GIS متن‌باز</li>
+                    <li>🛠️ <strong>pgAdmin:</strong> مدیریت PostgreSQL</li>
+                    <li>🛠️ <strong>DBeaver:</strong> Database IDE</li>
+                    <li>🛠️ <strong>PostGIS Shapefile Import/Export:</strong> GUI ساده</li>
+                </ul>
+                
+                <h4>وب‌سایت‌های مفید:</h4>
+                <ul>
+                    <li>🌐 <a href="https://postgis.net/" target="_blank">PostGIS Official</a></li>
+                    <li>🌐 <a href="https://www.crunchydata.com/developers/tutorials" target="_blank">Crunchy Data Tutorials</a></li>
+                    <li>🌐 <a href="https://github.com/postgis/postgis" target="_blank">PostGIS GitHub</a></li>
+                </ul>
+            </div>
+
+            <div class="highlight box" style="margin-top: 40px;">
+                <h3 style="text-align: center;"><span class="emoji">💡</span> نکات کلیدی</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>موضوع</th>
+                            <th>نکته مهم</th>
+                            <th>توصیه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>SRID</strong></td>
+                            <td>4326 برای GPS</td>
+                            <td>🔴 حیاتی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ایندکس</strong></td>
+                            <td>همیشه GIST بسازید</td>
+                            <td>🔴 حیاتی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Geography</strong></td>
+                            <td>برای محاسبات دقیق</td>
+                            <td>🟡 توصیه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ST_DWithin</strong></td>
+                            <td>سریع‌تر از ST_Distance</td>
+                            <td>🔴 حیاتی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VACUUM</strong></td>
+                            <td>منظم اجرا کنید</td>
+                            <td>🟡 توصیه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Backup</strong></td>
+                            <td>با pg_dump</td>
+                            <td>🔴 حیاتی</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="warning box" style="margin-top: 40px;">
+                <h3><span class="emoji">⚠️</span> اشتباهات رایج</h3>
+                <ol style="font-size: 1.2em; line-height: 2.5;">
+                    <li>❌ فراموش کردن ایجاد ایندکس فضایی</li>
+                    <li>❌ استفاده نادرست از SRID</li>
+                    <li>❌ محاسبه فاصله با Geometry به جای Geography</li>
+                    <li>❌ استفاده از ST_Distance برای فیلتر کردن</li>
+                    <li>❌ نادیده گرفتن Bounding Box</li>
+                    <li>❌ عدم استفاده از EXPLAIN ANALYZE</li>
+                    <li>❌ نگهداری نکردن VACUUM</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: صفحه پایانی -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h1 style="text-align: center; color: #2ecc71; margin-top: 80px;">
+                <span class="emoji">🎉</span>
+                <br>
+                تبریک!
+                <br>
+                <span style="font-size: 0.6em; color: #27ae60;">
+                    شما PostGIS را از صفر تا صد یاد گرفتید
+                </span>
+            </h1>
+            
+            <div class="highlight box" style="margin-top: 60px;">
+                <h2 style="text-align: center; border: none; color: #2ecc71;">
+                    <span class="emoji">🏆</span> دستاوردها
+                </h2>
+                <div style="text-align: center; font-size: 1.3em; line-height: 2.5; margin-top: 40px;">
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✅ نصب و راه‌اندازی PostGIS</li>
+                        <li>✅ کار با انواع داده‌های مکانی</li>
+                        <li>✅ تسلط بر توابع PostGIS</li>
+                        <li>✅ تحلیل‌های فضایی پیشرفته</li>
+                        <li>✅ بهینه‌سازی و Performance</li>
+                        <li>✅ ادغام با Django</li>
+                        <li>✅ ساخت پروژه عملی</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="grid" style="margin-top: 60px;">
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #2ecc71;">📊 آمار</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #27ae60; margin: 20px 0;">13</p>
+                    <p style="font-size: 1.2em;">اسلاید آموزشی</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #2ecc71;">💻 کدها</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #27ae60; margin: 20px 0;">50+</p>
+                    <p style="font-size: 1.2em;">مثال عملی</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #2ecc71;">🎯 پروژه</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #27ae60; margin: 20px 0;">1</p>
+                    <p style="font-size: 1.2em;">پروژه کامل</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #2ecc71;">⏱️ زمان</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #27ae60; margin: 20px 0;">~3</p>
+                    <p style="font-size: 1.2em;">ساعت آموزش</p>
+                </div>
+            </div>
+            
+            <div class="key-point box" style="margin-top: 60px; text-align: center;">
+                <h2 style="color: #2ecc71; border: none;">
+                    <span class="emoji">🚀</span> حالا نوبت شماست!
+                </h2>
+                <p style="font-size: 1.5em; line-height: 2.5; margin-top: 30px;">
+                    با این دانش می‌توانید:
+                </p>
+                <ul style="list-style: none; font-size: 1.4em; line-height: 2.8; padding: 0;">
+                    <li>🗺️ سیستم‌های GIS حرفه‌ای بسازید</li>
+                    <li>📍 اپلیکیشن‌های Location-Based طراحی کنید</li>
+                    <li>🚗 سیستم‌های ناوبری پیاده کنید</li>
+                    <li>📊 تحلیل‌های فضایی انجام دهید</li>
+                    <li>🏪 سرویس‌های یابنده بسازید</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 80px; font-size: 2em; color: #2ecc71; font-weight: 700;">
+                <p>موفق و پیروز باشید! 🌟</p>
+                <p style="font-size: 0.6em; color: #27ae60; margin-top: 30px;">
+                    ساخته شده با ❤️ برای توسعه‌دهندگان GIS
+                </p>
+                <p style="font-size: 0.4em; color: #81c784; margin-top: 40px;">
+                    آذر 1403 | نسخه 1.0
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- دکمه‌های کنترل -->
+    <div style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+        <button id="backToTop" style="
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+            display: none;
+            transition: all 0.3s ease;
+        ">⬆️</button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: rgba(255,255,255,0.3);
+        z-index: 9999;
+    ">
+        <div id="progressFill" style="
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
+            transition: width 0.3s ease;
+        "></div>
+    </div>
+
+    <!-- Toast -->
+    <div id="copyToast" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #2ecc71;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        display: none;
+        z-index: 10000;
+        font-weight: 600;
+        font-size: 1.1em;
+    ">✅ کد کپی شد!</div>
+
+    <script>
+        // کپی کردن کد
+        document.querySelectorAll('.code').forEach(code => {
+            code.style.cursor = 'pointer';
+            code.title = 'کلیک کنید تا کپی شود';
+            
+            code.addEventListener('click', () => {
+                const text = code.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    const toast = document.getElementById('copyToast');
+                    toast.style.display = 'block';
+                    
+                    code.style.background = '#1e4620';
+                    
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                        code.style.background = '#1e293b';
+                    }, 2000);
+                });
+            });
+        });
+
+        // دکمه برگشت به بالا
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        backToTop.addEventListener('mouseenter', () => {
+            backToTop.style.transform = 'scale(1.1)';
+        });
+
+        backToTop.addEventListener('mouseleave', () => {
+            backToTop.style.transform = 'scale(1)';
+        });
+
+        // Progress Bar
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY;
+            const progress = (scrollTop / (documentHeight - windowHeight)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        });
+
+        // Intersection Observer
+        const slides = document.querySelectorAll('.slide');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease-out';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        slides.forEach(slide => {
+            observer.observe(slide);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+
+        // آمار
+        console.log('🗺️ آموزش جامع PostGIS');
+        console.log(`📄 تعداد اسلایدها: ${slides.length}`);
+        console.log(`💻 تعداد کدها: ${document.querySelectorAll('.code').length}`);
+        console.log(`📦 تعداد Box ها: ${document.querySelectorAll('.box').length}`);
+        console.log('✅ فایل آماده است!');
+    </script>
+
+    <style media="print">
+        body {
+            background: white !important;
+        }
+        
+        .slide {
+            page-break-after: always;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 40px !important;
+        }
+        
+        .slide-number {
+            display: none;
+        }
+        
+        #progressFill, #backToTop, #copyToast {
+            display: none !important;
+        }
+        
+        .code {
+            page-break-inside: avoid;
+            font-size: 0.75em;
+            background: #f5f5f5 !important;
+            color: #333 !important;
+            border: 1px solid #ddd !important;
+        }
+        
+        .grid, .comparison {
+            page-break-inside: avoid;
+        }
+        
+        table {
+            page-break-inside: avoid;
+            font-size: 0.9em;
+        }
+        
+        .box {
+            page-break-inside: avoid;
+        }
+        
+        .keyword {
+            color: #8b008b !important;
+        }
+        
+        .string {
+            color: #006400 !important;
+        }
+        
+        .comment {
+            color: #808080 !important;
+        }
+        
+        .function {
+            color: #00008b !important;
+        }
+        
+        .number {
+            color: #b22222 !important;
+        }
+        
+        h1, h2, h3 {
+            color: #2ecc71 !important;
+        }
+        
+        a {
+            color: #2ecc71 !important;
+        }
+    </style>
+</body>
+</html>

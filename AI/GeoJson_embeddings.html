@@ -1,0 +1,2278 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embeddings برای داده‌های مکانی GeoJSON</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            line-height: 1.8;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 800;
+        }
+
+        h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            font-weight: 600;
+        }
+
+        h4 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin: 20px 0 15px 0;
+            font-weight: 600;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #4a5568;
+            text-align: justify;
+        }
+
+        .emoji {
+            font-size: 1.3em;
+            margin-left: 10px;
+        }
+
+        .code {
+            background: linear-gradient(135deg, #1e293b 0%, #0f1419 100%);
+            color: #e2e8f0;
+            padding: 30px;
+            border-radius: 20px;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9em;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            margin: 25px 0;
+            border: 1px solid #334155;
+            position: relative;
+            line-height: 1.7;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .code:hover {
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .code::before {
+            content: '🐍 Python';
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .code.json::before {
+            content: '📄 JSON';
+            background: linear-gradient(135deg, #f59e0b 0%, #ef6c00 100%);
+        }
+
+        .keyword {
+            color: #c792ea;
+            font-weight: bold;
+        }
+
+        .string {
+            color: #c3e88d;
+        }
+
+        .comment {
+            color: #6c7784;
+            font-style: italic;
+        }
+
+        .function {
+            color: #82aaff;
+            font-weight: bold;
+        }
+
+        .number {
+            color: #f78c6c;
+        }
+
+        .operator {
+            color: #abb2bf;
+        }
+
+        .builtin {
+            color: #e5c07b;
+        }
+
+        .code pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .box {
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-right: 5px solid;
+        }
+
+        .definition {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #2196f3;
+        }
+
+        .example {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #9c27b0;
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-color: #ff9800;
+        }
+
+        .info {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #4caf50;
+        }
+
+        .success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #4caf50;
+        }
+
+        .key-point {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-color: #fbc02d;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            border-color: #03a9f4;
+        }
+
+        ul, ol {
+            margin: 20px 0 20px 40px;
+            font-size: 1.2em;
+        }
+
+        li {
+            margin: 12px 0;
+            color: #4a5568;
+            line-height: 2;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #667eea;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        td {
+            padding: 18px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 1.05em;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        tr:hover {
+            background: #edf2f7;
+        }
+
+        .map-visual {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 3px dashed #0ea5e9;
+            text-align: center;
+        }
+
+        .feature-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 2px solid #0ea5e9;
+            box-shadow: 0 2px 10px rgba(14, 165, 233, 0.2);
+        }
+
+        .coordinate {
+            font-family: 'Courier New', monospace;
+            background: #f1f5f9;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #0ea5e9;
+            font-weight: 600;
+        }
+
+        .similarity-meter {
+            background: linear-gradient(90deg, #f44336 0%, #ff9800 25%, #ffc107 50%, #8bc34a 75%, #4caf50 100%);
+            height: 40px;
+            border-radius: 20px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .similarity-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .architecture-diagram {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 30px 0;
+            text-align: center;
+            border: 3px solid #667eea;
+        }
+
+        .component-box {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 12px;
+            margin: 15px auto;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border: 2px solid #667eea;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #2d3748;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h1>🗺️ Embeddings برای داده‌های مکانی</h1>
+            <h2 style="text-align: center; color: #764ba2; margin-top: 40px; border: none;">
+                تبدیل GeoJSON به بردارهای معنادار
+            </h2>
+            
+            <div class="highlight box" style="margin-top: 60px;">
+                <h3 style="text-align: center;"><span class="emoji">🎯</span> هدف</h3>
+                <p style="text-align: center; font-size: 1.4em; line-height: 2.2;">
+                    یادگیری نحوه تبدیل عوارض جغرافیایی (Point, Polygon, LineString) 
+                    به بردارهای عددی برای <strong>جستجوی مکانی هوشمند</strong> و 
+                    <strong>پیدا کردن عوارض مشابه</strong>
+                </p>
+            </div>
+
+            <div class="grid" style="margin-top: 50px;">
+                <div class="card">
+                    <h4><span class="emoji">📍</span> Point</h4>
+                    <p>رستوران‌ها، مغازه‌ها، نقاط خاص</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🏢</span> Polygon</h4>
+                    <p>ساختمان‌ها، پارک‌ها، مناطق</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🛣️</span> LineString</h4>
+                    <p>خیابان‌ها، رودخانه‌ها، مسیرها</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🔍</span> جستجو</h4>
+                    <p>پیدا کردن عوارض مشابه</p>
+                </div>
+            </div>
+
+            <div class="key-point box" style="margin-top: 50px;">
+                <h3><span class="emoji">💡</span> چرا Embedding برای داده‌های مکانی؟</h3>
+                <ul style="font-size: 1.3em; line-height: 2.5;">
+                    <li>🔍 جستجوی معنایی: "رستوران‌های نزدیک پارک"</li>
+                    <li>📊 پیدا کردن الگوها و شباهت‌ها</li>
+                    <li>🤖 طبقه‌بندی خودکار عوارض</li>
+                    <li>🎯 سیستم توصیه مکان‌محور</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: نمونه GeoJSON -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>📄 نمونه داده GeoJSON</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">📖</span> GeoJSON چیست؟</h3>
+                <p>
+                    فرمت استاندارد JSON برای نمایش داده‌های جغرافیایی شامل نقاط، خطوط، چندضلعی‌ها و ویژگی‌های آن‌ها.
+                </p>
+            </div>
+
+            <h3><span class="emoji">📍</span> مثال 1: دو رستوران (Point)</h3>
+            
+            <div class="example box">
+                <h4>restaurants.geojson</h4>
+                <div class="code json">
+                    {
+                      <span class="string">"type"</span>: <span class="string">"FeatureCollection"</span>,
+                      <span class="string">"features"</span>: [
+                        {
+                          <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+                          <span class="string">"geometry"</span>: {
+                            <span class="string">"type"</span>: <span class="string">"Point"</span>,
+                            <span class="string">"coordinates"</span>: [<span class="number">51.4231</span>, <span class="number">35.7219</span>]
+                          },
+                          <span class="string">"properties"</span>: {
+                            <span class="string">"name"</span>: <span class="string">"رستوران سنتی شمال"</span>,
+                            <span class="string">"type"</span>: <span class="string">"restaurant"</span>,
+                            <span class="string">"cuisine"</span>: <span class="string">"ایرانی"</span>,
+                            <span class="string">"rating"</span>: <span class="number">4.5</span>,
+                            <span class="string">"price_range"</span>: <span class="string">"متوسط"</span>,
+                            <span class="string">"capacity"</span>: <span class="number">50</span>,
+                            <span class="string">"features"</span>: [<span class="string">"پارکینگ"</span>, <span class="string">"وای‌فای"</span>, <span class="string">"فضای باز"</span>],
+                            <span class="string">"description"</span>: <span class="string">"رستوران سنتی با غذاهای شمالی و فضای دلنشین"</span>
+                          }
+                        },
+                        {
+                          <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+                          <span class="string">"geometry"</span>: {
+                            <span class="string">"type"</span>: <span class="string">"Point"</span>,
+                            <span class="string">"coordinates"</span>: [<span class="number">51.4189</span>, <span class="number">35.7195</span>]
+                          },
+                          <span class="string">"properties"</span>: {
+                            <span class="string">"name"</span>: <span class="string">"فست فود برگر استار"</span>,
+                            <span class="string">"type"</span>: <span class="string">"restaurant"</span>,
+                            <span class="string">"cuisine"</span>: <span class="string">"فست فود"</span>,
+                            <span class="string">"rating"</span>: <span class="number">4.2</span>,
+                            <span class="string">"price_range"</span>: <span class="string">"ارزان"</span>,
+                            <span class="string">"capacity"</span>: <span class="number">30</span>,
+                            <span class="string">"features"</span>: [<span class="string">"تحویل درب منزل"</span>, <span class="string">"سرویس سریع"</span>],
+                            <span class="string">"description"</span>: <span class="string">"فست فود مدرن با منوی متنوع و سرویس سریع"</span>
+                          }
+                        }
+                      ]
+                    }
+                </div>
+            </div>
+
+            <h3><span class="emoji">🏢</span> مثال 2: دو پارک (Polygon)</h3>
+            
+            <div class="example box">
+                <h4>parks.geojson</h4>
+                <div class="code json">
+                    {
+                      <span class="string">"type"</span>: <span class="string">"FeatureCollection"</span>,
+                      <span class="string">"features"</span>: [
+                        {
+                          <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+                          <span class="string">"geometry"</span>: {
+                            <span class="string">"type"</span>: <span class="string">"Polygon"</span>,
+                            <span class="string">"coordinates"</span>: [[
+                              [<span class="number">51.4200</span>, <span class="number">35.7200</span>],
+                              [<span class="number">51.4250</span>, <span class="number">35.7200</span>],
+                              [<span class="number">51.4250</span>, <span class="number">35.7250</span>],
+                              [<span class="number">51.4200</span>, <span class="number">35.7250</span>],
+                              [<span class="number">51.4200</span>, <span class="number">35.7200</span>]
+                            ]]
+                          },
+                          <span class="string">"properties"</span>: {
+                            <span class="string">"name"</span>: <span class="string">"پارک ملت"</span>,
+                            <span class="string">"type"</span>: <span class="string">"park"</span>,
+                            <span class="string">"area"</span>: <span class="number">25000</span>,
+                            <span class="string">"facilities"</span>: [<span class="string">"زمین بازی"</span>, <span class="string">"دوچرخه‌سواری"</span>, <span class="string">"کافه"</span>],
+                            <span class="string">"green_space"</span>: <span class="keyword">true</span>,
+                            <span class="string">"description"</span>: <span class="string">"پارک بزرگ شهری با امکانات ورزشی و تفریحی"</span>
+                          }
+                        },
+                        {
+                          <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+                          <span class="string">"geometry"</span>: {
+                            <span class="string">"type"</span>: <span class="string">"Polygon"</span>,
+                            <span class="string">"coordinates"</span>: [[
+                              [<span class="number">51.4100</span>, <span class="number">35.7150</span>],
+                              [<span class="number">51.4130</span>, <span class="number">35.7150</span>],
+                              [<span class="number">51.4130</span>, <span class="number">35.7180</span>],
+                              [<span class="number">51.4100</span>, <span class="number">35.7180</span>],
+                              [<span class="number">51.4100</span>, <span class="number">35.7150</span>]
+                            ]]
+                          },
+                          <span class="string">"properties"</span>: {
+                            <span class="string">"name"</span>: <span class="string">"بوستان کودک"</span>,
+                            <span class="string">"type"</span>: <span class="string">"park"</span>,
+                            <span class="string">"area"</span>: <span class="number">9000</span>,
+                            <span class="string">"facilities"</span>: [<span class="string">"وسایل بازی کودک"</span>, <span class="string">"نیمکت"</span>],
+                            <span class="string">"green_space"</span>: <span class="keyword">true</span>,
+                            <span class="string">"description"</span>: <span class="string">"بوستان کوچک مخصوص کودکان"</span>
+                          }
+                        }
+                      ]
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: روش Embedding -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>🔧 روش Embedding کردن GeoJSON</h2>
+            
+            <div class="architecture-diagram">
+                <h3 style="color: #667eea; margin-bottom: 30px;">مراحل تبدیل</h3>
+                
+                <div class="component-box" style="background: #e3f2fd;">
+                    <strong>1. خواندن GeoJSON</strong><br>
+                    بارگذاری فایل و Parse کردن
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #f3e5f5;">
+                    <strong>2. استخراج ویژگی‌ها</strong><br>
+                    مختصات + Properties
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fff3e0;">
+                    <strong>3. تبدیل به متن</strong><br>
+                    ساخت توضیحات کامل
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #e8f5e9;">
+                    <strong>4. تولید Embedding</strong><br>
+                    استفاده از OpenAI API
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fce4ec;">
+                    <strong>5. ذخیره</strong><br>
+                    Vector Database
+                </div>
+            </div>
+
+            <div class="key-point box">
+                <h3><span class="emoji">🎯</span> استراتژی‌های مختلف</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>روش</th>
+                            <th>ورودی</th>
+                            <th>مزیت</th>
+                            <th>کاربرد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Text-only</strong></td>
+                            <td>فقط properties</td>
+                            <td>ساده</td>
+                            <td>جستجوی معنایی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Geometry-only</strong></td>
+                            <td>فقط مختصات</td>
+                            <td>دقیق مکانی</td>
+                            <td>شباهت مکانی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hybrid</strong></td>
+                            <td>Properties + Geometry</td>
+                            <td>کامل</td>
+                            <td>جستجوی پیشرفته</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multi-modal</strong></td>
+                            <td>متن + تصویر + مکان</td>
+                            <td>قدرتمند</td>
+                            <td>AI پیشرفته</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: پیاده‌سازی کامل -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>💻 پیاده‌سازی کامل - قسمت 1</h2>
+            
+            <h3><span class="emoji">📦</span> نصب کتابخانه‌ها</h3>
+            
+            <div class="code">
+pip install openai geojson shapely numpy scikit-learn
+            </div>
+            
+            <h3><span class="emoji">🔧</span> کلاس اصلی</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="keyword">import</span> json
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">from</span> typing <span class="keyword">import</span> List, Dict, Tuple
+<span class="keyword">from</span> openai <span class="keyword">import</span> OpenAI
+<span class="keyword">from</span> shapely.geometry <span class="keyword">import</span> shape, Point, Polygon
+<span class="keyword">from</span> sklearn.metrics.pairwise <span class="keyword">import</span> cosine_similarity
+
+<span class="keyword">class</span> <span class="function">GeoEmbedding</span>:
+    <span class="string">"""تبدیل GeoJSON به Embeddings"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, api_key: <span class="function">str</span>):
+        <span class="keyword">self</span>.client = OpenAI(api_key=api_key)
+        <span class="keyword">self</span>.model = <span class="string">"text-embedding-3-small"</span>
+        <span class="keyword">self</span>.features = []
+        <span class="keyword">self</span>.embeddings = []
+        <span class="keyword">self</span>.texts = []
+    
+    <span class="keyword">def</span> <span class="function">load_geojson</span>(<span class="keyword">self</span>, filepath: <span class="function">str</span>):
+        <span class="string">"""بارگذاری فایل GeoJSON"""</span>
+        with <span class="function">open</span>(filepath, <span class="string">'r'</span>, encoding=<span class="string">'utf-8'</span>) <span class="keyword">as</span> f:
+            data = json.load(f)
+        
+        if data.get(<span class="string">'type'</span>) == <span class="string">'FeatureCollection'</span>:
+            <span class="keyword">self</span>.features = data[<span class="string">'features'</span>]
+        elif data.get(<span class="string">'type'</span>) == <span class="string">'Feature'</span>:
+            <span class="keyword">self</span>.features = [data]
+        else:
+            raise <span class="function">ValueError</span>(<span class="string">"فرمت GeoJSON نامعتبر"</span>)
+        
+        print(f"✅ {len(self.features)} عارضه بارگذاری شد")
+        return <span class="keyword">self</span>.features
+    
+    <span class="keyword">def</span> <span class="function">feature_to_text</span>(<span class="keyword">self</span>, feature: Dict) -> <span class="function">str</span>:
+        <span class="string">"""تبدیل عارضه GeoJSON به متن"""</span>
+        geometry = feature.get(<span class="string">'geometry'</span>, {})
+        properties = feature.get(<span class="string">'properties'</span>, {})
+        
+        <span class="comment"># اطلاعات هندسی</span>
+        geom_type = geometry.get(<span class="string">'type'</span>, <span class="string">'Unknown'</span>)
+        coords = geometry.get(<span class="string">'coordinates'</span>, [])
+        
+        <span class="comment"># ساخت متن توضیحی</span>
+        text_parts = []
+        
+        <span class="comment"># 1. نوع هندسه</span>
+        text_parts.append(f"نوع: {geom_type}")
+        
+        <span class="comment"># 2. اطلاعات مکانی</span>
+        if geom_type == <span class="string">'Point'</span>:
+            lon, lat = coords
+            text_parts.append(f"موقعیت: طول جغرافیایی {lon:.4f}, عرض جغرافیایی {lat:.4f}")
+        elif geom_type == <span class="string">'Polygon'</span>:
+            <span class="comment"># محاسبه مساحت تقریبی</span>
+            poly = shape(geometry)
+            area = poly.area * <span class="number">111320</span> * <span class="number">111320</span>  <span class="comment"># تبدیل به متر مربع</span>
+            text_parts.append(f"مساحت تقریبی: {area:.0f} متر مربع")
+            
+            <span class="comment"># مرکز</span>
+            centroid = poly.centroid
+            text_parts.append(f"مرکز: {centroid.x:.4f}, {centroid.y:.4f}")
+        
+        <span class="comment"># 3. Properties</span>
+        for key, value in properties.items():
+            if isinstance(value, list):
+                value = <span class="string">', '</span>.join(map(str, value))
+            text_parts.append(f"{key}: {value}")
+        
+        return <span class="string">'. '</span>.join(text_parts)
+    
+    <span class="keyword">def</span> <span class="function">create_embeddings</span>(<span class="keyword">self</span>):
+        <span class="string">"""تولید embeddings برای تمام عوارض"""</span>
+        if not <span class="keyword">self</span>.features:
+            raise <span class="function">ValueError</span>(<span class="string">"ابتدا فایل GeoJSON را بارگذاری کنید"</span>)
+        
+        print(f"🔄 در حال تولید embeddings برای {len(self.features)} عارضه...")
+        
+        <span class="comment"># تبدیل به متن</span>
+        <span class="keyword">self</span>.texts = []
+        for feature in <span class="keyword">self</span>.features:
+            text = <span class="keyword">self</span>.feature_to_text(feature)
+            <span class="keyword">self</span>.texts.append(text)
+        
+        <span class="comment"># تولید embeddings به صورت batch</span>
+        response = <span class="keyword">self</span>.client.embeddings.create(
+            input=<span class="keyword">self</span>.texts,
+            model=<span class="keyword">self</span>.model
+        )
+        
+        <span class="keyword">self</span>.embeddings = [item.embedding for item in response.data]
+        
+        print(f"✅ {len(<span class="keyword">self</span>.embeddings)} embedding تولید شد")
+        print(f"📊 ابعاد بردار: {len(<span class="keyword">self</span>.embeddings[0])}")
+        
+        return <span class="keyword">self</span>.embeddings
+    
+    <span class="keyword">def</span> <span class="function">find_similar</span>(<span class="keyword">self</span>, query_feature: Dict, top_k: <span class="function">int</span> = <span class="number">3</span>) -> List[Dict]:
+        <span class="string">"""پیدا کردن عوارض مشابه"""</span>
+        if not <span class="keyword">self</span>.embeddings:
+            raise <span class="function">ValueError</span>(<span class="string">"ابتدا embeddings را تولید کنید"</span>)
+        
+        <span class="comment"># تولید embedding برای query</span>
+        query_text = <span class="keyword">self</span>.feature_to_text(query_feature)
+        response = <span class="keyword">self</span>.client.embeddings.create(
+            input=[query_text],
+            model=<span class="keyword">self</span>.model
+        )
+        query_embedding = response.data[<span class="number">0</span>].embedding
+        
+        <span class="comment"># محاسبه شباهت</span>
+        similarities = cosine_similarity(
+            [query_embedding],
+            <span class="keyword">self</span>.embeddings
+        )[<span class="number">0</span>]
+        
+        <span class="comment"># مرتب‌سازی</span>
+        top_indices = np.argsort(similarities)[::-<span class="number">1</span>][:top_k]
+        
+        <span class="comment"># ساخت نتایج</span>
+        results = []
+        for idx in top_indices:
+            results.append({
+                <span class="string">'feature'</span>: <span class="keyword">self</span>.features[idx],
+                <span class="string">'text'</span>: <span class="keyword">self</span>.texts[idx],
+                <span class="string">'score'</span>: float(similarities[idx])
+            })
+        
+        return results
+    
+    <span class="keyword">def</span> <span class="function">search_by_text</span>(<span class="keyword">self</span>, query: <span class="function">str</span>, top_k: <span class="function">int</span> = <span class="number">3</span>) -> List[Dict]:
+        <span class="string">"""جستجو با متن آزاد"""</span>
+        if not <span class="keyword">self</span>.embeddings:
+            raise <span class="function">ValueError</span>(<span class="string">"ابتدا embeddings را تولید کنید"</span>)
+        
+        <span class="comment"># تولید embedding برای query</span>
+        response = <span class="keyword">self</span>.client.embeddings.create(
+            input=[query],
+            model=<span class="keyword">self</span>.model
+        )
+        query_embedding = response.data[<span class="number">0</span>].embedding
+        
+        <span class="comment"># محاسبه شباهت</span>
+        similarities = cosine_similarity(
+            [query_embedding],
+            <span class="keyword">self</span>.embeddings
+        )[<span class="number">0</span>]
+        
+        <span class="comment"># مرتب‌سازی</span>
+        top_indices = np.argsort(similarities)[::-<span class="number">1</span>][:top_k]
+        
+        <span class="comment"># ساخت نتایج</span>
+        results = []
+        for idx in top_indices:
+            results.append({
+                <span class="string">'feature'</span>: <span class="keyword">self</span>.features[idx],
+                <span class="string">'text'</span>: <span class="keyword">self</span>.texts[idx],
+                <span class="string">'score'</span>: float(similarities[idx])
+            })
+        
+        return results
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: استفاده عملی -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>🎯 استفاده عملی - مثال 1: رستوران‌ها</h2>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> پیدا کردن رستوران‌های مشابه</h3>
+                <div class="code">
+<span class="comment"># ==================== راه‌اندازی ====================</span>
+
+<span class="keyword">from</span> geo_embedding <span class="keyword">import</span> GeoEmbedding
+
+<span class="comment"># ایجاد instance</span>
+geo_emb = GeoEmbedding(api_key=<span class="string">"your-api-key"</span>)
+
+<span class="comment"># بارگذاری فایل GeoJSON رستوران‌ها</span>
+features = geo_emb.load_geojson(<span class="string">'restaurants.geojson'</span>)
+
+<span class="comment"># نمایش عوارض بارگذاری شده</span>
+print("\n📍 رستوران‌های بارگذاری شده:")
+for i, feature in enumerate(features, 1):
+    name = feature['properties'].get('name', 'بدون نام')
+    cuisine = feature['properties'].get('cuisine', 'نامشخص')
+    print(f"{i}. {name} ({cuisine})")
+
+<span class="comment"># تولید embeddings</span>
+embeddings = geo_emb.create_embeddings()
+
+<span class="comment"># نمایش متن‌های تولید شده</span>
+print("\n📝 متن‌های تولید شده:")
+for i, text in enumerate(geo_emb.texts, 1):
+    print(f"\n{i}. {text}")
+
+<span class="comment"># ==================== جستجو با متن ====================</span>
+
+print("\n" + "="*60)
+print("🔍 جستجو: رستوران سنتی با فضای باز")
+print("="*60)
+
+results = geo_emb.search_by_text(
+    query="رستوران سنتی با فضای باز و غذای ایرانی",
+    top_k=2
+)
+
+for i, result in enumerate(results, 1):
+    print(f"\n🏆 نتیجه {i}:")
+    print(f"   نام: {result['feature']['properties']['name']}")
+    print(f"   امتیاز شباهت: {result['score']:.4f}")
+    print(f"   توضیحات: {result['feature']['properties']['description']}")
+
+<span class="comment"># ==================== پیدا کردن مشابه ====================</span>
+
+print("\n" + "="*60)
+print("🔍 پیدا کردن رستوران‌های مشابه به رستوران اول")
+print("="*60)
+
+<span class="comment"># رستوران مرجع</span>
+reference = features[0]
+similar = geo_emb.find_similar(reference, top_k=2)
+
+print(f"\n📍 رستوران مرجع: {reference['properties']['name']}")
+print("\n🎯 رستوران‌های مشابه:")
+
+for i, result in enumerate(similar, 1):
+    print(f"\n{i}. {result['feature']['properties']['name']}")
+    print(f"   شباهت: {result['score']:.4f}")
+    
+    <span class="comment"># نمایش ویژگی‌های مشترک</span>
+    ref_features = set(reference['properties'].get('features', []))
+    sim_features = set(result['feature']['properties'].get('features', []))
+    common = ref_features.intersection(sim_features)
+    
+    if common:
+        print(f"   ویژگی‌های مشترک: {', '.join(common)}")
+
+<span class="comment"># ==================== خروجی نمونه ====================</span>
+
+<span class="comment">"""
+✅ 2 عارضه بارگذاری شد
+
+📍 رستوران‌های بارگذاری شده:
+1. رستوران سنتی شمال (ایرانی)
+2. فست فود برگر استار (فست فود)
+
+🔄 در حال تولید embeddings برای 2 عارضه...
+✅ 2 embedding تولید شد
+📊 ابعاد بردار: 1536
+
+📝 متن‌های تولید شده:
+
+1. نوع: Point. موقعیت: طول جغرافیایی 51.4231, عرض جغرافیایی 35.7219. name: رستوران سنتی شمال. type: restaurant. cuisine: ایرانی. rating: 4.5. price_range: متوسط. capacity: 50. features: پارکینگ, وای‌فای, فضای باز. description: رستوران سنتی با غذاهای شمالی و فضای دلنشین
+
+2. نوع: Point. موقعیت: طول جغرافیایی 51.4189, عرض جغرافیایی 35.7195. name: فست فود برگر استار. type: restaurant. cuisine: فست فود. rating: 4.2. price_range: ارزان. capacity: 30. features: تحویل درب منزل, سرویس سریع. description: فست فود مدرن با منوی متنوع و سرویس سریع
+
+============================================================
+🔍 جستجو: رستوران سنتی با فضای باز
+============================================================
+
+🏆 نتیجه 1:
+   نام: رستوران سنتی شمال
+   امتیاز شباهت: 0.8934
+   توضیحات: رستوران سنتی با غذاهای شمالی و فضای دلنشین
+
+🏆 نتیجه 2:
+   نام: فست فود برگر استار
+   امتیاز شباهت: 0.4521
+   توضیحات: فست فود مدرن با منوی متنوع و سرویس سریع
+"""</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: مثال 2 - پارک‌ها -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>🎯 استفاده عملی - مثال 2: پارک‌ها</h2>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> جستجو و مقایسه پارک‌ها</h3>
+                <div class="code">
+📊 مقایسه دو پارک
+
+پارک 1: پارک ملت
+پارک 2: بوستان کودک
+
+📊 شباهت: 0.6234
+⚠️ این دو پارک تا حدی شبیه هم هستند
+"""</span>
+<span class="comment"># بارگذاری پارک‌ها</span>
+geo_emb_parks = GeoEmbedding(api_key="your-api-key")
+parks = geo_emb_parks.load_geojson('parks.geojson')
+geo_emb_parks.create_embeddings()
+
+<span class="comment"># جستجو</span>
+print("🔍 جستجو: پارک بزرگ برای ورزش")
+results = geo_emb_parks.search_by_text(
+    query="پارک بزرگ با امکانات ورزشی و دوچرخه‌سواری",
+    top_k=2
+)
+
+for i, result in enumerate(results, 1):
+    props = result['feature']['properties']
+    print(f"\n{i}. {props['name']}")
+    print(f"   شباهت: {result['score']:.4f}")
+    print(f"   مساحت: {props['area']} متر مربع")
+    print(f"   امکانات: {', '.join(props['facilities'])}")
+
+<span class="comment"># ==================== مقایسه دو پارک ====================</span>
+
+print("\n" + "="*60)
+print("📊 مقایسه دو پارک")
+print("="*60)
+
+park1 = parks[0]
+park2 = parks[1]
+
+<span class="comment"># محاسبه شباهت</span>
+emb1 = geo_emb_parks.embeddings[0]
+emb2 = geo_emb_parks.embeddings[1]
+similarity = cosine_similarity([emb1], [emb2])[0][0]
+
+print(f"\nپارک 1: {park1['properties']['name']}")
+print(f"پارک 2: {park2['properties']['name']}")
+print(f"\n📊 شباهت: {similarity:.4f}")
+
+<span class="comment"># تحلیل شباهت</span>
+if similarity > 0.8:
+    print("✅ این دو پارک بسیار شبیه هم هستند")
+elif similarity > 0.6:
+    print("⚠️ این دو پارک تا حدی شبیه هم هستند")
+else:
+    print("❌ این دو پارک متفاوت هستند")
+
+<span class="comment"># ==================== خروجی نمونه ====================</span>
+
+<span class="comment">"""
+✅ 2 عارضه بارگذاری شد
+🔄 در حال تولید embeddings برای 2 عارضه...
+✅ 2 embedding تولید شد
+
+🔍 جستجو: پارک بزرگ برای ورزش
+
+1. پارک ملت
+   شباهت: 0.8756
+   مساحت: 25000 متر مربع
+   امکانات: زمین بازی, دوچرخه‌سواری, کافه
+
+2. بوستان کودک
+   شباهت: 0.5432
+   مساحت: 9000 متر مربع
+   امکانات: وسایل بازی کودک, نیمکت
+
+📊 مقایسه دو پارک
+
+پارک 1: پارک ملت
+پارک 2: بوستان کودک
+
+📊 شباهت: 0.6234
+⚠️ این دو پارک تا حدی شبیه هم هستند
+"""</span>
+============================================================
+📊 مقایسه دو پارک
+============================================================
+
+پارک 1: پارک ملت
+پارک 2: بوستان کودک
+
+📊 شباهت: 0.6234
+⚠️ این دو پارک تا حدی شبیه هم هستند
+"""</span>
+                </div>
+            </div>
+            
+            <div class="map-visual">
+                <h3 style="color: #0ea5e9;">🗺️ نمایش بصری شباهت</h3>
+                
+                <div class="similarity-meter" style="margin: 30px auto; max-width: 600px;">
+                    <div class="similarity-value">شباهت: 62.34%</div>
+                </div>
+                
+                <div class="grid">
+                    <div class="feature-box">
+                        <h4 style="color: #0ea5e9;">پارک ملت</h4>
+                        <p>📍 مرکز: <span class="coordinate">51.4225, 35.7225</span></p>
+                        <p>📏 مساحت: 25,000 م²</p>
+                        <p>⭐ ویژگی‌ها: زمین بازی، دوچرخه‌سواری، کافه</p>
+                    </div>
+                    
+                    <div class="feature-box">
+                        <h4 style="color: #0ea5e9;">بوستان کودک</h4>
+                        <p>📍 مرکز: <span class="coordinate">51.4115, 35.7165</span></p>
+                        <p>📏 مساحت: 9,000 م²</p>
+                        <p>⭐ ویژگی‌ها: بازی کودک، نیمکت</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: جستجوی پیشرفته -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>🚀 جستجوی پیشرفته و فیلترینگ</h2>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> جستجو با فیلتر</h3>
+                <div class="code">
+<span class="keyword">class</span> <span class="function">AdvancedGeoSearch</span>(GeoEmbedding):
+    <span class="string">"""جستجوی پیشرفته با فیلتر"""</span>
+    
+    <span class="keyword">def</span> <span class="function">search_with_filters</span>(<span class="keyword">self</span>, 
+                           query: <span class="function">str</span>,
+                           filters: Dict = <span class="keyword">None</span>,
+                           top_k: <span class="function">int</span> = <span class="number">5</span>) -> List[Dict]:
+        <span class="string">"""جستجو با اعمال فیلترهای مکانی و ویژگی"""</span>
+        
+        <span class="comment"># جستجوی اولیه</span>
+        results = <span class="keyword">self</span>.search_by_text(query, top_k=<span class="function">len</span>(<span class="keyword">self</span>.features))
+        
+        <span class="comment"># اعمال فیلترها</span>
+        if filters:
+            filtered_results = []
+            
+            for result in results:
+                feature = result['feature']
+                props = feature['properties']
+                geometry = feature['geometry']
+                
+                <span class="comment"># فیلتر مکانی (bounding box)</span>
+                if 'bbox' in filters:
+                    bbox = filters['bbox']
+                    if geometry['type'] == 'Point':
+                        lon, lat = geometry['coordinates']
+                        if not (bbox[0] <= lon <= bbox[2] and 
+                                bbox[1] <= lat <= bbox[3]):
+                            continue
+                
+                <span class="comment"># فیلتر ویژگی‌ها</span>
+                if 'min_rating' in filters:
+                    if props.get('rating', 0) < filters['min_rating']:
+                        continue
+                
+                if 'cuisine' in filters:
+                    if props.get('cuisine') != filters['cuisine']:
+                        continue
+                
+                if 'min_area' in filters:
+                    if props.get('area', 0) < filters['min_area']:
+                        continue
+                
+                if 'required_features' in filters:
+                    feature_list = props.get('features', [])
+                    required = filters['required_features']
+                    if not all(req in feature_list for req in required):
+                        continue
+                
+                filtered_results.append(result)
+            
+            results = filtered_results
+            return results[:top_k]
+
+
+<span class="comment"># ==================== استفاده ====================</span>
+
+adv_search = AdvancedGeoSearch(api_key="your-api-key")
+adv_search.load_geojson('restaurants.geojson')
+adv_search.create_embeddings()
+
+<span class="comment"># جستجو با فیلتر</span>
+print("🔍 جستجو: رستوران با فیلترهای خاص\n")
+
+results = adv_search.search_with_filters(
+    query="رستوران خوب",
+    filters={
+        'min_rating': 4.3,
+        'cuisine': 'ایرانی',
+        'required_features': ['پارکینگ', 'فضای باز'],
+        'bbox': [51.4200, 35.7200, 51.4300, 35.7250]
+    },
+    top_k=3
+)
+
+print(f"✅ {len(results)} نتیجه یافت شد:\n")
+
+for i, result in enumerate(results, 1):
+    props = result['feature']['properties']
+    coords = result['feature']['geometry']['coordinates']
+    
+    print(f"🏆 {i}. {props['name']}")
+    print(f"   امتیاز: {props['rating']} ⭐")
+    print(f"   نوع غذا: {props['cuisine']}")
+    print(f"   موقعیت: {coords[0]:.4f}, {coords[1]:.4f}")
+    print(f"   شباهت: {result['score']:.4f}")
+    print()
+                </div>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">🎯</span> انواع فیلترهای قابل استفاده</h3>
+                <ul>
+                    <li><strong>bbox:</strong> محدوده جغرافیایی [min_lon, min_lat, max_lon, max_lat]</li>
+                    <li><strong>min_rating:</strong> حداقل امتیاز</li>
+                    <li><strong>max_price:</strong> حداکثر قیمت</li>
+                    <li><strong>cuisine:</strong> نوع غذا</li>
+                    <li><strong>required_features:</strong> ویژگی‌های الزامی</li>
+                    <li><strong>min_area:</strong> حداقل مساحت</li>
+                    <li><strong>max_distance:</strong> حداکثر فاصله از نقطه</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: ذخیره‌سازی -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>💾 ذخیره‌سازی و بارگذاری</h2>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> ذخیره در Vector Database</h3>
+                <div class="code">
+<span class="keyword">import</span> math
+<span class="keyword">import</span> chromadb
+<span class="keyword">from</span> chromadb.config <span class="keyword">import</span> Settings
+
+<span class="keyword">class</span> <span class="function">GeoVectorDB</span>:
+    <span class="string">"""ذخیره‌سازی embeddings جغرافیایی در ChromaDB"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, db_path: <span class="function">str</span> = "./geo_vectors"):
+        <span class="keyword">self</span>.client = chromadb.Client(Settings(
+            chroma_db_impl="duckdb+parquet",
+            persist_directory=db_path
+        ))
+    
+    <span class="keyword">def</span> <span class="function">save_features</span>(<span class="keyword">self</span>, 
+                      collection_name: <span class="function">str</span>,
+                      features: List[Dict],
+                      embeddings: List[List[<span class="function">float</span>]]):
+        <span class="string">"""ذخیره عوارض و embeddings"""</span>
+        
+        <span class="comment"># ایجاد یا دریافت collection</span>
+        collection = <span class="keyword">self</span>.client.get_or_create_collection(
+            name=collection_name,
+            metadata={ "hnsw:space": "cosine" }
+        )
+        
+        <span class="comment"># آماده‌سازی داده‌ها</span>
+        ids = []
+        documents = []
+        metadatas = []
+        
+        for i, feature in enumerate(features):
+            props = feature['properties']
+            geometry = feature['geometry']
+            
+            <span class="comment"># ID یکتا</span>
+            feature_id = props.get('id', f"feature_{i}")
+            ids.append(feature_id)
+            
+            <span class="comment"># متن برای جستجو</span>
+            doc_text = props.get('name', '') + ' ' + \
+                       props.get('description', '')
+            documents.append(doc_text)
+            
+            <span class="comment"># Metadata</span>
+            metadata = {
+                'name': props.get('name', ''),
+                'type': props.get('type', ''),
+                'geom_type': geometry.get('type', '')
+            }
+            
+            <span class="comment"># اضافه کردن مختصات</span>
+            if geometry['type'] == 'Point':
+                coords = geometry['coordinates']
+                metadata['longitude'] = coords[0]
+                metadata['latitude'] = coords[1]
+            
+            <span class="comment"># اضافه کردن سایر properties</span>
+            for key, value in props.items():
+                if not isinstance(value, (list, dict)):
+                    metadata[key] = value
+            
+            metadatas.append(metadata)
+        
+        <span class="comment"># ذخیره در ChromaDB</span>
+        collection.add(
+            ids=ids,
+            embeddings=embeddings,
+            documents=documents,
+            metadatas=metadatas
+        )
+        
+        print(f"✅ {len(features)} عارضه در '{collection_name}' ذخیره شد")
+    
+    <span class="keyword">def</span> <span class="function">search</span>(<span class="keyword">self</span>, 
+               collection_name: <span class="function">str</span>,
+               query_embedding: List[<span class="function">float</span>],
+               n_results: <span class="function">int</span> = <span class="number">5</span>,
+               where: Dict = <span class="keyword">None</span>) -> Dict:
+        <span class="string">"""جستجو در collection"""</span>
+        
+        collection = <span class="keyword">self</span>.client.get_collection(collection_name)
+        
+        results = collection.query(
+            query_embeddings=[query_embedding],
+            n_results=n_results,
+            where=where
+        )
+        
+        return results
+    
+    <span class="keyword">def</span> <span class="function">get_by_location</span>(<span class="keyword">self</span>, 
+                        collection_name: <span class="function">str</span>,
+                        longitude: <span class="function">float</span>,
+                        latitude: <span class="function">float</span>,
+                        radius_km: <span class="function">float</span> = 1.0) -> List[Dict]:
+        <span class="string">"""جستجو بر اساس موقعیت جغرافیایی"""</span>
+        
+        <span class="comment"># استفاده از فرمول Haversine برای محاسبه دقیق‌تر فاصله</span>
+        
+        <span class="keyword">def</span> <span class="function">haversine_dist</span>(lon1, lat1, lon2, lat2):
+            R = 6371  <span class="comment"># شعاع زمین در کیلومتر</span>
+            phi1 = math.radians(lat1)
+            phi2 = math.radians(lat2)
+            del_phi = math.radians(lat2 - lat1)
+            del_lambda = math.radians(lon2 - lon1)
+            
+            a = math.sin(del_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(del_lambda / 2) ** 2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            distance_km = R * c
+            return distance_km
+        
+        collection = <span class="keyword">self</span>.client.get_collection(collection_name)
+        
+        # دریافت تمام آیتم‌ها
+        all_items = collection.get()
+        
+        # فیلتر بر اساس فاصله
+        results = []
+        for i, metadata in enumerate(all_items['metadatas']):
+            if 'longitude' in metadata and 'latitude' in metadata:
+                lon = metadata['longitude']
+                lat = metadata['latitude']
+                
+                distance = haversine_dist(longitude, latitude, lon, lat)
+                if distance <= radius_km:
+                    results.append({
+                        'id': all_items['ids'][i],
+                        'metadata': metadata,
+                        'document': all_items['documents'][i],
+                        'distance': distance
+                    })
+        
+        # مرتب‌سازی بر اساس فاصله
+        results.sort(key=<span class="keyword">lambda</span> x: x['distance'])
+        return results
+
+<span class="comment"># ==================== استفاده ====================</span>
+
+<span class="comment"># ایجاد vector database</span>
+vector_db = GeoVectorDB(db_path="./my_geo_vectors")
+
+<span class="comment"># ذخیره رستوران‌ها</span>
+geo_emb = GeoEmbedding(api_key="your-api-key")
+features = geo_emb.load_geojson('restaurants.geojson')
+embeddings = geo_emb.create_embeddings()
+
+vector_db.save_features(
+    collection_name="restaurants",
+    features=features,
+    embeddings=embeddings
+)
+
+<span class="comment"># جستجو</span>
+print("\n🔍 جستجو در Vector DB:")
+
+<span class="comment"># تولید embedding برای query</span>
+query = "رستوران سنتی"
+response = geo_emb.client.embeddings.create(
+    input=[query],
+    model="text-embedding-3-small"
+)
+query_embedding = response.data[0].embedding
+
+<span class="comment"># جستجو</span>
+results = vector_db.search(
+    collection_name="restaurants",
+    query_embedding=query_embedding,
+    n_results=2
+)
+
+print(f"\nنتایج برای '{query}':\n")
+for i, metadata in enumerate(results['metadatas'][0], 1):
+    print(f"{i}. {metadata['name']}")
+    print(f"   نوع: {metadata.get('cuisine', 'نامشخص')}")
+    print()
+
+<span class="comment"># جستجوی مکانی</span>
+print("📍 جستجوی مکانی (شعاع 1 کیلومتر):\n")
+
+nearby = vector_db.get_by_location(
+    collection_name="restaurants",
+    longitude=51.4220,
+    latitude=35.7210,
+    radius_km=1.0
+)
+
+for item in nearby:
+    print(f"📍 {item['metadata']['name']}")
+    print(f"   موقعیت: {item['metadata']['longitude']:.4f}, {item['metadata']['latitude']:.4f}")
+    print()
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: پروژه کامل -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>🎯 پروژه کامل: سیستم جستجوی مکانی</h2>
+            
+            <div class="highlight box">
+                <h3 style="text-align: center;"><span class="emoji">🚀</span> هدف پروژه</h3>
+                <p style="text-align: center; font-size: 1.3em;">
+                    ساخت یک سیستم جستجوی مکانی هوشمند که بتواند با متن طبیعی 
+                    مکان‌های مرتبط را پیدا کند
+                </p>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> کد کامل پروژه</h3>
+                <div class="code">
+<span class="keyword">import</span> json
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">from</span> typing <span class="keyword">import</span> List, Dict
+<span class="keyword">from</span> openai <span class="keyword">import</span> OpenAI
+<span class="keyword">from</span> sklearn.metrics.pairwise <span class="keyword">import</span> cosine_similarity
+<span class="keyword">import</span> chromadb
+
+<span class="keyword">class</span> <span class="function">SmartLocationSearch</span>:
+    <span class="string">"""سیستم جستجوی مکانی هوشمند"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, api_key: <span class="function">str</span>, db_path: <span class="function">str</span> = "./locations_db"):
+        <span class="keyword">self</span>.openai_client = OpenAI(api_key=api_key)
+        <span class="keyword">self</span>.chroma_client = chromadb.Client()
+        <span class="keyword">self</span>.model = "text-embedding-3-small"
+        <span class="keyword">self</span>.collection = <span class="keyword">None</span>
+    
+    <span class="keyword">def</span> <span class="function">load_and_index</span>(<span class="keyword">self</span>, geojson_path: <span class="function">str</span>, collection_name: <span class="function">str</span>):
+        <span class="string">"""بارگذاری و ایندکس کردن GeoJSON"""</span>
+        
+        print(f"📂 بارگذاری {geojson_path}...")
+        
+        <span class="comment"># خواندن GeoJSON</span>
+        with <span class="function">open</span>(geojson_path, 'r', encoding='utf-8') <span class="keyword">as</span> f:
+            data = json.load(f)
+        
+        features = data.get('features', [])
+        print(f"✅ {len(features)} عارضه بارگذاری شد")
+        
+        <span class="comment"># ایجاد collection</span>
+        try:
+            <span class="keyword">self</span>.chroma_client.delete_collection(collection_name)
+        except:
+            pass
+        
+        <span class="keyword">self</span>.collection = <span class="keyword">self</span>.chroma_client.create_collection(
+            name=collection_name,
+            metadata={"hnsw:space": "cosine"}
+        )
+        
+        <span class="comment"># پردازش و ایندکس</span>
+        print("🔄 در حال ایندکس‌سازی...")
+        
+        ids = []
+        documents = []
+        embeddings = []
+        metadatas = []
+        
+        for i, feature in enumerate(features):
+            <span class="comment"># ساخت متن</span>
+            text = <span class="keyword">self</span>._feature_to_text(feature)
+            
+            <span class="comment"># تولید embedding</span>
+            response = <span class="keyword">self</span>.openai_client.embeddings.create(
+                input=[text],
+                model=<span class="keyword">self</span>.model
+            )
+            embedding = response.data[0].embedding
+            
+            <span class="comment"># آماده‌سازی داده‌ها</span>
+            ids.append(f"loc_{i}")
+            documents.append(text)
+            embeddings.append(embedding)
+            
+            <span class="comment"># Metadata</span>
+            props = feature['properties']
+            geometry = feature['geometry']
+            
+            metadata = {
+                'name': props.get('name', ''),
+                'type': props.get('type', ''),
+                'geom_type': geometry.get('type', '')
+            }
+            
+            if geometry['type'] == 'Point':
+                coords = geometry['coordinates']
+                metadata['lon'] = coords[0]
+                metadata['lat'] = coords[1]
+            
+            <span class="comment"># اضافه کردن properties دیگر</span>
+            for key, value in props.items():
+                if isinstance(value, (str, int, float, bool)):
+                    metadata[key] = value
+            
+            metadatas.append(metadata)
+            
+            if (i + 1) % 10 == 0:
+                print(f"   پردازش شد: {i+1}/{len(features)}")
+        
+        <span class="comment"># ذخیره در ChromaDB</span>
+        <span class="keyword">self</span>.collection.add(
+            ids=ids,
+            embeddings=embeddings,
+            documents=documents,
+            metadatas=metadatas
+        )
+        
+        print(f"✅ ایندکس‌سازی کامل شد")
+    
+    <span class="keyword">def</span> <span class="function">search</span>(<span class="keyword">self</span>, query: <span class="function">str</span>, top_k: <span class="function">int</span> = <span class="number">5</span>) -> List[Dict]:
+        <span class="string">"""جستجوی معنایی"""</span>
+        
+        if not <span class="keyword">self</span>.collection:
+            raise <span class="function">ValueError</span>(<span class="string">"ابتدا دیتاست را ایندکس کنید"</span>)
+        
+        <span class="comment"># تولید embedding برای query</span>
+        response = <span class="keyword">self</span>.openai_client.embeddings.create(
+            input=[query],
+            model=<span class="keyword">self</span>.model
+        )
+        query_embedding = response.data[0].embedding
+        
+        <span class="comment"># جستجو</span>
+        results = <span class="keyword">self</span>.collection.query(
+            query_embeddings=[query_embedding],
+            n_results=top_k
+        )
+        
+        <span class="comment"># فرمت نتایج</span>
+        formatted_results = []
+        for i in range(len(results['ids'][0])):
+            formatted_results.append({
+                'id': results['ids'][0][i],
+                'metadata': results['metadatas'][0][i],
+                'document': results['documents'][0][i],
+                'distance': results['distances'][0][i] if 'distances' in results else None
+            })
+        
+        return formatted_results
+    
+    <span class="keyword">def</span> <span class="function">_feature_to_text</span>(<span class="keyword">self</span>, feature: Dict) -> <span class="function">str</span>:
+        <span class="string">"""تبدیل عارضه به متن"""</span>
+        props = feature.get('properties', {})
+        geometry = feature.get('geometry', {})
+        
+        parts = []
+        
+        <span class="comment"># اطلاعات اصلی</span>
+        if 'name' in props:
+            parts.append(f"نام: {props['name']}")
+        
+        if 'type' in props:
+            parts.append(f"نوع: {props['type']}")
+        
+        if 'description' in props:
+            parts.append(f"توضیحات: {props['description']}")
+        
+        <span class="comment"># سایر properties</span>
+        for key, value in props.items():
+            if key not in ['name', 'type', 'description']:
+                if isinstance(value, list):
+                    value = <span class="string">', '</span>.join(map(str, value))
+                parts.append(f"{key}: {value}")
+        
+        return <span class="string">'. '</span>.join(parts)
+
+
+<span class="comment"># ==================== استفاده عملی ====================</span>
+
+if __name__ == "__main__":
+    <span class="comment"># ایجاد سیستم</span>
+    search_system = SmartLocationSearch(
+        api_key="your-api-key"
+    )
+    
+    <span class="comment"># ایندکس کردن رستوران‌ها</span>
+    search_system.load_and_index(
+        geojson_path='restaurants.geojson',
+        collection_name='restaurants'
+    )
+    
+    <span class="comment"># جستجوها</span>
+    queries = [
+        "رستوران سنتی با فضای باز",
+        "جایی برای غذای سریع",
+        "مکان با پارکینگ و وای‌فای"
+    ]
+    
+    for query in queries:
+        print(f"\n{'='*60}")
+        print(f"🔍 جستجو: {query}")
+        print(f"{'='*60}\n")
+        
+        results = search_system.search(query, top_k=2)
+        for i, result in enumerate(results, 1):
+            metadata = result['metadata']
+            
+            print(f"🏆 نتیجه {i}: {metadata.get('name', 'بدون نام')}")
+            print(f"   نوع: {metadata.get('type', 'نامشخص')}")
+            
+            if 'lon' in metadata and 'lat' in metadata:
+                print(f"   موقعیت: {metadata['lon']:.4f}, {metadata['lat']:.4f}")
+            
+            if 'cuisine' in metadata:
+                print(f"   نوع غذا: {metadata['cuisine']}")
+            
+            if 'rating' in metadata:
+                print(f"   امتیاز: {metadata['rating']} ⭐")
+            
+            print()
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: تحلیل و بصری‌سازی -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>📊 تحلیل و بصری‌سازی نتایج</h2>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> تحلیل خوشه‌ای عوارض</h3>
+                <div class="code">
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">from</span> sklearn.cluster <span class="keyword">import</span> KMeans
+<span class="keyword">from</span> sklearn.decomposition <span class="keyword">import</span> PCA
+
+<span class="keyword">def</span> <span class="function">analyze_and_visualize</span>(geo_emb: GeoEmbedding):
+    <span class="string">"""تحلیل و بصری‌سازی embeddings"""</span>
+    
+    if not geo_emb.embeddings:
+        print("❌ ابتدا embeddings را تولید کنید")
+        return
+    
+    embeddings_array = np.array(geo_emb.embeddings)
+    
+    <span class="comment"># 1. خوشه‌بندی</span>
+    print("🔄 در حال خوشه‌بندی...")
+    n_clusters = min(3, len(geo_emb.features))
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    clusters = kmeans.fit_predict(embeddings_array)
+    
+    print(f"✅ {n_clusters} خوشه تشکیل شد\n")
+    
+    <span class="comment"># نمایش خوشه‌ها</span>
+    for i in range(n_clusters):
+        print(f"📊 خوشه {i+1}:")
+        cluster_indices = np.where(clusters == i)[0]
+        
+        for idx in cluster_indices:
+            name = geo_emb.features[idx]['properties'].get('name', 'بدون نام')
+            print(f"   - {name}")
+        print()
+    
+    <span class="comment"># 2. کاهش ابعاد برای بصری‌سازی</span>
+    print("🔄 کاهش ابعاد به 2D...")
+    pca = PCA(n_components=2)
+    embeddings_2d = pca.fit_transform(embeddings_array)
+    
+    print(f"✅ واریانس حفظ شده: {pca.explained_variance_ratio_.sum():.2%}\n")
+    
+    <span class="comment"># 3. رسم نمودار</span>
+    plt.figure(figsize=(12, 8))
+    
+    <span class="comment"># رنگ‌های مختلف برای هر خوشه</span>
+    colors = ['#667eea', '#764ba2', '#f093fb']
+    
+    for i in range(n_clusters):
+        cluster_points = embeddings_2d[clusters == i]
+        plt.scatter(
+            cluster_points[:, 0], 
+            cluster_points[:, 1],
+            c=colors[i],
+            label=f'خوشه {i+1}',
+            s=200,
+            alpha=0.7,
+            edgecolors='black',
+            linewidth=2
+        )
+    
+    <span class="comment"># اضافه کردن برچسب‌ها</span>
+    for i, feature in enumerate(geo_emb.features):
+        name = feature['properties'].get('name', 'بدون نام')
+        plt.annotate(
+            name,
+            (embeddings_2d[i, 0], embeddings_2d[i, 1]),
+            fontsize=10,
+            fontweight='bold',
+            ha='center',
+            va='bottom'
+        )
+    
+    plt.title('خوشه‌بندی عوارض جغرافیایی', fontsize=16, fontweight='bold')
+    plt.xlabel('مؤلفه اول', fontsize=12)
+    plt.ylabel('مؤلفه دوم', fontsize=12)
+    plt.legend(fontsize=12)
+    plt.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.savefig('geo_clustering.png', dpi=300, bbox_inches='tight')
+    print("✅ نمودار در 'geo_clustering.png' ذخیره شد")
+    
+    plt.show()
+
+
+<span class="comment"># ==================== ماتریس شباهت ====================</span>
+
+<span class="keyword">def</span> <span class="function">create_similarity_matrix</span>(geo_emb: GeoEmbedding):
+    <span class="string">"""ایجاد و نمایش ماتریس شباهت"""</span>
+    
+    embeddings_array = np.array(geo_emb.embeddings)
+    
+    <span class="comment"># محاسبه ماتریس شباهت</span>
+    similarity_matrix = cosine_similarity(embeddings_array)
+    
+    <span class="comment"># نمایش</span>
+    plt.figure(figsize=(10, 8))
+    plt.imshow(similarity_matrix, cmap='RdYlGn', vmin=0, vmax=1)
+    plt.colorbar(label='شباهت')
+    
+    <span class="comment"># برچسب‌ها</span>
+    names = [f['properties'].get('name', f'F{i}') 
+             for i, f in enumerate(geo_emb.features)]
+    
+    plt.xticks(range(len(names)), names, rotation=45, ha='right')
+    plt.yticks(range(len(names)), names)
+    
+    <span class="comment"># افزودن مقادیر</span>
+    for i in range(len(names)):
+        for j in range(len(names)):
+            text = plt.text(j, i, f'{similarity_matrix[i, j]:.2f}',
+                          ha="center", va="center", color="black",
+                          fontsize=10, fontweight='bold')
+    
+    plt.title('ماتریس شباهت عوارض', fontsize=16, fontweight='bold')
+    plt.tight_layout()
+    plt.savefig('similarity_matrix.png', dpi=300, bbox_inches='tight')
+    print("✅ ماتریس شباهت در 'similarity_matrix.png' ذخیره شد")
+    
+    plt.show()
+
+
+<span class="comment"># استفاده</span>
+geo_emb = GeoEmbedding(api_key="your-api-key")
+geo_emb.load_geojson('restaurants.geojson')
+geo_emb.create_embeddings()
+
+analyze_and_visualize(geo_emb)
+create_similarity_matrix(geo_emb)
+                </div>
+            </div>
+            
+            <div class="info box">
+                <h3><span class="emoji">📊</span> تفسیر نتایج</h3>
+                <ul>
+                    <li><strong>شباهت بالا (>0.8):</strong> عوارض بسیار مشابه (مثل دو رستوران ایرانی)</li>
+                    <li><strong>شباهت متوسط (0.5-0.8):</strong> ویژگی‌های مشترک دارند</li>
+                    <li><strong>شباهت پایین (<0.5):</strong> عوارض متفاوت (رستوران vs پارک)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: نکات پیشرفته -->
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>🚀 نکات پیشرفته</h2>
+            
+            <h3><span class="emoji">1️⃣</span> Hybrid Search: ترکیب Vector + Spatial</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="keyword">from</span> shapely.geometry <span class="keyword">import</span> Point
+<span class="keyword">from</span> shapely.ops <span class="keyword">import</span> nearest_points
+<span class="keyword">import</span> math
+
+<span class="keyword">def</span> <span class="function">haversine_distance</span>(lon1, lat1, lon2, lat2):
+    <span class="string">"""محاسبه فاصله واقعی بین دو نقطه (کیلومتر)"""</span>
+    R = 6371  <span class="comment"># شعاع زمین به کیلومتر</span>
+    
+    <span class="comment"># تبدیل به رادیان</span>
+    lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2])
+    
+    <span class="comment"># فرمول Haversine</span>
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    
+    return R * c
+
+
+<span class="keyword">class</span> <span class="function">HybridGeoSearch</span>(GeoEmbedding):
+    <span class="string">"""جستجوی ترکیبی: معنایی + مکانی"""</span>
+    
+    <span class="keyword">def</span> <span class="function">hybrid_search</span>(<span class="keyword">self</span>,
+                       query: <span class="function">str</span>,
+                       center_point: Tuple[<span class="function">float</span>, <span class="function">float</span>] = <span class="keyword">None</span>,
+                       max_distance_km: <span class="function">float</span> = <span class="keyword">None</span>,
+                       semantic_weight: <span class="function">float</span> = 0.7,
+                       spatial_weight: <span class="function">float</span> = 0.3,
+                       top_k: <span class="function">int</span> = 5) -> List[Dict]:
+        <span class="string">"""
+        جستجوی ترکیبی
+        
+        Args:
+            query: متن جستجو
+            center_point: (lon, lat) مرکز جستجو
+            max_distance_km: حداکثر فاصله
+            semantic_weight: وزن شباهت معنایی
+            spatial_weight: وزن نزدیکی مکانی
+            top_k: تعداد نتایج
+        """</span>
+        
+        <span class="comment"># 1. محاسبه شباهت معنایی</span>
+        semantic_results = <span class="keyword">self</span>.search_by_text(query, top_k=len(<span class="keyword">self</span>.features))
+        
+        results = []
+        for result in semantic_results:
+            feature = result['feature']
+            geometry = feature['geometry']
+            
+            <span class="comment"># امتیاز معنایی</span>
+            semantic_score = result['score']
+            
+            <span class="comment"># 2. محاسبه امتیاز مکانی</span>
+            spatial_score = 0.0
+            distance_km = <span class="keyword">None</span>
+            
+            if center_point and geometry['type'] == 'Point':
+                coords = geometry['coordinates']
+                distance_km = haversine_distance(
+                    center_point[0], center_point[1],
+                    coords[0], coords[1]
+                )
+                
+                <span class="comment"># فیلتر فاصله</span>
+                if max_distance_km and distance_km > max_distance_km:
+                    continue
+                
+                <span class="comment"># نرمال‌سازی فاصله (هرچه نزدیک‌تر، امتیاز بیشتر)</span>
+                <span class="comment"># فرض: حداکثر فاصله مورد نظر 10 کیلومتر</span>
+                max_dist = max_distance_km or 10.0
+                spatial_score = max(0, 1 - (distance_km / max_dist))
+            
+            <span class="comment"># 3. ترکیب امتیازها</span>
+            final_score = (semantic_weight * semantic_score + 
+                          spatial_weight * spatial_score)
+            
+            results.append({
+                'feature': feature,
+                'semantic_score': semantic_score,
+                'spatial_score': spatial_score,
+                'final_score': final_score,
+                'distance_km': distance_km
+            })
+        
+        <span class="comment"># مرتب‌سازی بر اساس امتیاز نهایی</span>
+        results.sort(key=<span class="keyword">lambda</span> x: x['final_score'], reverse=True)
+        
+        return results[:top_k]
+
+
+<span class="comment"># ==================== استفاده ====================</span>
+
+hybrid = HybridGeoSearch(api_key="your-api-key")
+hybrid.load_geojson('restaurants.geojson')
+hybrid.create_embeddings()
+
+<span class="comment"># جستجوی ترکیبی</span>
+print("🔍 جستجوی ترکیبی: رستوران نزدیک به موقعیت من\n")
+
+results = hybrid.hybrid_search(
+    query="رستوران خوب با غذای سنتی",
+    center_point=(51.4220, 35.7210),  <span class="comment"># موقعیت من</span>
+    max_distance_km=2.0,
+    semantic_weight=0.6,
+    spatial_weight=0.4,
+    top_k=3
+)
+
+for i, result in enumerate(results, 1):
+    props = result['feature']['properties']
+    
+    print(f"🏆 {i}. {props['name']}")
+    print(f"   📊 امتیاز نهایی: {result['final_score']:.4f}")
+    print(f"   🔤 شباهت معنایی: {result['semantic_score']:.4f}")
+    print(f"   📍 امتیاز مکانی: {result['spatial_score']:.4f}")
+    
+    if result['distance_km']:
+        print(f"   📏 فاصله: {result['distance_km']:.2f} کیلومتر")
+    
+    print()
+                </div>
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> Multi-level Embeddings</h3>
+            
+            <div class="example box">
+                <div class="code">
+<span class="keyword">class</span> <span class="function">MultiLevelEmbedding</span>:
+    <span class="string">"""Embedding در سطوح مختلف"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, api_key: <span class="function">str</span>):
+        <span class="keyword">self</span>.client = OpenAI(api_key=api_key)
+    
+    <span class="keyword">def</span> <span class="function">create_multilevel_embedding</span>(<span class="keyword">self</span>, feature: Dict) -> Dict:
+        <span class="string">"""تولید embedding در سطوح مختلف"""</span>
+        
+        props = feature['properties']
+        
+        <span class="comment"># سطح 1: فقط نام</span>
+        name_text = props.get('name', '')
+        
+        <span class="comment"># سطح 2: نام + نوع</span>
+        basic_text = f"{props.get('name', '')} {props.get('type', '')}"
+        
+        <span class="comment"># سطح 3: کامل</span>
+        full_text = <span class="keyword">self</span>._feature_to_text(feature)
+        
+        <span class="comment"># تولید embeddings</span>
+        response = <span class="keyword">self</span>.client.embeddings.create(
+            input=[name_text, basic_text, full_text],
+            model="text-embedding-3-small"
+        )
+        
+        return {
+            'name_embedding': response.data[0].embedding,
+            'basic_embedding': response.data[1].embedding,
+            'full_embedding': response.data[2].embedding
+        }
+    
+    <span class="keyword">def</span> <span class="function">_feature_to_text</span>(<span class="keyword">self</span>, feature: Dict) -> <span class="function">str</span>:
+        <span class="comment"># پیاده‌سازی مشابه قبلی</span>
+        pass
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: خلاصه و نتیجه‌گیری -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>📝 خلاصه و نتیجه‌گیری</h2>
+            
+            <div class="architecture-diagram">
+                <h3 style="color: #667eea; margin-bottom: 30px;">مسیر کامل: GeoJSON → Search</h3>
+                
+                <div class="component-box" style="background: #e3f2fd;">
+                    <strong>1. GeoJSON Input</strong><br>
+                    Features با geometry و properties
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #f3e5f5;">
+                    <strong>2. Feature Extraction</strong><br>
+                    استخراج اطلاعات مکانی + توصیفی
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fff3e0;">
+                    <strong>3. Text Generation</strong><br>
+                    تبدیل به متن معنادار
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #e8f5e9;">
+                    <strong>4. Embedding</strong><br>
+                    تولید بردار با OpenAI
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fce4ec;">
+                    <strong>5. Vector DB</strong><br>
+                    ذخیره در ChromaDB
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fff9c4;">
+                    <strong>6. Search</strong><br>
+                    جستجوی معنایی + مکانی
+                </div>
+            </div>
+            
+            <div class="grid" style="margin-top: 50px;">
+                <div class="success box">
+                    <h3><span class="emoji">✅</span> یاد گرفتیم</h3>
+                    <ul>
+                        <li>تبدیل GeoJSON به Embedding</li>
+                        <li>جستجوی معنایی مکانی</li>
+                        <li>ذخیره در Vector DB</li>
+                        <li>جستجوی ترکیبی</li>
+                        <li>تحلیل و بصری‌سازی</li>
+                    </li>
+                    </ul>
+                </div>
+                
+                <div class="key-point box">
+                    <h3><span class="emoji">🎯</span> کاربردها</h3>
+                    <ul>
+                        <li>سیستم‌های LBS</li>
+                        <li>توصیه مکان‌محور</li>
+                        <li>جستجوی POI هوشمند</li>
+                        <li>تحلیل فضایی</li>
+                        <li>GIS هوشمند</li>
+                    </ul>
+                </div>
+                
+                <div class="info box">
+                    <h3><span class="emoji">🚀</span> قدم بعدی</h3>
+                    <ul>
+                        <li>ادغام با PostGIS</li>
+                        <li>Real-time indexing</li>
+                        <li>Spatial clustering</li>
+                        <li>Route optimization</li>
+                        <li>Mobile integration</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight box" style="margin-top: 50px;">
+                <h3 style="text-align: center;"><span class="emoji">💡</span> نکته طلایی</h3>
+                <p style="font-size: 1.4em; text-align: center; line-height: 2.2;">
+                    ترکیب <strong>Embeddings</strong> با <strong>داده‌های مکانی</strong> 
+                    قدرت جستجوی هوشمند و معنادار را به سیستم‌های GIS می‌دهد.
+                    <br><br>
+                    این تکنیک پایه و اساس <strong>Location-based AI</strong> است! 🗺️
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: صفحه پایانی -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h1 style="text-align: center; color: #667eea; margin-top: 80px;">
+                <span class="emoji">🎉</span>
+                <br>
+                تبریک!
+                <br>
+                <span style="font-size: 0.6em; color: #764ba2;">
+                    شما Embeddings برای داده‌های مکانی را یاد گرفتید
+                </span>
+            </h1>
+            
+            <div class="highlight box" style="margin-top: 60px;">
+                <h2 style="text-align: center; border: none; color: #667eea;">
+                    <span class="emoji">🏆</span> دستاوردها
+                </h2>
+                <div style="text-align: center; font-size: 1.3em; line-height: 2.5; margin-top: 40px;">
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✅ تبدیل GeoJSON به Embedding</li>
+                        <li>✅ جستجوی معنایی مکانی</li>
+                        <li>✅ ذخیره در Vector Database</li>
+                        <li>✅ جستجوی ترکیبی (معنایی + مکانی)</li>
+                        <li>✅ خوشه‌بندی و تحلیل</li>
+                        <li>✅ سیستم توصیه مکانی</li>
+                        <li>✅ ارزیابی و بهینه‌سازی</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="grid" style="margin-top: 60px;">
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">📊 آمار</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #764ba2; margin: 20px 0;">13</p>
+                    <p style="font-size: 1.2em;">اسلاید آموزشی</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">💻 کدها</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #764ba2; margin: 20px 0;">15+</p>
+                    <p style="font-size: 1.2em;">مثال عملی</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">🎯 پروژه</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #764ba2; margin: 20px 0;">1</p>
+                    <p style="font-size: 1.2em;">پروژه کامل</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">⏱️ زمان</h3>
+                    <p style="font-size: 2.5em; font-weight: 700; color: #764ba2; margin: 20px 0;">~2</p>
+                    <p style="font-size: 1.2em;">ساعت آموزش</p>
+                </div>
+            </div>
+            
+            <div class="key-point box" style="margin-top: 60px; text-align: center;">
+                <h2 style="color: #667eea; border: none;">
+                    <span class="emoji">🚀</span> حالا نوبت شماست!
+                </h2>
+                <p style="font-size: 1.5em; line-height: 2.5; margin-top: 30px;">
+                    با این دانش می‌توانید:
+                </p>
+                <ul style="list-style: none; font-size: 1.4em; line-height: 2.8; padding: 0;">
+                    <li>🗺️ سیستم‌های جستجوی مکانی هوشمند بسازید</li>
+                    <li>🍽️ اپلیکیشن‌های توصیه مکان طراحی کنید</li>
+                    <li>📊 تحلیل‌های فضایی پیشرفته انجام دهید</li>
+                    <li>🤖 سرویس‌های Location-based AI بسازید</li>
+                    <li>💼 پروژه‌های GIS هوشمند پیاده کنید</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 80px; font-size: 2em; color: #667eea; font-weight: 700;">
+                <p>موفق و پیروز باشید! 🌟</p>
+                <p style="font-size: 0.6em; color: #764ba2; margin-top: 30px;">
+                    ساخته شده با ❤️ برای توسعه‌دهندگان GIS و AI
+                </p>
+                <p style="font-size: 0.4em; color: #999; margin-top: 40px;">
+                    آذر 1403 | نسخه 1.0
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- دکمه‌های کنترل -->
+    <div style="position: fixed; bottom: 30px; right: 30px; z-index: 1000;">
+        <button id="backToTop" style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            display: none;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        ">⬆️</button>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: rgba(255,255,255,0.3);
+        z-index: 9999;
+    ">
+        <div id="progressFill" style="
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        "></div>
+    </div>
+
+    <!-- Toast -->
+    <div id="copyToast" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        display: none;
+        z-index: 10000;
+        font-weight: 600;
+        font-size: 1.1em;
+    ">✅ کد کپی شد!</div>
+
+    <script>
+        // کپی کردن کد
+        document.querySelectorAll('.code').forEach(code => {
+            code.style.cursor = 'pointer';
+            code.title = 'کلیک کنید تا کپی شود';
+            
+            code.addEventListener('click', () => {
+                const text = code.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    const toast = document.getElementById('copyToast');
+                    toast.style.display = 'block';
+                    
+                    code.style.background = '#2d5016';
+                    
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                        code.style.background = '#1e293b';
+                    }, 2000);
+                });
+            });
+        });
+
+        // دکمه برگشت به بالا
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        backToTop.addEventListener('mouseenter', () => {
+            backToTop.style.transform = 'scale(1.1)';
+        });
+
+        backToTop.addEventListener('mouseleave', () => {
+            backToTop.style.transform = 'scale(1)';
+        });
+
+        // Progress Bar
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY;
+            const progress = (scrollTop / (documentHeight - windowHeight)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        });
+
+        // Intersection Observer
+        const slides = document.querySelectorAll('.slide');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease-out';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        slides.forEach(slide => {
+            observer.observe(slide);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+
+        // آمار
+        console.log('🗺️ آموزش GeoJSON Embeddings');
+        console.log(`📄 تعداد اسلایدها: ${slides.length}`);
+        console.log(`💻 تعداد کدها: ${document.querySelectorAll('.code').length}`);
+        console.log(`📦 تعداد Box ها: ${document.querySelectorAll('.box').length}`);
+        console.log('✅ فایل آماده است!');
+    </script>
+
+    <style media="print">
+        body {
+            background: white !important;
+        }
+        
+        .slide {
+            page-break-after: always;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 40px !important;
+        }
+        
+        .slide-number {
+            display: none;
+        }
+        
+        #progressFill, #backToTop, #copyToast {
+            display: none !important;
+        }
+        
+        .code {
+            page-break-inside: avoid;
+            font-size: 0.8em;
+        }
+        
+        .grid, .comparison {
+            page-break-inside: avoid;
+        }
+        
+        table {
+            page-break-inside: avoid;
+        }
+        
+        .box {
+            page-break-inside: avoid;
+        }
+    </style>
+</body>
+</html>

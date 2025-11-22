@@ -1,0 +1,3198 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش کامل Embeddings - بردارهای جاسازی</title>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            font-weight: 700;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #667eea;
+            font-size: 1.4em;
+            margin: 20px 0 15px 0;
+            font-weight: 600;
+        }
+        
+        p, li {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .emoji {
+            font-size: 1.3em;
+            margin-left: 10px;
+        }
+        
+        .box {
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-right: 5px solid;
+        }
+        
+        .definition {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #2196f3;
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #9c27b0;
+        }
+        
+        .info {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #4caf50;
+        }
+        
+        .warning {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            border-color: #ff9800;
+        }
+        
+        .danger {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #f44336;
+        }
+        
+        .success {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #4caf50;
+        }
+        
+        .key-point {
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border-color: #fbc02d;
+            font-weight: 500;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            border-color: #03a9f4;
+        }
+        
+        .code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            line-height: 1.6;
+            margin: 20px 0;
+            position: relative;
+            direction: ltr;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+        
+        .code::before {
+            content: 'Python';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .code .keyword {
+            color: #c792ea;
+            font-weight: 600;
+        }
+        
+        .code .string {
+            color: #c3e88d;
+        }
+        
+        .code .comment {
+            color: #676e95;
+            font-style: italic;
+        }
+        
+        .code .function {
+            color: #82aaff;
+        }
+        
+        .code .number {
+            color: #f78c6c;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 4px solid #667eea;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .card li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card li:last-child {
+            border-bottom: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        tbody tr:hover {
+            background: #f5f5f5;
+        }
+        
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+        
+        ul, ol {
+            padding-right: 30px;
+            margin: 20px 0;
+        }
+        
+        li {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+        
+        strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .architecture-diagram {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .component-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px auto;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            h2 {
+                font-size: 1.8em;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .vector-visualization {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px dashed #667eea;
+        }
+        
+        .vector-item {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .similarity-demo {
+            background: linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+        }
+        
+        .text-pair {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .similarity-score {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        
+        .math-formula {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.3em;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .dimension-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 200px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        
+        .dimension-bar {
+            background: linear-gradient(to top, #667eea 0%, #764ba2 100%);
+            width: 60px;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .dimension-bar:hover {
+            transform: scale(1.1);
+        }
+        
+        .dimension-label {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- اسلاید 1: صفحه عنوان -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h1 style="text-align: center; color: #667eea; margin-top: 60px;">
+                <span class="emoji">🧮</span>
+                آموزش جامع Embeddings
+            </h1>
+            <h2 style="text-align: center; color: #764ba2; font-size: 2em; border: none;">
+                بردارهای جاسازی در یادگیری ماشین
+            </h2>
+            
+            <div class="highlight box" style="margin-top: 50px;">
+                <h3 style="text-align: center;"><span class="emoji">🎯</span> Embedding چیست؟</h3>
+                <p style="text-align: center; font-size: 1.4em; line-height: 2;">
+                    تبدیل داده‌های پیچیده (متن، تصویر، صدا) به <strong>بردارهای عددی</strong> 
+                    که ماشین بتواند با آن‌ها کار کند و <strong>معنای آن‌ها را درک کند</strong>.
+                </p>
+            </div>
+            
+            <div class="grid" style="margin-top: 50px;">
+                <div class="card">
+                    <h4><span class="emoji">📝</span> متن به بردار</h4>
+                    <p>"سلام" → [0.23, -0.45, 0.67, ...]</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🖼️</span> تصویر به بردار</h4>
+                    <p>عکس گربه → [0.12, 0.89, -0.34, ...]</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🎵</span> صدا به بردار</h4>
+                    <p>صدای موسیقی → [0.56, -0.23, 0.91, ...]</p>
+                </div>
+            </div>
+            
+            <div class="key-point box" style="margin-top: 50px;">
+                <h3><span class="emoji">💡</span> چرا Embedding مهم است؟</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>✅ کامپیوتر فقط با اعداد کار می‌کند</li>
+                    <li>✅ معنای واقعی کلمات را حفظ می‌کند</li>
+                    <li>✅ کلمات مشابه، بردارهای نزدیک دارند</li>
+                    <li>✅ پایه تمام مدل‌های مدرن AI است</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: مفهوم پایه -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>🧠 مفهوم پایه Embedding</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">📖</span> تعریف ساده</h3>
+                <p style="font-size: 1.3em;">
+                    <strong>Embedding</strong> یعنی تبدیل اطلاعات (مثل کلمات) به 
+                    <strong>آرایه‌ای از اعداد</strong> که معنای آن اطلاعات را در فضای چندبعدی نگه می‌دارد.
+                </p>
+            </div>
+            
+            <h3><span class="emoji">🔢</span> مثال ساده: کلمه "پادشاه"</h3>
+            
+            <div class="vector-visualization">
+                <h4 style="text-align: center; margin-bottom: 20px;">بردار 8 بعدی</h4>
+                <div style="text-align: center;">
+                    <span class="vector-item">0.234</span>
+                    <span class="vector-item">-0.567</span>
+                    <span class="vector-item">0.891</span>
+                    <span class="vector-item">0.123</span>
+                    <span class="vector-item">-0.345</span>
+                    <span class="vector-item">0.678</span>
+                    <span class="vector-item">0.456</span>
+                    <span class="vector-item">-0.789</span>
+                </div>
+                <p style="text-align: center; margin-top: 20px; color: #667eea; font-weight: 600;">
+                    هر عدد یک ویژگی از معنای کلمه را نشان می‌دهد
+                </p>
+            </div>
+            
+            <h3><span class="emoji">🎯</span> ویژگی‌های Embedding خوب</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>1️⃣ حفظ معنا</h4>
+                    <p>کلمات با معنای مشابه، بردارهای نزدیک به هم دارند</p>
+                    <p><strong>مثال:</strong> "پادشاه" و "ملکه" نزدیک‌اند</p>
+                </div>
+                
+                <div class="card">
+                    <h4>2️⃣ روابط معنایی</h4>
+                    <p>روابط بین کلمات حفظ می‌شود</p>
+                    <p><strong>مثال:</strong> پادشاه - مرد + زن = ملکه</p>
+                </div>
+                
+                <div class="card">
+                    <h4>3️⃣ فشرده‌سازی</h4>
+                    <p>اطلاعات زیاد در فضای کوچک</p>
+                    <p><strong>مثال:</strong> میلیون‌ها کلمه → 300 بعد</p>
+                </div>
+                
+                <div class="card">
+                    <h4>4️⃣ قابل محاسبه</h4>
+                    <p>می‌توان شباهت را اندازه گرفت</p>
+                    <p><strong>مثال:</strong> محاسبه فاصله بین بردارها</p>
+                </div>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💭</span> تفاوت با روش‌های قدیمی</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>روش</th>
+                            <th>One-Hot Encoding</th>
+                            <th>Embedding</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>اندازه بردار</strong></td>
+                            <td>برابر تعداد کلمات (مثلاً 50000)</td>
+                            <td>ثابت (مثلاً 300)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>حفظ معنا</strong></td>
+                            <td>❌ خیر</td>
+                            <td>✅ بله</td>
+                        </tr>
+                        <tr>
+                            <td><strong>شباهت</strong></td>
+                            <td>همه کلمات یکسان</td>
+                            <td>کلمات مشابه نزدیک</td>
+                        </tr>
+                        <tr>
+                            <td><strong>حافظه</strong></td>
+                            <td>زیاد (sparse)</td>
+                            <td>کم (dense)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: انواع Embeddings -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>📚 انواع Embeddings</h2>
+            
+            <h3><span class="emoji">1️⃣</span> Word Embeddings - بردار کلمات</h3>
+            
+            <div class="info box">
+                <h4>تعریف</h4>
+                <p>تبدیل هر کلمه به یک بردار عددی که معنای آن را نشان می‌دهد.</p>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🏛️</span> Word2Vec</h4>
+                    <p><strong>توسعه:</strong> Google (2013)</p>
+                    <p><strong>روش:</strong> CBOW و Skip-gram</p>
+                    <p><strong>ابعاد:</strong> معمولاً 100-300</p>
+                    <p><strong>مزیت:</strong> سریع و کارآمد</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌐</span> GloVe</h4>
+                    <p><strong>توسعه:</strong> Stanford (2014)</p>
+                    <p><strong>روش:</strong> ماتریس هم‌رخدادی</p>
+                    <p><strong>ابعاد:</strong> 50, 100, 200, 300</p>
+                    <p><strong>مزیت:</strong> روابط جهانی</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">⚡</span> FastText</h4>
+                    <p><strong>توسعه:</strong> Facebook (2016)</p>
+                    <p><strong>روش:</strong> زیرکلمات (subwords)</p>
+                    <p><strong>ابعاد:</strong> 100-300</p>
+                    <p><strong>مزیت:</strong> کلمات جدید</p>
+                </div>
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> Contextual Embeddings - بردار متنی</h3>
+            
+            <div class="warning box">
+                <h4>تفاوت کلیدی</h4>
+                <p>در این روش، <strong>بردار هر کلمه بسته به جمله تغییر می‌کند</strong>!</p>
+                <p><strong>مثال:</strong> کلمه "بانک" در "بانک ملی" و "بانک رودخانه" بردارهای متفاوت دارد.</p>
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🤖</span> BERT</h4>
+                    <p><strong>توسعه:</strong> Google (2018)</p>
+                    <p><strong>ابعاد:</strong> 768 (base), 1024 (large)</p>
+                    <p><strong>ویژگی:</strong> دوطرفه</p>
+                    <p><strong>کاربرد:</strong> درک متن</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🚀</span> GPT</h4>
+                    <p><strong>توسعه:</strong> OpenAI</p>
+                    <p><strong>ابعاد:</strong> 768-12288</p>
+                    <p><strong>ویژگی:</strong> یک‌طرفه</p>
+                    <p><strong>کاربرد:</strong> تولید متن</p>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🌟</span> Sentence-BERT</h4>
+                    <p><strong>توسعه:</strong> UKP Lab (2019)</p>
+                    <p><strong>ابعاد:</strong> 384-768</p>
+                    <p><strong>ویژگی:</strong> جمله کامل</p>
+                    <p><strong>کاربرد:</strong> مقایسه جملات</p>
+                </div>
+            </div>
+            
+            <h3><span class="emoji">3️⃣</span> سایر انواع</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>نوع</th>
+                        <th>کاربرد</th>
+                        <th>مثال</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Image Embeddings</strong></td>
+                        <td>تصاویر</td>
+                        <td>ResNet, VGG, CLIP</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Audio Embeddings</strong></td>
+                        <td>صدا و موسیقی</td>
+                        <td>Wav2Vec, AudioMAE</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Graph Embeddings</strong></td>
+                        <td>گراف‌ها و شبکه‌ها</td>
+                        <td>Node2Vec, GraphSAGE</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Multimodal Embeddings</strong></td>
+                        <td>ترکیب چند نوع</td>
+                        <td>CLIP, DALL-E</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- اسلاید 4: Word2Vec -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>🏛️ Word2Vec - اولین قدم</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">📖</span> Word2Vec چیست؟</h3>
+                <p>
+                    یک تکنیک یادگیری ماشین برای تولید بردارهای کلمات که توسط Google در سال 2013 معرفی شد.
+                    اصل اصلی: <strong>"کلماتی که در متن‌های مشابه ظاهر می‌شوند، معانی مشابهی دارند"</strong>
+                </p>
+            </div>
+            
+            <h3><span class="emoji">🔧</span> دو معماری Word2Vec</h3>
+            
+            <div class="comparison">
+                <div class="info box">
+                    <h4>CBOW (Continuous Bag of Words)</h4>
+                    <p><strong>ایده:</strong> از کلمات اطراف، کلمه وسط را پیش‌بینی کن</p>
+                    <p><strong>مثال:</strong></p>
+                    <p>"من [____] خوردم" → "غذا"</p>
+                    <p><strong>سرعت:</strong> سریع‌تر</p>
+                    <p><strong>دقت:</strong> کلمات پرتکرار</p>
+                </div>
+                
+                <div class="warning box">
+                    <h4>Skip-gram</h4>
+                    <p><strong>ایده:</strong> از کلمه وسط، کلمات اطراف را پیش‌بینی کن</p>
+                    <p><strong>مثال:</strong></p>
+                    <p>"غذا" → ["من", "خوردم"]</p>
+                    <p><strong>سرعت:</strong> کندتر</p>
+                    <p><strong>دقت:</strong> کلمات کم‌تکرار</p>
+                </div>
+            </div>
+            
+            <h3><span class="emoji">💻</span> پیاده‌سازی با Gensim</h3>
+            
+            <div class="example box">
+                <h4>مثال 1: آموزش Word2Vec</h4>
+                <div class="code">
+from gensim.models import Word2Vec
+from hazm import word_tokenize, Normalizer
+# آماده‌سازی متن
+normalizer = Normalizer()
+sentences = [
+    "من یک سگ کوچک دارم",
+    "سگ من بسیار بامزه است",
+    "گربه من سیاه است",
+    "گربه و سگ دوست هستند",
+    "من حیوانات را دوست دارم"
+]
+
+# نرمال‌سازی و توکن‌سازی
+tokenized_sentences = []
+for sentence in sentences:
+    normalized = normalizer.normalize(sentence)
+    tokens = word_tokenize(normalized)
+    tokenized_sentences.append(tokens)
+
+print("جملات توکن شده:")
+for tokens in tokenized_sentences:
+    print(tokens)
+
+# آموزش مدل Word2Vec
+model = Word2Vec(
+    sentences=tokenized_sentences,
+    vector_size=100,      # اندازه بردار
+    window=5,              # پنجره context
+    min_count=1,           # حداقل تکرار
+    workers=4,             # تعداد هسته CPU
+    sg=0                   # 0=CBOW, 1=Skip-gram
+)
+
+# ذخیره مدل
+model.save("word2vec_model.bin")
+print("✅ مدل آموزش داده شد و ذخیره شد")
+                </div>
+            </div>
+            
+            <div class="example box">
+                <h4>مثال 2: استفاده از مدل آموزش دیده</h4>
+                <div class="code">
+# بارگذاری مدل
+model = Word2Vec.load("word2vec_model.bin")
+
+# دریافت بردار یک کلمه
+vector = model.wv['سگ']
+print(f"بردار کلمه 'سگ': {vector[:5]}...")
+print(f"طول بردار: {len(vector)}")
+
+# یافتن کلمات مشابه
+similar_words = model.wv.most_similar('سگ', topn=3)
+print("\n🔍 کلمات مشابه به 'سگ':")
+for word, score in similar_words:
+    print(f"  {word}: {score:.4f}")
+
+# محاسبه شباهت بین دو کلمه
+similarity = model.wv.similarity('سگ', 'گربه')
+print(f"\n📊 شباهت 'سگ' و 'گربه': {similarity:.4f}")
+
+# عملیات جبری روی کلمات
+# پادشاه - مرد + زن = ملکه
+result = model.wv.most_similar(
+    positive=['سگ', 'بامزه'],
+    negative=['بد'],
+    topn=1
+)
+print(f"\n🧮 سگ + بامزه - بد = {result[0][0]}")
+
+# چک کردن وجود کلمه
+if 'سگ' in model.wv:
+    print("✅ کلمه 'سگ' در مدل وجود دارد")
+                </div>
+            </div>
+            
+            <div class="key-point box">
+                <h3><span class="emoji">⚙️</span> پارامترهای مهم Word2Vec</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>پارامتر</th>
+                            <th>توضیح</th>
+                            <th>مقدار پیشنهادی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>vector_size</strong></td>
+                            <td>اندازه بردار (ابعاد)</td>
+                            <td>100-300</td>
+                        </tr>
+                        <tr>
+                            <td><strong>window</strong></td>
+                            <td>اندازه پنجره context</td>
+                            <td>5-10</td>
+                        </tr>
+                        <tr>
+                            <td><strong>min_count</strong></td>
+                            <td>حداقل تکرار کلمه</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>sg</strong></td>
+                            <td>0=CBOW, 1=Skip-gram</td>
+                            <td>0 (سریع‌تر)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>epochs</strong></td>
+                            <td>تعداد دور آموزش</td>
+                            <td>5-100</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: OpenAI Embeddings -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>🚀 OpenAI Embeddings - مدرن و قدرتمند</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🌟</span> OpenAI Embeddings چیست؟</h3>
+                <p style="font-size: 1.3em;">
+                    مدل‌های پیشرفته OpenAI که می‌توانند متن، کد، و حتی جملات پیچیده را به بردارهای 
+                    با کیفیت بالا تبدیل کنند. این بردارها برای <strong>جستجوی معنایی</strong> و 
+                    <strong>سیستم‌های RAG</strong> عالی هستند.
+                </p>
+            </div>
+            
+            <h3><span class="emoji">📊</span> مدل‌های موجود</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>مدل</th>
+                        <th>ابعاد</th>
+                        <th>هزینه (هر 1M توکن)</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>text-embedding-3-small</strong></td>
+                        <td>1536</td>
+                        <td>$0.02</td>
+                        <td>سریع و ارزان</td>
+                    </tr>
+                    <tr>
+                        <td><strong>text-embedding-3-large</strong></td>
+                        <td>3072</td>
+                        <td>$0.13</td>
+                        <td>دقیق‌تر</td>
+                    </tr>
+                    <tr>
+                        <td><strong>text-embedding-ada-002</strong></td>
+                        <td>1536</td>
+                        <td>$0.10</td>
+                        <td>نسخه قدیمی</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> مثال 1: تولید Embedding ساده</h3>
+                <div class="code">
+from openai import OpenAI
+import numpy as np
+
+# راه‌اندازی کلاینت
+client = OpenAI(api_key="your-api-key")
+
+# تولید embedding برای یک متن
+def get_embedding(text, model="text-embedding-3-small"):
+    """تولید embedding برای متن ورودی"""
+    text = text.replace("\n", " ")
+    response = client.embeddings.create(
+        input=[text],
+        model=model
+    )
+    return response.data[0].embedding
+
+# مثال استفاده
+text = "هوش مصنوعی آینده تکنولوژی است"
+embedding = get_embedding(text)
+
+print(f"📏 طول بردار: {len(embedding)}")
+print(f"🔢 پنج عدد اول: {embedding[:5]}")
+print(f"📊 نوع داده: {type(embedding)}")
+
+# تبدیل به numpy array
+embedding_array = np.array(embedding)
+print(f"\n✅ Embedding تولید شد: {embedding_array.shape}")
+                </div>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">🔍</span> مثال 2: محاسبه شباهت معنایی</h3>
+                <div class="code">
+from sklearn.metrics.pairwise import cosine_similarity
+
+# تولید embedding برای چند متن
+texts = [
+    "من برنامه‌نویسی را دوست دارم",
+    "کدنویسی علاقه من است",
+    "من غذای ایرانی دوست دارم",
+    "هوش مصنوعی آینده است"
+]
+
+# تولید embeddings
+embeddings = []
+for text in texts:
+    emb = get_embedding(text)
+    embeddings.append(emb)
+
+# تبدیل به numpy array
+embeddings_array = np.array(embeddings)
+
+# محاسبه ماتریس شباهت
+similarity_matrix = cosine_similarity(embeddings_array)
+
+# نمایش نتایج
+print("📊 ماتریس شباهت:\n")
+for i, text1 in enumerate(texts):
+    for j, text2 in enumerate(texts):
+        if i < j:
+            score = similarity_matrix[i][j]
+            print(f"\n'{text1}'")
+            print(f"  ↔ '{text2}'")
+            print(f"  شباهت: {score:.4f}")
+
+# خروجی مثال:
+# 'من برنامه‌نویسی را دوست دارم'
+#   ↔ 'کدنویسی علاقه من است'
+#   شباهت: 0.8934  ← شباهت بالا!
+                </div>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">🔎</span> مثال 3: جستجوی معنایی</h3>
+                <div class="code">
+def semantic_search(query, documents, top_k=3):
+    """جستجوی معنایی در اسناد"""
+    
+    # تولید embedding برای query
+    query_embedding = get_embedding(query)
+    
+    # تولید embeddings برای اسناد
+    doc_embeddings = []
+    for doc in documents:
+        emb = get_embedding(doc)
+        doc_embeddings.append(emb)
+    
+    # محاسبه شباهت
+    similarities = cosine_similarity(
+        [query_embedding],
+        doc_embeddings
+    )[0]
+    
+    # مرتب‌سازی و انتخاب top_k
+    top_indices = np.argsort(similarities)[::-1][:top_k]
+    
+    # نمایش نتایج
+    results = []
+    for idx in top_indices:
+        results.append({
+            'document': documents[idx],
+            'score': similarities[idx]
+        })
+    
+    return results
+
+# مثال استفاده
+documents = [
+    "Python یک زبان برنامه‌نویسی محبوب است",
+    "هوش مصنوعی در حال تغییر دنیا است",
+    "یادگیری ماشین زیرمجموعه AI است",
+    "غذای ایرانی بسیار خوشمزه است",
+    "Django یک فریمورک وب پایتون است"
+]
+
+query = "برنامه‌نویسی با پایتون"
+results = semantic_search(query, documents)
+
+print(f"🔍 جستجو برای: '{query}'\n")
+for i, result in enumerate(results, 1):
+    print(f"{i}. {result['document']}")
+    print(f"   امتیاز: {result['score']:.4f}\n")
+                </div>
+            </div>
+            
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> نکات مهم</h3>
+                <ul>
+                    <li><strong>هزینه:</strong> هر فراخوانی API هزینه دارد</li>
+                    <li><strong>Rate Limit:</strong> محدودیت تعداد درخواست در دقیقه</li>
+                    <li><strong>Cache:</strong> embeddings را ذخیره کنید تا دوباره محاسبه نشوند</li>
+                    <li><strong>Batch:</strong> چند متن را همزمان ارسال کنید (تا 2048 متن)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: محاسبه شباهت -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>📐 محاسبه شباهت بین Embeddings</h2>
+            
+            <div class="definition box">
+                <h3><span class="emoji">🎯</span> شباهت چیست؟</h3>
+                <p>
+                    شباهت یعنی اندازه‌گیری اینکه دو بردار چقدر به هم نزدیک هستند. 
+                    هرچه دو بردار به هم نزدیک‌تر باشند، معنای آن‌ها مشابه‌تر است.
+                </p>
+            </div>
+            
+            <h3><span class="emoji">📊</span> روش‌های محاسبه شباهت</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>1️⃣ Cosine Similarity</h4>
+                    <p><strong>محبوب‌ترین روش</strong></p>
+                    <p>محاسبه زاویه بین دو بردار</p>
+                    <p><strong>محدوده:</strong> -1 تا +1</p>
+                    <p><strong>+1:</strong> کاملاً مشابه</p>
+                    <p><strong>0:</strong> بدون ارتباط</p>
+                    <p><strong>-1:</strong> کاملاً مخالف</p>
+                </div>
+                
+                <div class="card">
+                    <h4>2️⃣ Euclidean Distance</h4>
+                    <p><strong>فاصله مستقیم</strong></p>
+                    <p>فاصله خط مستقیم بین دو نقطه</p>
+                    <p><strong>محدوده:</strong> 0 تا ∞</p>
+                    <p><strong>0:</strong> یکسان</p>
+                    <p><strong>بزرگ:</strong> متفاوت</p>
+                </div>
+                
+                <div class="card">
+                    <h4>3️⃣ Dot Product</h4>
+                    <p><strong>ضرب نقطه‌ای</strong></p>
+                    <p>حاصل‌ضرب اعضای متناظر</p>
+                    <p><strong>محدوده:</strong> -∞ تا +∞</p>
+                    <p><strong>بزرگ:</strong> مشابه</p>
+                    <p><strong>کوچک:</strong> متفاوت</p>
+                </div>
+            </div>
+            
+            <h3><span class="emoji">🧮</span> فرمول‌ها</h3>
+            
+            <div class="math-formula">
+                <strong>Cosine Similarity:</strong><br><br>
+                similarity = (A · B) / (||A|| × ||B||)
+            </div>
+            
+            <div class="math-formula">
+                <strong>Euclidean Distance:</strong><br><br>
+                distance = √(Σ(Aᵢ - Bᵢ)²)
+            </div>
+            
+            <div class="math-formula">
+                <strong>Dot Product:</strong><br><br>
+                dot_product = Σ(Aᵢ × Bᵢ)
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> پیاده‌سازی در Python</h3>
+                <div class="code">
+import numpy as np
+from sklearn.metrics.pairwise import (
+    cosine_similarity,
+    euclidean_distances
+)
+
+# دو بردار نمونه
+vector_a = np.array([1, 2, 3, 4, 5])
+vector_b = np.array([2, 3, 4, 5, 6])
+vector_c = np.array([10, 20, 30, 40, 50])
+
+# 1. Cosine Similarity
+cos_sim_ab = cosine_similarity([vector_a], [vector_b])[0][0]
+cos_sim_ac = cosine_similarity([vector_a], [vector_c])[0][0]
+
+print("📊 Cosine Similarity:")
+print(f"  A ↔ B: {cos_sim_ab:.4f}")
+print(f"  A ↔ C: {cos_sim_ac:.4f}")
+
+# 2. Euclidean Distance
+euc_dist_ab = euclidean_distances([vector_a], [vector_b])[0][0]
+euc_dist_ac = euclidean_distances([vector_a], [vector_c])[0][0]
+
+print("\n📏 Euclidean Distance:")
+print(f"  A ↔ B: {euc_dist_ab:.4f}")
+print(f"  A ↔ C: {euc_dist_ac:.4f}")
+
+# 3. Dot Product
+dot_ab = np.dot(vector_a, vector_b)
+dot_ac = np.dot(vector_a, vector_c)
+
+print("\n🔢 Dot Product:")
+print(f"  A · B: {dot_ab}")
+print(f"  A · C: {dot_ac}")
+
+# پیاده‌سازی دستی Cosine Similarity
+def manual_cosine_similarity(a, b):
+    dot_product = np.dot(a, b)
+    norm_a = np.linalg.norm(a)
+    norm_b = np.linalg.norm(b)
+    return dot_product / (norm_a * norm_b)
+
+manual_cos = manual_cosine_similarity(vector_a, vector_b)
+print(f"\n✅ محاسبه دستی: {manual_cos:.4f}")
+                </div>
+            </div>
+            
+            <div class="similarity-demo">
+                <h3 style="text-align: center; color: #667eea;"><span class="emoji">🎯</span> نمونه واقعی</h3>
+                
+                <div class="text-pair">
+                    <p><strong>متن 1:</strong> "من برنامه‌نویسی را دوست دارم"</p>
+                    <p><strong>متن 2:</strong> "کدنویسی علاقه من است"</p>
+                    <span class="similarity-score">شباهت: 0.89 ⭐⭐⭐⭐⭐</span>
+                </div>
+                
+                <div class="text-pair">
+                    <p><strong>متن 1:</strong> "من برنامه‌نویسی را دوست دارم"</p>
+                    <p><strong>متن 2:</strong> "هوا امروز آفتابی است"</p>
+                    <span class="similarity-score" style="background: #f44336;">شباهت: 0.12 ⭐</span>
+                </div>
+                
+                <div class="text-pair">
+                    <p><strong>متن 1:</strong> "سگ یک حیوان خانگی است"</p>
+                    <p><strong>متن 2:</strong> "گربه یک حیوان خانگی است"</p>
+                    <span class="similarity-score" style="background: #ff9800;">شباهت: 0.76 ⭐⭐⭐⭐</span>
+                </div>
+            </div>
+            
+            <div class="key-point box">
+                <h3><span class="emoji">💡</span> کدام روش را انتخاب کنیم؟</h3>
+                <ul>
+                    <li><strong>Cosine Similarity:</strong> برای اکثر موارد (توصیه می‌شود) ✅</li>
+                    <li><strong>Euclidean Distance:</strong> وقتی اندازه بردار مهم است</li>
+                    <li><strong>Dot Product:</strong> برای بردارهای normalized</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: کاربردهای عملی -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>🎯 کاربردهای عملی Embeddings</h2>
+            
+            <h3><span class="emoji">1️⃣</span> جستجوی معنایی (Semantic Search)</h3>
+            
+            <div class="info box">
+                <h4>مفهوم</h4>
+                <p>
+                    به جای جستجوی کلمه به کلمه، بر اساس <strong>معنا</strong> جستجو می‌کنیم.
+                    کاربر "ماشین سریع" جستجو می‌کند، نتایج "اتومبیل تندرو" هم نمایش داده می‌شود.
+                </p>
+            </div>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> پیاده‌سازی جستجوی معنایی</h4>
+                <div class="code">
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from openai import OpenAI
+
+client = OpenAI(api_key="your-api-key")
+
+class SemanticSearch:
+    def __init__(self):
+        self.documents = []
+        self.embeddings = []
+    
+    def add_documents(self, docs):
+        """افزودن اسناد به پایگاه داده"""
+        for doc in docs:
+            self.documents.append(doc)
+            # تولید embedding
+            emb = self.get_embedding(doc)
+            self.embeddings.append(emb)
+        print(f"✅ {len(docs)} سند اضافه شد")
+    
+    def get_embedding(self, text):
+        """تولید embedding"""
+        response = client.embeddings.create(
+            input=[text],
+            model="text-embedding-3-small"
+        )
+        return response.data[0].embedding
+    
+    def search(self, query, top_k=3):
+        """جستجوی معنایی"""
+        # تولید embedding برای query
+        query_emb = self.get_embedding(query)
+        
+        # محاسبه شباهت با تمام اسناد
+        similarities = cosine_similarity(
+            [query_emb],
+            self.embeddings
+        )[0]
+        
+        # مرتب‌سازی و انتخاب top_k
+        top_indices = np.argsort(similarities)[::-1][:top_k]
+        
+        results = []
+        for idx in top_indices:
+            results.append({
+                'document': self.documents[idx],
+                'score': float(similarities[idx])
+            })
+        
+        return results
+
+# استفاده
+search_engine = SemanticSearch()
+
+# افزودن اسناد
+documents = [
+    "Python یک زبان برنامه‌نویسی است",
+    "Django فریمورک وب پایتون است",
+    "Machine Learning با Python",
+    "آموزش پخت غذای ایرانی",
+    "تاریخ ایران باستان"
+]
+search_engine.add_documents(documents)
+
+# جستجو
+query = "یادگیری برنامه‌نویسی"
+results = search_engine.search(query)
+
+print(f"\n🔍 نتایج جستجو برای: '{query}'\n")
+for i, result in enumerate(results, 1):
+    print(f"{i}. {result['document']}")
+    print(f"   امتیاز: {result['score']:.4f}\n")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> سیستم توصیه (Recommendation System)</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> توصیه محصول بر اساس توضیحات</h4>
+                <div class="code">
+class ProductRecommender:
+    def __init__(self):
+        self.products = []
+        self.embeddings = []
+    
+    def add_product(self, product_id, name, description):
+        """افزودن محصول"""
+        product = {
+            'id': product_id,
+            'name': name,
+            'description': description
+        }
+        self.products.append(product)
+        
+        # تولید embedding از نام + توضیحات
+        text = f"{name} {description}"
+        emb = self.get_embedding(text)
+        self.embeddings.append(emb)
+    
+    def get_embedding(self, text):
+        response = client.embeddings.create(
+            input=[text],
+            model="text-embedding-3-small"
+        )
+        return response.data[0].embedding
+    
+    def recommend(self, product_id, top_k=3):
+        """پیدا کردن محصولات مشابه"""
+        # پیدا کردن ایندکس محصول
+        idx = None
+        for i, product in enumerate(self.products):
+            if product['id'] == product_id:
+                idx = i
+                break
+        
+        if idx is None:
+            return []
+        
+        # محاسبه شباهت
+        product_emb = self.embeddings[idx]
+        similarities = cosine_similarity(
+            [product_emb],
+            self.embeddings
+        )[0]
+        
+        # حذف خود محصول
+        similarities[idx] = -1
+        
+        # انتخاب top_k
+        top_indices = np.argsort(similarities)[::-1][:top_k]
+        
+        recommendations = []
+        for i in top_indices:
+            recommendations.append({
+                'product': self.products[i],
+                'score': float(similarities[i])
+            })
+        
+        return recommendations
+
+# استفاده
+recommender = ProductRecommender()
+
+# افزودن محصولات
+recommender.add_product(
+    1, 
+    "لپتاپ گیمینگ",
+    "لپتاپ قدرتمند برای بازی با کارت گرافیک RTX"
+)
+recommender.add_product(
+    2,
+    "موس گیمینگ",
+    "موس حرفه‌ای برای بازی با DPI بالا"
+)
+recommender.add_product(
+    3,
+    "کیبورد مکانیکی",
+    "صفحه‌کلید مکانیکی برای گیمرها"
+)
+recommender.add_product(
+    4,
+    "کتاب آشپزی",
+    "آموزش پخت غذاهای ایرانی"
+)
+
+# توصیه محصولات مشابه
+recommendations = recommender.recommend(1, top_k=2)
+
+print("🎯 محصولات پیشنهادی:\n")
+for rec in recommendations:
+    print(f"- {rec['product']['name']}")
+    print(f"  شباهت: {rec['score']:.4f}\n")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">3️⃣</span> طبقه‌بندی متن (Text Classification)</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> طبقه‌بندی خودکار متون</h4>
+                <div class="code">
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+
+# داده‌های آموزشی
+texts = [
+    "این فیلم واقعا عالی بود",
+    "بازی فوق‌العاده‌ای بود",
+    "این محصول افتضاح است",
+    "خیلی بد بود و پول‌مان هدر رفت",
+    "عالی بود توصیه می‌کنم",
+    "اصلا خوب نبود"
+]
+
+labels = [1, 1, 0, 0, 1, 0]  # 1=مثبت، 0=منفی
+
+# تولید embeddings
+embeddings = []
+for text in texts:
+    response = client.embeddings.create(
+        input=[text],
+        model="text-embedding-3-small"
+    )
+    emb = response.data[0].embedding
+    embeddings.append(emb)
+
+X = np.array(embeddings)
+y = np.array(labels)
+
+# آموزش مدل
+clf = LogisticRegression()
+clf.fit(X, y)
+
+# تست
+test_texts = [
+    "این رستوران فوق‌العاده است",
+    "خیلی بد و گران بود"
+]
+
+for text in test_texts:
+    # تولید embedding
+    response = client.embeddings.create(
+        input=[text],
+        model="text-embedding-3-small"
+    )
+    emb = response.data[0].embedding
+    
+    # پیش‌بینی
+    prediction = clf.predict([emb])[0]
+    proba = clf.predict_proba([emb])[0]
+    
+    sentiment = "مثبت 😊" if prediction == 1 else "منفی 😞"
+    confidence = max(proba) * 100
+    
+    print(f"\n'{text}'")
+    print(f"احساس: {sentiment}")
+    print(f"اطمینان: {confidence:.1f}%")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">4️⃣</span> Clustering - خوشه‌بندی</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> گروه‌بندی خودکار اسناد</h4>
+                <div class="code">
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+
+# اسناد
+documents = [
+    "Python برنامه‌نویسی",
+    "Django وب فریمورک",
+    "Machine Learning",
+    "غذای ایرانی",
+    "آشپزی و پخت",
+    "کباب و چلوکباب",
+    "فوتبال و ورزش",
+    "بسکتبال NBA"
+]
+
+# تولید embeddings
+embeddings = []
+for doc in documents:
+    response = client.embeddings.create(
+        input=[doc],
+        model="text-embedding-3-small"
+    )
+    emb = response.data[0].embedding
+    embeddings.append(emb)
+
+X = np.array(embeddings)
+
+# خوشه‌بندی
+kmeans = KMeans(n_clusters=3, random_state=42)
+clusters = kmeans.fit_predict(X)
+
+# نمایش نتایج
+print("📊 نتایج خوشه‌بندی:\n")
+for i in range(3):
+    print(f"خوشه {i+1}:")
+    cluster_docs = [documents[j] for j in range(len(documents)) 
+                    if clusters[j] == i]
+    for doc in cluster_docs:
+        print(f"  - {doc}")
+    print()
+
+# بصری‌سازی (کاهش ابعاد به 2D)
+pca = PCA(n_components=2)
+X_2d = pca.fit_transform(X)
+
+plt.figure(figsize=(10, 6))
+plt.scatter(X_2d[:, 0], X_2d[:, 1], c=clusters, cmap='viridis')
+for i, doc in enumerate(documents):
+    plt.annotate(doc, (X_2d[i, 0], X_2d[i, 1]))
+plt.title('Document Clustering')
+plt.savefig('clustering.png')
+print("✅ نمودار در clustering.png ذخیره شد")
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: ذخیره و بارگذاری -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>💾 ذخیره و بارگذاری Embeddings</h2>
+            
+            <div class="warning box">
+                <h3><span class="emoji">⚠️</span> چرا ذخیره‌سازی مهم است؟</h3>
+                <ul>
+                    <li><strong>هزینه:</strong> تولید embedding هزینه دارد</li>
+                    <li><strong>زمان:</strong> محاسبه مجدد وقت‌گیر است</li>
+                    <li><strong>کارایی:</strong> بارگذاری از دیسک بسیار سریع‌تر است</li>
+                </ul>
+            </div>
+            
+            <h3><span class="emoji">1️⃣</span> ذخیره با NumPy</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> روش ساده با .npy</h4>
+                <div class="code">
+import numpy as np
+import json
+
+# تولید embeddings
+documents = [
+    "متن اول",
+    "متن دوم",
+    "متن سوم"
+]
+
+embeddings = []
+for doc in documents:
+    response = client.embeddings.create(
+        input=[doc],
+        model="text-embedding-3-small"
+    )
+    emb = response.data[0].embedding
+    embeddings.append(emb)
+
+embeddings_array = np.array(embeddings)
+
+# ذخیره embeddings
+np.save('embeddings.npy', embeddings_array)
+
+# ذخیره متون (برای مرجع)
+with open('documents.json', 'w', encoding='utf-8') as f:
+    json.dump(documents, f, ensure_ascii=False)
+
+print("✅ ذخیره شد")
+
+# بارگذاری
+loaded_embeddings = np.load('embeddings.npy')
+with open('documents.json', 'r', encoding='utf-8') as f:
+    loaded_documents = json.load(f)
+
+print(f"✅ بارگذاری شد: {loaded_embeddings.shape}")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> ذخیره با Pickle</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> ذخیره ساختار کامل</h4>
+                <div class="code">
+import pickle
+
+# ساختار داده کامل
+data = {
+    'documents': documents,
+    'embeddings': embeddings_array,
+    'model': 'text-embedding-3-small',
+    'created_at': '2024-01-01'
+}
+
+# ذخیره
+with open('embeddings.pkl', 'wb') as f:
+    pickle.dump(data, f)
+
+print("✅ ذخیره شد با pickle")
+
+# بارگذاری
+with open('embeddings.pkl', 'rb') as f:
+    loaded_data = pickle.load(f)
+
+print(f"✅ بارگذاری شد")
+print(f"مدل: {loaded_data['model']}")
+print(f"تعداد اسناد: {len(loaded_data['documents'])}")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">3️⃣</span> ذخیره در پایگاه داده</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> استفاده از SQLite</h4>
+                <div class="code">
+import sqlite3
+
+# ایجاد پایگاه داده
+conn = sqlite3.connect('embeddings.db')
+cursor = conn.cursor()
+
+# ایجاد جدول
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS embeddings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        document TEXT NOT NULL,
+        embedding BLOB NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+''')
+
+# درج داده‌ها
+for doc, emb in zip(documents, embeddings):
+    # تبدیل embedding به bytes
+    emb_bytes = np.array(emb).tobytes()
+    cursor.execute(
+        'INSERT INTO embeddings (document, embedding) VALUES (?, ?)',
+        (doc, emb_bytes)
+    )
+
+conn.commit()
+print("✅ ذخیره در database")
+
+# بازیابی
+cursor.execute('SELECT document, embedding FROM embeddings')
+rows = cursor.fetchall()
+
+for row in rows:
+    doc = row[0]
+    emb = np.frombuffer(row[1], dtype=np.float64)
+    print(f"سند: {doc}, طول embedding: {len(emb)}")
+
+conn.close()
+                </div>
+            </div>
+            
+            <h3><span class="emoji">4️⃣</span> ذخیره در Vector Database</h3>
+            
+            <div class="info box">
+                <h4>پایگاه‌های داده برداری محبوب</h4>
+                <ul>
+                    <li><strong>Pinecone:</strong> ابری، سریع، مقیاس‌پذیر</li>
+                    <li><strong>Weaviate:</strong> متن‌باز، قدرتمند</li>
+                    <li><strong>Qdrant:</strong> سریع، Rust</li>
+                    <li><strong>Milvus:</strong> مقیاس بزرگ</li>
+                    <li><strong>ChromaDB:</strong> ساده، محلی</li>
+                    <li><strong>FAISS:</strong> Facebook، سریع</li>
+                </ul>
+            </div>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> مثال با ChromaDB</h4>
+                <div class="code">
+import chromadb
+
+# ایجاد کلاینت
+client = chromadb.Client()
+
+# ایجاد یا دریافت collection
+collection = client.create_collection(name="my_embeddings")
+
+# افزودن embeddings
+collection.add(
+    embeddings=embeddings,
+    documents=documents,
+    ids=[f"id{i}" for i in range(len(documents))]
+)
+
+print("✅ ذخیره در ChromaDB")
+
+# جستجو
+query = "برنامه‌نویسی"
+query_embedding = get_embedding(query)
+
+results = collection.query(
+    query_embeddings=[query_embedding],
+    n_results=2
+)
+
+print("\n🔍 نتایج جستجو:")
+for doc in results['documents'][0]:
+    print(f"  - {doc}")
+                </div>
+            </div>
+            
+            <div class="key-point box">
+                <h3><span class="emoji">💡</span> توصیه‌ها</h3>
+                <ul>
+                    <li><strong>پروژه کوچک:</strong> NumPy یا Pickle</li>
+                    <li><strong>پروژه متوسط:</strong> SQLite یا ChromaDB</li>
+                    <li><strong>پروژه بزرگ:</strong> Pinecone یا Weaviate</li>
+                    <li><strong>Production:</strong> Vector Database حرفه‌ای</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: بهینه‌سازی -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>⚡ بهینه‌سازی و نکات عملی</h2>
+            
+            <h3><span class="emoji">1️⃣</span> کاهش هزینه</h3>
+            
+            <div class="warning box">
+                <h4><span class="emoji">💰</span> مدیریت هزینه API</h4>
+                <ul>
+                    <li>Embeddings را cache کنید</li>
+                    <li>از مدل کوچک‌تر استفاده کنید (text-embedding-3-small)</li>
+                    <li>Batch processing: چند متن را همزمان ارسال کنید</li>
+                    <li>فقط متن‌های جدید را embedding کنید</li>
+                </ul>
+            </div>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> Caching با functools</h4>
+                <div class="code">
+from functools import lru_cache
+import hashlib
+
+class EmbeddingCache:
+    def __init__(self):
+        self.cache = {}
+    
+    def get_embedding(self, text):
+        # ایجاد کلید یکتا
+        key = hashlib.md5(text.encode()).hexdigest()
+        
+        # چک کردن cache
+        if key in self.cache:
+            print(f"✅ از cache: {text[:30]}...")
+            return self.cache[key]
+        
+        # تولید embedding
+        print(f"🔄 تولید جدید: {text[:30]}...")
+        response = client.embeddings.create(
+            input=[text],
+            model="text-embedding-3-small"
+        )
+        embedding = response.data[0].embedding
+        
+        # ذخیره در cache
+        self.cache[key] = embedding
+        return embedding
+    
+    def save_cache(self, filename='embedding_cache.pkl'):
+        import pickle
+        with open(filename, 'wb') as f:
+            pickle.dump(self.cache, f)
+        print(f"✅ Cache ذخیره شد: {len(self.cache)} آیتم")
+    
+    def load_cache(self, filename='embedding_cache.pkl'):
+        import pickle
+        try:
+            with open(filename, 'rb') as f:
+                self.cache = pickle.load(f)
+            print(f"✅ Cache بارگذاری شد: {len(self.cache)} آیتم")
+        except FileNotFoundError:
+            print("⚠️ فایل cache یافت نشد")
+
+# استفاده
+cache = EmbeddingCache()
+cache.load_cache()
+
+# اولین بار: تولید می‌شود
+emb1 = cache.get_embedding("این یک متن تست است")
+
+# دومین بار: از cache
+emb2 = cache.get_embedding("این یک متن تست است")
+
+cache.save_cache()
+                </div>
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> Batch Processing</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> پردازش دسته‌ای</h4>
+                <div class="code">
+def get_embeddings_batch(texts, batch_size=100):
+    """تولید embedding برای لیست متون"""
+    all_embeddings = []
+    
+    # تقسیم به batch ها
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        
+        print(f"🔄 پردازش batch {i//batch_size + 1}...")
+        
+        # ارسال batch
+        response = client.embeddings.create(
+            input=batch,
+            model="text-embedding-3-small"
+        )
+        
+        # استخراج embeddings
+        batch_embeddings = [item.embedding for item in response.data]
+        all_embeddings.extend(batch_embeddings)
+    
+    return all_embeddings
+
+# مثال: 250 متن
+texts = [f"متن شماره {i}" for i in range(250)]
+
+import time
+start = time.time()
+embeddings = get_embeddings_batch(texts, batch_size=100)
+end = time.time()
+
+print(f"\n✅ {len(embeddings)} embedding در {end-start:.2f} ثانیه")
+print(f"⚡ سرعت: {len(embeddings)/(end-start):.1f} embedding/s")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">3️⃣</span> کاهش ابعاد</h3>
+            
+            <div class="info box">
+                <h4>چرا کاهش ابعاد؟</h4>
+                <ul>
+                    <li>کاهش حجم ذخیره‌سازی</li>
+                    <li>افزایش سرعت جستجو</li>
+                    <li>کاهش مصرف RAM</li>
+                    <li>بصری‌سازی (2D یا 3D)</li>
+                </ul>
+            </div>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> PCA برای کاهش ابعاد</h4>
+                <div class="code">
+from sklearn.decomposition import PCA
+
+# embeddings اصلی (1536 بعدی)
+original_embeddings = np.array(embeddings)
+print(f"ابعاد اصلی: {original_embeddings.shape}")
+
+# کاهش به 256 بعد
+pca = PCA(n_components=256)
+reduced_embeddings = pca.fit_transform(original_embeddings)
+
+print(f"ابعاد کاهش یافته: {reduced_embeddings.shape}")
+print(f"واریانس حفظ شده: {pca.explained_variance_ratio_.sum():.2%}")
+
+# محاسبه کاهش حجم
+original_size = original_embeddings.nbytes / (1024 * 1024)
+reduced_size = reduced_embeddings.nbytes / (1024 * 1024)
+
+print(f"\n💾 حجم اصلی: {original_size:.2f} MB")
+print(f"💾 حجم کاهش یافته: {reduced_size:.2f} MB")
+print(f"📉 کاهش: {(1 - reduced_size/original_size)*100:.1f}%")
+
+# تست دقت
+from sklearn.metrics.pairwise import cosine_similarity
+
+sim_original = cosine_similarity(
+    [original_embeddings[0]], 
+    [original_embeddings[1]]
+)[0][0]
+
+sim_reduced = cosine_similarity(
+    [reduced_embeddings[0]], 
+    [reduced_embeddings[1]]
+)[0][0]
+
+print(f"\n📊 شباهت اصلی: {sim_original:.4f}")
+print(f"📊 شباهت کاهش یافته: {sim_reduced:.4f}")
+print(f"📊 خطا: {abs(sim_original - sim_reduced):.4f}")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">4️⃣</span> Quantization - کوانتیزه‌سازی</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> تبدیل float64 به float16</h4>
+                <div class="code">
+# embeddings اصلی (float64)
+embeddings_f64 = np.array(embeddings, dtype=np.float64)
+
+# تبدیل به float32
+embeddings_f32 = embeddings_f64.astype(np.float32)
+
+# تبدیل به float16
+embeddings_f16 = embeddings_f64.astype(np.float16)
+
+# مقایسه حجم
+size_f64 = embeddings_f64.nbytes / 1024
+size_f32 = embeddings_f32.nbytes / 1024
+size_f16 = embeddings_f16.nbytes / 1024
+
+print("📊 مقایسه حجم:")
+print(f"  float64: {size_f64:.2f} KB")
+print(f"  float32: {size_f32:.2f} KB (کاهش {(1-size_f32/size_f64)*100:.0f}%)")
+print(f"  float16: {size_f16:.2f} KB (کاهش {(1-size_f16/size_f64)*100:.0f}%)")
+
+# تست دقت
+sim_f64 = cosine_similarity([embeddings_f64[0]], [embeddings_f64[1]])[0][0]
+sim_f32 = cosine_similarity([embeddings_f32[0]], [embeddings_f32[1]])[0][0]
+sim_f16 = cosine_similarity([embeddings_f16[0]], [embeddings_f16[1]])[0][0]
+
+print(f"\n📊 شباهت float64: {sim_f64:.6f}")
+print(f"📊 شباهت float32: {sim_f32:.6f}")
+print(f"📊 شباهت float16: {sim_f16:.6f}")
+                </div>
+            </div>
+            
+            <div class="key-point box">
+                <h3><span class="emoji">💡</span> توصیه‌های بهینه‌سازی</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تکنیک</th>
+                            <th>کاهش حجم</th>
+                            <th>کاهش دقت</th>
+                            <th>توصیه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Caching</strong></td>
+                            <td>-</td>
+                            <td>0%</td>
+                            <td>✅ همیشه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Batch Processing</strong></td>
+                            <td>-</td>
+                            <td>0%</td>
+                            <td>✅ همیشه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PCA (256D)</strong></td>
+                            <td>83%</td>
+                            <td>~5%</td>
+                            <td>✅ توصیه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Float32</strong></td>
+                            <td>50%</td>
+                            <td><1%</td>
+                            <td>✅ توصیه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Float16</strong></td>
+                            <td>75%</td>
+                            <td>~3%</td>
+                            <td>⚠️ با احتیاط</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: پروژه عملی کامل -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>🎯 پروژه عملی: سیستم جستجوی هوشمند</h2>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🚀</span> هدف پروژه</h3>
+                <p style="font-size: 1.3em;">
+                    ساخت یک سیستم جستجوی معنایی کامل که بتواند اسناد را ایندکس کرده، 
+                    ذخیره کند، و جستجوی سریع و دقیق انجام دهد.
+                </p>
+            </div>
+            
+            <div class="example box">
+                <h3><span class="emoji">💻</span> کد کامل پروژه</h3>
+                <div class="code">
+import numpy as np
+import json
+import pickle
+from datetime import datetime
+from typing import List, Dict
+from sklearn.metrics.pairwise import cosine_similarity
+from openai import OpenAI
+
+class SmartSearchEngine:
+    """موتور جستجوی هوشمند با Embeddings"""
+    
+    def __init__(self, api_key: str):
+        self.client = OpenAI(api_key=api_key)
+        self.documents = []
+        self.embeddings = []
+        self.metadata = []
+        self.model = "text-embedding-3-small"
+    
+    def add_document(self, text: str, metadata: Dict = None):
+        """افزودن یک سند"""
+        # تولید embedding
+        embedding = self._get_embedding(text)
+        
+        # ذخیره
+        self.documents.append(text)
+        self.embeddings.append(embedding)
+        self.metadata.append(metadata or {})
+        
+        return len(self.documents) - 1
+    
+    def add_documents_batch(self, texts: List[str], 
+                            metadata_list: List[Dict] = None):
+        """افزودن چند سند به صورت batch"""
+        print(f"🔄 در حال افزودن {len(texts)} سند...")
+        
+        # تولید embeddings به صورت batch
+        response = self.client.embeddings.create(
+            input=texts,
+            model=self.model
+        )
+        
+        embeddings = [item.embedding for item in response.data]
+        
+        # ذخیره
+        self.documents.extend(texts)
+        self.embeddings.extend(embeddings)
+        
+        if metadata_list:
+            self.metadata.extend(metadata_list)
+        else:
+            self.metadata.extend([{}] * len(texts))
+        
+        print(f"✅ {len(texts)} سند اضافه شد")
+        print(f"📊 مجموع اسناد: {len(self.documents)}")
+    
+    def search(self, query: str, top_k: int = 5, 
+               min_score: float = 0.0) -> List[Dict]:
+        """جستجوی معنایی"""
+        if not self.documents:
+            return []
+        
+        # تولید embedding برای query
+        query_embedding = self._get_embedding(query)
+        
+        # محاسبه شباهت
+        similarities = cosine_similarity(
+            [query_embedding],
+            self.embeddings
+        )[0]
+        
+        # فیلتر کردن بر اساس min_score
+        valid_indices = np.where(similarities >= min_score)[0]
+        
+        if len(valid_indices) == 0:
+            return []
+        
+        # مرتب‌سازی
+        sorted_indices = valid_indices[
+            np.argsort(similarities[valid_indices])[::-1]
+        ][:top_k]
+        
+        # ساخت نتایج
+        results = []
+        for idx in sorted_indices:
+            results.append({
+                'id': int(idx),
+                'document': self.documents[idx],
+                'score': float(similarities[idx]),
+                'metadata': self.metadata[idx]
+            })
+        
+        return results
+    
+    def save(self, filepath: str = "search_engine.pkl"):
+        """ذخیره موتور جستجو"""
+        data = {
+            'documents': self.documents,
+            'embeddings': self.embeddings,
+            'metadata': self.metadata,
+            'model': self.model,
+            'created_at': datetime.now().isoformat()
+        }
+        
+        with open(filepath, 'wb') as f:
+            pickle.dump(data, f)
+        
+        print(f"✅ ذخیره شد: {filepath}")
+        print(f"📊 تعداد اسناد: {len(self.documents)}")
+    
+    def load(self, filepath: str = "search_engine.pkl"):
+        """بارگذاری موتور جستجو"""
+        with open(filepath, 'rb') as f:
+            data = pickle.load(f)
+        
+        self.documents = data['documents']
+        self.embeddings = data['embeddings']
+        self.metadata = data['metadata']
+        self.model = data['model']
+        
+        print(f"✅ بارگذاری شد: {filepath}")
+        print(f"📊 تعداد اسناد: {len(self.documents)}")
+        print(f"📅 تاریخ ایجاد: {data.get('created_at', 'نامشخص')}")
+    
+    def get_stats(self) -> Dict:
+        """آمار موتور جستجو"""
+        if not self.embeddings:
+            return {}
+        
+        embeddings_array = np.array(self.embeddings)
+        
+        return {
+            'total_documents': len(self.documents),
+            'embedding_dimensions': embeddings_array.shape[1],
+            'total_size_mb': embeddings_array.nbytes / (1024 * 1024),
+            'model': self.model
+        }
+    
+    def _get_embedding(self, text: str) -> List[float]:
+        """تولید embedding برای یک متن"""
+        response = self.client.embeddings.create(
+            input=[text],
+            model=self.model
+        )
+        return response.data[0].embedding
+
+
+# ==================== استفاده ====================
+
+# 1. ایجاد موتور جستجو
+engine = SmartSearchEngine(api_key="your-api-key")
+
+# 2. افزودن اسناد
+documents = [
+    "Python یک زبان برنامه‌نویسی قدرتمند است",
+    "Django بهترین فریمورک وب پایتون است",
+    "Machine Learning با Python آسان است",
+    "هوش مصنوعی آینده تکنولوژی است",
+    "یادگیری عمیق زیرمجموعه یادگیری ماشین است"
+]
+
+metadata_list = [
+    {'category': 'programming', 'lang': 'python'},
+    {'category': 'web', 'lang': 'python'},
+    {'category': 'ai', 'lang': 'python'},
+    {'category': 'ai', 'lang': 'general'},
+    {'category': 'ai', 'lang': 'general'}
+]
+
+engine.add_documents_batch(documents, metadata_list)
+
+# 3. ذخیره
+engine.save()
+# 4. جستجو
+query = "یادگیری برنامه‌نویسی"
+results = engine.search(query, top_k=3, min_score=0.5)
+
+print(f"\n🔍 نتایج جستجو برای: '{query}'\n")
+for i, result in enumerate(results, 1):
+    print(f"{i}. {result['document']}")
+    print(f"   امتیاز: {result['score']:.4f}")
+    print(f"   دسته: {result['metadata'].get('category', 'نامشخص')}")
+    print()
+
+# 5. آمار
+stats = engine.get_stats()
+print("📊 آمار موتور جستجو:")
+for key, value in stats.items():
+    print(f"  {key}: {value}")
+                </div>
+            </div>
+            
+            <div class="success box">
+                <h3><span class="emoji">✅</span> ویژگی‌های پروژه</h3>
+                <ul>
+                    <li>✅ افزودن تک سند یا batch</li>
+                    <li>✅ جستجوی معنایی با فیلتر امتیاز</li>
+                    <li>✅ ذخیره و بارگذاری</li>
+                    <li>✅ Metadata برای هر سند</li>
+                    <li>✅ آمار و گزارش</li>
+                    <li>✅ کد تمیز و قابل توسعه</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: خطاها و راه‌حل‌ها -->
+        <div class="slide">
+            <div class="slide-number">11</div>
+            <h2>🐛 خطاهای رایج و راه‌حل‌ها</h2>
+            
+            <h3><span class="emoji">1️⃣</span> خطای API Key</h3>
+            
+            <div class="danger box">
+                <h4><span class="emoji">❌</span> خطا</h4>
+                <div class="code">
+AuthenticationError: Incorrect API key provided
+                </div>
+                <h4><span class="emoji">✅</span> راه‌حل</h4>
+                <ul>
+                    <li>API Key را از platform.openai.com دریافت کنید</li>
+                    <li>مطمئن شوید که فضای خالی اضافی ندارد</li>
+                    <li>از متغیر محیطی استفاده کنید</li>
+                </ul>
+                <div class="code">
+import os
+from openai import OpenAI
+
+# روش صحیح
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("API Key یافت نشد")
+
+client = OpenAI(api_key=api_key)
+                </div>
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> خطای Rate Limit</h3>
+            
+            <div class="danger box">
+                <h4><span class="emoji">❌</span> خطا</h4>
+                <div class="code">
+RateLimitError: Rate limit exceeded
+                </div>
+                <h4><span class="emoji">✅</span> راه‌حل: Retry با Backoff</h4>
+                <div class="code">
+import time
+from openai import OpenAI, RateLimitError
+
+def get_embedding_with_retry(text, max_retries=3):
+    """تولید embedding با retry"""
+    client = OpenAI()
+    
+    for attempt in range(max_retries):
+        try:
+            response = client.embeddings.create(
+                input=[text],
+                model="text-embedding-3-small"
+            )
+            return response.data[0].embedding
+        
+        except RateLimitError as e:
+            if attempt == max_retries - 1:
+                raise
+            
+            wait_time = 2 ** attempt  # exponential backoff
+            print(f"⚠️ Rate limit. صبر {wait_time}s...")
+            time.sleep(wait_time)
+        
+        except Exception as e:
+            print(f"❌ خطا: {e}")
+            raise
+
+# استفاده
+embedding = get_embedding_with_retry("متن تست")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">3️⃣</span> خطای حافظه</h3>
+            
+            <div class="danger box">
+                <h4><span class="emoji">❌</span> خطا</h4>
+                <div class="code">
+MemoryError: Unable to allocate array
+                </div>
+                <h4><span class="emoji">✅</span> راه‌حل: پردازش Chunk</h4>
+                <div class="code">
+def process_large_dataset(documents, chunk_size=100):
+    """پردازش دیتاست بزرگ به صورت chunk"""
+    all_embeddings = []
+    
+    for i in range(0, len(documents), chunk_size):
+        chunk = documents[i:i + chunk_size]
+        
+        # پردازش chunk
+        embeddings = get_embeddings_batch(chunk)
+        
+        # ذخیره در دیسک (نه RAM)
+        np.save(f'embeddings_chunk_{i}.npy', embeddings)
+        
+        print(f"✅ Chunk {i//chunk_size + 1} پردازش شد")
+    
+    return "✅ تمام chunks پردازش شدند"
+
+# بارگذاری بعداً
+def load_embeddings_lazy(chunk_id):
+    return np.load(f'embeddings_chunk_{chunk_id}.npy')
+                </div>
+            </div>
+            
+            <h3><span class="emoji">4️⃣</span> خطای شباهت غیرمنتظره</h3>
+            
+            <div class="warning box">
+                <h4><span class="emoji">⚠️</span> مشکل: شباهت‌های عجیب</h4>
+                <p>گاهی کلمات نامرتبط شباهت بالا دارند</p>
+                
+                <h4><span class="emoji">✅</span> راه‌حل‌ها:</h4>
+                <div class="code">
+# 1. Normalize کردن embeddings
+from sklearn.preprocessing import normalize
+
+embeddings_normalized = normalize(embeddings, norm='l2')
+
+# 2. استفاده از threshold
+min_similarity = 0.7
+results = [r for r in results if r['score'] >= min_similarity]
+
+# 3. Re-ranking با مدل دیگر
+from sentence_transformers import CrossEncoder
+
+reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+scores = reranker.predict([(query, doc) for doc in candidates])
+                </div>
+            </div>
+            
+            <h3><span class="emoji">5️⃣</span> خطای UTF-8</h3>
+            
+            <div class="danger box">
+                <h4><span class="emoji">❌</span> خطا</h4>
+                <div class="code">
+UnicodeDecodeError: 'utf-8' codec can't decode
+                </div>
+                <h4><span class="emoji">✅</span> راه‌حل</h4>
+                <div class="code">
+# خواندن فایل با encoding صحیح
+with open('data.txt', 'r', encoding='utf-8') as f:
+    text = f.read()
+
+# یا استفاده از errors='ignore'
+with open('data.txt', 'r', encoding='utf-8', errors='ignore') as f:
+    text = f.read()
+
+# پاک‌سازی متن
+import unicodedata
+
+def clean_text(text):
+    # حذف کاراکترهای کنترلی
+    text = ''.join(ch for ch in text if unicodedata.category(ch)[0] != 'C')
+    return text.strip()
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: Best Practices -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>⭐ Best Practices - بهترین شیوه‌ها</h2>
+            
+            <h3><span class="emoji">1️⃣</span> پیش‌پردازش متن</h3>
+            
+            <div class="info box">
+                <h4>چرا مهم است؟</h4>
+                <p>متن تمیز → Embedding بهتر → نتایج دقیق‌تر</p>
+            </div>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> تابع پیش‌پردازش کامل</h4>
+                <div class="code">
+import re
+from hazm import Normalizer, word_tokenize
+
+normalizer = Normalizer()
+
+def preprocess_text(text):
+    """پیش‌پردازش متن فارسی"""
+    
+    # 1. نرمال‌سازی
+    text = normalizer.normalize(text)
+    
+    # 2. حذف URL
+    text = re.sub(r'http\S+', '', text)
+    
+    # 3. حذف ایمیل
+    text = re.sub(r'\S+@\S+', '', text)
+    
+    # 4. حذف اعداد (اختیاری)
+    # text = re.sub(r'\d+', '', text)
+    
+    # 5. حذف کاراکترهای خاص
+    text = re.sub(r'[^\w\s]', ' ', text)
+    
+    # 6. حذف فضای خالی اضافی
+    text = ' '.join(text.split())
+    
+    # 7. تبدیل به lowercase (برای انگلیسی)
+    # text = text.lower()
+    
+    return text.strip()
+
+# مثال
+raw_text = "  این   یک متن    تست است!!! https://example.com  "
+clean_text = preprocess_text(raw_text)
+print(f"قبل: '{raw_text}'")
+print(f"بعد: '{clean_text}'")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">2️⃣</span> استراتژی Chunking</h3>
+            
+            <div class="warning box">
+                <h4>چرا Chunking؟</h4>
+                <p>مدل‌ها محدودیت طول دارند. متن‌های بلند باید تقسیم شوند.</p>
+            </div>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> تقسیم هوشمند متن</h4>
+                <div class="code">
+def smart_chunk_text(text, chunk_size=500, overlap=50):
+    """تقسیم متن با حفظ جملات کامل"""
+    
+    # تقسیم به جملات
+    sentences = re.split(r'[.!?]\s+', text)
+    
+    chunks = []
+    current_chunk = []
+    current_length = 0
+    
+    for sentence in sentences:
+        sentence_length = len(sentence.split())
+        
+        if current_length + sentence_length > chunk_size:
+            # ذخیره chunk فعلی
+            if current_chunk:
+                chunks.append(' '.join(current_chunk))
+            
+            # شروع chunk جدید با overlap
+            overlap_sentences = current_chunk[-2:] if len(current_chunk) > 2 else []
+            current_chunk = overlap_sentences + [sentence]
+            current_length = sum(len(s.split()) for s in current_chunk)
+        else:
+            current_chunk.append(sentence)
+            current_length += sentence_length
+    
+    # اضافه کردن chunk آخر
+    if current_chunk:
+        chunks.append(' '.join(current_chunk))
+    
+    return chunks
+
+# مثال
+long_text = """
+این یک متن بلند است. جمله اول.
+جمله دوم اینجاست. جمله سوم.
+و جمله چهارم. پنجم و ششم.
+""" * 10
+
+chunks = smart_chunk_text(long_text, chunk_size=50)
+print(f"تعداد chunks: {len(chunks)}")
+for i, chunk in enumerate(chunks[:3], 1):
+    print(f"\nChunk {i}: {chunk[:100]}...")
+                </div>
+            </div>
+            
+            <h3><span class="emoji">3️⃣</span> Monitoring و Logging</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> سیستم لاگ حرفه‌ای</h4>
+                <div class="code">
+import logging
+from datetime import datetime
+
+# تنظیم logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('embeddings.log'),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+class MonitoredEmbedding:
+    def __init__(self):
+        self.stats = {
+            'total_requests': 0,
+            'total_tokens': 0,
+            'errors': 0
+        }
+    
+    def get_embedding(self, text):
+        start_time = datetime.now()
+        
+        try:
+            logger.info(f"🔄 درخواست embedding برای {len(text)} کاراکتر")
+            
+            response = client.embeddings.create(
+                input=[text],
+                model="text-embedding-3-small"
+            )
+            
+            embedding = response.data[0].embedding
+            
+            # آمار
+            self.stats['total_requests'] += 1
+            self.stats['total_tokens'] += response.usage.total_tokens
+            
+            duration = (datetime.now() - start_time).total_seconds()
+            logger.info(f"✅ موفق در {duration:.2f}s")
+            
+            return embedding
+        
+        except Exception as e:
+            self.stats['errors'] += 1
+            logger.error(f"❌ خطا: {e}")
+            raise
+    
+    def get_stats(self):
+        logger.info(f"📊 آمار: {self.stats}")
+        return self.stats
+                </div>
+            </div>
+            
+            <h3><span class="emoji">4️⃣</span> Testing و Validation</h3>
+            
+            <div class="example box">
+                <h4><span class="emoji">💻</span> تست کیفیت Embeddings</h4>
+                <div class="code">
+def test_embedding_quality():
+    """تست کیفیت embeddings"""
+    
+    # تست 1: کلمات مشابه باید نزدیک باشند
+    similar_pairs = [
+        ("سگ", "گربه"),
+        ("برنامه‌نویسی", "کدنویسی"),
+        ("خوشحال", "شاد")
+    ]
+    
+    print("🧪 تست 1: کلمات مشابه")
+    for word1, word2 in similar_pairs:
+        emb1 = get_embedding(word1)
+        emb2 = get_embedding(word2)
+        sim = cosine_similarity([emb1], [emb2])[0][0]
+        
+        status = "✅" if sim > 0.6 else "❌"
+        print(f"  {status} '{word1}' ↔ '{word2}': {sim:.4f}")
+    
+    # تست 2: کلمات نامرتبط باید دور باشند
+    dissimilar_pairs = [
+        ("سگ", "ماشین"),
+        ("برنامه‌نویسی", "غذا"),
+        ("خوشحال", "کامپیوتر")
+    ]
+    
+    print("\n🧪 تست 2: کلمات نامرتبط")
+    for word1, word2 in dissimilar_pairs:
+        emb1 = get_embedding(word1)
+        emb2 = get_embedding(word2)
+        sim = cosine_similarity([emb1], [emb2])[0][0]
+        
+        status = "✅" if sim < 0.5 else "❌"
+        print(f"  {status} '{word1}' ↔ '{word2}': {sim:.4f}")
+    
+    # تست 3: ثبات (همان ورودی → همان خروجی)
+    print("\n🧪 تست 3: ثبات")
+    text = "این یک متن تست است"
+    emb1 = get_embedding(text)
+    emb2 = get_embedding(text)
+    sim = cosine_similarity([emb1], [emb2])[0][0]
+    
+    status = "✅" if sim > 0.99 else "❌"
+    print(f"  {status} ثبات: {sim:.6f}")
+
+# اجرای تست
+test_embedding_quality()
+                </div>
+            </div>
+            
+            <div class="key-point box">
+                <h3><span class="emoji">📋</span> Checklist قبل از Production</h3>
+                <ul style="font-size: 1.1em;">
+                    <li>☑️ پیش‌پردازش متن پیاده‌سازی شده</li>
+                    <li>☑️ Caching فعال است</li>
+                    <li>☑️ Error handling کامل</li>
+                    <li>☑️ Logging راه‌اندازی شده</li>
+                    <li>☑️ Rate limiting رعایت می‌شود</li>
+                    <li>☑️ تست‌ها نوشته شده و پاس می‌شوند</li>
+                    <li>☑️ مستندات کامل است</li>
+                    <li>☑️ Monitoring آماده است</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: منابع و ادامه یادگیری -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h2>📚 منابع و ادامه یادگیری</h2>
+            
+            <h3><span class="emoji">📖</span> مستندات رسمی</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4><span class="emoji">🤖</span> OpenAI</h4>
+                    <ul>
+                        <li><a href="https://platform.openai.com/docs/guides/embeddings" target="_blank">Embeddings Guide</a></li>
+                        <li><a href="https://platform.openai.com/docs/api-reference/embeddings" target="_blank">API Reference</a></li>
+                        <li><a href="https://cookbook.openai.com" target="_blank">Cookbook</a></li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">🤗</span> Hugging Face</h4>
+                    <ul>
+                        <li>Sentence Transformers</li>
+                        <li>Pre-trained Models</li>
+                        <li>Datasets</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📊</span> Vector Databases</h4>
+                    <ul>
+                        <li>Pinecone Docs</li>
+                        <li>Weaviate Docs</li>
+                        <li>ChromaDB Docs</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4><span class="emoji">📘</span> Papers</h4>
+                    <ul>
+                        <li>Word2Vec (2013)</li>
+                        <li>GloVe (2014)</li>
+                        <li>BERT (2018)</li>
+                        <li>Sentence-BERT (2019)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <h3><span class="emoji">🎓</span> دوره‌ها و آموزش‌ها</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>دوره</th>
+                        <th>سطح</th>
+                        <th>مدت</th>
+                        <th>توصیه</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>DeepLearning.AI - NLP</strong></td>
+                        <td>مبتدی</td>
+                        <td>4 هفته</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fast.ai - NLP</strong></td>
+                        <td>متوسط</td>
+                        <td>8 هفته</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stanford CS224N</strong></td>
+                        <td>پیشرفته</td>
+                        <td>12 هفته</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hugging Face Course</strong></td>
+                        <td>همه سطوح</td>
+                        <td>رایگان</td>
+                        <td>⭐⭐⭐⭐</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3><span class="emoji">💻</span> کتابخانه‌های مفید</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>OpenAI</h4>
+                    <div class="code" style="font-size: 0.9em;">
+pip install openai
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>Sentence Transformers</h4>
+                    <div class="code" style="font-size: 0.9em;">
+pip install sentence-transformers
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>Gensim</h4>
+                    <div class="code" style="font-size: 0.9em;">
+pip install gensim
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>Hazm (فارسی)</h4>
+                    <div class="code" style="font-size: 0.9em;">
+pip install hazm
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>FAISS</h4>
+                    <div class="code" style="font-size: 0.9em;">
+pip install faiss-cpu
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h4>ChromaDB</h4>
+                    <div class="code" style="font-size: 0.9em;">
+pip install chromadb
+                    </div>
+                </div>
+            </div>
+            
+            <h3><span class="emoji">🚀</span> پروژه‌های پیشنهادی</h3>
+            
+            <div class="grid">
+                <div class="card">
+                    <h4>1️⃣ موتور جستجوی شخصی</h4>
+                    <p>جستجو در فایل‌های شخصی (PDF, Word, TXT)</p>
+                    <p><strong>مهارت‌ها:</strong> Document Loading, Chunking, Search</p>
+                </div>
+                
+                <div class="card">
+                    <h4>2️⃣ سیستم توصیه محصول</h4>
+                    <p>توصیه بر اساس توضیحات و نظرات</p>
+                    <p><strong>مهارت‌ها:</strong> Similarity, Ranking, Filtering</p>
+                </div>
+                
+                <div class="card">
+                    <h4>3️⃣ تشخیص تقلب متن</h4>
+                    <p>پیدا کردن متون مشابه (Plagiarism)</p>
+                    <p><strong>مهارت‌ها:</strong> Similarity Threshold, Chunking</p>
+                </div>
+                
+                <div class="card">
+                    <h4>4️⃣ دسته‌بندی خبر</h4>
+                    <p>طبقه‌بندی خودکار اخبار</p>
+                    <p><strong>مهارت‌ها:</strong> Classification, Clustering</p>
+                </div>
+                
+                <div class="card">
+                    <h4>5️⃣ چت‌بات با حافظه</h4>
+                    <p>چت‌بات که مکالمات قبلی را به خاطر دارد</p>
+                    <p><strong>مهارت‌ها:</strong> Context Management, RAG</p>
+                </div>
+                
+                <div class="card">
+                    <h4>6️⃣ تحلیل احساسات</h4>
+                    <p>تشخیص احساس مثبت/منفی</p>
+                    <p><strong>مهارت‌ها:</strong> Classification, Fine-tuning</p>
+                </div>
+            </div>
+            
+            <div class="highlight box">
+                <h3><span class="emoji">🎯</span> مسیر یادگیری پیشنهادی</h3>
+                <ol style="font-size: 1.2em; line-height: 2.5;">
+                    <li><strong>هفته 1-2:</strong> مفاهیم پایه و Word2Vec</li>
+                    <li><strong>هفته 3-4:</strong> OpenAI Embeddings و محاسبه شباهت</li>
+                    <li><strong>هفته 5-6:</strong> پروژه جستجوی معنایی</li>
+                    <li><strong>هفته 7-8:</strong> Vector Databases و بهینه‌سازی</li>
+                    <li><strong>هفته 9-10:</strong> پروژه‌های پیشرفته و Production</li>
+                </ol>
+            </div>
+            
+            <div class="key-point box">
+                <h3><span class="emoji">💡</span> نکات طلایی</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>🎯 با پروژه‌های کوچک شروع کنید</li>
+                    <li>📚 مستندات را حتماً بخوانید</li>
+                    <li>💻 کدهای دیگران را بررسی کنید</li>
+                    <li>🤝 به جامعه بپیوندید و سوال بپرسید</li>
+                    <li>🔄 مرتب تمرین کنید</li>
+                    <li>📊 نتایج را measure کنید</li>
+                    <li>🚀 از آخرین تکنولوژی‌ها استفاده کنید</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: خلاصه و جمع‌بندی -->
+        <div class="slide">
+            <div class="slide-number">14</div>
+            <h2>📝 خلاصه و جمع‌بندی</h2>
+            
+            <div class="architecture-diagram">
+                <h3 style="color: #667eea; margin-bottom: 30px;">مسیر کامل Embeddings</h3>
+                
+                <div class="component-box" style="background: #e3f2fd;">
+                    <strong>1. متن خام</strong><br>
+                    "من برنامه‌نویسی را دوست دارم"
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #f3e5f5;">
+                    <strong>2. پیش‌پردازش</strong><br>
+                    نرمال‌سازی، پاک‌سازی
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fff3e0;">
+                    <strong>3. تولید Embedding</strong><br>
+                    OpenAI / Word2Vec / BERT
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #e8f5e9;">
+                    <strong>4. بردار عددی</strong><br>
+                    [0.23, -0.45, 0.67, ...]
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fce4ec;">
+                    <strong>5. ذخیره‌سازی</strong><br>
+                    Vector Database / File
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #e0f2f1;">
+                    <strong>6. جستجو / مقایسه</strong><br>
+                    Cosine Similarity
+                </div>
+                <div class="arrow">⬇️</div>
+                
+                <div class="component-box" style="background: #fff9c4;">
+                    <strong>7. نتایج</strong><br>
+                    اسناد مرتبط با امتیاز
+                </div>
+            </div>
+            
+            <h3><span class="emoji">📊</span> مقایسه روش‌های مختلف</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>روش</th>
+                        <th>سرعت</th>
+                        <th>دقت</th>
+                        <th>هزینه</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>One-Hot</strong></td>
+                        <td>⚡⚡⚡</td>
+                        <td>⭐</td>
+                        <td>رایگان</td>
+                        <td>ساده، قدیمی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Word2Vec</strong></td>
+                        <td>⚡⚡⚡</td>
+                        <td>⭐⭐⭐</td>
+                        <td>رایگان</td>
+                        <td>کلمات، سریع</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GloVe</strong></td>
+                        <td>⚡⚡</td>
+                        <td>⭐⭐⭐</td>
+                        <td>رایگان</td>
+                        <td>کلمات، آماری</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BERT</strong></td>
+                        <td>⚡</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>متوسط</td>
+                        <td>Context-aware</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OpenAI</strong></td>
+                        <td>⚡⚡</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>پولی</td>
+                        <td>Production</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3><span class="emoji">✅</span> چیزهایی که یاد گرفتیم</h3>
+            
+            <div class="grid">
+                <div class="success box">
+                    <h4>مفاهیم پایه</h4>
+                    <ul>
+                        <li>✅ Embedding چیست</li>
+                        <li>✅ چرا مهم است</li>
+                        <li>✅ انواع مختلف</li>
+                        <li>✅ تاریخچه تکامل</li>
+                    </ul>
+                </div>
+                
+                <div class="success box">
+                    <h4>پیاده‌سازی</h4>
+                    <ul>
+                        <li>✅ Word2Vec</li>
+                        <li>✅ OpenAI API</li>
+                        <li>✅ محاسبه شباهت</li>
+                        <li>✅ ذخیره و بارگذاری</li>
+                    </ul>
+                </div>
+                
+                <div class="success box">
+                    <h4>کاربردها</h4>
+                    <ul>
+                        <li>✅ جستجوی معنایی</li>
+                        <li>✅ سیستم توصیه</li>
+                        <li>✅ طبقه‌بندی</li>
+                        <li>✅ Clustering</li>
+                    </ul>
+                </div>
+                
+                <div class="success box">
+                    <h4>بهینه‌سازی</h4>
+                    <ul>
+                        <li>✅ Caching</li>
+                        <li>✅ Batch Processing</li>
+                        <li>✅ کاهش ابعاد</li>
+                        <li>✅ Error Handling</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight box" style="margin-top: 40px;">
+                <h3 style="text-align: center;"><span class="emoji">🎯</span> قدم‌های بعدی</h3>
+                <ol style="font-size: 1.3em; line-height: 2.5;">
+                    <li><strong>یک پروژه کوچک شروع کنید</strong> (مثلاً جستجو در یادداشت‌ها)</li>
+                    <li><strong>کدهای این آموزش را اجرا کنید</strong> و با آن‌ها آزمایش کنید</li>
+                    <li><strong>به جامعه بپیوندید</strong> و سوالات خود را بپرسید</li>
+                    <li><strong>پروژه‌های دیگران را بررسی کنید</strong> در GitHub</li>
+                    <li><strong>مستندات را مطالعه کنید</strong> و عمیق‌تر شوید</li>
+                </ol>
+            </div>
+            
+            <div class="key-point box" style="margin-top: 40px;">
+                <h3 style="text-align: center;"><span class="emoji">💡</span> پیام نهایی</h3>
+                <p style="font-size: 1.4em; text-align: center; line-height: 2.2;">
+                    Embeddings پایه و اساس تمام سیستم‌های مدرن NLP و AI هستند. 
+                    با تسلط بر این مفهوم، می‌توانید اپلیکیشن‌های قدرتمند و هوشمند بسازید.
+                    <br><br>
+                    <strong style="color: #667eea;">یادتان باشد: بهترین راه یادگیری، تمرین و ساختن پروژه‌های واقعی است! 🚀</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: صفحه پایانی -->
+        <div class="slide">
+            <div class="slide-number">15</div>
+            <h1 style="text-align: center; color: #667eea; margin-top: 100px;">
+                <span class="emoji">🎉</span>
+                <br>
+                تبریک!
+                <br>
+                <span style="font-size: 0.6em; color: #764ba2;">شما آموزش Embeddings را تکمیل کردید</span>
+            </h1>
+            
+            <div class="highlight box" style="margin-top: 80px;">
+                <h2 style="text-align: center; border: none; color: #667eea;">
+                    <span class="emoji">🏆</span> گواهینامه دانش
+                </h2>
+                <div style="text-align: center; font-size: 1.3em; line-height: 2.5; margin-top: 40px;">
+                    <p><strong>شما اکنون می‌دانید:</strong></p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>✅ Embedding چیست و چگونه کار می‌کند</li>
+                        <li>✅ انواع مختلف Embeddings</li>
+                        <li>✅ پیاده‌سازی با Word2Vec و OpenAI</li>
+                        <li>✅ محاسبه شباهت معنایی</li>
+                        <li>✅ ساخت سیستم جستجوی هوشمند</li>
+                        <li>✅ بهینه‌سازی و Best Practices</li>
+                        <li>✅ رفع مشکلات رایج</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="grid" style="margin-top: 60px;">
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">📊 آمار شما</h3>
+                    <p style="font-size: 2em; font-weight: 700; color: #764ba2;">15</p>
+                    <p>اسلاید مطالعه شده</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">💻 کدها</h3>
+                    <p style="font-size: 2em; font-weight: 700; color: #764ba2;">40+</p>
+                    <p>مثال عملی</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">🎯 پروژه</h3>
+                    <p style="font-size: 2em; font-weight: 700; color: #764ba2;">1</p>
+                    <p>پروژه کامل</p>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3 style="color: #667eea;">⏱️ زمان</h3>
+                    <p style="font-size: 2em; font-weight: 700; color: #764ba2;">~4</p>
+                    <p>ساعت آموزش</p>
+                </div>
+            </div>
+            
+            <div class="key-point box" style="margin-top: 60px; text-align: center;">
+                <h2 style="color: #667eea; border: none;">
+                    <span class="emoji">🚀</span> حالا نوبت شماست!
+                </h2>
+                <p style="font-size: 1.5em; line-height: 2.2; margin-top: 30px;">
+                    با دانشی که کسب کردید، می‌توانید:
+                </p>
+                <ul style="list-style: none; font-size: 1.3em; line-height: 2.5;">
+                    <li>🎯 سیستم‌های جستجوی هوشمند بسازید</li>
+                    <li>🤖 چت‌بات‌های پیشرفته طراحی کنید</li>
+                    <li>📊 سیستم‌های توصیه قدرتمند ایجاد کنید</li>
+                    <li>🔍 ابزارهای تحلیل متن بسازید</li>
+                    <li>💡 ایده‌های خلاقانه خود را پیاده کنید</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 80px; font-size: 1.8em; color: #667eea; font-weight: 700;">
+                <p>موفق و پیروز باشید! 🌟</p>
+                <p style="font-size: 0.7em; color: #764ba2; margin-top: 20px;">
+                    ساخته شده با ❤️ برای علاقه‌مندان به هوش مصنوعی
+                </p>
+                <p style="font-size: 0.5em; color: #999; margin-top: 40px;">
+                    نسخه 1.0 | آذر 1403
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- دکمه برگشت به بالا -->
+    <button id="backToTop" style="
+        position: fixed;
+        bottom: 30px;
+        left: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        display: none;
+        z-index: 1000;
+        transition: all 0.3s ease;
+    ">⬆️</button>
+
+    <!-- Progress Bar -->
+    <div style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: rgba(255,255,255,0.3);
+        z-index: 9999;
+    ">
+        <div id="progressFill" style="
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        "></div>
+    </div>
+
+    <!-- Toast برای پیام کپی -->
+    <div id="copyToast" style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        display: none;
+        z-index: 10000;
+        font-weight: 600;
+        font-size: 1.1em;
+    ">✅ کپی شد!</div>
+
+    <script>
+        // کپی کردن کد
+        document.querySelectorAll('.code').forEach(code => {
+            code.style.cursor = 'pointer';
+            code.title = 'کلیک کنید تا کپی شود';
+            
+            code.addEventListener('click', () => {
+                const text = code.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    // نمایش toast
+                    const toast = document.getElementById('copyToast');
+                    toast.style.display = 'block';
+                    
+                    // تغییر رنگ موقت
+                    code.style.background = '#2d5016';
+                    
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                        code.style.background = '#1e293b';
+                    }, 2000);
+                });
+            });
+        });
+
+        // دکمه برگشت به بالا
+        const backToTop = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.style.display = 'block';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        backToTop.addEventListener('mouseenter', () => {
+            backToTop.style.transform = 'scale(1.1)';
+        });
+
+        backToTop.addEventListener('mouseleave', () => {
+            backToTop.style.transform = 'scale(1)';
+        });
+
+        // Progress Bar
+        window.addEventListener('scroll', () => {
+            const windowHeight = window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY;
+            const progress = (scrollTop / (documentHeight - windowHeight)) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        });
+
+        // Intersection Observer برای انیمیشن اسلایدها
+        const slides = document.querySelectorAll('.slide');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        entry.target.style.transition = 'all 0.6s ease-out';
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        slides.forEach(slide => {
+            observer.observe(slide);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+P: Print
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+
+        // آمار
+        console.log('📊 آموزش Embeddings');
+        console.log(`📄 تعداد اسلایدها: ${slides.length}`);
+        console.log(`💻 تعداد کدها: ${document.querySelectorAll('.code').length}`);
+        console.log(`📦 تعداد Box ها: ${document.querySelectorAll('.box').length}`);
+        console.log('✅ فایل آماده است!');
+    </script>
+
+    <style media="print">
+        body {
+            background: white !important;
+        }
+        
+        .slide {
+            page-break-after: always;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 40px !important;
+        }
+        
+        .slide-number {
+            display: none;
+        }
+        
+        #progressFill, #backToTop, #copyToast {
+            display: none !important;
+        }
+        
+        .code {
+            page-break-inside: avoid;
+        }
+        
+        .grid, .comparison {
+            page-break-inside: avoid;
+        }
+        
+        table {
+            page-break-inside: avoid;
+        }
+    </style>
+</body>
+</html>

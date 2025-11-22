@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>راهنمای پیاده‌سازی پروژه مدیریت پروژه با NestJS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        nav {
+            background: #1e293b;
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.1);
+            font-size: 0.9em;
+        }
+
+        nav a:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        section {
+            margin-bottom: 60px;
+            scroll-margin-top: 100px;
+        }
+
+        h2 {
+            color: #2563eb;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #2563eb;
+        }
+
+        h3 {
+            color: #1e293b;
+            font-size: 1.8em;
+            margin: 30px 0 20px 0;
+            padding-right: 15px;
+            border-right: 5px solid #3b82f6;
+        }
+
+        h4 {
+            color: #475569;
+            font-size: 1.4em;
+            margin: 25px 0 15px 0;
+        }
+
+        p {
+            color: #475569;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            border-right: 5px solid #2563eb;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            background: #2563eb;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .inline-code {
+            background: #f1f5f9;
+            color: #2563eb;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .step {
+            background: #f8fafc;
+            border-right: 5px solid #3b82f6;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-left: 15px;
+            font-size: 1.2em;
+        }
+
+        .note {
+            background: #fef2f2;
+            border-right: 5px solid #ef4444;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .tip {
+            background: #f0fdf4;
+            border-right: 5px solid #22c55e;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .warning {
+            background: #fffbeb;
+            border-right: 5px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .info {
+            background: #eff6ff;
+            border-right: 5px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        ul, ol {
+            margin: 20px 0 20px 40px;
+            color: #475569;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        th {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            text-align: right;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        tr:hover {
+            background: #f1f5f9;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h4 {
+            color: white;
+            margin-top: 0;
+        }
+
+        .user-story {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s;
+        }
+
+        .user-story:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .user-story-role {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .architecture-diagram {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+            border: 2px dashed #cbd5e1;
+        }
+
+        footer {
+            background: #1e293b;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            nav {
+                display: none;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 راهنمای کامل پیاده‌سازی پروژه مدیریت پروژه</h1>
+            <p>پیاده‌سازی قدم به قدم با NestJS، TypeORM، PostgreSQL و JWT Authentication</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#overview">نگاه کلی</a></li>
+                <li><a href="#setup">راه‌اندازی</a></li>
+                <li><a href="#database">دیتابیس</a></li>
+                <li><a href="#auth">احراز هویت</a></li>
+                <li><a href="#users">مدیریت کاربران</a></li>
+                <li><a href="#projects">پروژه‌ها</a></li>
+                <li><a href="#tasks">وظایف</a></li>
+                <li><a href="#dashboard">داشبورد</a></li>
+                <li><a href="#notifications">اعلان‌ها</a></li>
+                <li><a href="#calendar">تقویم</a></li>
+                <li><a href="#testing">تست</a></li>
+                <li><a href="#deployment">استقرار</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <!-- نگاه کلی -->
+            <section id="overview">
+                <h2>📋 نگاه کلی به پروژه</h2>
+
+                <h3>معرفی پروژه</h3>
+                <p>
+                    این پروژه یک سیستم جامع مدیریت پروژه است که امکانات زیر را فراهم می‌کند:
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>👥 مدیریت کاربران</h4>
+                        <p>ثبت‌نام، ورود، پروفایل و مدیریت نقش‌ها</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 مدیریت پروژه</h4>
+                        <p>ایجاد، ویرایش، حذف و مدیریت اعضای پروژه</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>✅ مدیریت وظایف</h4>
+                        <p>ایجاد تسک، تخصیص، اولویت‌بندی و پیگیری</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📈 داشبورد و آنالیز</h4>
+                        <p>نمایش آمار، نمودارها و گزارش‌های پیشرفت</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🔔 سیستم اعلان</h4>
+                        <p>اطلاع‌رسانی رویدادها و تغییرات مهم</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📅 تقویم</h4>
+                        <p>نمایش وظایف و ددلاین‌ها در تقویم</p>
+                    </div>
+                </div>
+
+                <h3>نقش‌های کاربری</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نقش</th>
+                            <th>دسترسی‌ها</th>
+                            <th>محدودیت‌ها</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Admin</strong></td>
+                            <td>دسترسی کامل به تمام بخش‌ها، مدیریت کاربران، حذف هر پروژه</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Project Manager</strong></td>
+                            <td>ایجاد پروژه، مدیریت اعضا، مدیریت وظایف پروژه خود</td>
+                            <td>فقط پروژه‌های خودش</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Team Member</strong></td>
+                            <td>مشاهده پروژه‌های تخصیص داده شده، مدیریت وظایف خود</td>
+                            <td>نمی‌تواند پروژه ایجاد کند</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Viewer</strong></td>
+                            <td>فقط مشاهده پروژه‌ها و وظایف</td>
+                            <td>بدون دسترسی ویرایش</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>معماری سیستم</h3>
+                <div class="architecture-diagram">
+                    <pre>
+┌─────────────────────────────────────────────────────────┐
+│                    Frontend (React/Vue)                  │
+│                   با Bootstrap/Tailwind                  │
+└────────────────────┬────────────────────────────────────┘
+                     │ HTTP/REST API
+┌────────────────────▼────────────────────────────────────┐
+│                   NestJS Backend                         │
+│  ┌──────────┬──────────┬──────────┬──────────────────┐ │
+│  │   Auth   │  Users   │ Projects │      Tasks       │ │
+│  │  Module  │  Module  │  Module  │     Module       │ │
+│  └──────────┴──────────┴──────────┴──────────────────┘ │
+│  ┌──────────┬──────────┬──────────┬──────────────────┐ │
+│  │Dashboard │Notifications│Calendar│     Search       │ │
+│  │  Module  │   Module   │ Module  │     Module       │ │
+│  └──────────┴──────────┴──────────┴──────────────────┘ │
+└────────────────────┬────────────────────────────────────┘
+                     │ TypeORM
+┌────────────────────▼────────────────────────────────────┐
+│              PostgreSQL Database                         │
+│  ┌──────┬─────────┬──────────┬────────┬─────────────┐ │
+│  │Users │Projects │  Tasks   │Members │Notifications│ │
+│  └──────┴─────────┴──────────┴────────┴─────────────┘ │
+└─────────────────────────────────────────────────────────┘
+                    </pre>
+                </div>
+
+                <h3>تکنولوژی‌های استفاده شده</h3>
+                <ul>
+                    <li><strong>Backend Framework:</strong> NestJS 10.x</li>
+                    <li><strong>Language:</strong> TypeScript 5.x</li>
+                    <li><strong>Database:</strong> PostgreSQL 15.x</li>
+                    <li><strong>ORM:</strong> TypeORM 0.3.x</li>
+                    <li><strong>Authentication:</strong> JWT, Passport</li>
+                    <li><strong>Validation:</strong> class-validator, class-transformer</li>
+                    <li><strong>API Documentation:</strong> Swagger/OpenAPI</li>
+                    <li><strong>Testing:</strong> Jest</li>
+                    <li><strong>Caching:</strong> Redis (optional)</li>
+                </ul>
+            </section>
+
+            <!-- راه‌اندازی پروژه -->
+            <section id="setup">
+                <h2>⚙️ راه‌اندازی پروژه</h2>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h3>نصب NestJS CLI و ایجاد پروژه</h3>
+                    <div class="code-block" data-lang="bash">
+<pre><code># نصب NestJS CLI
+npm install -g @nestjs/cli
+
+# ایجاد پروژه جدید
+nest new project-management-api
+
+# ورود به پوشه پروژه
+cd project-management-api</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h3>نصب Dependencies مورد نیاز</h3>
+                    <div class="code-block" data-lang="bash">
+<pre><code># Database
+npm install @nestjs/typeorm typeorm pg
+
+# Authentication
+npm install @nestjs/passport passport passport-local passport-jwt
+npm install @nestjs/jwt bcrypt
+npm install -D @types/passport-local @types/passport-jwt @types/bcrypt
+
+# Validation
+npm install class-validator class-transformer
+
+# Configuration
+npm install @nestjs/config
+
+# Swagger
+npm install @nestjs/swagger swagger-ui-express
+
+# Testing
+npm install --save-dev @nestjs/testing supertest @types/supertest</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h3>ساختار پروژه</h3>
+                    <div class="code-block" data-lang="text">
+<pre><code>src/
+├── auth/
+│   ├── decorators/
+│   │   ├── public.decorator.ts
+│   │   ├── roles.decorator.ts
+│   │   └── current-user.decorator.ts
+│   ├── dto/
+│   │   ├── login.dto.ts
+│   │   ├── register.dto.ts
+│   │   └── change-password.dto.ts
+│   ├── guards/
+│   │   ├── jwt-auth.guard.ts
+│   │   ├── local-auth.guard.ts
+│   │   └── roles.guard.ts
+│   ├── strategies/
+│   │   ├── jwt.strategy.ts
+│   │   └── local.strategy.ts
+│   ├── auth.controller.ts
+│   ├── auth.service.ts
+│   └── auth.module.ts
+├── users/
+│   ├── dto/
+│   │   ├── create-user.dto.ts
+│   │   ├── update-user.dto.ts
+│   │   └── update-profile.dto.ts
+│   ├── entities/
+│   │   └── user.entity.ts
+│   ├── users.controller.ts
+│   ├── users.service.ts
+│   └── users.module.ts
+├── projects/
+│   ├── dto/
+│   │   ├── create-project.dto.ts
+│   │   ├── update-project.dto.ts
+│   │   └── add-member.dto.ts
+│   ├── entities/
+│   │   ├── project.entity.ts
+│   │   └── project-member.entity.ts
+│   ├── projects.controller.ts
+│   ├── projects.service.ts
+│   └── projects.module.ts
+├── tasks/
+│   ├── dto/
+│   │   ├── create-task.dto.ts
+│   │   ├── update-task.dto.ts
+│   │   └── filter-task.dto.ts
+│   ├── entities/
+│   │   └── task.entity.ts
+│   ├── tasks.controller.ts
+│   ├── tasks.service.ts
+│   └── tasks.module.ts
+├── dashboard/
+│   ├── dto/
+│   │   └── dashboard-stats.dto.ts
+│   ├── dashboard.controller.ts
+│   ├── dashboard.service.ts
+│   └── dashboard.module.ts
+├── notifications/
+│   ├── dto/
+│   │   └── create-notification.dto.ts
+│   ├── entities/
+│   │   └── notification.entity.ts
+│   ├── notifications.controller.ts
+│   ├── notifications.service.ts
+│   ├── notifications.gateway.ts
+│   └── notifications.module.ts
+├── calendar/
+│   ├── dto/
+│   │   └── calendar-query.dto.ts
+│   ├── calendar.controller.ts
+│   ├── calendar.service.ts
+│   └── calendar.module.ts
+├── common/
+│   ├── decorators/
+│   ├── filters/
+│   ├── guards/
+│   ├── interceptors/
+│   ├── pipes/
+│   └── dto/
+│       └── pagination.dto.ts
+├── config/
+│   └── configuration.ts
+├── database/
+│   ├── migrations/
+│   └── seeds/
+├── app.module.ts
+└── main.ts</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <h3>تنظیم متغیرهای محیطی</h3>
+                    <div class="code-block" data-lang="bash">
+<pre><code># .env
+NODE_ENV=development
+PORT=3000
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=your_password
+DB_DATABASE=project_management
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRATION=24h
+JWT_REFRESH_SECRET=your-super-secret-refresh-key
+JWT_REFRESH_EXPIRATION=7d
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:3001
+
+# Upload
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=5242880
+
+# Email (optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM=noreply@projectmanagement.com</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <h3>تنظیم Configuration Module</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// config/configuration.ts
+export default () => ({
+  port: parseInt(process.env.PORT, 10) || 3000,
+  database: {
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT, 10) || 5432,
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+  },
+  jwt: {
+    secret: process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRATION || '24h',
+    refreshSecret: process.env.JWT_REFRESH_SECRET,
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRATION || '7d',
+  },
+  upload: {
+    dir: process.env.UPLOAD_DIR || './uploads',
+    maxFileSize: parseInt(process.env.MAX_FILE_SIZE, 10) || 5242880,
+  },
+});</code></pre>
+                    </div>
+                </div>
+
+                <div class="tip">
+                    <h4>✅ نکته مهم</h4>
+                    <p>
+                        فایل <span class="inline-code">.env</span> را به <span class="inline-code">.gitignore</span> اضافه کنید تا اطلاعات حساس در Git ذخیره نشود.
+                    </p>
+                </div>
+            </section>
+
+            <!-- دیتابیس -->
+            <section id="database">
+                <h2>💾 طراحی و پیاده‌سازی دیتابیس</h2>
+
+                <h3>نمودار ER دیتابیس</h3>
+                <div class="architecture-diagram">
+                    <pre>
+┌─────────────────────────────────────────────────────────────┐
+│                         USERS                                │
+│  ─────────────────────────────────────────────────────────  │
+│  id (PK)                                                     │
+│  email (unique)                                              │
+│  password                                                    │
+│  name                                                        │
+│  avatar                                                      │
+│  role (enum: admin, project_manager, team_member, viewer)   │
+│  isActive                                                    │
+│  createdAt                                                   │
+│  updatedAt                                                   │
+└────────┬────────────────────────────────────────────────────┘
+         │
+         │ 1:N (owner)
+         │
+┌────────▼────────────────────────────────────────────────────┐
+│                       PROJECTS                               │
+│  ─────────────────────────────────────────────────────────  │
+│  id (PK)                                                     │
+│  title                                                       │
+│  description                                                 │
+│  category                                                    │
+│  status (enum: planning, active, completed, on_hold)        │
+│  startDate                                                   │
+│  endDate                                                     │
+│  ownerId (FK → users.id)                                     │
+│  createdAt                                                   │
+│  updatedAt                                                   │
+└────────┬────────────────────────────────────────────────────┘
+         │
+         │ 1:N
+         │
+┌────────▼────────────────────────────────────────────────────┐
+│                   PROJECT_MEMBERS                            │
+│  ─────────────────────────────────────────────────────────  │
+│  id (PK)                                                     │
+│  projectId (FK → projects.id)                                │
+│  userId (FK → users.id)                                      │
+│  role (enum: manager, member, viewer)                        │
+│  joinedAt                                                    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                         TASKS                                │
+│  ─────────────────────────────────────────────────────────  │
+│  id (PK)                                                     │
+│  title                                                       │
+│  description                                                 │
+│  status (enum: todo, in_progress, review, done)             │
+│  priority (enum: low, medium, high, urgent)                 │
+│  projectId (FK → projects.id)                                │
+│  assigneeId (FK → users.id, nullable)                        │
+│  dueDate                                                     │
+│  completedAt                                                 │
+│  createdAt                                                   │
+│  updatedAt                                                   │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                     NOTIFICATIONS                            │
+│  ─────────────────────────────────────────────────────────  │
+│  id (PK)                                                     │
+│  userId (FK → users.id)                                      │
+│type                                                         │
+│  message                                                    │
+│  isRead                                                     │
+│  createdAt                                                  │
+└─────────────────────────────────────────────────────────────┘
+                    </pre>
+                </div>
+
+                <h3>Entity - User</h3>
+                <div class="code-block" data-lang="typescript">
+<pre><code>// users/entities/user.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  BeforeInsert,
+  BeforeUpdate,
+} from 'typeorm';
+import { Exclude } from 'class-transformer';
+import * as bcrypt from 'bcrypt';
+import { Project } from '../../projects/entities/project.entity';
+import { Task } from '../../tasks/entities/task.entity';
+import { ProjectMember } from '../../projects/entities/project-member.entity';
+import { Notification } from '../../notifications/entities/notification.entity';
+
+export enum UserRole {
+  ADMIN = 'admin',
+  PROJECT_MANAGER = 'project_manager',
+  TEAM_MEMBER = 'team_member',
+  VIEWER = 'viewer',
+}
+
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  @Exclude()
+  password: string;
+
+  @Column()
+  name: string;
+
+  @Column({ nullable: true })
+  avatar: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.TEAM_MEMBER,
+  })
+  role: UserRole;
+
+  @Column({ default: true })
+  isActive: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  // Relations
+  @OneToMany(() => Project, (project) => project.owner)
+  ownedProjects: Project[];
+
+  @OneToMany(() => Task, (task) => task.assignee)
+  assignedTasks: Task[];
+
+  @OneToMany(() => ProjectMember, (member) => member.user)
+  projectMemberships: ProjectMember[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    if (this.password && !this.password.startsWith('$2b$')) {
+      this.password = await bcrypt.hash(this.password, 10);
+    }
+  }
+
+  async validatePassword(password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password);
+  }
+}</code></pre>
+                </div>
+
+                <h3>Entity - Project</h3>
+                <div class="code-block" data-lang="typescript">
+<pre><code>// projects/entities/project.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Task } from '../../tasks/entities/task.entity';
+import { ProjectMember } from './project-member.entity';
+
+export enum ProjectStatus {
+  PLANNING = 'planning',
+  ACTIVE = 'active',
+  COMPLETED = 'completed',
+  ON_HOLD = 'on_hold',
+}
+
+@Entity('projects')
+export class Project {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  title: string;
+
+  @Column('text')
+  description: string;
+
+  @Column({ nullable: true })
+  category: string;
+
+  @Column({
+    type: 'enum',
+    enum: ProjectStatus,
+    default: ProjectStatus.PLANNING,
+  })
+  status: ProjectStatus;
+
+  @Column({ type: 'date', nullable: true })
+  startDate: Date;
+
+  @Column({ type: 'date', nullable: true })
+  endDate: Date;
+
+  @Column()
+  ownerId: number;
+
+  @ManyToOne(() => User, (user) => user.ownedProjects, { eager: true })
+  @JoinColumn({ name: 'ownerId' })
+  owner: User;
+
+  @OneToMany(() => Task, (task) => task.project)
+  tasks: Task[];
+
+  @OneToMany(() => ProjectMember, (member) => member.project)
+  members: ProjectMember[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}</code></pre>
+                </div>
+
+                <h3>Entity - ProjectMember</h3>
+                <div class="code-block" data-lang="typescript">
+<pre><code>// projects/entities/project-member.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Project } from './project.entity';
+
+export enum ProjectMemberRole {
+  MANAGER = 'manager',
+  MEMBER = 'member',
+  VIEWER = 'viewer',
+}
+
+@Entity('project_members')
+export class ProjectMember {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  projectId: number;
+
+  @Column()
+  userId: number;
+
+  @Column({
+    type: 'enum',
+    enum: ProjectMemberRole,
+    default: ProjectMemberRole.MEMBER,
+  })
+  role: ProjectMemberRole;
+
+  @ManyToOne(() => Project, (project) => project.members, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'projectId' })
+  project: Project;
+
+  @ManyToOne(() => User, (user) => user.projectMemberships, { eager: true })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @CreateDateColumn()
+  joinedAt: Date;
+}</code></pre>
+                </div>
+
+                <h3>Entity - Task</h3>
+                <div class="code-block" data-lang="typescript">
+<pre><code>// tasks/entities/task.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Project } from '../../projects/entities/project.entity';
+
+export enum TaskStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  REVIEW = 'review',
+  DONE = 'done',
+}
+
+export enum TaskPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent',
+}
+
+@Entity('tasks')
+export class Task {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  title: string;
+
+  @Column('text', { nullable: true })
+  description: string;
+
+  @Column({
+    type: 'enum',
+    enum: TaskStatus,
+    default: TaskStatus.TODO,
+  })
+  status: TaskStatus;
+
+  @Column({
+    type: 'enum',
+    enum: TaskPriority,
+    default: TaskPriority.MEDIUM,
+  })
+  priority: TaskPriority;
+
+  @Column()
+  projectId: number;
+
+  @Column({ nullable: true })
+  assigneeId: number;
+
+  @Column({ type: 'date', nullable: true })
+  dueDate: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  completedAt: Date;
+
+  @ManyToOne(() => Project, (project) => project.tasks, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'projectId' })
+  project: Project;
+
+  @ManyToOne(() => User, (user) => user.assignedTasks, { eager: true })
+  @JoinColumn({ name: 'assigneeId' })
+  assignee: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  get isOverdue(): boolean {
+    if (!this.dueDate || this.status === TaskStatus.DONE) {
+      return false;
+    }
+    return new Date(this.dueDate) < new Date();
+  }
+}</code></pre>
+                </div>
+
+                <h3>Entity - Notification</h3>
+                <div class="code-block" data-lang="typescript">
+<pre><code>// notifications/entities/notification.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+
+export enum NotificationType {
+  TASK_ASSIGNED = 'task_assigned',
+  TASK_COMPLETED = 'task_completed',
+  TASK_OVERDUE = 'task_overdue',
+  PROJECT_ADDED = 'project_added',
+  PROJECT_REMOVED = 'project_removed',
+  MEMBER_ADDED = 'member_added',
+  MEMBER_REMOVED = 'member_removed',
+  DEADLINE_APPROACHING = 'deadline_approaching',
+}
+
+@Entity('notifications')
+export class Notification {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  userId: number;
+
+  @Column({
+    type: 'enum',
+    enum: NotificationType,
+  })
+  type: NotificationType;
+
+  @Column()
+  message: string;
+
+  @Column({ type: 'json', nullable: true })
+  metadata: any;
+
+  @Column({ default: false })
+  isRead: boolean;
+
+  @ManyToOne(() => User, (user) => user.notifications, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @CreateDateColumn()
+  createdAt: Date;
+}</code></pre>
+                </div>
+
+                <h3>تنظیم TypeORM در AppModule</h3>
+                <div class="code-block" data-lang="typescript">
+<pre><code>// app.module.ts
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import configuration from './config/configuration';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('database.host'),
+        port: configService.get('database.port'),
+        username: configService.get('database.username'),
+        password: configService.get('database.password'),
+        database: configService.get('database.database'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: process.env.NODE_ENV === 'development',
+        logging: process.env.NODE_ENV === 'development',
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+})
+export class AppModule {}</code></pre>
+                </div>
+
+                <div class="warning">
+                    <h4>⚠️ نکته امنیتی</h4>
+                    <p>
+                        در محیط production حتماً <span class="inline-code">synchronize: false</span> تنظیم کنید و از migrations استفاده کنید.
+                    </p>
+                </div>
+            </section>
+
+            <!-- احراز هویت -->
+            <section id="auth">
+                <h2>🔐 پیاده‌سازی احراز هویت (Authentication)</h2>
+
+                <h3>User Stories مربوط به Authentication</h3>
+                <div class="user-story">
+                    <span class="user-story-role">New User</span>
+                    <p><strong>As a new user</strong>, I want to register for an account so that I can access the project management system</p>
+                </div>
+                <div class="user-story">
+                    <span class="user-story-role">User</span>
+                    <p><strong>As a user</strong>, I want to log in with my email and password so that I can access my projects and tasks</p>
+                </div>
+                <div class="user-story">
+                    <span class="user-story-role">User</span>
+                    <p><strong>As a user</strong>, I want to log out securely so that my account remains protected</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h3>ایجاد ماژول Authentication</h3>
+                    <div class="code-block" data-lang="bash">
+<pre><code>nest g module auth
+nest g service auth
+nest g controller auth</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h3>DTO های Authentication</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/dto/register.dto.ts
+import { IsEmail, IsString, MinLength, MaxLength, Matches } from 'class-validator';
+
+export class RegisterDto {
+  @IsString()
+  @MinLength(3)
+  @MaxLength(50)
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  @MaxLength(100)
+  @Matches(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+    {
+      message: 'Password must contain uppercase, lowercase, number and special character',
+    },
+  )
+  password: string;
+}
+
+// auth/dto/login.dto.ts
+import { IsEmail, IsString } from 'class-validator';
+
+export class LoginDto {
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  password: string;
+}
+
+// auth/dto/change-password.dto.ts
+import { IsString, MinLength } from 'class-validator';
+
+export class ChangePasswordDto {
+  @IsString()
+  currentPassword: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword: string;
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h3>JWT Strategy</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/strategies/jwt.strategy.ts
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { UsersService } from '../../users/users.service';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(
+    private configService: ConfigService,
+    private usersService: UsersService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get('jwt.secret'),
+    });
+  }
+
+  async validate(payload: any) {
+    const user = await this.usersService.findOne(payload.sub);
+    
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException();
+    }
+
+    return {
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+    };
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <h3>Local Strategy (برای Login)</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/strategies/local.strategy.ts
+import { Strategy } from 'passport-local';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { AuthService } from '../auth.service';
+
+@Injectable()
+export class LocalStrategy extends PassportStrategy(Strategy) {
+  constructor(private authService: AuthService) {
+    super({
+      usernameField: 'email',
+    });
+  }
+
+  async validate(email: string, password: string): Promise<any> {
+    const user = await this.authService.validateUser(email, password);
+    
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    
+    return user;
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <h3>Auth Service</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/auth.service.ts
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { User } from '../users/entities/user.entity';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  async register(registerDto: RegisterDto) {
+    const existingUser = await this.usersService.findByEmail(
+      registerDto.email,
+    );
+
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
+    }
+
+    const user = await this.usersService.create(registerDto);
+    
+    return this.generateTokens(user);
+  }
+
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user || !user.isActive) {
+      return null;
+    }
+
+    const isPasswordValid = await user.validatePassword(password);
+
+    if (!isPasswordValid) {
+      return null;
+    }
+
+    const { password: _, ...result } = user;
+    return result;
+  }
+
+  async login(user: any) {
+    return this.generateTokens(user);
+  }
+
+  async changePassword(userId: number, changePasswordDto: ChangePasswordDto) {
+    const user = await this.usersService.findOne(userId);
+
+    const isCurrentPasswordValid = await user.validatePassword(
+      changePasswordDto.currentPassword,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    await this.usersService.updatePassword(
+      userId,
+      changePasswordDto.newPassword,
+    );
+
+    return { message: 'Password changed successfully' };
+  }
+
+  private generateTokens(user: any) {
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      role: user.role,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        avatar: user.avatar,
+      },
+    };
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <h3>Guards</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/guards/jwt-auth.guard.ts
+import { Injectable, ExecutionContext } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(
+      IS_PUBLIC_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (isPublic) {
+      return true;
+    }
+
+    return super.canActivate(context);
+  }
+}
+
+// auth/guards/local-auth.guard.ts
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class LocalAuthGuard extends AuthGuard('local') {}
+
+// auth/guards/roles.guard.ts
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { ROLES_KEY } from '../decorators/roles.decorator';
+import { UserRole } from '../../users/entities/user.entity';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (!requiredRoles) {
+      return true;
+    }
+
+    const { user } = context.switchToHttp().getRequest();
+    return requiredRoles.some((role) => user.role === role);
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">7</span>
+                    <h3>Decorators</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/decorators/public.decorator.ts
+import { SetMetadata } from '@nestjs/common';
+
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+
+// auth/decorators/roles.decorator.ts
+import { SetMetadata } from '@nestjs/common';
+import { UserRole } from '../../users/entities/user.entity';
+
+export const ROLES_KEY = 'roles';
+export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
+
+// auth/decorators/current-user.decorator.ts
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+export const CurrentUser = createParamDecorator(
+  (data: string, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    const user = request.user;
+
+    return data ? user?.[data] : user;
+  },
+);</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">8</span>
+                    <h3>Auth Controller</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/auth.controller.ts
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Request,
+  Get,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Public } from './decorators/public.decorator';
+import { CurrentUser } from './decorators/current-user.decorator';
+
+@Controller('auth')
+export class AuthController {
+  constructor(private authService: AuthService) {}
+
+  @Public()
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
+
+  @Public()
+  @UseGuards(LocalAuthGuard)
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  async login(@Request() req, @Body() loginDto: LoginDto) {
+    return this.authService.login(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@CurrentUser() user) {
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(
+    @CurrentUser('id') userId: number,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(userId, changePasswordDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  async logout() {
+    return { message: 'Logged out successfully' };
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">9</span>
+                    <h3>Auth Module</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// auth/auth.module.ts
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
+import { UsersModule } from '../users/users.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+
+@Module({
+  imports: [
+    UsersModule,
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get('jwt.secret'),
+        signOptions: {
+          expiresIn: configService.get('jwt.expiresIn'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
+  controllers: [AuthController],
+  exports: [AuthService],
+})
+export class AuthModule {}</code></pre>
+                    </div>
+                </div>
+
+                <div class="tip">
+                    <h4>✅ تست Authentication</h4>
+                    <div class="code-block" data-lang="bash">
+<pre><code># ثبت‌نام
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "Password123!"
+  }'
+
+# ورود
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "password": "Password123!"
+  }'
+
+# دریافت پروفایل
+curl -X GET http://localhost:3000/auth/profile \
+  -H "Authorization: Bearer YOUR_TOKEN"</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- مدیریت کاربران -->
+            <section id="users">
+                <h2>👥 مدیریت کاربران</h2>
+
+                <h3>User Stories</h3>
+                <div class="user-story">
+                    <span class="user-story-role">User</span>
+                    <p><strong>As a user</strong>, I want to view and edit my profile information so that I can keep my details up to date</p>
+                </div>
+                <div class="user-story">
+                    <span class="user-story-role">User</span>
+                    <p><strong>As a user</strong>, I want to upload an avatar image so that I can personalize my profile</p>
+                </div>
+                <div class="user-story">
+                    <span class="user-story-role">Admin</span>
+                    <p><strong>As an admin</strong>, I want to manage user roles so that I can control access levels throughout the system</p>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <h3>ایجاد Users Module</h3>
+                    <div class="code-block" data-lang="bash">
+<pre><code>nest g module users
+nest g service users
+nest g controller users</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <h3>DTOs</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// users/dto/create-user.dto.ts
+import { IsEmail, IsString, IsEnum, IsOptional, MinLength } from 'class-validator';
+import { UserRole } from '../entities/user.entity';
+
+export class CreateUserDto {
+  @IsString()
+  @MinLength(3)
+  name: string;
+
+  @IsEmail()
+  email: string;
+
+  @IsString()
+  @MinLength(8)
+  password: string;
+
+  @IsEnum(UserRole)
+  @IsOptional()
+  role?: UserRole;
+}
+
+// users/dto/update-user.dto.ts
+import { PartialType } from '@nestjs/mapped-types';
+import { IsOptional, IsBoolean } from 'class-validator';
+import { CreateUserDto } from './create-user.dto';
+
+export class UpdateUserDto extends PartialType(CreateUserDto) {
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+}
+
+// users/dto/update-profile.dto.ts
+import { IsString, IsOptional, MinLength, MaxLength } from 'class-validator';
+
+export class UpdateProfileDto {
+  @IsString()
+  @IsOptional()
+  @MinLength(3)
+  @MaxLength(50)
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  avatar?: string;
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <h3>Users Service</h3>
+                    <div class="code-block" data-lang="typescript">
+<pre><code>// users/users.service.ts
+import {
+  Injectable,
+  NotFoundException,
