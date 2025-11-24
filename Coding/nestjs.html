@@ -1,0 +1,3543 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش کامل NestJS - ساخت REST API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #e53935 0%, #e35d5b 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        nav {
+            background: #2c3e50;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        nav a:hover {
+            background: #34495e;
+        }
+        .content {
+            padding: 40px;
+        }
+        section {
+            margin-bottom: 50px;
+        }
+        h2 {
+            color: #e53935;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #e53935;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin: 25px 0 15px 0;
+        }
+        h4 {
+            color: #34495e;
+            margin: 20px 0 10px 0;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: #e53935;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-right: 4px solid #ffc107;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .note {
+            background: #d1ecf1;
+            padding: 15px;
+            border-right: 4px solid #17a2b8;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .warning {
+            background: #f8d7da;
+            padding: 15px;
+            border-right: 4px solid #dc3545;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            padding: 15px;
+            border-right: 4px solid #28a745;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        ul, ol {
+            margin: 15px 0 15px 40px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+        table th {
+            background: #e53935;
+            color: white;
+        }
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        .badge-primary { background: #007bff; color: white; }
+        .badge-success { background: #28a745; color: white; }
+        .badge-warning { background: #ffc107; color: #333; }
+        .badge-danger { background: #dc3545; color: white; }
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 آموزش جامع NestJS</h1>
+            <p>ساخت یک REST API کامل و حرفه‌ای با NestJS</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#intro">مقدمه</a></li>
+                <li><a href="#setup">نصب و راه‌اندازی</a></li>
+                <li><a href="#structure">ساختار پروژه</a></li>
+                <li><a href="#auth">احراز هویت</a></li>
+                <li><a href="#crud">CRUD عملیات</a></li>
+                <li><a href="#database">پایگاه داده</a></li>
+                <li><a href="#validation">اعتبارسنجی</a></li>
+                <li><a href="#swagger">مستندسازی</a></li>
+                <li><a href="#docker">Docker</a></li>
+                <li><a href="#best-practices">بهترین روش‌ها</a></li>
+            </ul>
+        </nav>
+
+        <div class="content">
+            <!-- مقدمه -->
+            <section id="intro">
+                <h2>📚 مقدمه</h2>
+                <p>
+                    <strong>NestJS</strong> یک فریم‌ورک Node.js است که برای ساخت اپلیکیشن‌های سمت سرور کارآمد و مقیاس‌پذیر طراحی شده است. این فریم‌ورک از TypeScript استفاده می‌کند و معماری آن الهام گرفته از Angular است.
+                </p>
+                
+                <h3>✨ ویژگی‌های کلیدی</h3>
+                <ul>
+                    <li><span class="badge badge-primary">TypeScript</span> پشتیبانی کامل از TypeScript</li>
+                    <li><span class="badge badge-success">Modular</span> معماری ماژولار و قابل نگهداری</li>
+                    <li><span class="badge badge-warning">DI</span> Dependency Injection داخلی</li>
+                    <li><span class="badge badge-danger">Decorators</span> استفاده از دکوریتورها برای کد تمیز</li>
+                </ul>
+
+                <div class="highlight">
+                    <strong>💡 چرا NestJS؟</strong>
+                    <ul>
+                        <li>ساختار منظم و استاندارد</li>
+                        <li>مناسب برای تیم‌های بزرگ</li>
+                        <li>پشتیبانی از میکروسرویس‌ها</li>
+                        <li>اکوسیستم غنی و مستندات عالی</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- نصب و راه‌اندازی -->
+            <section id="setup">
+                <h2>⚙️ نصب و راه‌اندازی</h2>
+                
+                <h3>پیش‌نیازها</h3>
+                <ul>
+                    <li>Node.js نسخه 16 یا بالاتر</li>
+                    <li>npm یا yarn</li>
+                    <li>آشنایی با TypeScript</li>
+                </ul>
+
+                <h3>نصب NestJS CLI</h3>
+                <div class="code-block" data-lang="bash">
+npm install -g @nestjs/cli
+                </div>
+
+                <h3>ساخت پروژه جدید</h3>
+                <div class="code-block" data-lang="bash">
+nest new my-api
+cd my-api
+npm run start:dev
+                </div>
+
+                <div class="success">
+                    ✅ سرور شما روی <code>http://localhost:3000</code> در حال اجرا است!
+                </div>
+
+                <h3>نصب پکیج‌های مورد نیاز</h3>
+                <div class="code-block" data-lang="bash">
+# TypeORM و PostgreSQL
+npm install @nestjs/typeorm typeorm pg
+
+# JWT و Passport
+npm install @nestjs/jwt @nestjs/passport passport passport-jwt
+npm install --save-dev @types/passport-jwt
+
+# Validation
+npm install class-validator class-transformer
+
+# Swagger
+npm install @nestjs/swagger swagger-ui-express
+
+# bcrypt برای هش کردن پسورد
+npm install bcrypt
+npm install --save-dev @types/bcrypt
+                </div>
+            </section>
+
+            <!-- ساختار پروژه -->
+            <section id="structure">
+                <h2>📁 ساختار پروژه</h2>
+                
+                <div class="code-block" data-lang="tree">
+src/
+├── auth/                    # ماژول احراز هویت
+│   ├── auth.controller.ts
+│   ├── auth.service.ts
+│   ├── auth.module.ts
+│   ├── jwt.strategy.ts
+│   └── jwt-auth.guard.ts
+├── users/                   # ماژول کاربران
+│   ├── user.entity.ts
+│   ├── users.controller.ts
+│   ├── users.service.ts
+│   └── users.module.ts
+├── evaluations/             # ماژول ارزیابی‌ها
+│   ├── evaluation.entity.ts
+│   ├── evaluations.controller.ts
+│   ├── evaluations.service.ts
+│   └── evaluations.module.ts
+├── common/                  # کامپوننت‌های مشترک
+│   ├── guards/
+│   │   └── roles.guard.ts
+│   ├── decorators/
+│   │   └── roles.decorator.ts
+│   └── interceptors/
+│       └── logging.interceptor.ts
+├── config/                  # تنظیمات
+│   └── database.config.ts
+├── app.module.ts           # ماژول اصلی
+└── main.ts                 # نقطه ورود برنامه
+                </div>
+
+                <div class="note">
+                    📝 <strong>نکته:</strong> هر ماژول شامل Controller، Service، و Module است که این سه لایه اصلی معماری NestJS را تشکیل می‌دهند.
+                </div>
+            </section>
+
+            <!-- Database -->
+            <section id="database">
+                <h2>🗄️ پیکربندی پایگاه داده</h2>
+
+                <h3>تنظیم TypeORM</h3>
+                <p>در فایل <code>app.module.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: 'your_password',
+      database: 'nestjs_db',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true, // فقط در development
+    }),
+    // سایر ماژول‌ها
+  ],
+})
+export class AppModule {}
+                </div>
+
+                <div class="warning">
+                    ⚠️ <strong>هشدار:</strong> هرگز <code>synchronize: true</code> را در محیط production استفاده نکنید!
+                </div>
+
+                <h3>ساخت Entity</h3>
+                <p>فایل <code>user.entity.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+
+export type UserRole = 'admin' | 'user';
+
+@Entity('users')
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ unique: true })
+  username: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  password: string;
+
+  @Column({ type: 'enum', enum: ['admin', 'user'], default: 'user' })
+  role: UserRole;
+
+  @CreateDateColumn()
+  createdAt: Date;
+}
+                </div>
+
+                <h3>Entity برای Evaluation</h3>
+                <div class="code-block" data-lang="typescript">
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+@Entity('evaluations')
+export class Evaluation {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  title: string;
+
+  @Column({ type: 'int', default: 0 })
+  score: number;
+
+  @Column({ type: 'text', nullable: true })
+  comment: string;
+
+  @Column()
+  evaluatorId: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+}
+                </div>
+            </section>
+
+            <!-- Authentication -->
+            <section id="auth">
+                <h2>🔐 احراز هویت با JWT</h2>
+
+                <h3>مرحله ۱: ساخت Auth Module</h3>
+                <div class="code-block" data-lang="bash">
+nest g module auth
+nest g service auth
+nest g controller auth
+                </div>
+
+                <h3>مرحله ۲: پیکربندی JWT Strategy</h3>
+                <p>فایل <code>jwt.strategy.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: 'YOUR_SECRET_KEY', // از .env بخوانید
+    });
+  }
+
+  async validate(payload: any) {
+    return { 
+      userId: payload.sub, 
+      username: payload.username,
+      role: payload.role 
+    };
+  }
+}
+                </div>
+
+                <h3>مرحله ۳: Auth Service</h3>
+                <div class="code-block" data-lang="typescript">
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/user.entity';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private jwtService: JwtService,
+  ) {}
+
+  async register(username: string, email: string, password: string) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const user = this.usersRepository.create({
+      username,
+      email,
+      password: hashedPassword,
+    });
+
+    return this.usersRepository.save(user);
+  }
+
+  async login(username: string, password: string) {
+    const user = await this.usersRepository.findOne({ 
+      where: { username } 
+    });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedException('اطلاعات ورود نادرست است');
+    }
+
+    const payload = { 
+      username: user.username, 
+      sub: user.id,
+      role: user.role 
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+}
+                </div>
+
+                <h3>مرحله ۴: Auth Controller</h3>
+                <div class="code-block" data-lang="typescript">
+import { Controller, Post, Body } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+
+@ApiTags('Authentication')
+@Controller('auth')
+export class AuthController {
+  constructor(private authService: AuthService) {}
+
+  @Post('register')
+  @ApiOperation({ summary: 'ثبت‌نام کاربر جدید' })
+  async register(@Body() body: any) {
+    return this.authService.register(
+      body.username, 
+      body.email, 
+      body.password
+    );
+  }
+
+  @Post('login')
+  @ApiOperation({ summary: 'ورود به سیستم' })
+  async login(@Body() body: any) {
+    return this.authService.login(body.username, body.password);
+  }
+}
+                </div>
+
+                <h3>مرحله ۵: JWT Guard</h3>
+                <div class="code-block" data-lang="typescript">
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
+                </div>
+
+                <h3>مرحله ۶: Auth Module کامل</h3>
+                <div class="code-block" data-lang="typescript">
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { JwtStrategy } from './jwt.strategy';
+import { User } from '../users/user.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    PassportModule,
+    JwtModule.register({
+      secret: 'YOUR_SECRET_KEY',
+      signOptions: { expiresIn: '24h' },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+                </div>
+            </section>
+
+            <!-- CRUD Operations -->
+            <section id="crud">
+                <h2>📝 عملیات CRUD</h2>
+
+                <h3>Evaluations Service</h3>
+                <div class="code-block" data-lang="typescript">
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Evaluation } from './evaluation.entity';
+
+@Injectable()
+export class EvaluationsService {
+  constructor(
+    @InjectRepository(Evaluation)
+    private evaluationsRepo: Repository<Evaluation>,
+  ) {}
+
+  // ایجاد
+  async create(data: Partial<Evaluation>) {
+    const evaluation = this.evaluationsRepo.create(data);
+    return this.evaluationsRepo.save(evaluation);
+  }
+
+  // دریافت همه با صفحه‌بندی
+  async findAll(page = 1, limit = 10) {
+    const [items, total] = await this.evaluationsRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      items,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
+  // دریافت یک مورد
+  async findOne(id: number) {
+    const evaluation = await this.evaluationsRepo.findOne({ 
+      where: { id } 
+    });
+    
+    if (!evaluation) {
+      throw new NotFoundException(`ارزیابی با شناسه ${id} یافت نشد`);
+    }
+    
+    return evaluation;
+  }
+
+  // به‌روزرسانی
+  async update(id: number, data: Partial<Evaluation>) {
+    await this.findOne(id); // بررسی وجود
+    await this.evaluationsRepo.update(id, data);
+    return this.findOne(id);
+  }
+
+  // حذف
+  async remove(id: number) {
+    await this.findOne(id); // بررسی وجود
+    await this.evaluationsRepo.delete(id);
+    return { message: 'ارزیابی با موفقیت حذف شد' };
+  }
+}
+                </div>
+
+                <h3>Evaluations Controller</h3>
+                <div class="code-block" data-lang="typescript">
+import { 
+  Controller, Get, Post, Body, Param, 
+  Delete, Put, Query, UseGuards, Request 
+} from '@nestjs/common';
+import { EvaluationsService } from './evaluations.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { ApiBearerAuth, ApiTags, ApiOperation, ApiQuery } from '@nestjs/swagger';
+
+@ApiTags('Evaluations')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Controller('evaluations')
+export class EvaluationsController {
+  constructor(private service: EvaluationsService) {}
+
+  @Post()
+  @Roles('admin', 'user')
+  @ApiOperation({ summary: 'ایجاد ارزیابی جدید' })
+  create(@Body() data: any, @Request() req) {
+    return this.service.create({
+      ...data,
+      evaluatorId: req.user.userId,
+    });
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'دریافت لیست ارزیابی‌ها' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  findAll(
+    @Query('page') page = 1, 
+    @Query('limit') limit = 10
+  ) {
+    return this.service.findAll(+page, +limit);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'دریافت یک ارزیابی' })
+  findOne(@Param('id') id: number) {
+    return this.service.findOne(+id);
+  }
+
+  @Put(':id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'به‌روزرسانی ارزیابی' })
+  update(@Param('id') id: number, @Body() data: any) {
+    return this.service.update(+id, data);
+  }
+
+  @Delete(':id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'حذف ارزیابی' })
+  remove(@Param('id') id: number) {
+    return this.service.remove(+id);
+  }
+}
+                </div>
+            </section>
+
+            <!-- Role Management -->
+            <section id="roles">
+                <h2>👥 مدیریت نقش‌ها</h2>
+
+                <h3>Roles Decorator</h3>
+                <p>فایل <code>common/decorators/roles.decorator.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { SetMetadata } from '@nestjs/common';
+
+export const ROLES_KEY = 'roles';
+export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);
+                </div>
+
+                <h3>Roles Guard</h3>
+                <p>فایل <code>common/guards/roles.guard.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { ROLES_KEY } from '../decorators/roles.decorator';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (!requiredRoles) {
+      return true;
+    }
+
+    const { user } = context.switchToHttp().getRequest();
+    return requiredRoles.some((role) => user.role === role);
+  }
+}
+                </div>
+
+                <h3>استفاده از Roles</h3>
+                <div class="code-block" data-lang="typescript">
+@Delete(':id')
+@Roles('admin')  // فقط ادمین‌ها می‌توانند حذف کنند
+@UseGuards(JwtAuthGuard, RolesGuard)
+remove(@Param('id') id: number) {
+  return this.service.remove(+id);
+}
+                </div>
+            </section>
+
+            <!-- Validation -->
+            <section id="validation">
+                <h2>✅ اعتبارسنجی داده‌ها</h2>
+
+                <h3>فعال‌سازی ValidationPipe</h3>
+                <p>در فایل <code>main.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
+  
+  await app.listen(3000);
+}
+                </div>
+
+                <h3>ساخت DTO</h3>
+                <p>فایل <code>create-evaluation.dto.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { IsString, IsInt, Min, Max, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class CreateEvaluationDto {
+  @ApiProperty({ example: 'ارزیابی عملکرد ماهانه' })
+  @IsString()
+  title: string;
+
+  @ApiProperty({ example: 85, minimum: 0, maximum: 100 })
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  score: number;
+
+  @ApiProperty({ required: false, example: 'عملکرد خوبی داشته است' })
+  @IsOptional()
+  @IsString()
+  comment?: string;
+}
+                </div>
+
+                <h3>استفاده از DTO در Controller</h3>
+                <div class="code-block" data-lang="typescript">
+@Post()
+create(@Body() createDto: CreateEvaluationDto) {
+  return this.service.create(createDto);
+}
+                </div>
+            </section>
+
+            <!-- Swagger -->
+            <section id="swagger">
+                <h2>📖 مستندسازی با Swagger</h2>
+
+                <h3>تنظیم Swagger</h3>
+                <p>در فایل <code>main.ts</code>:</p>
+
+                <div class="code-block" data-lang="typescript">
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  const config = new DocumentBuilder()
+    .setTitle('API ارزیابی منابع انسانی')
+    .setDescription('مستندات کامل REST API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('Authentication', 'عملیات مربوط به احراز هویت')
+    .addTag('Evaluations', 'عملیات مربوط به ارزیابی‌ها')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  await app.listen(3000);
+}
+bootstrap();
+                </div><div class="success">
+                    ✅ مستندات Swagger در آدرس <code>http://localhost:3000/api/docs</code> در دسترس است!
+                </div>
+
+                <h3>دکوریتورهای مفید Swagger</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>دکوریتور</th>
+                            <th>کاربرد</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>@ApiTags()</code></td>
+                            <td>گروه‌بندی endpoint‌ها</td>
+                            <td><code>@ApiTags('Users')</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@ApiOperation()</code></td>
+                            <td>توضیح عملیات</td>
+                            <td><code>@ApiOperation({ summary: 'ایجاد کاربر' })</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@ApiBearerAuth()</code></td>
+                            <td>نیاز به توکن JWT</td>
+                            <td><code>@ApiBearerAuth()</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@ApiResponse()</code></td>
+                            <td>تعریف پاسخ‌ها</td>
+                            <td><code>@ApiResponse({ status: 201 })</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>@ApiProperty()</code></td>
+                            <td>توضیح فیلدهای DTO</td>
+                            <td><code>@ApiProperty({ example: 'John' })</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>مثال کامل Controller با Swagger</h3>
+                <div class="code-block" data-lang="typescript">
+import { 
+  Controller, Get, Post, Body, Param, 
+  HttpStatus, HttpCode 
+} from '@nestjs/common';
+import { 
+  ApiTags, ApiBearerAuth, ApiOperation, 
+  ApiResponse, ApiParam 
+} from '@nestjs/swagger';
+
+@ApiTags('Evaluations')
+@ApiBearerAuth()
+@Controller('evaluations')
+export class EvaluationsController {
+  
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ 
+    summary: 'ایجاد ارزیابی جدید',
+    description: 'این endpoint برای ایجاد یک ارزیابی جدید استفاده می‌شود'
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'ارزیابی با موفقیت ایجاد شد' 
+  })
+  @ApiResponse({ 
+    status: 400, 
+    description: 'داده‌های ورودی نامعتبر' 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'کاربر احراز هویت نشده' 
+  })
+  create(@Body() createDto: CreateEvaluationDto) {
+    return this.service.create(createDto);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'دریافت یک ارزیابی بر اساس شناسه' })
+  @ApiParam({ name: 'id', description: 'شناسه ارزیابی', type: Number })
+  @ApiResponse({ status: 200, description: 'ارزیابی یافت شد' })
+  @ApiResponse({ status: 404, description: 'ارزیابی یافت نشد' })
+  findOne(@Param('id') id: number) {
+    return this.service.findOne(+id);
+  }
+}
+                </div>
+            </section>
+
+            <!-- Docker -->
+            <section id="docker">
+                <h2>🐳 Docker و Containerization</h2>
+
+                <h3>Dockerfile</h3>
+                <div class="code-block" data-lang="dockerfile">
+# مرحله Build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# کپی فایل‌های package
+COPY package*.json ./
+
+# نصب dependencies
+RUN npm ci
+
+# کپی کل پروژه
+COPY . .
+
+# Build کردن پروژه
+RUN npm run build
+
+# مرحله Production
+FROM node:18-alpine AS production
+
+WORKDIR /app
+
+# کپی package files
+COPY package*.json ./
+
+# نصب فقط dependencies production
+RUN npm ci --only=production
+
+# کپی فایل‌های build شده
+COPY --from=builder /app/dist ./dist
+
+# تعریف متغیر محیطی
+ENV NODE_ENV=production
+
+# باز کردن پورت
+EXPOSE 3000
+
+# اجرای برنامه
+CMD ["node", "dist/main"]
+                </div>
+
+                <h3>.dockerignore</h3>
+                <div class="code-block" data-lang="text">
+node_modules
+dist
+.git
+.env
+*.md
+.vscode
+coverage
+.DS_Store
+npm-debug.log
+                </div>
+
+                <h3>docker-compose.yml</h3>
+                <div class="code-block" data-lang="yaml">
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nestjs_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: [REDACTED]
+      POSTGRES_DB: nestjs_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nestjs_network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: nestjs_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - nestjs_network
+
+  # NestJS Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs_app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: [REDACTED]
+      DATABASE_NAME: nestjs_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: your_secret_key_here
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - nestjs_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  nestjs_network:
+    driver: bridge
+                </div>
+
+                <h3>دستورات Docker</h3>
+                <div class="code-block" data-lang="bash">
+# Build کردن image
+docker build -t my-nestjs-api .
+
+# اجرای container
+docker run -p 3000:3000 my-nestjs-api
+
+# استفاده از docker-compose
+docker-compose up -d
+
+# مشاهده لاگ‌ها
+docker-compose logs -f app
+
+# توقف سرویس‌ها
+docker-compose down
+
+# حذف volumes
+docker-compose down -v
+                </div>
+
+                <div class="note">
+                    📝 <strong>نکته:</strong> برای محیط production حتماً از multi-stage build استفاده کنید تا حجم image کاهش یابد.
+                </div>
+            </section>
+
+            <!-- Environment Variables -->
+            <section id="env">
+                <h2>🔧 مدیریت متغیرهای محیطی</h2>
+
+                <h3>نصب ConfigModule</h3>
+                <div class="code-block" data-lang="bash">
+npm install @nestjs/config
+                </div>
+
+                <h3>فایل .env</h3>
+                <div class="code-block" data-lang="env">
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=postgres
+DATABASE_PASSWORD=[REDACTED]
+DATABASE_NAME=nestjs_db
+
+# JWT
+JWT_SECRET=your_super_secret_key_change_this_in_production
+JWT_EXPIRATION=24h
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# App
+PORT=3000
+NODE_ENV=development
+                </div>
+
+                <h3>تنظیم ConfigModule</h3>
+                <div class="code-block" data-lang="typescript">
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DATABASE_HOST,
+      port: parseInt(process.env.DATABASE_PORT, 10),
+      username: process.env.DATABASE_USER,
+      password: process.env.DATABASE_PASSWORD,
+      database: process.env.DATABASE_NAME,
+      autoLoadEntities: true,
+      synchronize: process.env.NODE_ENV === 'development',
+    }),
+  ],
+})
+export class AppModule {}
+                </div>
+
+                <h3>استفاده از ConfigService</h3>
+                <div class="code-block" data-lang="typescript">
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+@Injectable()
+export class SomeService {
+  constructor(private configService: ConfigService) {}
+
+  getJwtSecret(): string {
+    return this.configService.get<string>('JWT_SECRET');
+  }
+
+  getDatabaseHost(): string {
+    return this.configService.get<string>('DATABASE_HOST');
+  }
+}
+                </div>
+
+                <div class="warning">
+                    ⚠️ <strong>امنیت:</strong> هرگز فایل <code>.env</code> را در git commit نکنید! آن را به <code>.gitignore</code> اضافه کنید.
+                </div>
+            </section>
+
+            <!-- Error Handling -->
+            <section id="errors">
+                <h2>⚠️ مدیریت خطاها</h2>
+
+                <h3>Exception Filters سفارشی</h3>
+                <div class="code-block" data-lang="typescript">
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { Response } from 'express';
+
+@Catch()
+export class AllExceptionsFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest();
+
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    const message =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : 'خطای داخلی سرور';
+
+    response.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      message,
+    });
+  }
+}
+                </div>
+
+                <h3>استفاده از Exception Filter</h3>
+                <div class="code-block" data-lang="typescript">
+// در main.ts
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalFilters(new AllExceptionsFilter());
+  await app.listen(3000);
+}
+                </div>
+
+                <h3>خطاهای رایج HTTP</h3>
+                <div class="code-block" data-lang="typescript">
+import { 
+  BadRequestException, 
+  UnauthorizedException,
+  NotFoundException,
+  ForbiddenException,
+  ConflictException 
+} from '@nestjs/common';
+
+// مثال استفاده
+async findOne(id: number) {
+  const item = await this.repository.findOne({ where: { id } });
+  
+  if (!item) {
+    throw new NotFoundException(`آیتم با شناسه ${id} یافت نشد`);
+  }
+  
+  return item;
+}
+
+// خطای سفارشی
+throw new BadRequestException({
+  statusCode: 400,
+  message: 'داده‌های ورودی نامعتبر',
+  errors: ['فیلد email الزامی است', 'رمز عبور باید حداقل 8 کاراکتر باشد']
+});
+                </div>
+            </section>
+
+            <!-- Interceptors & Middleware -->
+            <section id="interceptors">
+                <h2>🔄 Interceptors و Middleware</h2>
+
+                <h3>Logging Interceptor</h3>
+                <div class="code-block" data-lang="typescript">
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const request = context.switchToHttp().getRequest();
+    const method = request.method;
+    const url = request.url;
+    const now = Date.now();
+
+    console.log(`[${method}] ${url} - شروع درخواست`);
+
+    return next.handle().pipe(
+      tap(() => {
+        const duration = Date.now() - now;
+        console.log(`[${method}] ${url} - اتمام درخواست (${duration}ms)`);
+      }),
+    );
+  }
+}
+                </div>
+
+                <h3>Transform Interceptor (برای پاسخ یکسان)</h3>
+                <div class="code-block" data-lang="typescript">
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
+export interface Response<T> {
+  success: boolean;
+  data: T;
+  timestamp: string;
+}
+
+@Injectable()
+export class TransformInterceptor<T>
+  implements NestInterceptor<T, Response<T>> {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable<Response<T>> {
+    return next.handle().pipe(
+      map((data) => ({
+        success: true,
+        data,
+        timestamp: new Date().toISOString(),
+      })),
+    );
+  }
+}
+                </div>
+
+                <h3>استفاده Global</h3>
+                <div class="code-block" data-lang="typescript">
+// در main.ts
+app.useGlobalInterceptors(
+  new LoggingInterceptor(),
+  new TransformInterceptor(),
+);
+                </div>
+
+                <h3>Middleware برای Logging</h3>
+                <div class="code-block" data-lang="typescript">
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log(`[${req.method}] ${req.originalUrl}`);
+    console.log('Body:', req.body);
+    console.log('User:', req['user']);
+    next();
+  }
+}
+
+// استفاده در AppModule
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('*');
+  }
+}
+                </div>
+            </section>
+
+            <!-- Testing -->
+            <section id="testing">
+                <h2>🧪 تست نویسی</h2>
+
+                <h3>Unit Test برای Service</h3>
+                <div class="code-block" data-lang="typescript">
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { EvaluationsService } from './evaluations.service';
+import { Evaluation } from './evaluation.entity';
+
+describe('EvaluationsService', () => {
+  let service: EvaluationsService;
+  let mockRepository: any;
+
+  beforeEach(async () => {
+    mockRepository = {
+      create: jest.fn(),
+      save: jest.fn(),
+      findOne: jest.fn(),
+      findAndCount: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        EvaluationsService,
+        {
+          provide: getRepositoryToken(Evaluation),
+          useValue: mockRepository,
+        },
+      ],
+    }).compile();
+
+    service = module.get<EvaluationsService>(EvaluationsService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('create', () => {
+    it('should create an evaluation', async () => {
+      const dto = { title: 'Test', score: 85 };
+      const savedEvaluation = { id: 1, ...dto };
+
+      mockRepository.create.mockReturnValue(dto);
+      mockRepository.save.mockResolvedValue(savedEvaluation);
+
+      const result = await service.create(dto);
+
+      expect(result).toEqual(savedEvaluation);
+      expect(mockRepository.create).toHaveBeenCalledWith(dto);
+      expect(mockRepository.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('findAll', () => {
+    it('should return paginated evaluations', async () => {
+      const evaluations = [
+        { id: 1, title: 'Test 1', score: 80 },
+        { id: 2, title: 'Test 2', score: 90 },
+      ];
+
+      mockRepository.findAndCount.mockResolvedValue([evaluations, 2]);
+
+      const result = await service.findAll(1, 10);
+
+      expect(result.items).toEqual(evaluations);
+      expect(result.total).toBe(2);
+      expect(result.page).toBe(1);
+    });
+  });
+});
+                </div>
+
+                <h3>E2E Test</h3>
+                <div class="code-block" data-lang="typescript">
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from './../src/app.module';
+
+describe('EvaluationsController (e2e)', () => {
+  let app: INestApplication;
+  let authToken: string;
+
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe());
+    await app.init();
+
+    // ورود و دریافت توکن
+    const loginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ username: 'admin', password: '[REDACTED]' });
+
+    authToken = loginResponse.body.access_token;
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('/evaluations (POST)', () => {
+    return request(app.getHttpServer())
+      .post('/evaluations')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({
+        title: 'Test Evaluation',
+        score: 85,
+        comment: 'Good performance',
+      })
+      .expect(201)
+      .expect((res) => {
+        expect(res.body).toHaveProperty('id');
+        expect(res.body.title).toBe('Test Evaluation');
+      });
+  });
+
+  it('/evaluations (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/evaluations')
+      .set('Authorization', `Bearer ${authToken}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body).toHaveProperty('items');
+        expect(res.body).toHaveProperty('total');
+      });
+  });
+});
+                </div>
+
+                <h3>اجرای تست‌ها</h3>
+                <div class="code-block" data-lang="bash">
+# Unit tests
+npm run test
+
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
+                </div>
+            </section>
+
+            <!-- Performance & Optimization -->
+            <section id="performance">
+                <h2>⚡ بهینه‌سازی عملکرد</h2>
+
+                <h3>1. Database Query Optimization</h3>
+                <div class="code-block" data-lang="typescript">
+// بد: N+1 Query Problem
+const users = await this.usersRepo.find();
+for (const user of users) {
+  user.evaluations = await this.evaluationsRepo.find({ 
+    where: { userId: user.id } 
+  });
+}
+
+// خوب: استفاده از relations
+const users = await this.usersRepo.find({
+  relations: ['evaluations'],
+});
+
+// بهتر: استفاده از Query Builder
+const users = await this.usersRepo
+  .createQueryBuilder('user')
+  .leftJoinAndSelect('user.evaluations', 'evaluation')
+  .where('user.isActive = :active', { active: true })
+  .getMany();
+                </div>
+
+                <h3>2. Caching با Redis</h3>
+                <div class="code-block" data-lang="typescript">
+import { Injectable, Inject, CACHE_MANAGER } from '@nestjs/common';
+import { Cache } from 'cache-manager';
+
+@Injectable()
+export class EvaluationsService {
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @InjectRepository(Evaluation)
+    private evaluationsRepo: Repository<Evaluation>,
+  ) {}
+
+  async findAll(page: number, limit: number) {
+    const cacheKey = `evaluations:page:${page}:limit:${limit}`;
+    
+    // بررسی cache
+    const cached = await this.cacheManager.get(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    // اگر در cache نبود، از DB بخوان
+    const result = await this.evaluationsRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    // ذخیره در cache (TTL: 5 دقیقه)
+    await this.cacheManager.set(cacheKey, result, 300);
+
+    return result;
+  }
+}
+                </div>
+
+                <h3>3. Compression</h3>
+                <div class="code-block" data-lang="typescript">
+// نصب
+npm install compression
+
+// در main.ts
+import * as compression from 'compression';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.use(compression());
+  await app.listen(3000);
+}
+                </div>
+
+                <h3>4. Rate Limiting</h3>
+                <div class="code-block" data-lang="bash">
+npm install @nestjs/throttler
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import { ThrottlerModule } from '@nestjs/throttler';
+
+@Module({
+  imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,      // 60 ثانیه
+      limit: 100,   // حداکثر 100 درخواست
+    }),
+  ],
+})
+export class AppModule {}
+
+// استفاده در Controller
+import { Throttle } from '@nestjs/throttler';
+
+@Controller('evaluations')
+export class EvaluationsController {
+  @Get()
+  @Throttle(10, 60) // 10 درخواست در 60 ثانیه
+  findAll() {
+    return this.service.findAll();
+  }
+}
+                </div>
+
+                <h3>5. Database Indexing</h3>
+                <div class="code-block" data-lang="typescript">
+import { Entity, Column, Index } from 'typeorm';
+
+@Entity()
+@Index(['userId', 'createdAt']) // Composite index
+export class Evaluation {
+  @Column()
+  @Index() // Single column index
+  userId: number;
+
+  @Column()
+  @Index()
+  status: string;
+
+  @Column()
+  createdAt: Date;
+}
+                </div>
+            </section>
+
+            <!-- Security Best Practices -->
+            <section id="security">
+                <h2>🔒 امنیت</h2>
+
+                <h3>1. Helmet (HTTP Headers Security)</h3>
+                <div class="code-block" data-lang="bash">
+npm install helmet
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import helmet from 'helmet';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.use(helmet());
+  await app.listen(3000);
+}
+                </div>
+
+                <h3>2. CORS</h3>
+                <div class="code-block" data-lang="typescript">
+app.enableCors({
+  origin: ['https://yourdomain.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+});
+                </div>
+
+                <h3>3. SQL Injection Prevention</h3>
+                <div class="code-block" data-lang="typescript">
+// بد: رشته‌سازی مستقیم
+const query = `SELECT * FROM users WHERE username = '${username}'`;
+
+// خوب: استفاده از Parameterized Queries
+const user = await this.usersRepo.findOne({
+  where: { username },
+});
+
+// یا Query Builder
+const user = await this.usersRepo
+  .createQueryBuilder('user')
+  .where('user.username = :username', { username })
+  .getOne();
+                </div>
+
+                <h3>4. XSS Prevention</h3>
+                <div class="code-block" data-lang="typescript">
+import { Transform } from 'class-transformer';
+import * as sanitizeHtml from 'sanitize-html';
+
+export class CreatePostDto {
+  @Transform(({ value }) => sanitizeHtml(value))
+  content: string;
+}
+                </div>
+
+                <h3>5. Password Hashing</h3>
+                <div class="code-block" data-lang="typescript">
+import * as bcrypt from 'bcrypt';
+
+// هنگام ثبت‌نام
+const saltRounds = 10;
+const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+// هنگام ورود
+const isMatch = await bcrypt.compare(inputPassword, storedHash);
+                </div>
+
+                <h3>6. Environment Variables</h3>
+                <div class="warning">
+                    ⚠️ <strong>هشدار امنیتی:</strong>
+                    <ul>
+                        <li>هرگز اطلاعات حساس را در کد قرار ندهید</li>
+                        <li>از <code>.env</code> برای تنظیمات محلی استفاده کنید</li>
+                        <li>در production از سرویس‌های مدیریت Secret استفاده کنید</li>
+                        <li>JWT Secret را پیچیده و منحصر به فرد انتخاب کنید</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section id="best-practices">
+                <h2>✨ بهترین شیوه‌های توسعه</h2>
+
+                <h3>1. ساختار پروژه</h3>
+                <ul>
+                    <li>هر feature در یک ماژول جداگانه</li>
+                    <li>استفاده از Barrel Exports (<code>index.ts</code>)</li>
+                    <li>جداسازی Business Logic از Controllers</li>
+                    <li>استفاده از DTOs برای validation</li>
+                </ul>
+
+                <h3>2. Naming Conventions</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع فایل</th>
+                            <th>الگوی نام‌گذاری</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Controller</td>
+                            <td><code>*.controller.ts</code></td>
+                            <td><code>users.controller.ts</code></td>
+                        </tr>
+                        <tr>
+                            <td>Service</td>
+                            <td><code>*.service.ts</code></td>
+                            <td><code>users.service.ts</code></td>
+                        </tr>
+                        <tr>
+                            <td>Module</td>
+                            <td><code>*.module.ts</code></td>
+                            <td><code>users.module.ts</code></td>
+                        </tr>
+                        <tr>
+                            <td>Entity</td>
+                            <td><code>*.entity.ts</code></td>
+                            <td><code>user.entity.ts</code></td>
+                        </tr>
+                        <tr>
+                            <td>DTO</td>
+                            <td><code>*.dto.ts</code></td>
+                            <td><code>create-user.dto.ts</code></td>
+                        </tr>
+                        <tr>
+                            <td>Guard</td>
+                            <td><code>*.guard.ts</code></td>
+                            <td><code>jwt-auth.guard.ts</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>3. Error Handling</h3>
+                <div class="code-block" data-lang="typescript">
+// استفاده از Exception Filters
+try {
+  return await this.service.create(data);
+} catch (error) {
+  if (error.code === '23505') { // Duplicate key
+    throw new ConflictException('این رکورد قبلاً ثبت شده است');
+  }
+  throw new InternalServerErrorException('خطای داخلی سرور');
+}
+                </div>
+
+                <h3>4. Logging</h3>
+                <div class="code-block" data-lang="typescript">
+import { Logger } from '@nestjs/common';
+
+@Injectable()
+export class EvaluationsService {
+  private readonly logger = new Logger(EvaluationsService.name);
+
+  async create(data: any) {
+    this.logger.log(`ایجاد ارزیابی جدید: ${JSON.stringify(data)}`);
+    
+    try {
+      const result = await this.repository.save(data);
+      this.logger.log(`ارزیابی با شناسه ${result.id} ایجاد شد`);
+      return result;
+    } catch (error) {
+      this.logger.error(`خطا در ایجاد ارزیابی: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+}
+                </div>
+
+                <h3>5. استفاده از TypeScript به درستی</h3>
+                <div class="code-block" data-lang="typescript">
+// بد
+async findOne(id: any): Promise<any> {
+  return this.repository.findOne(id);
+}
+
+// خوب
+async findOne(id: number): Promise<Evaluation> {
+  const evaluation = await this.repository.findOne({ where: { id } });
+  
+  if (!evaluation) {
+    throw new NotFoundException(`ارزیابی با شناسه ${id} یافت نشد`);
+  }
+  
+  return evaluation;
+}
+                </div>
+
+                <h3>6. Dependency Injection</h3>
+                <div class="code-block" data-lang="typescript">
+// بد: ایجاد مستقیم instance
+export class UsersController {
+  private service = new UsersService();
+}
+
+// خوب: استفاده از DI
+@Controller('users')
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+}
+                </div>
+
+                <div class="highlight">
+                    <strong>💡 نکات طلایی:</strong>
+                    <ul>
+                        <li>همیشه از <code>async/await</code> به جای callbacks استفاده کنید</li>
+                        <li>از <code>readonly</code> برای dependencies استفاده کنید</li>
+                        <li>کد را DRY (Don't Repeat Yourself) نگه دارید</li>
+                        <li>تست بنویسید! حداقل 80% coverage</li>
+                        <li>از ESLint و Prettier استفاده کنید</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Deployment -->
+            <section id="deployment">
+                <h2>🚀 استقرار (Deployment)</h2>
+
+                <h3>آماده‌سازی برای Production</h3>
+
+                <h4>1. تنظیمات محیط Production</h4>
+                <div class="code-block" data-lang="env">
+NODE_ENV=production
+PORT=3000
+
+# Database
+DATABASE_HOST=your-db-host.com
+DATABASE_PORT=5432
+DATABASE_USER=prod_user
+DATABASE_PASSWORD=[REDACTED]
+DATABASE_NAME=prod_database
+DATABASE_SSL=true
+
+# JWT
+JWT_SECRET=very_complex_secret_key_for_production_123456789
+JWT_EXPIRATION=1h
+
+# Redis
+REDIS_HOST=your-redis-host.com
+REDIS_PORT=6379
+REDIS_PASSWORD=[REDACTED]
+                </div>
+
+                <h4>2. Build برای Production</h4>
+                <div class="code-block" data-lang="bash">
+# نصب dependencies
+npm ci --only=production
+
+# Build پروژه
+npm run build
+
+# اجرای برنامه
+node dist/main.js
+                </div>
+
+                <h3>استقرار با PM2</h3>
+                <div class="code-block" data-lang="bash">
+# نصب PM2
+npm install -g pm2
+
+# اجرای برنامه با PM2
+pm2 start dist/main.js --name "nestjs-api"
+
+# مشاهده وضعیت
+pm2 status
+
+# مشاهده لاگ‌ها
+pm2 logs nestjs-api
+
+# راه‌اندازی مجدد
+pm2 restart nestjs-api
+
+# توقف
+pm2 stop nestjs-api
+                </div>
+
+                <h4>فایل ecosystem.config.js برای PM2</h4>
+                <div class="code-block" data-lang="javascript">
+module.exports = {
+  apps: [{
+    name: 'nestjs-api',
+    script: './dist/main.js',
+    instances: 'max',
+    exec_mode: 'cluster',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000
+    },
+    error_file: './logs/err.log',
+    out_file: './logs/out.log',
+    log_date_format: 'YYYY-MM-DD HH:mm:ss',
+    merge_logs: true,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+  }]
+};
+                </div>
+
+                <h3>استقرار با Docker</h3>
+                <div class="code-block" data-lang="bash">
+# Build image
+docker build -t my-nestjs-api:latest .
+
+# Push به registry
+docker tag my-nestjs-api:latest registry.example.com/my-nestjs-api:latest
+docker push registry.example.com/my-nestjs-api:latest
+
+# اجرا در سرور
+docker pull registry.example.com/my-nestjs-api:latest
+docker run -d \
+  --name nestjs-api \
+  -p 3000:3000 \
+  --env-file .env.production \
+  registry.example.com/my-nestjs-api:latest
+                </div>
+
+                <h3>استقرار روی Heroku</h3>
+                <div class="code-block" data-lang="bash">
+# نصب Heroku CLI
+npm install -g heroku
+
+# ورود به Heroku
+heroku login
+
+# ایجاد اپلیکیشن
+heroku create my-nestjs-api
+
+# اضافه کردن PostgreSQL
+heroku addons:create heroku-postgresql:hobby-dev
+
+# تنظیم متغیرهای محیطی
+heroku config:set NODE_ENV=production
+heroku config:set JWT_SECRET=your_secret_key
+
+# Deploy
+git push heroku main
+
+# مشاهده لاگ‌ها
+heroku logs --tail
+                </div>
+
+                <h4>Procfile برای Heroku</h4>
+                <div class="code-block" data-lang="text">
+web: npm run start:prod
+                </div>
+
+                <h3>استقرار روی AWS (EC2)</h3>
+                <div class="code-block" data-lang="bash">
+# اتصال به سرور
+ssh -i your-key.pem ubuntu@your-ec2-ip
+
+# نصب Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# کلون پروژه
+git clone https://github.com/your-repo/nestjs-api.git
+cd nestjs-api
+
+# نصب dependencies
+npm install
+
+# Build
+npm run build
+
+# اجرا با PM2
+npm install -g pm2
+pm2 start dist/main.js
+pm2 startup
+pm2 save
+                </div>
+
+                <h3>NGINX Configuration</h3>
+                <div class="code-block" data-lang="nginx">
+server {
+    listen 80;
+    server_name api.yourdomain.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+                </div>
+
+                <h3>SSL با Let's Encrypt</h3>
+                <div class="code-block" data-lang="bash">
+# نصب Certbot
+sudo apt-get install certbot python3-certbot-nginx
+
+# دریافت گواهی SSL
+sudo certbot --nginx -d api.yourdomain.com
+
+# تمدید خودکار
+sudo certbot renew --dry-run
+                </div>
+            </section>
+
+            <!-- Monitoring -->
+            <section id="monitoring">
+                <h2>📊 مانیتورینگ و لاگینگ</h2>
+
+                <h3>1. Health Check Endpoint</h3>
+                <div class="code-block" data-lang="bash">
+npm install @nestjs/terminus
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import { Controller, Get } from '@nestjs/common';
+import { 
+  HealthCheck, 
+  HealthCheckService, 
+  TypeOrmHealthIndicator,
+  MemoryHealthIndicator,
+  DiskHealthIndicator
+} from '@nestjs/terminus';
+
+@Controller('health')
+export class HealthController {
+  constructor(
+    private health: HealthCheckService,
+    private db: TypeOrmHealthIndicator,
+    private memory: MemoryHealthIndicator,
+    private disk: DiskHealthIndicator,
+  ) {}
+
+  @Get()
+  @HealthCheck()
+  check() {
+    return this.health.check([
+      () => this.db.pingCheck('database'),
+      () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
+      () => this.memory.checkRSS('memory_rss', 150 * 1024 * 1024),
+      () => this.disk.checkStorage('storage', { 
+        path: '/', 
+        thresholdPercent: 0.9 
+      }),
+    ]);
+  }
+}
+                </div>
+
+                <h3>2. Winston Logger</h3>
+                <div class="code-block" data-lang="bash">
+npm install winston nest-winston
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+
+const app = await NestFactory.create(AppModule, {
+  logger: WinstonModule.createLogger({
+    transports: [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.colorize(),
+          winston.format.printf(({ timestamp, level, message }) => {
+            return `${timestamp} [${level}]: ${message}`;
+          }),
+        ),
+      }),
+      new winston.transports.File({
+        filename: 'logs/error.log',
+        level: 'error',
+      }),
+      new winston.transports.File({
+        filename: 'logs/combined.log',
+      }),
+    ],
+  }),
+});
+                </div>
+
+                <h3>3. Prometheus Metrics</h3>
+                <div class="code-block" data-lang="bash">
+npm install @willsoto/nestjs-prometheus prom-client
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+
+@Module({
+  imports: [
+    PrometheusModule.register({
+      path: '/metrics',
+      defaultMetrics: {
+        enabled: true,
+      },
+    }),
+  ],
+})
+export class AppModule {}
+                </div>
+
+                <h3>4. Sentry برای Error Tracking</h3>
+                <div class="code-block" data-lang="bash">
+npm install @sentry/node
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: 'your-sentry-dsn',
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 1.0,
+});
+
+// استفاده در Exception Filter
+@Catch()
+export class SentryFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    Sentry.captureException(exception);
+    // ... بقیه کد
+  }
+}
+                </div>
+            </section>
+
+            <!-- Advanced Topics -->
+            <section id="advanced">
+                <h2>🎓 موضوعات پیشرفته</h2>
+
+                <h3>1. Microservices</h3>
+                <div class="code-block" data-lang="typescript">
+// main.ts
+import { Transport, MicroserviceOptions } from '@nestjs/microservices';
+
+async function bootstrap() {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.TCP,
+      options: {
+        host: '0.0.0.0',
+        port: 3001,
+      },
+    },
+  );
+  await app.listen();
+}
+bootstrap();
+
+// Controller
+@Controller()
+export class MathController {
+  @MessagePattern({ cmd: 'sum' })
+  accumulate(data: number[]): number {
+    return (data || []).reduce((a, b) => a + b);
+  }
+}
+                </div>
+
+                <h3>2. GraphQL Integration</h3>
+                <div class="code-block" data-lang="bash">
+npm install @nestjs/graphql @nestjs/apollo graphql apollo-server-express
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+
+@Module({
+  imports: [
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: true,
+      playground: true,
+    }),
+  ],
+})
+export class AppModule {}
+
+// Resolver
+import { Resolver, Query, Args } from '@nestjs/graphql';
+
+@Resolver()
+export class EvaluationsResolver {
+  constructor(private evaluationsService: EvaluationsService) {}
+
+  @Query(() => [Evaluation])
+  async evaluations() {
+    return this.evaluationsService.findAll();
+  }
+
+  @Query(() => Evaluation)
+  async evaluation(@Args('id') id: number) {
+    return this.evaluationsService.findOne(id);
+  }
+}
+                </div>
+
+                <h3>3. WebSockets</h3>
+                <div class="code-block" data-lang="bash">
+npm install @nestjs/websockets @nestjs/platform-socket.io
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  MessageBody,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server } from 'socket.io';
+
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+})
+export class EventsGateway {
+  @WebSocketServer()
+  server: Server;
+
+  @SubscribeMessage('message')
+  handleMessage(@MessageBody() message: string): string {
+    this.server.emit('message', message);
+    return 'Message received!';
+  }
+}
+                </div>
+
+                <h3>4. Task Scheduling</h3>
+                <div class="code-block" data-lang="bash">
+npm install @nestjs/schedule
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+
+@Injectable()
+export class TasksService {
+  // هر روز ساعت 00:00
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  handleDailyTask() {
+    console.log('اجرای وظیفه روزانه');
+  }
+
+  // هر 30 ثانیه
+  @Cron('*/30 * * * * *')
+  handleEvery30Seconds() {
+    console.log('هر 30 ثانیه');
+  }
+}
+                </div>
+
+                <h3>5. Queue Management با Bull</h3>
+                <div class="code-block" data-lang="bash">
+npm install @nestjs/bull bull
+                </div>
+
+                <div class="code-block" data-lang="typescript">
+import { BullModule } from '@nestjs/bull';
+
+@Module({
+  imports: [
+    BullModule.forRoot({
+      redis: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'email',
+    }),
+  ],
+})
+export class AppModule {}
+
+// Producer
+@Injectable()
+export class EmailService {
+  constructor(@InjectQueue('email') private emailQueue: Queue) {}
+
+  async sendWelcomeEmail(email: string) {
+    await this.emailQueue.add('welcome', {
+      email,
+      subject: 'خوش آمدید',
+    });
+  }
+}
+
+// Consumer
+@Processor('email')
+export class EmailProcessor {
+  @Process('welcome')
+  async handleWelcome(job: Job) {
+    const { email, subject } = job.data;
+    // ارسال ایمیل
+    console.log(`ارسال ایمیل به ${email}`);
+  }
+}
+                </div>
+            </section>
+
+            <!-- CLI Commands -->
+            <section id="cli">
+                <h2>⌨️ دستورات مفید CLI</h2>
+
+                <h3>ساخت اجزای جدید</h3>
+                <div class="code-block" data-lang="bash">
+# ساخت ماژول
+nest g module users
+
+# ساخت کنترلر
+nest g controller users
+
+# ساخت سرویس
+nest g service users
+
+# ساخت کامل یک resource (CRUD)
+nest g resource products
+
+# ساخت Guard
+nest g guard auth/jwt-auth
+
+# ساخت Interceptor
+nest g interceptor logging
+
+# ساخت Middleware
+nest g middleware logger
+
+# ساخت Filter
+nest g filter http-exception
+
+# ساخت Pipe
+nest g pipe validation
+                </div>
+
+                <h3>دستورات اجرا</h3>
+                <div class="code-block" data-lang="bash">
+# اجرا در حالت development
+npm run start
+
+# اجرا با watch mode
+npm run start:dev
+
+# اجرا با debug mode
+npm run start:debug
+
+# Build برای production
+npm run build
+
+# اجرای production
+npm run start:prod
+
+# اجرای تست‌ها
+npm run test
+
+# اجرای e2e تست‌ها
+npm run test:e2e
+
+# بررسی coverage
+npm run test:cov
+
+# Lint کردن کد
+npm run lint
+
+# Format کردن کد
+npm run format
+                </div>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section id="troubleshooting">
+                <h2>🔧 رفع مشکلات رایج</h2>
+
+                <h3>مشکل 1: Cannot find module</h3>
+                <div class="code-block" data-lang="bash">
+# حذف node_modules و نصب مجدد
+rm -rf node_modules package-lock.json
+npm install
+
+# یا با npm ci
+npm ci
+                </div>
+
+                <h3>مشکل 2: Port already in use</h3>
+                <div class="code-block" data-lang="bash">
+# پیدا کردن process روی پورت 3000
+lsof -i :3000
+
+# Kill کردن process
+kill -9 <PID>
+
+# یا تغییر پورت در main.ts
+await app.listen(3001);
+                </div>
+
+                <h3>مشکل 3: Database connection error</h3>
+                <div class="code-block" data-lang="typescript">
+// بررسی تنظیمات database
+TypeOrmModule.forRoot({
+  type: 'postgres',
+  host: process.env.DATABASE_HOST || 'localhost',
+  port: parseInt(process.env.DATABASE_PORT) || 5432,
+  username: process.env.DATABASE_USER || 'postgres',
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME || 'test',
+  synchronize: false, // در production حتماً false
+  logging: true, // برای دیدن query‌ها
+})
+                </div>
+
+                <h3>مشکل 4: Circular dependency</h3>
+                <div class="code-block" data-lang="typescript">
+// استفاده از forwardRef
+@Module({
+  imports: [forwardRef(() => UsersModule)],
+})
+export class AuthModule {}
+
+// در constructor
+constructor(
+  @Inject(forwardRef(() => UsersService))
+  private usersService: UsersService,
+) {}
+                </div>
+
+                <h3>مشکل 5: Memory leak</h3>
+                <div class="code-block" data-lang="bash">
+# بررسی memory usage
+node --max-old-space-size=4096 dist/main.js
+
+# استفاده از clinic.js
+npm install -g clinic
+clinic doctor -- node dist/main.js
+                </div>
+
+                <div class="warning">
+                    ⚠️ <strong>نکات مهم:</strong>
+                    <ul>
+                        <li>همیشه لاگ‌ها را بررسی کنید</li>
+                        <li>از <code>console.log</code> برای debug استفاده کنید</li>
+                        <li>تنظیمات environment را چک کنید</li>
+                        <li>نسخه‌های پکیج‌ها را بررسی کنید</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Resources -->
+            <section id="resources">
+                <h2>📚 منابع یادگیری</h2>
+
+                <h3>مستندات رسمی</h3>
+                <ul>
+                    <li><a href="https://docs.nestjs.com" target="_blank">NestJS Official Documentation</a></li>
+                    <li><a href="https://typeorm.io" target="_blank">TypeORM Documentation</a></li>
+                    <li><a href="https://swagger.io/docs/" target="_blank">Swagger Documentation</a></li>
+                </ul>
+
+                <h3>ویدیوهای آموزشی</h3>
+                <ul>
+                    <li>NestJS Crash Course (YouTube)</li>
+                    <li>Building REST APIs with NestJS</li>
+                    <li>NestJS Microservices Tutorial</li>
+                </ul>
+
+                <h3>کتاب‌های پیشنهادی</h3>
+                <ul>
+                    <li>NestJS: A Progressive Node.js Framework</li>
+                    <li>Building Enterprise Applications with NestJS</li>
+                    <li>TypeScript Deep Dive</li>
+                </ul>
+
+                <h3>ابزارهای مفید</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ابزار</th>
+                            <th>کاربرد</th>
+                            <th>لینک</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Postman</td>
+                            <td>تست API</td>
+                            <td><a href="https://www.postman.com" target="_blank">postman.com</a></td>
+                        </tr>
+                        <tr>
+                            <td>Insomnia</td>
+                            <td>تست API</td>
+                            <td><a href="https://insomnia.rest" target="_blank">insomnia.rest</a></td>
+                        </tr>
+                        <tr>
+                            <td>pgAdmin</td>
+                            <td>مدیریت PostgreSQL</td>
+                            <td><a href="https://www.pgadmin.org" target="_blank">pgadmin.org</a></td>
+                        </tr>
+                        <tr>
+                            <td>Redis Commander</td>
+                            <td>مدیریت Redis</td>
+                            <td><a href="https://github.com/joeferner/redis-commander" target="_blank">GitHub</a></td>
+                        </tr>
+                        <tr>
+                            <td>VS Code</td>
+                            <td>ویرایشگر کد</td>
+                            <td><a href="https://code.visualstudio.com" target="_blank">code.visualstudio.com</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>افزونه‌های VS Code پیشنهادی</h3>
+                <ul>
+                    <li><strong>ESLint</strong> - بررسی کد</li>
+                    <li><strong>Prettier</strong> - فرمت کد</li>
+                    <li><strong>REST Client</strong> - تست API</li>
+                    <li><strong>Docker</strong> - مدیریت کانتینرها</li>
+                    <li><strong>GitLens</strong> - مدیریت Git</li>
+                    <li><strong>Thunder Client</strong> - تست API</li>
+                </ul>
+            </section>
+
+            <!-- Complete Example -->
+            <section id="example">
+                <h2>🎯 مثال کامل یک پروژه</h2>
+
+                <h3>package.json</h3>
+                <div class="code-block" data-lang="json">
+{
+  "name": "nestjs-evaluation-api",
+  "version": "1.0.0",
+  "description": "HR Evaluation REST API",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "@nestjs/jwt": "^10.0.0",
+    "@nestjs/passport": "^10.0.0",
+    "@nestjs/swagger": "^7.0.0",
+    "@nestjs/config": "^3.0.0",
+    "typeorm": "^0.3.17",
+    "pg": "^8.11.0",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "bcrypt": "^5.1.0",
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/testing": "^10.0.0",
+    "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.3.1",
+    "@types/passport-jwt": "^3.0.8",
+    "@types/bcrypt": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.42.0",
+    "jest": "^29.5.0",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.3"
+  }
+}
+                </div>
+
+                <h3>tsconfig.json</h3>
+                <div class="code-block" data-lang="json">
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  }
+}
+                </div>
+
+                <h3>.eslintrc.js</h3>
+                <div class="code-block" data-lang="javascript">
+module.exports = {
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json',
+    tsconfigRootDir: __dirname,
+    sourceType: 'module',
+  },
+  plugins: ['@typescript-eslint/eslint-plugin'],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended',
+  ],
+  root: true,
+  env: {
+    node: true,
+    jest: true,
+  },
+  ignorePatterns: ['.eslintrc.js'],
+  rules: {
+    '@typescript-eslint/interface-name-prefix': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
+};
+                </div>
+
+                <h3>.prettierrc</h3>
+                <div class="code-block" data-lang="json">
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "printWidth": 100,"tabWidth": 2,
+  "semi": true,
+  "arrowParens": "always"
+}
+                </div>
+
+                <h3>.gitignore</h3>
+                <div class="code-block" data-lang="text">
+# compiled output
+/dist
+/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Environment
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+                </div>
+            </section>
+
+            <!-- Quick Start Guide -->
+            <section id="quickstart">
+                <h2>⚡ راهنمای شروع سریع</h2>
+
+                <div class="highlight">
+                    <h3>گام‌های راه‌اندازی پروژه در 10 دقیقه</h3>
+                </div>
+
+                <h4>مرحله 1: نصب و ایجاد پروژه</h4>
+                <div class="code-block" data-lang="bash">
+# نصب NestJS CLI
+npm install -g @nestjs/cli
+
+# ایجاد پروژه جدید
+nest new my-evaluation-api
+
+# ورود به پوشه پروژه
+cd my-evaluation-api
+
+# اجرای پروژه
+npm run start:dev
+                </div>
+
+                <h4>مرحله 2: نصب پکیج‌های ضروری</h4>
+                <div class="code-block" data-lang="bash">
+# TypeORM و PostgreSQL
+npm install @nestjs/typeorm typeorm pg
+
+# JWT و Passport
+npm install @nestjs/jwt @nestjs/passport passport passport-jwt
+npm install --save-dev @types/passport-jwt
+
+# Validation
+npm install class-validator class-transformer
+
+# Swagger
+npm install @nestjs/swagger swagger-ui-express
+
+# Config
+npm install @nestjs/config
+
+# bcrypt
+npm install bcrypt
+npm install --save-dev @types/bcrypt
+                </div>
+
+                <h4>مرحله 3: ایجاد ساختار پروژه</h4>
+                <div class="code-block" data-lang="bash">
+# ایجاد ماژول‌ها
+nest g module auth
+nest g module users
+nest g module evaluations
+
+# ایجاد سرویس‌ها
+nest g service auth
+nest g service users
+nest g service evaluations
+
+# ایجاد کنترلرها
+nest g controller auth
+nest g controller users
+nest g controller evaluations
+                </div>
+
+                <h4>مرحله 4: تنظیم پایگاه داده</h4>
+                <div class="code-block" data-lang="bash">
+# ایجاد دیتابیس PostgreSQL
+createdb nestjs_evaluation_db
+
+# یا با Docker
+docker run --name postgres-nest \
+  -e POSTGRES_PASSWORD=[REDACTED] \
+  -e POSTGRES_DB=nestjs_evaluation_db \
+  -p 5432:5432 \
+  -d postgres:15-alpine
+                </div>
+
+                <h4>مرحله 5: ایجاد فایل .env</h4>
+                <div class="code-block" data-lang="env">
+NODE_ENV=development
+PORT=3000
+
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=postgres
+DATABASE_PASSWORD=[REDACTED]
+DATABASE_NAME=nestjs_evaluation_db
+
+JWT_SECRET=my_super_secret_key_change_in_production
+JWT_EXPIRATION=24h
+                </div>
+
+                <h4>مرحله 6: اجرا و تست</h4>
+                <div class="code-block" data-lang="bash">
+# اجرای پروژه
+npm run start:dev
+
+# دسترسی به Swagger
+# مرورگر: http://localhost:3000/api
+
+# تست Health Check
+curl http://localhost:3000/health
+                </div>
+
+                <div class="success">
+                    ✅ <strong>تبریک!</strong> پروژه شما آماده است. حالا می‌توانید شروع به توسعه کنید!
+                </div>
+            </section>
+
+            <!-- Common Patterns -->
+            <section id="patterns">
+                <h2>🎨 الگوهای رایج طراحی</h2>
+
+                <h3>1. Repository Pattern</h3>
+                <div class="code-block" data-lang="typescript">
+// evaluation.repository.ts
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Evaluation } from './evaluation.entity';
+
+@Injectable()
+export class EvaluationRepository {
+  constructor(
+    @InjectRepository(Evaluation)
+    private repository: Repository<Evaluation>,
+  ) {}
+
+  async findByUserId(userId: number): Promise<Evaluation[]> {
+    return this.repository.find({
+      where: { userId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findWithPagination(page: number, limit: number) {
+    const [items, total] = await this.repository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+
+    return {
+      items,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async findByScoreRange(min: number, max: number): Promise<Evaluation[]> {
+    return this.repository
+      .createQueryBuilder('evaluation')
+      .where('evaluation.score BETWEEN :min AND :max', { min, max })
+      .getMany();
+  }
+}
+                </div>
+
+                <h3>2. Factory Pattern</h3>
+                <div class="code-block" data-lang="typescript">
+// notification.factory.ts
+export interface Notification {
+  send(message: string): Promise<void>;
+}
+
+export class EmailNotification implements Notification {
+  async send(message: string) {
+    console.log(`Sending email: ${message}`);
+  }
+}
+
+export class SmsNotification implements Notification {
+  async send(message: string) {
+    console.log(`Sending SMS: ${message}`);
+  }
+}
+
+@Injectable()
+export class NotificationFactory {
+  create(type: 'email' | 'sms'): Notification {
+    switch (type) {
+      case 'email':
+        return new EmailNotification();
+      case 'sms':
+        return new SmsNotification();
+      default:
+        throw new Error('Invalid notification type');
+    }
+  }
+}
+                </div>
+
+                <h3>3. Strategy Pattern</h3>
+                <div class="code-block" data-lang="typescript">
+// payment-strategy.interface.ts
+export interface PaymentStrategy {
+  pay(amount: number): Promise<boolean>;
+}
+
+export class CreditCardPayment implements PaymentStrategy {
+  async pay(amount: number): Promise<boolean> {
+    console.log(`Paying ${amount} with credit card`);
+    return true;
+  }
+}
+
+export class PaypalPayment implements PaymentStrategy {
+  async pay(amount: number): Promise<boolean> {
+    console.log(`Paying ${amount} with PayPal`);
+    return true;
+  }
+}
+
+@Injectable()
+export class PaymentService {
+  async processPayment(
+    strategy: PaymentStrategy,
+    amount: number,
+  ): Promise<boolean> {
+    return strategy.pay(amount);
+  }
+}
+                </div>
+
+                <h3>4. Observer Pattern (Event Emitter)</h3>
+                <div class="code-block" data-lang="typescript">
+import { Injectable } from '@nestjs/common';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+
+// Event
+export class EvaluationCreatedEvent {
+  constructor(
+    public readonly evaluationId: number,
+    public readonly userId: number,
+  ) {}
+}
+
+// Publisher
+@Injectable()
+export class EvaluationsService {
+  constructor(private eventEmitter: EventEmitter2) {}
+
+  async create(data: any) {
+    const evaluation = await this.repository.save(data);
+    
+    // Emit event
+    this.eventEmitter.emit(
+      'evaluation.created',
+      new EvaluationCreatedEvent(evaluation.id, evaluation.userId),
+    );
+    
+    return evaluation;
+  }
+}
+
+// Subscriber
+@Injectable()
+export class NotificationListener {
+  @OnEvent('evaluation.created')
+  async handleEvaluationCreated(event: EvaluationCreatedEvent) {
+    console.log(`New evaluation created: ${event.evaluationId}`);
+    // ارسال نوتیفیکیشن
+  }
+}
+                </div>
+            </section>
+
+            <!-- API Documentation Examples -->
+            <section id="api-examples">
+                <h2>📡 نمونه‌های API Request/Response</h2>
+
+                <h3>1. Register (ثبت‌نام)</h3>
+                <h4>Request:</h4>
+                <div class="code-block" data-lang="http">
+POST /auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "SecurePass123!"
+}
+                </div>
+
+                <h4>Response:</h4>
+                <div class="code-block" data-lang="json">
+{
+  "id": 1,
+  "username": "john_doe",
+  "email": "john@example.com",
+  "role": "user",
+  "createdAt": "2024-11-23T10:30:00.000Z"
+}
+                </div>
+
+                <h3>2. Login (ورود)</h3>
+                <h4>Request:</h4>
+                <div class="code-block" data-lang="http">
+POST /auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "SecurePass123!"
+}
+                </div>
+
+                <h4>Response:</h4>
+                <div class="code-block" data-lang="json">
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+                </div>
+
+                <h3>3. Create Evaluation (ایجاد ارزیابی)</h3>
+                <h4>Request:</h4>
+                <div class="code-block" data-lang="http">
+POST /evaluations HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "title": "ارزیابی عملکرد ماهانه",
+  "score": 85,
+  "comment": "عملکرد بسیار خوبی داشته است"
+}
+                </div>
+
+                <h4>Response:</h4>
+                <div class="code-block" data-lang="json">
+{
+  "id": 1,
+  "title": "ارزیابی عملکرد ماهانه",
+  "score": 85,
+  "comment": "عملکرد بسیار خوبی داشته است",
+  "evaluatorId": 1,
+  "createdAt": "2024-11-23T10:35:00.000Z",
+  "updatedAt": "2024-11-23T10:35:00.000Z"
+}
+                </div>
+
+                <h3>4. Get All Evaluations (دریافت لیست)</h3>
+                <h4>Request:</h4>
+                <div class="code-block" data-lang="http">
+GET /evaluations?page=1&limit=10 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                </div>
+
+                <h4>Response:</h4>
+                <div class="code-block" data-lang="json">
+{
+  "items": [
+    {
+      "id": 1,
+      "title": "ارزیابی عملکرد ماهانه",
+      "score": 85,
+      "comment": "عملکرد بسیار خوبی داشته است",
+      "evaluatorId": 1,
+      "createdAt": "2024-11-23T10:35:00.000Z"
+    },
+    {
+      "id": 2,
+      "title": "ارزیابی سه‌ماهه",
+      "score": 90,
+      "comment": "پیشرفت قابل توجه",
+      "evaluatorId": 1,
+      "createdAt": "2024-11-20T08:20:00.000Z"
+    }
+  ],
+  "total": 25,
+  "page": 1,
+  "lastPage": 3
+}
+                </div>
+
+                <h3>5. Update Evaluation (به‌روزرسانی)</h3>
+                <h4>Request:</h4>
+                <div class="code-block" data-lang="http">
+PUT /evaluations/1 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+
+{
+  "score": 90,
+  "comment": "بازبینی شد: عملکرد عالی"
+}
+                </div>
+
+                <h4>Response:</h4>
+                <div class="code-block" data-lang="json">
+{
+  "id": 1,
+  "title": "ارزیابی عملکرد ماهانه",
+  "score": 90,
+  "comment": "بازبینی شد: عملکرد عالی",
+  "evaluatorId": 1,
+  "updatedAt": "2024-11-23T11:00:00.000Z"
+}
+                </div>
+
+                <h3>6. Delete Evaluation (حذف)</h3>
+                <h4>Request:</h4>
+                <div class="code-block" data-lang="http">
+DELETE /evaluations/1 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                </div>
+
+                <h4>Response:</h4>
+                <div class="code-block" data-lang="json">
+{
+  "message": "ارزیابی با موفقیت حذف شد"
+}
+                </div>
+
+                <h3>7. Error Response (خطا)</h3>
+                <div class="code-block" data-lang="json">
+{
+  "statusCode": 404,
+  "message": "ارزیابی با شناسه 999 یافت نشد",
+  "error": "Not Found",
+  "timestamp": "2024-11-23T11:05:00.000Z",
+  "path": "/evaluations/999"
+}
+                </div>
+            </section>
+
+            <!-- Performance Tips -->
+            <section id="performance-tips">
+                <h2>🚀 نکات بهینه‌سازی عملکرد</h2>
+
+                <div class="highlight">
+                    <h3>10 نکته طلایی برای افزایش سرعت API</h3>
+                </div>
+
+                <h4>1. استفاده از Connection Pooling</h4>
+                <div class="code-block" data-lang="typescript">
+TypeOrmModule.forRoot({
+  type: 'postgres',
+  // ... سایر تنظیمات
+  extra: {
+    max: 20,              // حداکثر تعداد connection
+    min: 5,               // حداقل تعداد connection
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+  },
+})
+                </div>
+
+                <h4>2. Eager vs Lazy Loading</h4>
+                <div class="code-block" data-lang="typescript">
+// بد: N+1 Problem
+const users = await this.usersRepo.find();
+for (const user of users) {
+  user.posts = await this.postsRepo.find({ where: { userId: user.id } });
+}
+
+// خوب: Eager Loading
+const users = await this.usersRepo.find({
+  relations: ['posts', 'profile'],
+});
+
+// بهتر: Select فقط فیلدهای مورد نیاز
+const users = await this.usersRepo
+  .createQueryBuilder('user')
+  .select(['user.id', 'user.username'])
+  .leftJoinAndSelect('user.posts', 'post')
+  .getMany();
+                </div>
+
+                <h4>3. Response Caching</h4>
+                <div class="code-block" data-lang="typescript">
+import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
+
+@Module({
+  imports: [
+    CacheModule.register({
+      ttl: 300, // 5 دقیقه
+      max: 100, // حداکثر 100 آیتم
+    }),
+  ],
+})
+export class AppModule {}
+
+// استفاده در Controller
+@Controller('evaluations')
+@UseInterceptors(CacheInterceptor)
+export class EvaluationsController {
+  @Get()
+  @CacheTTL(60) // Override TTL برای این endpoint
+  findAll() {
+    return this.service.findAll();
+  }
+}
+                </div>
+
+                <h4>4. Database Indexing</h4>
+                <div class="code-block" data-lang="typescript">
+@Entity()
+@Index(['userId', 'status']) // Composite index
+@Index(['createdAt'])         // Single index
+export class Evaluation {
+  @Column()
+  userId: number;
+
+  @Column()
+  status: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+}
+                </div>
+
+                <h4>5. Pagination همیشه</h4>
+                <div class="code-block" data-lang="typescript">
+// بد: بدون pagination
+@Get()
+findAll() {
+  return this.repository.find(); // ممکن است هزاران رکورد برگرداند!
+}
+
+// خوب: با pagination
+@Get()
+findAll(@Query('page') page = 1, @Query('limit') limit = 20) {
+  return this.repository.findAndCount({
+    skip: (page - 1) * limit,
+    take: Math.min(limit, 100), // محدودیت حداکثر
+  });
+}
+                </div>
+
+                <h4>6. Compression</h4>
+                <div class="code-block" data-lang="typescript">
+import * as compression from 'compression';
+
+app.use(compression({
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  },
+  level: 6, // سطح فشرده‌سازی (0-9)
+}));
+                </div>
+
+                <h4>7. Async/Await به جای Callbacks</h4>
+                <div class="code-block" data-lang="typescript">
+// بد
+getData(callback) {
+  this.repository.find().then(data => {
+    callback(null, data);
+  }).catch(err => {
+    callback(err);
+  });
+}
+
+// خوب
+async getData() {
+  try {
+    return await this.repository.find();
+  } catch (error) {
+    throw error;
+  }
+}
+                </div>
+
+                <h4>8. Batch Operations</h4>
+                <div class="code-block" data-lang="typescript">
+// بد: یک به یک ذخیره
+for (const item of items) {
+  await this.repository.save(item);
+}
+
+// خوب: Batch insert
+await this.repository.save(items);
+
+// یا با Query Builder
+await this.repository
+  .createQueryBuilder()
+  .insert()
+  .into(Evaluation)
+  .values(items)
+  .execute();
+                </div>
+
+                <h4>9. Select فقط فیلدهای مورد نیاز</h4>
+                <div class="code-block" data-lang="typescript">
+// بد: همه فیلدها
+const users = await this.repository.find();
+
+// خوب: فقط فیلدهای لازم
+const users = await this.repository
+  .createQueryBuilder('user')
+  .select(['user.id', 'user.username', 'user.email'])
+  .getMany();
+                </div>
+
+                <h4>10. استفاده از Redis برای Session</h4>
+                <div class="code-block" data-lang="typescript">
+import * as session from 'express-session';
+import * as RedisStore from 'connect-redis';
+import { createClient } from 'redis';
+
+const redisClient = createClient({ legacyMode: true });
+redisClient.connect().catch(console.error);
+
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: 'your-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // 24 ساعت
+    },
+  }),
+);
+                </div>
+
+                <div class="note">
+                    📊 <strong>معیارهای عملکرد:</strong>
+                    <ul>
+                        <li>Response Time: کمتر از 200ms برای API های ساده</li>
+                        <li>Throughput: حداقل 1000 request/second</li>
+                        <li>Error Rate: کمتر از 0.1%</li>
+                        <li>Database Query Time: کمتر از 50ms</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Conclusion -->
+            <section id="conclusion">
+                <h2>🎓 جمع‌بندی</h2>
+
+                <p>
+                    در این آموزش جامع، تمامی جنبه‌های ساخت یک REST API حرفه‌ای با NestJS را پوشش دادیم:
+                </p>
+
+                <div class="highlight">
+                    <h3>✅ چیزهایی که یاد گرفتیم:</h3>
+                    <ul>
+                        <li>نصب و راه‌اندازی NestJS</li>
+                        <li>ساختار ماژولار و معماری تمیز</li>
+                        <li>احراز هویت با JWT و مدیریت نقش‌ها</li>
+                        <li>عملیات CRUD کامل</li>
+                        <li>کار با TypeORM و PostgreSQL</li>
+                        <li>اعتبارسنجی داده‌ها با DTOs</li>
+                        <li>مستندسازی با Swagger</li>
+                        <li>Containerization با Docker</li>
+                        <li>بهینه‌سازی عملکرد</li>
+                        <li>امنیت و Best Practices</li>
+                        <li>تست نویسی</li>
+                        <li>استقرار و مانیتورینگ</li>
+                    </ul>
+                </div>
+
+                <h3>🎯 گام‌های بعدی</h3>
+                <ol>
+                    <li>یک پروژه شخصی با NestJS بسازید</li>
+                    <li>الگوهای پیشرفته‌تر را یاد بگیرید (Microservices, CQRS)</li>
+                    <li>با GraphQL و WebSockets کار کنید</li>
+                    <li>در پروژه‌های Open Source مشارکت کنید</li>
+                    <li>مستندات رسمی را مطالعه کنید</li>
+                </ol>
+
+                <div class="success">
+                    <h3>💪 شما آماده‌اید!</h3>
+                    <p>
+                        حالا تمام دانش لازم برای ساخت یک REST API مقیاس‌پذیر و حرفه‌ای را دارید.
+                        زمان آن رسیده که دست به کار شوید و پروژه‌های واقعی بسازید!
+                    </p>
+                </div>
+
+                <div class="note">
+                    <p>
+                        <strong>یادتان باشد:</strong> بهترین راه یادگیری، تمرین و ساخت پروژه‌های واقعی است.
+                        با خطاها آشنا شوید، از آن‌ها یاد بگیرید، و همیشه به دنبال بهبود باشید.
+                    </p>
+                </div>
+
+                <h3>📞 ارتباط و پشتیبانی</h3>
+                <ul>
+                    <li>مستندات رسمی: <a href="https://docs.nestjs.com" target="_blank">docs.nestjs.com</a></li>
+                    <li>GitHub: <a href="https://github.com/nestjs/nest" target="_blank">github.com/nestjs/nest</a></li>
+                    <li>Discord Community: بیش از 50,000 توسعه‌دهنده</li>
+                    <li>Stack Overflow: تگ <code>nestjs</code></li>
+                </ul>
+
+                <div style="text-align: center; margin: 40px 0; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
+                    <h2 style="color: white; margin-bottom: 15px;">🚀 موفق باشید!</h2>
+                    <p style="font-size: 1.2em; margin: 0;">
+                        از شما برای مطالعه این آموزش متشکریم.
+                        <br>
+                        امیدواریم که در مسیر توسعه نرم‌افزار موفق باشید!
+                    </p>
+                </div>
+            </section>
+
+        </div>
+
+        <footer>
+            <p>
+                ساخته شده با ❤️ برای جامعه توسعه‌دهندگان ایرانی
+            </p>
+            <p style="margin-top: 10px; opacity: 0.8;">
+                آخرین به‌روزرسانی: 23 نوامبر 2025 | نسخه 1.0
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                این آموزش تحت مجوز MIT منتشر شده است
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Smooth scroll برای لینک‌های داخلی
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // کپی کردن کد با کلیک
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.style.cursor = 'pointer';
+            block.title = 'کلیک کنید تا کپی شود';
+            
+            block.addEventListener('click', function() {
+                const code = this.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalBg = this.style.background;
+                    this.style.background = '#27ae60';
+                    setTimeout(() => {
+                        this.style.background = originalBg;
+                    }, 300);
+                });
+            });
+        });
+
+        // نمایش دکمه بازگشت به بالا
+        const backToTop = document.createElement('div');
+        backToTop.innerHTML = '↑';
+        backToTop.style.cssText = `
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: #e53935;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s;
+        `;
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        backToTop.addEventListener('mouseenter', () => {
+            backToTop.style.transform = 'scale(1.1)';
+        });
+        
+        backToTop.addEventListener('mouseleave', () => {
+            backToTop.style.transform = 'scale(1)';
+        });
+        
+        document.body.appendChild(backToTop);
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        // Print friendly
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('.code-block').forEach(block => {
+                block.style.pageBreakInside = 'avoid';
+            });
+        });
+
+        console.log('🚀 آموزش NestJS بارگذاری شد!');
+        console.log('💡 نکته: روی هر بلاک کد کلیک کنید تا کپی شود');
+    </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع FOSS4G - نرم‌افزارهای متن‌باز مکانی</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/dist/font-face.css');
+
+        :root {
+            --primary-color: #2e7d32;      /* سبز تیره */
+            --secondary-color: #4caf50;    /* سبز روشن */
+            --accent-color: #81c784;       /* سبز ملایم */
+            --bg-color: #f1f8e9;           /* پس‌زمینه خیلی روشن */
+            --text-color: #1b5e20;         /* متن سبز خیلی تیره */
+            --code-bg: #1e1e1e;            /* پس‌زمینه کد */
+            --box-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.8;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        h1 { margin: 0; font-size: 2.5em; }
+        p.subtitle { font-size: 1.2em; opacity: 0.9; margin-top: 10px; }
+
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .slide {
+            background: var(--box-bg);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-right: 5px solid var(--secondary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            background: var(--accent-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h3 {
+            color: var(--secondary-color);
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .box {
+            background: #f9fbe7; /* سبز خیلی کمرنگ */
+            border: 1px solid #c5e1a5;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .definition { border-right: 4px solid var(--primary-color); }
+        .concept { border-right: 4px solid #ff9800; background: #fff3e0; color: #e65100; }
+
+        .code {
+            direction: ltr;
+            text-align: left;
+            background-color: var(--code-bg);
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 10px 0;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        /* Syntax Highlighting Simulation */
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .function { color: #dcdcaa; }
+        .comment { color: #6a9955; }
+        .number { color: #b5cea8; }
+        .type { color: #4ec9b0; }
+        .sql-keyword { color: #c586c0; font-weight: bold; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        tr:hover { background-color: #f1f8e9; }
+
+        ul { list-style-type: none; padding: 0; }
+        ul li {
+            padding: 8px 0;
+            padding-right: 25px;
+            position: relative;
+        }
+        ul li::before {
+            content: "✔";
+            color: var(--secondary-color);
+            position: absolute;
+            right: 0;
+            top: 12px; /* Adjust alignment */
+        }
+
+        .diagram {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 2px dashed var(--accent-color);
+            border-radius: 10px;
+        }
+
+        .stack-layer {
+            padding: 10px;
+            margin: 5px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: var(--primary-color);
+            color: white;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>آموزش جامع FOSS4G</h1>
+        <p class="subtitle">Free and Open Source Software for Geospatial</p>
+        <p style="font-size: 0.9em;">مسیر یادگیری GIS متن‌باز</p>
+    </header>
+
+    <main>
+
+        <!-- اسلاید 1: معرفی -->
+        <div class="slide">
+            <div class="slide-number">1</div>
+            <h2>🌍 FOSS4G چیست؟</h2>
+            
+            <div class="definition box">
+                <p>
+                    <strong>FOSS4G</strong> مخفف عبارت <em>Free and Open Source Software for Geospatial</em> است. 
+                    این اصطلاح به اکوسیستمی از نرم‌افزارها اشاره دارد که برای مدیریت، تحلیل و نمایش داده‌های مکانی (GIS) استفاده می‌شوند 
+                    و کد منبع آن‌ها برای استفاده، تغییر و توزیع آزاد است.
+                </p>
+            </div>
+
+            <h3><span class="emoji">🏛️</span> بنیاد OSGeo</h3>
+            <p>
+                اکثر پروژه‌های بزرگ FOSS4G تحت حمایت بنیاد <strong>OSGeo</strong> (Open Source Geospatial Foundation) هستند. 
+                این بنیاد کیفیت، پایداری و توسعه نرم‌افزارها را تضمین می‌کند.
+            </p>
+
+            <div class="box">
+                <h4>چرا FOSS4G؟</h4>
+                <ul>
+                    <li><strong>هزینه صفر لایسنس:</strong> برخلاف ArcGIS، نیازی به پرداخت هزینه‌های سنگین نیست.</li>
+                    <li><strong>انعطاف‌پذیری:</strong> دسترسی به کد منبع برای شخصی‌سازی.</li>
+                    <li><strong>استانداردهای باز:</strong> رعایت دقیق استانداردهای OGC.</li>
+                    <li><strong>جامعه فعال:</strong> پشتیبانی جهانی توسط توسعه‌دهندگان.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: معماری و پشته نرم‌افزاری -->
+        <div class="slide">
+            <div class="slide-number">2</div>
+            <h2>🏗️ معماری و پشته (The Stack)</h2>
+            <p>در دنیای GIS متن‌باز، ما از ترکیبی از ابزارها استفاده می‌کنیم که به آن <strong>Stack</strong> می‌گویند.</p>
+
+            <div class="diagram">
+                <h3>لایه بندی سیستم GIS متن‌باز</h3>
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <div class="stack-layer" style="background-color: #1b5e20;">User Interface (Web / Desktop / Mobile)</div>
+                    <div style="font-size: 20px;">⬇️</div>
+                    <div class="stack-layer" style="background-color: #2e7d32;">Geospatial Server (Middleware)</div>
+                    <div style="font-size: 20px;">⬇️</div>
+                    <div class="stack-layer" style="background-color: #4caf50;">Spatial Database (Storage)</div>
+                    <div style="font-size: 20px;">⬇️</div>
+                    <div class="stack-layer" style="background-color: #81c784;">Core Libraries (GDAL, PROJ, GEOS)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: دیتابیس مکانی (PostGIS) -->
+        <div class="slide">
+            <div class="slide-number">3</div>
+            <h2>🗄️ لایه داده: PostGIS</h2>
+            
+            <p>قلب تپنده اکثر سیستم‌های FOSS4G، دیتابیس <strong>PostgreSQL</strong> به همراه افزونه <strong>PostGIS</strong> است. این ترکیب قدرتمندترین دیتابیس مکانی جهان را می‌سازد.</p>
+
+            <h3><span class="emoji">⚡</span> قابلیت‌های کلیدی</h3>
+            <ul>
+                <li>ذخیره انواع داده‌های Vector و Raster.</li>
+                <li>پشتیبانی کامل از تمام سیستم‌های مختصات (SRID).</li>
+                <li>توابع قدرتمند تحلیل مکانی داخل دیتابیس.</li>
+            </ul>
+
+            <div class="example box">
+                <h4>مثال: پیدا کردن نقاط داخل یک محدوده (SQL)</h4>
+                <p>فرض کنید می‌خواهیم تمام کافه‌هایی که در فاصله ۵۰۰ متری یک نقطه خاص هستند را پیدا کنیم:</p>
+                <div class="code">
+<span class="sql-keyword">SELECT</span> name, <span class="function">ST_AsText</span>(geom)
+<span class="sql-keyword">FROM</span> cafes
+<span class="sql-keyword">WHERE</span> <span class="function">ST_DWithin</span>(
+    geom,
+    <span class="function">ST_SetSRID</span>(<span class="function">ST_MakePoint</span>(<span class="number">51.3890</span>, <span class="number">35.6892</span>), <span class="number">4326</span>)::geography,
+    <span class="number">500</span>
+);
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: کتابخانه‌های هسته (GDAL) -->
+        <div class="slide">
+            <div class="slide-number">4</div>
+            <h2>🔧 کتابخانه‌های پایه: GDAL/OGR</h2>
+            
+            <div class="definition box">
+                <p>
+                    <strong>GDAL</strong> (Geospatial Data Abstraction Library) چاقوی سوئیسی دنیای GIS است. 
+                    تقریباً تمام نرم‌افزارهای GIS (حتی تجاری‌ها) برای خواندن و نوشتن فرمت‌های رستری و برداری از GDAL استفاده می‌کنند.
+                </p>
+            </div>
+
+            <h3><span class="emoji">🐍</span> استفاده در پایتون</h3>
+            <p>شما می‌توانید با استفاده از پایتون و GDAL، فرمت‌ها را تبدیل کنید یا تحلیل انجام دهید.</p>
+
+            <div class="example box">
+                <h4>خواندن فایل Shapefile با Python</h4>
+                <div class="code">
+<span class="keyword">from</span> osgeo <span class="keyword">import</span> ogr
+
+<span class="comment"># باز کردن فایل شیپ‌فایل</span>
+driver = ogr.<span class="function">GetDriverByName</span>(<span class="string">"ESRI Shapefile"</span>)
+dataSource = driver.<span class="function">Open</span>(<span class="string">"iran_cities.shp"</span>, <span class="number">0</span>)
+layer = dataSource.<span class="function">GetLayer</span>()
+
+<span class="comment"># حلقه روی عوارض</span>
+<span class="keyword">for</span> feature <span class="keyword">in</span> layer:
+    name = feature.<span class="function">GetField</span>(<span class="string">"NAME"</span>)
+    geom = feature.<span class="function">GetGeometryRef</span>()
+    <span class="keyword">print</span>(<span class="string">f"City: {name}, X: {geom.GetX()}, Y: {geom.GetY()}"</span>)
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: سرورهای مکانی (GeoServer) -->
+        <div class="slide">
+            <div class="slide-number">5</div>
+            <h2>📡 سرورهای مکانی: GeoServer & MapServer</h2>
+            
+            <p>برای انتشار داده‌های مکانی در وب به صورت سرویس‌های استاندارد (مثل WMS, WFS)، نیاز به Map Server دارید.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>GeoServer</th>
+                        <th>MapServer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>زبان برنامه نویسی</td>
+                        <td>Java</td>
+                        <td>C</td>
+                    </tr>
+                    <tr>
+                        <td>رابط کاربری</td>
+                        <td>پنل تحت وب عالی (GUI)</td>
+                        <td>فایل متنی (Mapfile)</td>
+                    </tr>
+                    <tr>
+                        <td>سهولت استفاده</td>
+                        <td>بسیار آسان</td>
+                        <td>پیچیده (برای حرفه‌ای‌ها)</td>
+                    </tr>
+                    <tr>
+                        <td>کاربرد</td>
+                        <td>استاندارد سازمانی</td>
+                        <td>سرعت بالا / منابع کم</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="concept box">
+                <h4>استانداردهای OGC (Open Geospatial Consortium)</h4>
+                <ul>
+                    <li><strong>WMS (Web Map Service):</strong> دریافت نقشه به صورت عکس (PNG/JPEG).</li>
+                    <li><strong>WFS (Web Feature Service):</strong> دریافت اصل داده‌های برداری (GML/GeoJSON).</li>
+                    <li><strong>WCS (Web Coverage Service):</strong> دریافت داده‌های رستری خام.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: دسکتاپ (QGIS) -->
+        <div class="slide">
+            <div class="slide-number">6</div>
+            <h2>🖥️ نرم‌افزار دسکتاپ: QGIS</h2>
+            
+            <p>
+                <strong>QGIS</strong> محبوب‌ترین نرم‌افزار GIS متن‌باز دسکتاپ است. این نرم‌افزار رقیب اصلی ArcGIS Pro محسوب می‌شود.
+            </p>
+
+            <h3><span class="emoji">✨</span> ویژگی‌های QGIS</h3>
+            <ul>
+                <li>کاملاً رایگان و متن‌باز.</li>
+                <li>پشتیبانی از صدها فرمت داده.</li>
+                <li>قابلیت اتصال مستقیم به PostGIS و GeoServer.</li>
+                <li><strong>PyQGIS:</strong> امکان اسکریپت‌نویسی و ساخت پلاگین با پایتون.</li>
+                <li>محیط پردازش (Processing Toolbox) با دسترسی به الگوریتم‌های GRASS و SAGA.</li>
+            </ul>
+
+            <div class="example box">
+                <h4>مثال PyQGIS (کنسول پایتون در QGIS)</h4>
+                <div class="code">
+<span class="comment"># گرفتن لایه فعال در محیط QGIS</span>
+layer = iface.<span class="function">activeLayer</span>()
+
+<span class="comment"># انتخاب عوارضی که مساحت بزرگتر از 1000 دارند</span>
+selection = []
+<span class="keyword">for</span> f <span class="keyword">in</span> layer.<span class="function">getFeatures</span>():
+    <span class="keyword">if</span> f.<span class="function">geometry</span>().<span class="function">area</span>() > <span class="number">1000</span>:
+        selection.<span class="function">append</span>(f.<span class="function">id</span>())
+
+<span class="comment"># اعمال انتخاب روی لایه</span>
+layer.<span class="function">selectByIds</span>(selection)
+<span class="keyword">print</span>(<span class="string">f"{len(selection)} features selected."</span>)
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: توسعه وب (Web GIS) -->
+        <div class="slide">
+            <div class="slide-number">7</div>
+            <h2>🌐 وب جی‌آی‌اس: Frontend & Backend</h2>
+            
+            <p>برای نمایش نقشه‌ها در مرورگر، از کتابخانه‌های جاوااسکریپت و فریم‌ورک‌های بک‌اند استفاده می‌کنیم.</p>
+
+            <h3><span class="emoji">🎨</span> Frontend Libraries</h3>
+            <ul>
+                <li><strong>Leaflet:</strong> سبک، ساده، عالی برای پروژه‌های معمولی (موبایل فرندلی).</li>
+                <li><strong>OpenLayers:</strong> بسیار قدرتمند، مناسب برای پروژه‌های پیچیده سازمانی.</li>
+                <li><strong>MapLibre GL JS:</strong> برای نقشه‌های وکتوری (Vector Tiles).</li>
+            </ul>
+
+            <div class="example box">
+                <h4>مثال: نقشه ساده با Leaflet</h4>
+                <div class="code">
+<span class="comment">// ایجاد نقشه</span>
+<span class="keyword">var</span> map = L.<span class="function">map</span>(<span class="string">'map'</span>).<span class="function">setView</span>([<span class="number">35.6892</span>, <span class="number">51.3890</span>], <span class="number">13</span>);
+
+<span class="comment">// افزودن لایه OpenStreetMap</span>
+L.<span class="function">tileLayer</span>(<span class="string">'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'</span>, {
+    attribution: <span class="string">'&copy; OpenStreetMap contributors'</span>
+}).<span class="function">addTo</span>(map);
+
+<span class="comment">// افزودن مارکر</span>
+L.<span class="function">marker</span>([<span class="number">35.6892</span>, <span class="number">51.3890</span>])
+ .<span class="function">addTo</span>(map)
+ .<span class="function">bindPopup</span>(<span class="string">'تهران، ایران'</span>)
+ .<span class="function">openPopup</span>();
+                </div>
+            </div>
+
+            <h3><span class="emoji">⚙️</span> Backend (GeoDjango)</h3>
+            <p>در سمت سرور، فریم‌ورک <strong>Django</strong> با ماژول <code>django.contrib.gis</code> یکی از بهترین گزینه‌هاست.</p>
+            <div class="code">
+<span class="keyword">from</span> django.contrib.gis.db <span class="keyword">import</span> models
+
+<span class="keyword">class</span> <span class="type">Shop</span>(models.Model):
+    name = models.<span class="function">CharField</span>(max_length=<span class="number">100</span>)
+    location = models.<span class="function">PointField</span>()  <span class="comment"># فیلد هندسی</span>
+    
+    <span class="comment"># جستجوی فروشگاه‌های نزدیک</span>
+    <span class="keyword">def</span> <span class="function">get_nearby</span>(self, distance):
+        <span class="keyword">return</span> Shop.objects.<span class="function">filter</span>(
+            location__distance_lte=(self.location, distance)
+        )
+            </div>
+        </div>
+
+        <!-- اسلاید 8: جمع بندی و مسیر یادگیری -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>🛣️ مسیر پیشنهادی یادگیری</h2>
+            
+            <div class="box">
+                <p>برای تبدیل شدن به یک توسعه‌دهنده Full Stack GIS با استفاده از FOSS4G، این مسیر پیشنهاد می‌شود:</p>
+                <ol>
+                    <li><strong>مبانی GIS:</strong> درک سیستم‌های مختصات، وکتور و رستر.</li>
+                    <li><strong>Desktop:</strong> یادگیری کار با <strong>QGIS</strong>.</li>
+                    <li><strong>Database:</strong> یادگیری SQL و نصب <strong>PostgreSQL/PostGIS</strong>.</li>
+                    <li><strong>Python:</strong> یادگیری کتابخانه‌های GeoPandas, GDAL.</li>
+                    <li><strong>Web Basics:</strong> یادگیری HTML/CSS/JS و کتابخانه <strong>Leaflet</strong>.</li>
+                    <li><strong>Server:</strong> انتشار نقشه با <strong>GeoServer</strong>.</li>
+                    <li><strong>Advanced Web:</strong> استفاده از GeoDjango یا توسعه با React/OpenLayers.</li>
+                </ol>
+            </div>
+
+            <h3><span class="emoji">📚</span> منابع مفید</h3>
+            <ul>
+                <li>سایت بنیاد OSGeo: <a href="https://www.osgeo.org" style="color: var(--primary-color);">osgeo.org</a></li>
+                <li>مستندات QGIS: <a href="https://qgis.org" style="color: var(--primary-color);">qgis.org</a></li>
+                <li>کنفرانس‌های سالانه FOSS4G.</li>
+            </ul>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>تولید شده توسط آراز- <span style="font-family: 'Times New Roman', serif;">2025</span></p>
+    </footer>
+
+</body>
+</html>
