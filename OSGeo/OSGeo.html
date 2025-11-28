@@ -1,0 +1,3533 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+
+    <title>آموزش کامل OSGeo - بنیاد متن‌باز ژئواسپیشیال</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/dist/font-face.css');
+
+        :root {
+            --primary-green: #4CAF50;
+            --secondary-green: #2E7D32;
+            --dark-green: #1B5E20;
+            --light-green: #81C784;
+            --accent-blue: #1976D2;
+            --accent-orange: #FF9800;
+            --bg-light: #E8F5E9;
+            --bg-dark: #C8E6C9;
+            --text-dark: #212121;
+            --text-light: #FFFFFF;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%);
+            color: var(--text-dark);
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--secondary-green) 0%, var(--dark-green) 100%);
+            color: var(--text-light);
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><circle cx="50" cy="50" r="30" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/><circle cx="50" cy="50" r="20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>') repeat;
+            opacity: 0.3;
+        }
+
+        header h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            position: relative;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.4em;
+            opacity: 0.95;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 25px;
+            border-radius: 50px;
+            margin-top: 25px;
+            font-size: 1.1em;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--dark-green);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        nav ul li a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Slide Styles */
+        .slide {
+            background: var(--text-light);
+            border-radius: 24px;
+            padding: 50px;
+            margin-bottom: 50px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary-green), var(--secondary-green));
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--text-light);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.8em;
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        h2 {
+            color: var(--secondary-green);
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid var(--light-green);
+            padding-right: 80px;
+        }
+
+        h3 {
+            color: var(--dark-green);
+            font-size: 1.6em;
+            margin: 35px 0 20px;
+            padding-right: 20px;
+            border-right: 5px solid var(--primary-green);
+        }
+
+        h4 {
+            color: var(--secondary-green);
+            font-size: 1.3em;
+            margin: 25px 0 15px;
+        }
+
+        p {
+            margin: 15px 0;
+            font-size: 1.1em;
+            line-height: 2;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, var(--bg-light), #F1F8E9);
+            border: 2px solid var(--light-green);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 25px 0;
+            border-right: 6px solid var(--primary-green);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+            border: 2px solid var(--accent-orange);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 25px 0;
+            border-right: 6px solid var(--accent-orange);
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border: 2px solid var(--accent-blue);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 25px 0;
+            border-right: 6px solid var(--accent-blue);
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--text-light);
+            border: 2px solid var(--light-green);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary-green);
+        }
+
+        .card .icon {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+        }
+
+        .card h4 {
+            color: var(--secondary-green);
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 0.95em;
+            color: #666;
+        }
+
+        /* Software Cards */
+        .software-card {
+            background: linear-gradient(135deg, #FFFFFF, #F9FBE7);
+            border: 2px solid var(--light-green);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .software-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .software-card .logo {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .software-card h4 {
+            color: var(--dark-green);
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .software-card .category {
+            display: inline-block;
+            background: var(--primary-green);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .software-card ul {
+            text-align: right;
+            padding-right: 20px;
+            margin-top: 15px;
+        }
+
+        .software-card ul li {
+            margin: 8px 0;
+            font-size: 0.95em;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: var(--text-light);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th,
+        td {
+            padding: 18px 20px;
+            text-align: center;
+            border-bottom: 2px solid #E0E0E0;
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--secondary-green), var(--dark-green));
+            color: var(--text-light);
+            font-weight: bold;
+            font-size: 1.05em;
+        }
+
+        tr:nth-child(even) {
+            background: #F5F5F5;
+        }
+
+        tr:hover {
+            background: var(--bg-light);
+        }
+
+        /* Lists */
+        ul,
+        ol {
+            margin: 20px 0;
+            padding-right: 30px;
+        }
+
+        ul li,
+        ol li {
+            margin: 12px 0;
+            line-height: 1.9;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #263238;
+            color: #ECEFF1;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        .code-header {
+            background: linear-gradient(135deg, var(--dark-green), var(--secondary-green));
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            font-size: 0.95em;
+            margin-bottom: -12px;
+        }
+
+        .code-block+.code-block {
+            margin-top: 0;
+        }
+
+        .keyword {
+            color: #CE93D8;
+        }
+
+        .string {
+            color: #C5E1A5;
+        }
+
+        .comment {
+            color: #78909C;
+        }
+
+        .function {
+            color: #80DEEA;
+        }
+
+        .number {
+            color: #FFCC80;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--primary-green), var(--secondary-green));
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-right: 60px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-green);
+            border-radius: 50%;
+            border: 4px solid var(--text-light);
+            box-shadow: 0 0 0 4px var(--primary-green);
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: var(--secondary-green);
+            font-size: 1.2em;
+        }
+
+        /* Feature List */
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, var(--bg-light), #DCEDC8);
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1em;
+            border: 2px solid var(--light-green);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: var(--primary-green);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--dark-green), var(--secondary-green));
+            color: var(--text-light);
+            padding: 60px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer h3 {
+            color: white;
+            border: none;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        footer a {
+            color: var(--light-green);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2em;
+            }
+
+            .slide {
+                padding: 30px 20px;
+            }
+
+            h2 {
+                font-size: 1.8em;
+                padding-right: 60px;
+            }
+
+            .slide-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.4em;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide {
+            animation: fadeInUp 0.6s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🌍 آموزش کامل OSGeo</h1>
+        <p>Open Source Geospatial Foundation</p>
+        <p style="font-size: 1.1em; margin-top: 15px;">بنیاد متن‌باز ژئواسپیشیال - جامع‌ترین مرجع ابزارهای GIS آزاد</p>
+        <div class="header-badge">
+            📚 15+ پروژه اصلی | 🌐 جامعه جهانی | 🆓 کاملاً رایگان
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#intro">معرفی</a></li>
+            <li><a href="#history">تاریخچه</a></li>
+            <li><a href="#projects">پروژه‌ها</a></li>
+            <li><a href="#desktop">Desktop GIS</a></li>
+            <li><a href="#web">Web GIS</a></li>
+            <li><a href="#libraries">کتابخانه‌ها</a></li>
+            <li><a href="#database">پایگاه داده</a></li>
+            <li><a href="#foss4g">FOSS4G</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+
+        <!-- اسلاید 1: معرفی OSGeo -->
+        <div class="slide" id="intro">
+            <div class="slide-number">1</div>
+            <h2>🌍 OSGeo چیست؟</h2>
+
+            <div class="info-box">
+                <h4>📖 تعریف رسمی</h4>
+                <p>
+                    <strong>OSGeo (Open Source Geospatial Foundation)</strong> یک سازمان غیرانتفاعی است که
+                    مأموریت آن حمایت، توسعه و ترویج <strong>نرم‌افزارهای متن‌باز ژئواسپیشیال</strong>
+                    (Geospatial Open Source Software) است. این بنیاد در سال <strong>2006</strong> تأسیس شد
+                    و امروزه بیش از <strong>50 پروژه</strong> را تحت پوشش قرار می‌دهد.
+                </p>
+            </div>
+
+            <h3>🎯 مأموریت OSGeo</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">🔓</div>
+                    <h4>متن‌باز بودن</h4>
+                    <p>توسعه و حمایت از نرم‌افزارهای GIS با کد منبع آزاد</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🤝</div>
+                    <h4>همکاری جهانی</h4>
+                    <p>ایجاد جامعه‌ای جهانی از توسعه‌دهندگان و کاربران</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📚</div>
+                    <h4>آموزش</h4>
+                    <p>ارائه منابع آموزشی و مستندات کامل</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🌐</div>
+                    <h4>استانداردسازی</h4>
+                    <p>پیروی از استانداردهای OGC و ISO</p>
+                </div>
+            </div>
+
+            <h3>💡 چرا OSGeo اهمیت دارد؟</h3>
+            <ul>
+                <li><strong>رایگان:</strong> تمام نرم‌افزارها بدون هزینه در دسترس هستند</li>
+                <li><strong>شفافیت:</strong> کد منبع قابل بررسی و اصلاح است</li>
+                <li><strong>استقلال:</strong> وابستگی به شرکت‌های خاص از بین می‌رود</li>
+                <li><strong>انعطاف‌پذیری:</strong> امکان سفارشی‌سازی برای نیازهای خاص</li>
+                <li><strong>جامعه فعال:</strong> پشتیبانی توسط هزاران توسعه‌دهنده داوطلب</li>
+                <li><strong>به‌روزرسانی مداوم:</strong> توسعه فعال و رفع باگ‌های سریع</li>
+            </ul>
+
+            <div class="tip-box">
+                <h4>🏆 دستاوردهای OSGeo</h4>
+                <div class="grid-4">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; font-weight: bold; color: var(--secondary-green);">50+</div>
+                        <div>پروژه فعال</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; font-weight: bold; color: var(--secondary-green);">1000+</div>
+                        <div>توسعه‌دهنده</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; font-weight: bold; color: var(--secondary-green);">100+</div>
+                        <div>کشور</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5em; font-weight: bold; color: var(--secondary-green);">18</div>
+                        <div>سال فعالیت</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: تاریخچه -->
+        <div class="slide" id="history">
+            <div class="slide-number">2</div>
+            <h2>📜 تاریخچه OSGeo</h2>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">2006</div>
+                    <p><strong>تأسیس OSGeo:</strong> بنیاد در فوریه 2006 در شیکاگو تأسیس شد. اولین پروژه‌های عضو شامل
+                        GDAL, MapServer, GRASS GIS بودند.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2007</div>
+                    <p><strong>اولین FOSS4G:</strong> اولین کنفرانس FOSS4G در ویکتوریا کانادا برگزار شد و به رویداد
+                        سالانه تبدیل شد.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2008</div>
+                    <p><strong>OSGeo Live:</strong> اولین نسخه OSGeo Live منتشر شد - یک DVD قابل بوت با تمام
+                        نرم‌افزارهای OSGeo.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2010</div>
+                    <p><strong>گسترش جهانی:</strong> شعب محلی (Local Chapters) در کشورهای مختلف تأسیس شدند.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2014</div>
+                    <p><strong>GeoForAll:</strong> برنامه آموزشی جهانی GeoForAll راه‌اندازی شد.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2020</div>
+                    <p><strong>FOSS4G آنلاین:</strong> به دلیل کرونا، کنفرانس برای اولین بار آنلاین برگزار شد.</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">2024</div>
+                    <p><strong>امروز:</strong> OSGeo با بیش از 50 پروژه فعال، یکی از بزرگ‌ترین بنیادهای متن‌باز جهان
+                        است.</p>
+                </div>
+            </div>
+
+            <h3>👥 بنیان‌گذاران</h3>
+            <p>OSGeo توسط گروهی از توسعه‌دهندگان و محققان پیشرو در زمینه GIS تأسیس شد:</p>
+            <div class="feature-list">
+                <span class="feature-item">Frank Warmerdam (GDAL)</span>
+                <span class="feature-item">Steve Lime (MapServer)</span>
+                <span class="feature-item">Markus Neteler (GRASS GIS)</span>
+                <span class="feature-item">Paul Ramsey (PostGIS)</span>
+                <span class="feature-item">Tyler Mitchell (اولین مدیر اجرایی)</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: ساختار پروژه‌ها -->
+        <div class="slide" id="projects">
+            <div class="slide-number">3</div>
+            <h2>🏗️ ساختار و پروژه‌های OSGeo</h2>
+
+            <div class="info-box">
+                <h4>📊 دسته‌بندی پروژه‌ها</h4>
+                <p>
+                    پروژه‌های OSGeo به چندین دسته اصلی تقسیم می‌شوند. هر پروژه باید یک فرآیند
+                    <strong>Incubation</strong> (انکوباسیون) را طی کند تا به پروژه رسمی OSGeo تبدیل شود.
+                </p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>دسته‌بندی</th>
+                        <th>توضیحات</th>
+                        <th>نمونه پروژه‌ها</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>🖥️ Desktop GIS</strong></td>
+                        <td>نرم‌افزارهای دسکتاپ برای تحلیل و ویرایش</td>
+                        <td>QGIS, GRASS GIS, gvSIG</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🌐 Web Mapping</strong></td>
+                        <td>ابزارهای نقشه‌سازی تحت وب</td>
+                        <td>GeoServer, MapServer, OpenLayers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>📚 Libraries</strong></td>
+                        <td>کتابخانه‌های برنامه‌نویسی</td>
+                        <td>GDAL, PROJ, GEOS, GeoTools</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🗄️ Databases</strong></td>
+                        <td>پایگاه‌های داده مکانی</td>
+                        <td>PostGIS, SpatiaLite</td>
+                    </tr>
+                    <tr>
+                        <td><strong>📊 Metadata</strong></td>
+                        <td>مدیریت فراداده</td>
+                        <td>GeoNetwork, pycsw</td>
+                    </tr>
+                    <tr>
+                        <td><strong>🛰️ Remote Sensing</strong></td>
+                        <td>پردازش تصاویر ماهواره‌ای</td>
+                        <td>Orfeo ToolBox, OSSIM</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🔄 فرآیند انکوباسیون</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">📝</div>
+                    <h4>1. درخواست</h4>
+                    <p>ارسال پیشنهاد به کمیته انکوباسیون</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔍</div>
+                    <h4>2. بررسی</h4>
+                    <p>ارزیابی کد، مستندات و جامعه</p>
+                </div>
+                <div class="card">
+                    <div class="icon">✅</div>
+                    <h4>3. تأیید</h4>
+                    <p>تبدیل به پروژه رسمی OSGeo</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ معیارهای پذیرش</h4>
+                <ul>
+                    <li>کد منبع با لایسنس متن‌باز تأیید شده</li>
+                    <li>مستندات کامل و قابلپروژه‌های Desktop GIS</h2>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- اسلاید 4: Desktop GIS -->
+        <div class="slide" id="desktop">
+            <div class="intro-box">
+                <h4>📖 نرم‌افزارهای Desktop GIS</h4>
+                <p>
+                    نرم‌افزارهای Desktop GIS ابزارهای قدرتمندی برای تحلیل، ویرایش و تجسم داده‌های مکانی
+                    روی کامپیوتر شخصی هستند. OSGeo چندین پروژه برجسته در این دسته دارد که
+                    جایگزین‌های قدرتمندی برای نرم‌افزارهای تجاری مثل ArcGIS محسوب می‌شوند.
+                </p>
+            </div>
+
+            <h3>🗺️ QGIS - پرچمدار GIS متن‌باز</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🌟</span>
+                    QGIS (Quantum GIS)
+                    <span class="badge">محبوب‌ترین</span>
+                </h4>
+                <p>
+                    <strong>QGIS</strong> محبوب‌ترین نرم‌افزار GIS متن‌باز در جهان است که در سال 2002
+                    توسط Gary Sherman شروع شد و امروزه توسط هزاران توسعه‌دهنده پشتیبانی می‌شود.
+                </p>
+
+                <h4>✨ ویژگی‌های کلیدی:</h4>
+                <ul>
+                    <li><strong>رابط کاربری مدرن:</strong> محیط گرافیکی زیبا و کاربرپسند</li>
+                    <li><strong>پشتیبانی از فرمت‌ها:</strong> خواندن بیش از 100 فرمت داده مکانی</li>
+                    <li><strong>تحلیل پیشرفته:</strong> ابزارهای تحلیل مکانی قدرتمند</li>
+                    <li><strong>پلاگین‌ها:</strong> بیش از 1500 پلاگین رایگان</li>
+                    <li><strong>نقشه‌سازی:</strong> ابزارهای حرفه‌ای Print Layout</li>
+                    <li><strong>3D:</strong> قابلیت نمایش و تحلیل سه‌بعدی</li>
+                    <li><strong>Python:</strong> قابلیت اسکریپت‌نویسی با PyQGIS</li>
+                    <li><strong>چندسکویی:</strong> Windows, Mac, Linux</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># نصب QGIS در Ubuntu</span>
+                    <span class="command">sudo apt update</span>
+                    <span class="command">sudo apt install qgis qgis-plugin-grass</span>
+
+                    <span class="comment"># نصب در Windows: دانلود از qgis.org</span>
+                    <span class="comment"># نصب در Mac:</span>
+                    <span class="command">brew install --cask qgis</span>
+                </div>
+            </div>
+
+            <h3>🌿 GRASS GIS - قدیمی‌ترین و قدرتمندترین</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🌿</span>
+                    GRASS GIS
+                    <span class="badge">از 1982</span>
+                </h4>
+                <p>
+                    <strong>GRASS GIS (Geographic Resources Analysis Support System)</strong>
+                    قدیمی‌ترین نرم‌افزار GIS متن‌باز است که توسط ارتش آمریکا در سال 1982 توسعه یافت.
+                </p>
+
+                <h4>✨ ویژگی‌های کلیدی:</h4>
+                <ul>
+                    <li><strong>تحلیل رستری:</strong> قدرتمندترین ابزارهای تحلیل رستر</li>
+                    <li><strong>مدل‌سازی:</strong> مدل‌سازی هیدرولوژیکی پیشرفته</li>
+                    <li><strong>پردازش تصویر:</strong> تحلیل تصاویر ماهواره‌ای</li>
+                    <li><strong>تحلیل شبکه:</strong> ابزارهای تحلیل شبکه و مسیریابی</li>
+                    <li><strong>500+ ماژول:</strong> کتابخانه عظیم از ابزارها</li>
+                    <li><strong>یکپارچگی با QGIS:</strong> قابل استفاده از داخل QGIS</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># نصب GRASS GIS</span>
+                    <span class="command">sudo apt install grass</span>
+
+                    <span class="comment"># استفاده از خط فرمان</span>
+                    <span class="command">grass --config path</span>
+                    <span class="command">g.region -p</span>
+                    <span class="command">r.info elevation</span>
+                </div>
+            </div>
+
+            <h3>🗺️ gvSIG - راه‌حل سازمانی</h3>
+            <div class="project-card">
+                <h4>
+                    <span>📊</span>
+                    gvSIG Desktop
+                    <span class="badge">Enterprise</span>
+                </h4>
+                <p>
+                    <strong>gvSIG</strong> یک نرم‌افزار GIS اسپانیایی است که توسط دولت والنسیا
+                    توسعه یافته و برای استفاده سازمانی بهینه شده است.
+                </p>
+
+                <h4>✨ ویژگی‌های کلیدی:</h4>
+                <ul>
+                    <li><strong>CAD Integration:</strong> یکپارچگی با فایل‌های CAD</li>
+                    <li><strong>3D View:</strong> نمایش سه‌بعدی پیشرفته</li>
+                    <li><strong>Network Analysis:</strong> تحلیل شبکه حمل‌ونقل</li>
+                    <li><strong>Mobile Version:</strong> نسخه موبایل gvSIG Mobile</li>
+                    <li><strong>Scripting:</strong> پشتیبانی از Jython</li>
+                </ul>
+            </div>
+
+            <h3>📊 مقایسه نرم‌افزارهای Desktop</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>QGIS</th>
+                        <th>GRASS GIS</th>
+                        <th>gvSIG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>سهولت استفاده</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>تحلیل رستری</strong></td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>تحلیل برداری</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>نقشه‌سازی</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>پلاگین‌ها</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>مستندات</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>جامعه کاربری</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <h4>💡 توصیه</h4>
+                <p>
+                    برای شروع کار با GIS متن‌باز، <strong>QGIS</strong> بهترین انتخاب است.
+                    رابط کاربری ساده، مستندات فارسی، و جامعه بزرگ کاربران فارسی‌زبان دارد.
+                    برای تحلیل‌های پیشرفته رستری، می‌توانید از GRASS GIS از داخل QGIS استفاده کنید.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: Web GIS -->
+        <div id="web" class="slide">
+            <div class="slide-number">5</div>
+            <h2>🌐 پروژه‌های Web GIS</h2>
+
+            <div class="intro-box">
+                <h4>📖 نرم‌افزارهای Web GIS</h4>
+                <p>
+                    ابزارهای Web GIS امکان نمایش و تحلیل داده‌های مکانی در مرورگر وب را فراهم می‌کنند.
+                    این ابزارها شامل سرورهای نقشه، کتابخانه‌های JavaScript، و پلتفرم‌های کامل WebGIS هستند.
+                </p>
+            </div>
+
+            <h3>🖥️ GeoServer - سرور نقشه محبوب</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🌍</span>
+                    GeoServer
+                    <span class="badge">Java-based</span>
+                </h4>
+                <p>
+                    <strong>GeoServer</strong> یک سرور متن‌باز برای اشتراک‌گذاری داده‌های جغرافیایی است
+                    که استانداردهای OGC (WMS, WFS, WCS) را پیاده‌سازی می‌کند.
+                </p>
+
+                <h4>✨ ویژگی‌های کلیدی:</h4>
+                <ul>
+                    <li><strong>استانداردهای OGC:</strong> WMS, WFS, WCS, WMTS, WPS</li>
+                    <li><strong>فرمت‌های متنوع:</strong> Shapefile, PostGIS, GeoTIFF, Oracle</li>
+                    <li><strong>استایل‌دهی:</strong> SLD و CSS برای نقشه‌ها</li>
+                    <li><strong>تایل‌بندی:</strong> GeoWebCache یکپارچه</li>
+                    <li><strong>REST API:</strong> مدیریت از طریق API</li>
+                    <li><strong>امنیت:</strong> یکپارچگی با GeoFence</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># دانلود و اجرای GeoServer</span>
+                    <span class="command">wget
+                        https://sourceforge.net/projects/geoserver/files/GeoServer/2.24.0/geoserver-2.24.0-bin.zip</span>
+                    <span class="command">unzip geoserver-2.24.0-bin.zip</span>
+                    <span class="command">cd geoserver-2.24.0/bin</span>
+                    <span class="command">./startup.sh</span>
+
+                    <span class="comment"># دسترسی به رابط وب</span>
+                    <span class="comment"># http://localhost:8080/geoserver</span>
+                    <span class="comment"># Username: admin | Password: geoserver</span>
+                </div>
+            </div>
+
+            <h3>🗺️ MapServer - سریع و سبک</h3>
+            <div class="project-card">
+                <h4>
+                    <span>⚡</span>
+                    MapServer
+                    <span class="badge">C-based</span>
+                </h4>
+                <p>
+                    <strong>MapServer</strong> یکی از قدیمی‌ترین سرورهای نقشه متن‌باز است که
+                    در دانشگاه مینه‌سوتا توسعه یافته و به دلیل سرعت بالا معروف است.
+                </p>
+
+                <h4>✨ ویژگی‌های کلیدی:</h4>
+                <ul>
+                    <li><strong>سرعت بالا:</strong> نوشته شده با C برای عملکرد بهینه</li>
+                    <li><strong>Mapfile:</strong> پیکربندی ساده با فایل متنی</li>
+                    <li><strong>OGC Standards:</strong> WMS, WFS, WCS, SOS</li>
+                    <li><strong>سبک:</strong> مصرف منابع کم</li>
+                    <li><strong>MapScript:</strong> API برای Python, PHP, Java</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># نصب MapServer در Ubuntu</span>
+                    <span class="command">sudo apt install cgi-mapserver mapserver-bin</span>
+
+                    <span class="comment"># نمونه Mapfile</span>
+                    MAP
+                    NAME "MyMap"
+                    STATUS ON
+                    SIZE 600 400
+                    EXTENT -180 -90 180 90
+
+                    LAYER
+                    NAME "countries"
+                    TYPE POLYGON
+                    STATUS ON
+                    DATA "countries.shp"
+                    CLASS
+                    STYLE
+                    COLOR 200 200 200
+                    OUTLINECOLOR 0 0 0
+                    END
+                    END
+                    END
+                    END
+                </div>
+            </div>
+
+            <h3>📱 کتابخانه‌های JavaScript</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">🗺️</div>
+                    <h4>OpenLayers</h4>
+                    <p>کتابخانه قدرتمند و کامل برای نقشه‌های تعاملی</p>
+                    <div class="code-block" style="font-size: 0.85em; padding: 15px;">
+                        import Map from 'ol/Map';
+                        import View from 'ol/View';
+                        import TileLayer from 'ol/layer/Tile';
+                        import OSM from 'ol/source/OSM';
+
+                        const map = new Map({
+                        target: 'map',
+                        layers: [
+                        new TileLayer({
+                        source: new OSM()
+                        })
+                        ],
+                        view: new View({
+                        center: [0, 0],
+                        zoom: 2
+                        })
+                        });
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🍃</div>
+                    <h4>Leaflet</h4>
+                    <p>کتابخانه سبک و ساده برای نقشه‌های موبایل‌فرندلی</p>
+                    <div class="code-block" style="font-size: 0.85em; padding: 15px;">
+                        var map = L.map('map').setView(
+                        [35.6892, 51.3890],
+                        13
+                        );
+
+                        L.tileLayer(
+                        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                        ).addTo(map);
+
+                        L.marker([35.6892, 51.3890])
+                        .addTo(map)
+                        .bindPopup('تهران');
+                    </div>
+                </div>
+            </div>
+
+            <h3>🏗️ پلتفرم‌های کامل WebGIS</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🌐</span>
+                    GeoNode
+                    <span class="badge">Full Platform</span>
+                </h4>
+                <p>
+                    <strong>GeoNode</strong> یک پلتفرم کامل برای مدیریت و اشتراک‌گذاری داده‌های
+                    جغرافیایی است که GeoServer، PostgreSQL/PostGIS و Django را ترکیب می‌کند.
+                </p>
+                <ul>
+                    <li>آپلود و مدیریت لایه‌ها</li>
+                    <li>ساخت نقشه‌های تعاملی</li>
+                    <li>مدیریت کاربران و دسترسی‌ها</li>
+                    <li>کاتالوگ فراداده</li>
+                    <li>API برای توسعه‌دهندگان</li>
+                </ul>
+            </div>
+
+            <div class="project-card">
+                <h4>
+                    <span>📊</span>
+                    MapStore
+                    <span class="badge">Modern UI</span>
+                </h4>
+                <p>
+                    <strong>MapStore</strong> یک فریمورک مدرن برای ساخت WebGIS با رابط کاربری زیبا
+                    بر پایه React و OpenLayers است.
+                </p>
+                <ul>
+                    <li>رابط کاربری مدرن و واکنش‌گرا</li>
+                    <li>داشبورد و گزارش‌گیری</li>
+                    <li>ویرایش آنلاین داده‌ها</li>
+                    <li>چاپ نقشه با کیفیت بالا</li>
+                </ul>
+            </div>
+
+            <h3>📊 مقایسه سرورهای نقشه</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>GeoServer</th>
+                        <th>MapServer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>زبان برنامه‌نویسی</strong></td>
+                        <td>Java</td>
+                        <td>C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>رابط مدیریت</strong></td>
+                        <td>وب (کامل)</td>
+                        <td>فایل متنی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>سرعت</strong></td>
+                        <td>خوب</td>
+                        <td>عالی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>مصرف حافظه</strong></td>
+                        <td>بالا</td>
+                        <td>کم</td>
+                    </tr>
+                    <tr>
+                        <td><strong>سهولت پیکربندی</strong></td>
+                        <td>آسان (GUI)</td>
+                        <td>نیاز به تجربه</td>
+                    </tr>
+                    <tr>
+                        <td><strong>REST API</strong></td>
+                        <td>کامل</td>
+                        <td>محدود</td>
+                    </tr>
+                    <tr>
+                        <td><strong>استایل‌دهی</strong></td>
+                        <td>SLD, CSS</td>
+                        <td>Mapfile</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- اسلاید 6: کتابخانه‌ها -->
+        <div id="libraries" class="slide">
+            <div class="slide-number">6</div>
+            <h2>📚 کتابخانه‌های اصلی OSGeo</h2>
+
+            <div class="intro-box">
+                <h4>📖 کتابخانه‌های پایه</h4>
+                <p>
+                    کتابخانه‌های OSGeo هسته اصلی بسیاری از نرم‌افزارهای GIS هستند.
+                    این کتابخانه‌ها توابع پایه‌ای برای خواندن/نوشتن داده، تبدیل مختصات،
+                    و عملیات هندسی را فراهم می‌کنند.
+                </p>
+            </div>
+
+            <h3>🔧 GDAL/OGR - قلب GIS</h3>
+            <div class="project-card">
+                <h4>
+                    <span>⚙️</span>
+                    GDAL (Geospatial Data Abstraction Library)
+                    <span class="badge">ضروری</span>
+                </h4>
+                <p>
+                    <strong>GDAL</strong> مهم‌ترین کتابخانه GIS است که تقریباً همه نرم‌افزارهای GIS
+                    از آن استفاده می‌کنند. این کتابخانه امکان خواندن و نوشتن بیش از 200 فرمت
+                    رستری و برداری را فراهم می‌کند.
+                </p>
+
+                <h4>✨ قابلیت‌ها:</h4>
+                <ul>
+                    <li><strong>فرمت‌های رستری:</strong> GeoTIFF, JPEG, PNG, NetCDF, HDF, ECW, MrSID</li>
+                    <li><strong>فرمت‌های برداری (OGR):</strong> Shapefile, GeoJSON, KML, GML, PostGIS,
+                        GeoPackage</li>
+                    <li><strong>تبدیل مختصات:</strong> Reprojection بین سیستم‌های مختصات</li>
+                    <li><strong>پردازش:</strong> Warp, Translate, Rasterize, Polygonize</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># نصب GDAL</span>
+                    <span class="command">pip install gdal</span>
+                    <span class="command">conda install -c conda-forge gdal</span>
+
+                    <span class="comment"># ابزارهای خط فرمان</span>
+                    <span class="command">gdalinfo raster.tif</span> <span class="comment"># اطلاعات فایل
+                        رستری</span>
+                    <span class="command">ogrinfo -al vector.shp</span> <span class="comment"># اطلاعات فایل
+                        برداری</span>
+                    <span class="command">gdal_translate -of PNG input.tif out.png</span> <span class="comment"># تبدیل
+                        فرمت</span>
+                    <span class="command">gdalwarp -t_srs EPSG:4326 in.tif out.tif</span> <span class="comment"># تغییر
+                        سیستم مختصات</span>
+                    <span class="command">ogr2ogr -f GeoJSON out.json input.shp</span> <span class="comment"># تبدیل
+                        Shapefile به GeoJSON</span>
+                </div>
+
+                <h4>💻 استفاده در Python:</h4>
+                <div class="code-block">
+                    from osgeo import gdal, ogr, osr
+
+                    <span class="comment"># خواندن فایل رستری</span>
+                    ds = gdal.Open('raster.tif')
+                    band = ds.GetRasterBand(1)
+                    arr = band.ReadAsArray()
+                    print(f"ابعاد: {arr.shape}")
+
+                    <span class="comment"># خواندن فایل برداری</span>
+                    ds = ogr.Open('vector.shp')
+                    layer = ds.GetLayer()
+                    for feature in layer:
+                    geom = feature.GetGeometryRef()
+                    print(geom.ExportToWkt())
+
+                    <span class="comment"># تبدیل سیستم مختصات</span>
+                    source = osr.SpatialReference()
+                    source.ImportFromEPSG(4326) <span class="comment"># WGS84</span>
+
+                    target = osr.SpatialReference()
+                    target.ImportFromEPSG(32639) <span class="comment"># UTM Zone 39N</span>
+
+                    transform = osr.CoordinateTransformation(source, target)
+                    point = ogr.CreateGeometryFromWkt("POINT (51.3890 35.6892)")
+                    point.Transform(transform)
+                    print(point.ExportToWkt())
+                </div>
+            </div>
+
+            <h3>📐 PROJ - تبدیل مختصات</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🌐</span>
+                    PROJ
+                    <span class="badge">استاندارد</span>
+                </h4>
+                <p>
+                    <strong>PROJ</strong> کتابخانه استاندارد برای تبدیل بین سیستم‌های مختصات است.
+                    این کتابخانه توسط GDAL، PostGIS، و اکثر نرم‌افزارهای GIS استفاده می‌شود.
+                </p>
+
+                <div class="code-block">
+                    <span class="comment"># استفاده از pyproj در Python</span>
+                    from pyproj import Transformer, CRS
+
+                    <span class="comment"># تبدیل از WGS84 به UTM</span>
+                    transformer = Transformer.from_crs("EPSG:4326", "EPSG:32639", always_xy=True)
+                    x, y = transformer.transform(51.3890, 35.6892)
+                    print(f"UTM: {x}, {y}")
+
+                    <span class="comment"># اطلاعات سیستم مختصات</span>
+                    crs = CRS.from_epsg(4326)
+                    print(crs.name) <span class="comment"># WGS 84</span>
+                    print(crs.is_geographic) <span class="comment"># True</span>
+                </div>
+            </div>
+
+            <h3>📐 GEOS - عملیات هندسی</h3>
+            <div class="project-card">
+                <h4>
+                    <span>📏</span>
+                    GEOS (Geometry Engine Open Source)
+                    <span class="badge">C++</span>
+                </h4>
+                <p>
+                    <strong>GEOS</strong> پیاده‌سازی C++ از استاندارد JTS است که عملیات هندسی
+                    مثل Buffer, Intersection, Union را انجام می‌دهد.
+                </p>
+
+                <div class="code-block">
+                    <span class="comment"># استفاده از Shapely (wrapper پایتون برای GEOS)</span>
+                    from shapely.geometry import Point, Polygon
+                    from shapely.ops import unary_union
+
+                    <span class="comment"># ایجاد هندسه</span>
+                    point = Point(51.3890, 35.6892)
+                    buffer = point.buffer(0.01) <span class="comment"># بافر 0.01 درجه</span>
+
+                    <span class="comment"># عملیات هندسی</span>
+                    poly1 = Polygon([(0,0), (1,0), (1,1), (0,1)])
+                    poly2 = Polygon([(0.5,0.5), (1.5,0.5), (1.5,1.5), (0.5,1.5)])
+
+                    intersection = poly1.intersection(poly2)
+                    union = poly1.union(poly2)
+                    difference = poly1.difference(poly2)
+
+                    print(f"مساحت اشتراک: {intersection.area}")
+                    print(f"مساحت اجتماع: {union.area}")
+                </div>
+            </div>
+
+            <h3>📊 خلاصه کتابخانه‌ها</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">📁</div>
+                    <h4>GDAL/OGR</h4>
+                    <p>خواندن/نوشتن 200+ فرمت</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🌐</div>
+                    <h4>PROJ</h4>
+                    <p>تبدیل سیستم مختصات</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📐</div>
+                    <h4>GEOS</h4>
+                    <p>عملیات هندسی</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">☕</div>
+                    <h4>GeoTools</h4>
+                    <p>کتابخانه Java برای GIS</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: پایگاه داده مکانی -->
+        <div id="database" class="slide">
+            <div class="slide-number">7</div>
+            <h2>🗄️ پایگاه‌های داده مکانی</h2>
+
+            <div class="intro-box">
+                <h4>📖 پایگاه‌های داده مکانی چیست؟</h4>
+                <p>
+                    پایگاه‌های داده مکانی (Spatial Databases) امکان ذخیره، پرس‌وجو، و تحلیل
+                    داده‌های جغرافیایی را فراهم می‌کنند. این پایگاه‌ها از انواع داده هندسی
+                    (Point, Line, Polygon) و توابع مکانی پشتیبانی می‌کنند.
+                </p>
+            </div>
+
+            <h3>🐘 PostGIS - قدرتمندترین پایگاه داده مکانی</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🗄️</span>
+                    PostGIS
+                    <span class="badge">محبوب‌ترین</span>
+                </h4>
+                <p>
+                    <strong>PostGIS</strong> یک افزونه برای PostgreSQL است که قابلیت‌های مکانی
+                    را به این پایگاه داده قدرتمند اضافه می‌کند. PostGIS استاندارد صنعتی برای
+                    ذخیره و تحلیل داده‌های مکانی است.
+                </p>
+
+                <h4>✨ ویژگی‌های کلیدی:</h4>
+                <ul>
+                    <li><strong>انواع هندسی:</strong> Point, LineString, Polygon, MultiPolygon,
+                        GeometryCollection</li>
+                    <li><strong>ایندکس مکانی:</strong> GiST, SP-GiST برای جستجوی سریع</li>
+                    <li><strong>توابع مکانی:</strong> بیش از 500 تابع تحلیلی</li>
+                    <li><strong>رستر:</strong> پشتیبانی از داده‌های رستری</li>
+                    <li><strong>توپولوژی:</strong> مدیریت روابط توپولوژیکی</li>
+                    <li><strong>3D:</strong> پشتیبانی از هندسه سه‌بعدی</li>
+                    <li><strong>استانداردها:</strong> OGC Simple Features, SQL/MM</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment">-- نصب PostGIS</span>
+                    <span class="command">sudo apt install postgresql postgis</span>
+
+                    <span class="comment">-- فعال‌سازی افزونه در دیتابیس</span>
+                    CREATE EXTENSION postgis;
+                    CREATE EXTENSION postgis_topology;
+                    CREATE EXTENSION postgis_raster;
+
+                    <span class="comment">-- ایجاد جدول با ستون هندسی</span>
+                    CREATE TABLE cities (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(100),
+                    population INTEGER,
+                    geom GEOMETRY(Point, 4326)
+                    );
+
+                    <span class="comment">-- درج داده</span>
+                    INSERT INTO cities (name, population, geom) VALUES
+                    ('تهران', 8700000, ST_SetSRID(ST_MakePoint(51.3890, 35.6892), 4326)),
+                    ('اصفهان', 2000000, ST_SetSRID(ST_MakePoint(51.6675, 32.6546), 4326)),
+                    ('شیراز', 1500000, ST_SetSRID(ST_MakePoint(52.5311, 29.5918), 4326));
+
+                    <span class="comment">-- ایجاد ایندکس مکانی</span>
+                    CREATE INDEX idx_cities_geom ON cities USING GIST(geom);
+                </div>
+
+                <h4>💻 پرس‌وجوهای مکانی:</h4>
+                <div class="code-block">
+                    <span class="comment">-- محاسبه فاصله بین شهرها</span>
+                    SELECT
+                    a.name AS city1,
+                    b.name AS city2,
+                    ST_Distance(
+                    a.geom::geography,
+                    b.geom::geography
+                    ) / 1000 AS distance_km
+                    FROM cities a, cities b
+                    WHERE a.id < b.id ORDER BY distance_km; <span class="comment">-- پیدا کردن شهرهای داخل
+                        یک محدوده</span>
+                        SELECT name, population
+                        FROM cities
+                        WHERE ST_Within(
+                        geom,
+                        ST_MakeEnvelope(50, 30, 55, 40, 4326)
+                        );
+
+                        <span class="comment">-- ایجاد بافر 100 کیلومتری</span>
+                        SELECT
+                        name,
+                        ST_Buffer(geom::geography, 100000)::geometry AS buffer_100km
+                        FROM cities
+                        WHERE name = 'تهران';
+
+                        <span class="comment">-- محاسبه مساحت استان‌ها</span>
+                        SELECT
+                        name,
+                        ST_Area(geom::geography) / 1000000 AS area_km2
+                        FROM provinces
+                        ORDER BY area_km2 DESC;
+
+                        <span class="comment">-- پیدا کردن نزدیک‌ترین شهر</span>
+                        SELECT name, population
+                        FROM cities
+                        ORDER BY geom <-> ST_SetSRID(ST_MakePoint(51.5, 35.7), 4326)
+                            LIMIT 1;
+                </div>
+            </div>
+
+            <h3>📱 SpatiaLite - پایگاه داده سبک</h3>
+            <div class="project-card">
+                <h4>
+                    <span>📦</span>
+                    SpatiaLite
+                    <span class="badge">Embedded</span>
+                </h4>
+                <p>
+                    <strong>SpatiaLite</strong> افزونه مکانی برای SQLite است. این پایگاه داده
+                    سبک و قابل حمل برای پروژه‌های کوچک و اپلیکیشن‌های موبایل مناسب است.
+                </p>
+
+                <h4>✨ مزایا:</h4>
+                <ul>
+                    <li><strong>بدون سرور:</strong> فایل‌محور و مستقل</li>
+                    <li><strong>سبک:</strong> حجم کم و سرعت بالا</li>
+                    <li><strong>قابل حمل:</strong> یک فایل برای کل دیتابیس</li>
+                    <li><strong>سازگار:</strong> توابع مشابه PostGIS</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># استفاده در Python</span>
+                    import sqlite3
+
+                    <span class="comment"># اتصال و فعال‌سازی SpatiaLite</span>
+                    conn = sqlite3.connect('mydata.db')
+                    conn.enable_load_extension(True)
+                    conn.load_extension('mod_spatialite')
+
+                    <span class="comment"># ایجاد جدول مکانی</span>
+                    conn.execute('''
+                    CREATE TABLE IF NOT EXISTS places (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT,
+                    geom GEOMETRY
+                    )
+                    ''')
+
+                    <span class="comment"># درج داده</span>
+                    conn.execute('''
+                    INSERT INTO places (name, geom)
+                    VALUES ('تهران', GeomFromText('POINT(51.3890 35.6892)', 4326))
+                    ''')
+                    conn.commit()
+                </div>
+            </div>
+
+            <h3>📊 مقایسه پایگاه‌های داده مکانی</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>PostGIS</th>
+                        <th>SpatiaLite</th>
+                        <th>MySQL Spatial</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>نوع</strong></td>
+                        <td>سرور-محور</td>
+                        <td>فایل-محور</td>
+                        <td>سرور-محور</td>
+                    </tr>
+                    <tr>
+                        <td><strong>قابلیت‌ها</strong></td>
+                        <td>⭐⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐⭐</td>
+                        <td>⭐⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td><strong>عملکرد</strong></td>
+                        <td>عالی</td>
+                        <td>خوب</td>
+                        <td>خوب</td>
+                    </tr>
+                    <tr>
+                        <td><strong>مقیاس‌پذیری</strong></td>
+                        <td>بسیار بالا</td>
+                        <td>محدود</td>
+                        <td>بالا</td>
+                    </tr>
+                    <tr>
+                        <td><strong>پشتیبانی رستر</strong></td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>توپولوژی</strong></td>
+                        <td>✅</td>
+                        <td>✅</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>کاربرد</strong></td>
+                        <td>Enterprise</td>
+                        <td>Desktop/Mobile</td>
+                        <td>Web Apps</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <h4>💡 توصیه</h4>
+                <p>
+                    برای پروژه‌های سازمانی و وب، <strong>PostGIS</strong> بهترین انتخاب است.
+                    برای پروژه‌های کوچک، اپلیکیشن‌های موبایل، یا زمانی که نیاز به فایل قابل حمل
+                    دارید، <strong>SpatiaLite</strong> مناسب‌تر است.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: مدیریت فراداده -->
+        <div class="slide">
+            <div class="slide-number">8</div>
+            <h2>📋 مدیریت فراداده (Metadata)</h2>
+
+            <div class="intro-box">
+                <h4>📖 فراداده چیست؟</h4>
+                <p>
+                    <strong>فراداده (Metadata)</strong> اطلاعاتی درباره داده‌ها است. در GIS، فراداده
+                    شامل اطلاعاتی مثل منبع داده، تاریخ تولید، سیستم مختصات، دقت، و محدودیت‌های
+                    استفاده می‌شود. مدیریت صحیح فراداده برای به‌اشتراک‌گذاری و کشف داده‌ها ضروری است.
+                </p>
+            </div>
+
+            <h3>🌐 GeoNetwork - کاتالوگ فراداده</h3>
+            <div class="project-card">
+                <h4>
+                    <span>📚</span>
+                    GeoNetwork
+                    <span class="badge">Catalog</span>
+                </h4>
+                <p>
+                    <strong>GeoNetwork</strong> یک نرم‌افزار کاتالوگ برای مدیریت فراداده‌های مکانی است.
+                    این نرم‌افزار از استانداردهای ISO 19115، ISO 19139، و Dublin Core پشتیبانی می‌کند.
+                </p>
+
+                <h4>✨ ویژگی‌های کلیدی:</h4>
+                <ul>
+                    <li><strong>استانداردها:</strong> ISO 19115/19139, Dublin Core, FGDC</li>
+                    <li><strong>جستجوی پیشرفته:</strong> جستجوی متنی، مکانی، و زمانی</li>
+                    <li><strong>Harvesting:</strong> جمع‌آوری خودکار فراداده از منابع دیگر</li>
+                    <li><strong>CSW:</strong> سرویس Catalogue Service for Web</li>
+                    <li><strong>یکپارچگی:</strong> اتصال به GeoServer و سایر سرویس‌ها</li>
+                    <li><strong>چندزبانه:</strong> پشتیبانی از 30+ زبان</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># نصب GeoNetwork با Docker</span>
+                    <span class="command">docker pull geonetwork:4.2</span>
+                    <span class="command">docker run -d -p 8080:8080 geonetwork:4.2</span>
+
+                    <span class="comment"># دسترسی به رابط وب</span>
+                    <span class="comment"># http://localhost:8080/geonetwork</span>
+                    <span class="comment"># Username: admin | Password: admin</span>
+                </div>
+            </div>
+
+            <h3>🐍 pycsw - سرویس کاتالوگ پایتونی</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🐍</span>
+                    pycsw
+                    <span class="badge">Python</span>
+                </h4>
+                <p>
+                    <strong>pycsw</strong> یک سرور CSW (Catalogue Service for Web) نوشته شده با Python
+                    است که پیاده‌سازی سبک و ساده‌ای از استاندارد OGC CSW ارائه می‌دهد.
+                </p>
+
+                <h4>✨ ویژگی‌ها:</h4>
+                <ul>
+                    <li><strong>سبک:</strong> نصب و پیکربندی آسان</li>
+                    <li><strong>OGC CSW:</strong> پیاده‌سازی کامل استاندارد</li>
+                    <li><strong>INSPIRE:</strong> پشتیبانی از دستورالعمل اروپایی</li>
+                    <li><strong>JSON:</strong> خروجی JSON برای API‌های مدرن</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># نصب pycsw</span>
+                    <span class="command">pip install pycsw</span>
+
+                    <span class="comment"># ایجاد فایل پیکربندی default.cfg</span>
+                    [server]
+                    home=/path/to/pycsw
+                    url=http://localhost:8000/csw
+                    mimetype=application/xml
+                    encoding=UTF-8
+
+                    [repository]
+                    database=sqlite:///catalog.db
+                    table=records
+
+                    <span class="comment"># اجرای سرور</span>
+                    <span class="command">pycsw-admin.py -c setup_db -f default.cfg</span>
+                    <span class="command">python -m pycsw.wsgi</span>
+                </div>
+            </div>
+
+            <h3>📊 استانداردهای فراداده</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>استاندارد</th>
+                        <th>توضیحات</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>ISO 19115</strong></td>
+                        <td>استاندارد بین‌المللی فراداده جغرافیایی</td>
+                        <td>سازمان‌های دولتی، SDI</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ISO 19139</strong></td>
+                        <td>پیاده‌سازی XML از ISO 19115</td>
+                        <td>تبادل فراداده</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dublin Core</strong></td>
+                        <td>استاندارد ساده فراداده</td>
+                        <td>وب، کتابخانه‌ها</td>
+                    </tr>
+                    <tr>
+                        <td><strong>FGDC</strong></td>
+                        <td>استاندارد آمریکایی</td>
+                        <td>سازمان‌های آمریکایی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>INSPIRE</strong></td>
+                        <td>دستورالعمل اتحادیه اروپا</td>
+                        <td>کشورهای اروپایی</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- اسلاید 9: سنجش از دور -->
+        <div class="slide">
+            <div class="slide-number">9</div>
+            <h2>🛰️ پردازش تصاویر ماهواره‌ای</h2>
+
+            <div class="intro-box">
+                <h4>📖 ابزارهای سنجش از دور</h4>
+                <p>
+                    OSGeo چندین پروژه قدرتمند برای پردازش تصاویر ماهواره‌ای و سنجش از دور دارد.
+                    این ابزارها امکان تحلیل، طبقه‌بندی، و استخراج اطلاعات از تصاویر ماهواره‌ای
+                    را فراهم می‌کنند.
+                </p>
+            </div>
+
+            <h3>🔬 Orfeo ToolBox (OTB)</h3>
+            <div class="project-card">
+                <h4>
+                    <span>🛰️</span>
+                    Orfeo ToolBox
+                    <span class="badge">Remote Sensing</span>
+                </h4>
+                <p>
+                    <strong>OTB</strong> یک کتابخانه قدرتمند برای پردازش تصاویر ماهواره‌ای است که
+                    توسط آژانس فضایی فرانسه (CNES) توسعه یافته است.
+                </p>
+
+                <h4>✨ قابلیت‌ها:</h4>
+                <ul>
+                    <li><strong>تصحیح هندسی:</strong> Orthorectification, Coregistration</li>
+                    <li><strong>تصحیح رادیومتری:</strong> Atmospheric correction</li>
+                    <li><strong>طبقه‌بندی:</strong> SVM, Random Forest, Deep Learning</li>
+                    <li><strong>استخراج ویژگی:</strong> Texture, Indices (NDVI, NDWI)</li>
+                    <li><strong>تشخیص تغییرات:</strong> Change detection</li>
+                    <li><strong>Segmentation:</strong> Mean-Shift, Watershed</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="comment"># نصب OTB</span>
+                    <span class="command">sudo apt install otb-bin python3-otb</span>
+
+                    <span class="comment"># استفاده از خط فرمان</span>
+                    <span class="command">otbcli_RadiometricIndices -in image.tif -out ndvi.tif -list
+                        Vegetation:NDVI</span>
+                    <span class="command">otbcli_MeanShiftSmoothing -in image.tif -out smoothed.tif</span>
+
+                    <span class="comment"># استفاده در Python</span>
+                    import otbApplication
+
+                    app = otbApplication.Registry.CreateApplication("RadiometricIndices")
+                    app.SetParameterString("in", "image.tif")
+                    app.SetParameterString("out", "ndvi.tif")
+                    app.SetParameterStringList("list", ["Vegetation:NDVI"])
+                    app.ExecuteAndWriteOutput()
+                </div>
+            </div>
+
+            <h3>🗺️ OSSIM - پردازش تصویر</h3>
+            <div class="project-card">
+                <h4>
+                    <span>📷</span>
+                    OSSIM
+                    <span class="badge">Image Processing</span>
+                </h4>
+                <p>
+                    <strong>OSSIM (Open Source Software Image Map)</strong> کتابخانه‌ای برای
+                    پردازش تصاویر ژئورفرنس شده و تولید نقشه است.
+                </p>
+
+                <h4>✨ قابلیت‌ها:</h4>
+                <ul>
+                    <li>پشتیبانی از انواع سنسورها</li>
+                    <li>Orthorectification دقیق</li>
+                    <li>موزاییک‌سازی تصاویر</li>
+                    <li>تولید DEM از استریو</li>
+                </ul>
+            </div>
+
+            <h3>📊 شاخص‌های طیفی رایج</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>شاخص</th>
+                        <th>فرمول</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>NDVI</strong></td>
+                        <td>(NIR - Red) / (NIR + Red)</td>
+                        <td>پوشش گیاهی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NDWI</strong></td>
+                        <td>(Green - NIR) / (Green + NIR)</td>
+                        <td>منابع آب</td>
+                    </tr>
+                    <tr>
+                        <td><strong>NDBI</strong></td>
+                        <td>(SWIR - NIR) / (SWIR + NIR)</td>
+                        <td>مناطق ساخته شده</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EVI</strong></td>
+                        <td>2.5 * (NIR - Red) / ...</td>
+                        <td>پوشش گیاهی (پیشرفته)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>💻 محاسبه NDVI در Python</h3>
+            <div class="code-block">
+                import rasterio
+                import numpy as np
+
+                <span class="comment"># خواندن باندها</span>
+                with rasterio.open('landsat_red.tif') as red_src:
+                red = red_src.read(1).astype(float)
+                profile = red_src.profile
+
+                with rasterio.open('landsat_nir.tif') as nir_src:
+                nir = nir_src.read(1).astype(float)
+
+                <span class="comment"># محاسبه NDVI</span>
+                ndvi = (nir - red) / (nir + red + 0.0001) <span class="comment"># جلوگیری از تقسیم بر
+                    صفر</span>
+
+                <span class="comment"># ذخیره نتیجه</span>
+                profile.update(dtype=rasterio.float32)
+                with rasterio.open('ndvi.tif', 'w', **profile) as dst:
+                dst.write(ndvi.astype(rasterio.float32), 1)
+
+                print(f"NDVI Range: {ndvi.min():.2f} to {ndvi.max():.2f}")
+            </div>
+        </div>
+
+        <!-- اسلاید 10: OSGeo Live -->
+        <div class="slide">
+            <div class="slide-number">10</div>
+            <h2>💿 OSGeo Live</h2>
+
+            <div class="intro-box">
+                <h4>📖 OSGeo Live چیست؟</h4>
+                <p>
+                    <strong>OSGeo Live</strong> یک توزیع لینوکس بر پایه Lubuntu است که شامل
+                    بیش از 50 نرم‌افزار GIS متن‌باز به همراه داده‌های نمونه و مستندات است.
+                    این DVD قابل بوت، راحت‌ترین راه برای آشنایی با ابزارهای OSGeo است.
+                </p>
+            </div>
+
+            <h3>🎯 ویژگی‌های OSGeo Live</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">📀</div>
+                    <h4>قابل بوت</h4>
+                    <p>اجرا از DVD یا USB بدون نصب</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📦</div>
+                    <h4>50+ نرم‌افزار</h4>
+                    <p>تمام ابزارهای مهم OSGeo</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🗺️</div>
+                    <h4>داده نمونه</h4>
+                    <p>داده‌های آماده برای تست</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📚</div>
+                    <h4>مستندات</h4>
+                    <p>راهنمای سریع برای هر نرم‌افزار</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🖥️</div>
+                    <h4>VM Ready</h4>
+                    <p>قابل اجرا در VirtualBox</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🆓</div>
+                    <h4>کاملاً رایگان</h4>
+                    <p>دانلود و استفاده آزاد</p>
+                </div>
+            </div>
+
+            <h3>📋 نرم‌افزارهای موجود در OSGeo Live</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>دسته</th>
+                        <th>نرم‌افزارها</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Desktop GIS</strong></td>
+                        <td>QGIS, GRASS GIS, gvSIG, OpenJUMP, SAGA</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Web Services</strong></td>
+                        <td>GeoServer, MapServer, MapProxy, QGIS Server</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Databases</strong></td>
+                        <td>PostgreSQL/PostGIS, SpatiaLite, Rasdaman</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Web Clients</strong></td>
+                        <td>OpenLayers, Leaflet, Cesium, MapStore</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Catalog</strong></td>
+                        <td>GeoNetwork, pycsw, GeoNode</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Navigation</strong></td>
+                        <td>JOSM, Merkaartor, OpenCPN, Viking</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Remote Sensing</strong></td>
+                        <td>Orfeo ToolBox, OSSIM, i.landsat</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Libraries</strong></td>
+                        <td>GDAL/OGR, PROJ, GEOS, GeoTools</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>💻 دانلود و استفاده</h3>
+            <div class="code-block">
+                <span class="comment"># دانلود OSGeo Live</span>
+                <span class="command">wget
+                    https://download.osgeo.org/livedvd/releases/16.0/osgeolive-16.0-amd64.iso</span>
+
+                <span class="comment"># ایجاد USB قابل بوت (Linux)</span>
+                <span class="command">sudo dd if=osgeolive-16.0-amd64.iso of=/dev/sdX bs=4M
+                    status=progress</span>
+
+                <span class="comment"># اجرا در VirtualBox</span>
+                <span class="comment"># 1. ایجاد ماشین مجازی جدید (Linux, Ubuntu 64-bit)</span>
+                <span class="comment"># 2. تخصیص حداقل 4GB RAM و 20GB Disk</span>
+                <span class="comment"># 3. Mount کردن ISO به عنوانCD/DVD</span>
+                <span class="comment"># 4. بوت و استفاده</span>
+
+                <span class="comment"># دانلود نسخه VM آماده</span>
+                <span class="command">wget
+                    https://download.osgeo.org/livedvd/releases/16.0/osgeolive-16.0-vm.7z</span>
+                <span class="command">7z x osgeolive-16.0-vm.7z</span>
+            </div>
+
+            <div class="success-box">
+                <h4>💡 توصیه برای شروع</h4>
+                <p>
+                    OSGeo Live بهترین راه برای آشنایی با ابزارهای GIS متن‌باز است.
+                    می‌توانید بدون نصب هیچ نرم‌افزاری، تمام ابزارها را تست کنید و
+                    سپس موارد مورد نیاز را روی سیستم خود نصب کنید.
+                </p>
+                <p style="margin-top: 15px;">
+                    <strong>🔗 دانلود:</strong>
+                    <a href="https://live.osgeo.org" target="_blank"
+                        style="color: var(--accent-green);">live.osgeo.org</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 11: FOSS4G -->
+        <div id="foss4g" class="slide">
+            <div class="slide-number">11</div>
+            <h2>🎪 FOSS4G - کنفرانس جهانی</h2>
+
+            <div class="intro-box">
+                <h4>📖 FOSS4G چیست؟</h4>
+                <p>
+                    <strong>FOSS4G (Free and Open Source Software for Geospatial)</strong> بزرگ‌ترین
+                    کنفرانس جهانی در زمینه نرم‌افزارهای GIS متن‌باز است که هر سال توسط OSGeo
+                    برگزار می‌شود. این رویداد فرصتی برای یادگیری، شبکه‌سازی، و مشارکت در
+                    جامعه جهانی GIS است.
+                </p>
+            </div>
+
+            <h3>🎯 انواع رویدادهای FOSS4G</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">🌍</div>
+                    <h4>FOSS4G Global</h4>
+                    <p>کنفرانس اصلی سالانه با 1000+ شرکت‌کننده از سراسر جهان</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🇪🇺</div>
+                    <h4>FOSS4G Europe</h4>
+                    <p>کنفرانس منطقه‌ای اروپا</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🇦🇸</div>
+                    <h4>FOSS4G Asia</h4>
+                    <p>کنفرانس منطقه‌ای آسیا</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🏠</div>
+                    <h4>FOSS4G Local</h4>
+                    <p>رویدادهای محلی در کشورهای مختلف</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🎓</div>
+                    <h4>FOSS4G SotM</h4>
+                    <p>ترکیب با State of the Map (OpenStreetMap)</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">💻</div>
+                    <h4>Code Sprints</h4>
+                    <p>جلسات کدنویسی مشترک</p>
+                </div>
+            </div>
+
+            <h3>📅 تاریخچه برگزاری FOSS4G</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>سال</th>
+                        <th>مکان</th>
+                        <th>کشور</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2024</td>
+                        <td>Belem</td>
+                        <td>🇧🇷 برزیل</td>
+                    </tr>
+                    <tr>
+                        <td>2023</td>
+                        <td>Prizren</td>
+                        <td>🇽🇰 کوزوو</td>
+                    </tr>
+                    <tr>
+                        <td>2022</td>
+                        <td>Florence</td>
+                        <td>🇮🇹 ایتالیا</td>
+                    </tr>
+                    <tr>
+                        <td>2021</td>
+                        <td>Buenos Aires (Online)</td>
+                        <td>🇦🇷 آرژانتین</td>
+                    </tr>
+                    <tr>
+                        <td>2020</td>
+                        <td>Online</td>
+                        <td>🌐 مجازی</td>
+                    </tr>
+                    <tr>
+                        <td>2019</td>
+                        <td>Bucharest</td>
+                        <td>🇷🇴 رومانی</td>
+                    </tr>
+                    <tr>
+                        <td>2018</td>
+                        <td>Dar es Salaam</td>
+                        <td>🇹🇿 تانزانیا</td>
+                    </tr>
+                    <tr>
+                        <td>2017</td>
+                        <td>Boston</td>
+                        <td>🇺🇸 آمریکا</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📋 محتوای کنفرانس</h3>
+            <div class="project-card">
+                <h4>🎤 انواع ارائه‌ها</h4>
+                <ul>
+                    <li><strong>Keynotes:</strong> سخنرانی‌های اصلی توسط چهره‌های برجسته</li>
+                    <li><strong>Presentations:</strong> ارائه پروژه‌ها و تجربیات</li>
+                    <li><strong>Workshops:</strong> کارگاه‌های آموزشی عملی</li>
+                    <li><strong>Lightning Talks:</strong> ارائه‌های کوتاه 5 دقیقه‌ای</li>
+                    <li><strong>Posters:</strong> نمایش پوسترهای علمی</li>
+                    <li><strong>BoF:</strong> جلسات Birds of a Feather</li>
+                    <li><strong>Code Sprints:</strong> کدنویسی مشترک</li>
+                </ul>
+            </div>
+
+            <h3>🎯 چرا در FOSS4G شرکت کنیم؟</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">📚</div>
+                    <h4>یادگیری</h4>
+                    <p>آخرین تکنولوژی‌ها و روش‌ها</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🤝</div>
+                    <h4>شبکه‌سازی</h4>
+                    <p>آشنایی با متخصصان جهانی</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">💡</div>
+                    <h4>الهام‌بخشی</h4>
+                    <p>ایده‌های جدید برای پروژه‌ها</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🛠️</div>
+                    <h4>مشارکت</h4>
+                    <p>فرصت کمک به پروژه‌های متن‌باز</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>🔗 منابع FOSS4G</h4>
+                <ul>
+                    <li><strong>وب‌سایت رسمی:</strong> <a href="https://foss4g.org" target="_blank"
+                            style="color: var(--accent-orange);">foss4g.org</a></li>
+                    <li><strong>ویدیوهای قبلی:</strong> <a href="https://media.ccc.de" target="_blank"
+                            style="color: var(--accent-orange);">media.ccc.de</a> و YouTube</li>
+                    <li><strong>اسلایدها:</strong> در SlideShare و Speaker Deck</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 12: GeoForAll -->
+        <div class="slide">
+            <div class="slide-number">12</div>
+            <h2>🎓 GeoForAll - آموزش جهانی</h2>
+
+            <div class="intro-box">
+                <h4>📖 GeoForAll چیست؟</h4>
+                <p>
+                    <strong>GeoForAll</strong> یک برنامه آموزشی جهانی OSGeo است که هدف آن
+                    گسترش آموزش GIS متن‌باز در دانشگاه‌ها و مؤسسات آموزشی سراسر جهان است.
+                    این برنامه شبکه‌ای از آزمایشگاه‌های تحقیقاتی و آموزشی را ایجاد کرده است.
+                </p>
+            </div>
+
+            <h3>🎯 اهداف GeoForAll</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">🌍</div>
+                    <h4>دسترسی جهانی</h4>
+                    <p>آموزش GIS برای همه، در همه جا</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🎓</div>
+                    <h4>آموزش دانشگاهی</h4>
+                    <p>یکپارچه‌سازی در برنامه درسی</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🔬</div>
+                    <h4>تحقیقات</h4>
+                    <p>حمایت از پژوهش‌های مکانی</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🤝</div>
+                    <h4>همکاری</h4>
+                    <p>شبکه‌سازی بین مؤسسات</p>
+                </div>
+            </div>
+
+            <h3>🏛️ آزمایشگاه‌های GeoForAll</h3>
+            <p>
+                بیش از 100 آزمایشگاه در سراسر جهان عضو شبکه GeoForAll هستند:
+            </p>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number">30+</div>
+                    <div class="label">آمریکای شمالی</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">40+</div>
+                    <div class="label">اروپا</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">20+</div>
+                    <div class="label">آسیا</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">15+</div>
+                    <div class="label">سایر مناطق</div>
+                </div>
+            </div>
+
+            <h3>📚 منابع آموزشی</h3>
+            <div class="project-card">
+                <h4>📖 مواد آموزشی رایگان</h4>
+                <ul>
+                    <li><strong>QGIS Training Manual:</strong> آموزش کامل QGIS</li>
+                    <li><strong>PostGIS Tutorial:</strong> آموزش پایگاه داده مکانی</li>
+                    <li><strong>GRASS GIS Tutorials:</strong> آموزش تحلیل پیشرفته</li>
+                    <li><strong>GeoServer Documentation:</strong> راهنمای سرور نقشه</li>
+                    <li><strong>OpenLayers Examples:</strong> نمونه‌های نقشه وب</li>
+                    <li><strong>OSGeo Live Quickstarts:</strong> راهنمای سریع هر نرم‌افزار</li>
+                </ul>
+            </div>
+
+            <h3>🌐 دوره‌های آنلاین</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>دوره</th>
+                        <th>پلتفرم</th>
+                        <th>زبان</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Introduction to QGIS</td>
+                        <td>Coursera, Udemy</td>
+                        <td>انگلیسی</td>
+                    </tr>
+                    <tr>
+                        <td>Spatial Database with PostGIS</td>
+                        <td>YouTube</td>
+                        <td>انگلیسی</td>
+                    </tr>
+                    <tr>
+                        <td>Web Mapping with OpenLayers</td>
+                        <td>Udemy</td>
+                        <td>انگلیسی</td>
+                    </tr>
+                    <tr>
+                        <td>Python for GIS</td>
+                        <td>Coursera</td>
+                        <td>انگلیسی</td>
+                    </tr>
+                    <tr>
+                        <td>آموزش QGIS فارسی</td>
+                        <td>YouTube, آپارات</td>
+                        <td>فارسی</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <h4>🎯 چگونه عضو شویم؟</h4>
+                <p>
+                    اگر در یک دانشگاه یا مؤسسه آموزشی هستید، می‌توانید درخواست عضویت در
+                    شبکه GeoForAll را بدهید. مزایای عضویت شامل دسترسی به منابع، شبکه‌سازی
+                    با سایر مؤسسات، و امکان برگزاری رویدادهای مشترک است.
+                </p>
+                <p style="margin-top: 15px;">
+                    <strong>🔗 اطلاعات بیشتر:</strong>
+                    <a href="https://www.osgeo.org/initiatives/geo-for-all/" target="_blank"
+                        style="color: var(--accent-green);">osgeo.org/initiatives/geo-for-all</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 13: نحوه مشارکت -->
+        <div class="slide">
+            <div class="slide-number">13</div>
+            <h2>🤝 نحوه مشارکت در OSGeo</h2>
+
+            <div class="intro-box">
+                <h4>📖 چرا مشارکت کنیم؟</h4>
+                <p>
+                    مشارکت در پروژه‌های متن‌باز نه تنها به جامعه کمک می‌کند، بلکه فرصتی عالی
+                    برای یادگیری، شبکه‌سازی، و ساختن رزومه قوی است. OSGeo از هر نوع مشارکتی
+                    استقبال می‌کند - از کدنویسی گرفته تا مستندسازی و ترجمه.
+                </p>
+            </div>
+
+            <h3>💼 انواع مشارکت</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">💻</div>
+                    <h4>کدنویسی</h4>
+                    <p>توسعه ویژگی‌های جدید، رفع باگ</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📝</div>
+                    <h4>مستندسازی</h4>
+                    <p>نوشتن و بهبود راهنماها</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🌐</div>
+                    <h4>ترجمه</h4>
+                    <p>ترجمه به زبان‌های مختلف</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🐛</div>
+                    <h4>گزارش باگ</h4>
+                    <p>گزارش مشکلات و پیشنهادات</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">❓</div>
+                    <h4>پشتیبانی</h4>
+                    <p>پاسخ به سوالات کاربران</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📢</div>
+                    <h4>تبلیغ</h4>
+                    <p>معرفی OSGeo به دیگران</p>
+                </div>
+            </div>
+
+            <h3>🚀 شروع مشارکت</h3>
+            <div class="project-card">
+                <h4>مراحل شروع:</h4>
+                <ol>
+                    <li><strong>انتخاب پروژه:</strong> پروژه‌ای که با آن کار می‌کنید را انتخاب کنید</li>
+                    <li><strong>مطالعه مستندات:</strong> CONTRIBUTING.md را بخوانید</li>
+                    <li><strong>عضویت در لیست:</strong> در mailing list یا Discord عضو شوید</li>
+                    <li><strong>شروع کوچک:</strong> با "good first issue" ها شروع کنید</li>
+                    <li><strong>ارسال PR:</strong> تغییرات خود را Pull Request کنید</li>
+                </ol>
+            </div>
+
+            <h3>💻 مثال: مشارکت در QGIS</h3>
+            <div class="code-block">
+                <span class="comment"># 1. Fork کردن مخزن</span>
+                <span class="comment"># در GitHub روی Fork کلیک کنید</span>
+
+                <span class="comment"># 2. Clone کردن</span>
+                <span class="command">git clone https://github.com/YOUR_USERNAME/QGIS.git</span>
+                <span class="command">cd QGIS</span>
+
+                <span class="comment"># 3. ایجاد branch جدید</span>
+                <span class="command">git checkout -b fix-issue-12345</span>
+
+                <span class="comment"># 4. اعمال تغییرات</span>
+                <span class="comment"># ... ویرایش فایل‌ها ...</span>
+
+                <span class="comment"># 5. Commit کردن</span>
+                <span class="command">git add .</span>
+                <span class="command">git commit -m "Fix: resolve issue #12345"</span>
+
+                <span class="comment"># 6. Push کردن</span>
+                <span class="command">git push origin fix-issue-12345</span>
+
+                <span class="comment"># 7. ایجاد Pull Request در GitHub</span>
+            </div>
+
+            <h3>🌐 ترجمه فارسی</h3>
+            <div class="project-card">
+                <h4>📝 کمک به ترجمه فارسی</h4>
+                <p>
+                    بسیاری از پروژه‌های OSGeo نیاز به ترجمه فارسی دارند. می‌توانید در ترجمه
+                    رابط کاربری و مستندات کمک کنید:
+                </p>
+                <ul>
+                    <li><strong>QGIS:</strong> از طریق Transifex</li>
+                    <li><strong>GeoServer:</strong> از طریق Crowdin</li>
+                    <li><strong>OpenLayers:</strong> در GitHub</li>
+                    <li><strong>مستندات:</strong> ترجمه راهنماها</li>
+                </ul>
+            </div>
+
+            <h3>🔗 منابع مشارکت</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>پروژه</th>
+                        <th>GitHub</th>
+                        <th>ارتباط</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>QGIS</strong></td>
+                        <td>github.com/qgis/QGIS</td>
+                        <td>qgis-developer mailing list</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GeoServer</strong></td>
+                        <td>github.com/geoserver/geoserver</td>
+                        <td>geoserver-devel mailing list</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PostGIS</strong></td>
+                        <td>github.com/postgis/postgis</td>
+                        <td>postgis-devel mailing list</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GDAL</strong></td>
+                        <td>github.com/OSGeo/gdal</td>
+                        <td>gdal-dev mailing list</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OpenLayers</strong></td>
+                        <td>github.com/openlayers/openlayers</td>
+                        <td>Slack channel</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box">
+                <h4>💡 نکته مهم</h4>
+                <p>
+                    مشارکت در پروژه‌های متن‌باز نیازی به تخصص بالا ندارد. حتی گزارش یک باگ،
+                    اصلاح یک غلط املایی در مستندات، یا پاسخ به سوال یک کاربر تازه‌کار،
+                    کمک ارزشمندی به جامعه است. هر کمک کوچکی مهم است!
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 14: استانداردهای OGC -->
+        <div class="slide">
+            <div class="slide-number">14</div>
+            <h2>📐 استانداردهای OGC</h2>
+
+            <div class="intro-box">
+                <h4>📖 OGC چیست؟</h4>
+                <p>
+                    <strong>OGC (Open Geospatial Consortium)</strong> یک سازمان بین‌المللی است که
+                    استانداردهای باز برای داده‌ها و سرویس‌های جغرافیایی تعریف می‌کند.
+                    OSGeo از این استانداردها پیروی می‌کند تا تعامل‌پذیری بین نرم‌افزارها تضمین شود.
+                </p>
+            </div>
+
+            <h3>🌐 استانداردهای سرویس وب</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>استاندارد</th>
+                        <th>نام کامل</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WMS</strong></td>
+                        <td>Web Map Service</td>
+                        <td>دریافت تصویر نقشه (PNG, JPEG)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WFS</strong></td>
+                        <td>Web Feature Service</td>
+                        <td>دریافت داده برداری (GML, GeoJSON)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WCS</strong></td>
+                        <td>Web Coverage Service</td>
+                        <td>دریافت داده رستری</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WMTS</strong></td>
+                        <td>Web Map Tile Service</td>
+                        <td>دریافت تایل‌های نقشه</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WPS</strong></td>
+                        <td>Web Processing Service</td>
+                        <td>اجرای پردازش‌های مکانی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>CSW</strong></td>
+                        <td>Catalogue Service for Web</td>
+                        <td>جستجوی فراداده</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SOS</strong></td>
+                        <td>Sensor Observation Service</td>
+                        <td>داده‌های سنسوری</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📊 استانداردهای داده</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">📄</div>
+                    <h4>GML</h4>
+                    <p>Geography Markup Language - فرمت XML برای داده مکانی</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📦</div>
+                    <h4>GeoPackage</h4>
+                    <p>فرمت فایلی مبتنی بر SQLite</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🗺️</div>
+                    <h4>KML</h4>
+                    <p>Keyhole Markup Language (Google Earth)</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🎨</div>
+                    <h4>SLD</h4>
+                    <p>Styled Layer Descriptor - استایل نقشه</p>
+                </div>
+            </div>
+
+            <h3>💻 مثال استفاده از WMS</h3>
+            <div class="code-block">
+                <span class="comment"># درخواست GetCapabilities</span>
+                https://example.com/geoserver/wms?
+                SERVICE=WMS&
+                VERSION=1.3.0&
+                REQUEST=GetCapabilities
+
+                <span class="comment"># درخواست GetMap (دریافت تصویر نقشه)</span>
+                https://example.com/geoserver/wms?
+                SERVICE=WMS&
+                VERSION=1.3.0&
+                REQUEST=GetMap&
+                LAYERS=topp:states&
+                STYLES=&
+                CRS=EPSG:4326&
+                BBOX=-180,-90,180,90&
+                WIDTH=800&
+                HEIGHT=400&
+                FORMAT=image/png
+            </div>
+
+            <h3>💻 مثال استفاده از WFS</h3>
+            <div class="code-block">
+                <span class="comment"># درخواست GetFeature (دریافت داده)</span>
+                https://example.com/geoserver/wfs?
+                SERVICE=WFS&
+                VERSION=2.0.0&
+                REQUEST=GetFeature&
+                TYPENAMES=topp:states&
+                OUTPUTFORMAT=application/json&
+                COUNT=10
+
+                <span class="comment"># فیلتر مکانی</span>
+                https://example.com/geoserver/wfs?
+                SERVICE=WFS&
+                VERSION=2.0.0&
+                REQUEST=GetFeature&
+                TYPENAMES=topp:states&
+                CQL_FILTER=INTERSECTS(the_geom,POINT(-74 40.7))
+            </div>
+
+            <h3>🐍 استفاده در Python</h3>
+            <div class="code-block">
+                <span class="comment"># استفاده از OWSLib برای دسترسی به سرویس‌های OGC</span>
+                from owslib.wms import WebMapService
+                from owslib.wfs import WebFeatureService
+                import geopandas as gpd
+
+                <span class="comment"># اتصال به WMS</span>
+                wms = WebMapService('https://example.com/geoserver/wms', version='1.3.0')
+                print(list(wms.contents)) <span class="comment"># لیست لایه‌ها</span>
+
+                <span class="comment"># دریافت تصویر نقشه</span>
+                img = wms.getmap(
+                layers=['topp:states'],
+                srs='EPSG:4326',
+                bbox=(-180, -90, 180, 90),
+                size=(800, 400),
+                format='image/png'
+                )
+                with open('map.png', 'wb') as f:
+                f.write(img.read())
+
+                <span class="comment"># اتصال به WFS</span>
+                wfs = WebFeatureService('https://example.com/geoserver/wfs', version='2.0.0')
+                print(list(wfs.contents)) <span class="comment"># لیست لایه‌ها</span>
+
+                <span class="comment"># دریافت داده به صورت GeoJSON</span>
+                response = wfs.getfeature(
+                typename='topp:states',
+                outputFormat='application/json'
+                )
+
+                <span class="comment"># تبدیل به GeoDataFrame</span>
+                gdf = gpd.read_file(response)
+                print(gdf.head())
+            </div>
+
+            <div class="success-box">
+                <h4>💡 مزایای استانداردهای OGC</h4>
+                <ul>
+                    <li><strong>تعامل‌پذیری:</strong> نرم‌افزارهای مختلف می‌توانند با هم کار کنند</li>
+                    <li><strong>استقلال:</strong> وابسته به یک فروشنده خاص نیستید</li>
+                    <li><strong>قابلیت اطمینان:</strong> استانداردهای تست شده و پایدار</li>
+                    <li><strong>گستردگی:</strong> پشتیبانی توسط اکثر نرم‌افزارهای GIS</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 15: OpenStreetMap -->
+        <div class="slide">
+            <div class="slide-number">15</div>
+            <h2>🗺️ OpenStreetMap و OSGeo</h2>
+
+            <div class="intro-box">
+                <h4>📖 OpenStreetMap چیست؟</h4>
+                <p>
+                    <strong>OpenStreetMap (OSM)</strong> بزرگ‌ترین پروژه نقشه‌برداری مشارکتی جهان است
+                    که توسط میلیون‌ها داوطلب ایجاد شده است. OSM یک پروژه مستقل است اما
+                    ارتباط نزدیکی با OSGeo دارد و بسیاری از ابزارهای OSGeo از داده‌های OSM
+                    پشتیبانی می‌کنند.
+                </p>
+            </div>
+
+            <h3>🎯 ویژگی‌های OpenStreetMap</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">🆓</div>
+                    <h4>رایگان و آزاد</h4>
+                    <p>داده‌ها تحت لایسنس ODbL قابل استفاده هستند</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🌍</div>
+                    <h4>پوشش جهانی</h4>
+                    <p>نقشه تمام کشورهای جهان</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">👥</div>
+                    <h4>مشارکتی</h4>
+                    <p>ویرایش توسط میلیون‌ها کاربر</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🔄</div>
+                    <h4>به‌روز</h4>
+                    <p>به‌روزرسانی مداوم توسط جامعه</p>
+                </div>
+            </div>
+
+            <h3>📊 آمار OpenStreetMap</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number">10M+</div>
+                    <div class="label">کاربر ثبت‌نام شده</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">8B+</div>
+                    <div class="label">نقطه GPS</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">100M+</div>
+                    <div class="label">ساختمان</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">50M+</div>
+                    <div class="label">کیلومتر جاده</div>
+                </div>
+            </div>
+
+            <h3>🛠️ ابزارهای OSM</h3>
+            <div class="project-card">
+                <h4>📝 ویرایش نقشه</h4>
+                <ul>
+                    <li><strong>iD Editor:</strong> ویرایشگر آنلاین ساده</li>
+                    <li><strong>JOSM:</strong> ویرایشگر دسکتاپ پیشرفته (Java)</li>
+                    <li><strong>Vespucci:</strong> ویرایشگر اندروید</li>
+                    <li><strong>Go Map!!:</strong> ویرایشگر iOS</li>
+                </ul>
+            </div>
+
+            <h3>💻 دانلود داده‌های OSM</h3>
+            <div class="code-block">
+                <span class="comment"># دانلود داده ایران از Geofabrik</span>
+                <span class="command">wget https://download.geofabrik.de/asia/iran-latest.osm.pbf</span>
+
+                <span class="comment"># تبدیل به فرمت‌های دیگر با osmconvert</span>
+                <span class="command">osmconvert iran-latest.osm.pbf -o=iran.o5m</span>
+
+                <span class="comment"># استخراج داده با osmfilter</span>
+                <span class="command">osmfilter iran.o5m --keep="highway=*" -o=roads.osm</span>
+
+                <span class="comment"># وارد کردن به PostGIS با osm2pgsql</span>
+                <span class="command">osm2pgsql -d gis -U postgres iran-latest.osm.pbf</span>
+
+                <span class="comment"># استفاده از Overpass API</span>
+                <span class="comment"># https://overpass-turbo.eu/</span>
+                [out:json];
+                area["name:fa"="تهران"]->.a;
+                (
+                node["amenity"="restaurant"](area.a);
+                way["amenity"="restaurant"](area.a);
+                );
+                out center;
+            </div>
+
+            <h3>🐍 استفاده در Python</h3>
+            <div class="code-block">
+                <span class="comment"># نصب کتابخانه‌ها</span>
+                <span class="command">pip install osmnx geopandas</span>
+
+                import osmnx as ox
+                import geopandas as gpd
+
+                <span class="comment"># دانلود شبکه خیابان‌های تهران</span>
+                G = ox.graph_from_place('Tehran, Iran', network_type='drive')
+                ox.plot_graph(G)
+
+                <span class="comment"># دانلود ساختمان‌ها</span>
+                buildings = ox.features_from_place('Tehran, Iran', tags={'building': True})
+                buildings.plot()
+
+                <span class="comment"># دانلود POI ها</span>
+                restaurants = ox.features_from_place(
+                'Tehran, Iran',
+                tags={'amenity': 'restaurant'}
+                )
+                print(f"تعداد رستوران: {len(restaurants)}")
+
+                <span class="comment"># محاسبه کوتاه‌ترین مسیر</span>
+                orig = ox.nearest_nodes(G, 51.3890, 35.6892)
+                dest = ox.nearest_nodes(G, 51.4200, 35.7100)
+                route = ox.shortest_path(G, orig, dest, weight='length')
+                ox.plot_graph_route(G, route)
+            </div>
+
+            <div class="highlight-box">
+                <h4>🔗 منابع OpenStreetMap</h4>
+                <ul>
+                    <li><strong>وب‌سایت:</strong> <a href="https://www.openstreetmap.org" target="_blank"
+                            style="color: var(--accent-orange);">openstreetmap.org</a></li>
+                    <li><strong>ویکی:</strong> <a href="https://wiki.openstreetmap.org" target="_blank"
+                            style="color: var(--accent-orange);">wiki.openstreetmap.org</a></li>
+                    <li><strong>دانلود:</strong> <a href="https://download.geofabrik.de" target="_blank"
+                            style="color: var(--accent-orange);">download.geofabrik.de</a></li>
+                    <li><strong>Overpass:</strong> <a href="https://overpass-turbo.eu" target="_blank"
+                            style="color: var(--accent-orange);">overpass-turbo.eu</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 16: پروژه عملی -->
+        <div class="slide">
+            <div class="slide-number">16</div>
+            <h2>🛠️ پروژه عملی: WebGIS ساده</h2>
+
+            <div class="intro-box">
+                <h4>📖 هدف پروژه</h4>
+                <p>
+                    در این پروژه یک سیستم WebGIS ساده می‌سازیم که شامل پایگاه داده PostGIS،
+                    سرور نقشه GeoServer، و کلاینت وب با Leaflet است. این پروژه تمام مفاهیم
+                    اصلی را در عمل نشان می‌دهد.
+                </p>
+            </div>
+
+            <h3>🏗️ معماری سیستم</h3>
+            <div class="architecture-diagram">
+                <div class="layer" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+                    <h4>🌐 Frontend (Leaflet)</h4>
+                    <p>نمایش نقشه و تعامل کاربر</p>
+                </div>
+                <div style="font-size: 2em; margin: 10px 0;">⬇️</div>
+                <div class="layer" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9);">
+                    <h4>🖥️ Map Server (GeoServer)</h4>
+                    <p>سرویس‌دهی WMS/WFS</p>
+                </div>
+                <div style="font-size: 2em; margin: 10px 0;">⬇️</div>
+                <div class="layer" style="background: linear-gradient(135deg, #fff3e0, #ffe0b2);">
+                    <h4>🗄️ Database (PostGIS)</h4>
+                    <p>ذخیره داده‌های مکانی</p>
+                </div>
+            </div>
+
+            <h3>📁 ساختار پروژه</h3>
+            <div class="code-block">
+                webgis-project/
+                ├── docker-compose.yml
+                ├── data/
+                │ └── sample.geojson
+                ├── geoserver/
+                │ └── data_dir/
+                ├── web/
+                │ ├── index.html
+                │ ├── style.css
+                │ └── app.js
+                └── scripts/
+                ├── init_db.sql
+                └── load_data.py
+            </div>
+
+            <h3>🐳 Docker Compose</h3>
+            <div class="code-block">
+                <span class="comment"># docker-compose.yml</span>
+                version: '3.8'
+
+                services:
+                postgis:
+                image: postgis/postgis:15-3.3
+                container_name: webgis-db
+                environment:
+                POSTGRES_DB: gis
+                POSTGRES_USER: gis_user
+                POSTGRES_PASSWORD: gis_password
+                ports:
+                - "5432:5432"
+                volumes:
+                - postgis_data:/var/lib/postgresql/data
+                - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+
+                geoserver:
+                image: docker.osgeo.org/geoserver:2.24.0
+                container_name: webgis-geoserver
+                environment:
+                CORS_ENABLED: "true"
+                ports:
+                - "8080:8080"
+                volumes:
+                - ./geoserver/data_dir:/opt/geoserver/data_dir
+                depends_on:
+                - postgis
+
+                web:
+                image: nginx:alpine
+                container_name: webgis-web
+                ports:
+                - "80:80"
+                volumes:
+                - ./web:/usr/share/nginx/html:ro
+
+                volumes:
+                postgis_data:
+            </div>
+
+            <h3>🗄️ اسکریپت پایگاه داده</h3>
+            <div class="code-block">
+                <span class="comment">-- scripts/init_db.sql</span>
+
+                <span class="comment">-- فعال‌سازی PostGIS</span>
+                CREATE EXTENSION IF NOT EXISTS postgis;
+
+                <span class="comment">-- ایجاد جدول شهرها</span>
+                CREATE TABLE cities (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                name_fa VARCHAR(100),
+                population INTEGER,
+                province VARCHAR(100),
+                geom GEOMETRY(Point, 4326)
+                );
+
+                <span class="comment">-- ایجاد ایندکس مکانی</span>
+                CREATE INDEX idx_cities_geom ON cities USING GIST(geom);
+
+                <span class="comment">-- درج داده‌های نمونه</span>
+                INSERT INTO cities (name, name_fa, population, province, geom) VALUES
+                ('Tehran', 'تهران', 8700000, 'Tehran', ST_SetSRID(ST_MakePoint(51.3890, 35.6892), 4326)),
+                ('Isfahan', 'اصفهان', 2000000, 'Isfahan', ST_SetSRID(ST_MakePoint(51.6675, 32.6546), 4326)),
+                ('Shiraz', 'شیراز', 1500000, 'Fars', ST_SetSRID(ST_MakePoint(52.5311, 29.5918), 4326)),
+                ('Tabriz', 'تبریز', 1600000, 'East Azerbaijan', ST_SetSRID(ST_MakePoint(46.2919, 38.0800),
+                4326)),
+                ('Mashhad', 'مشهد', 3000000, 'Razavi Khorasan', ST_SetSRID(ST_MakePoint(59.5794, 36.2605),
+                4326));
+
+                <span class="comment">-- ایجاد جدول استان‌ها</span>
+                CREATE TABLE provinces (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                name_fa VARCHAR(100),
+                area_km2 NUMERIC,
+                geom GEOMETRY(MultiPolygon, 4326)
+                );
+
+                CREATE INDEX idx_provinces_geom ON provinces USING GIST(geom);
+
+                <span class="comment">-- ایجاد View برای GeoServer</span>
+                CREATE OR REPLACE VIEW cities_view AS
+                SELECT
+                id,
+                name,
+                name_fa,
+                population,
+                province,
+                geom,
+                ST_AsGeoJSON(geom) as geojson
+                FROM cities;
+            </div>
+
+            <h3>🌐 صفحه وب (HTML)</h3>
+            <div class="code-block">
+                <span class="comment">&lt;!-- web/index.html --&gt;</span>
+                &lt;!DOCTYPE html&gt;
+                &lt;html lang="fa" dir="rtl"&gt;
+                &lt;head&gt;
+                &lt;meta charset="UTF-8"&gt;
+                &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+                &lt;title&gt;WebGIS ایران&lt;/title&gt;
+
+                <span class="comment">&lt;!-- Leaflet CSS --&gt;</span>
+                &lt;link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"&gt;
+
+                &lt;style&gt;
+                body { margin: 0; padding: 0; font-family: Vazirmatn, sans-serif; }
+                #map { height: 100vh; width: 100%; }
+                .info-panel {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                max-width: 300px;
+                }
+                .legend {
+                position: absolute;
+                bottom: 30px;
+                right: 10px;
+                background: white;
+                padding: 10px;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                z-index: 1000;
+                }
+                &lt;/style&gt;
+                &lt;/head&gt;
+                &lt;body&gt;
+                &lt;div id="map"&gt;&lt;/div&gt;
+
+                &lt;div class="info-panel"&gt;
+                &lt;h3&gt;🗺️ WebGIS ایران&lt;/h3&gt;
+                &lt;p&gt;روی شهرها کلیک کنید&lt;/p&gt;
+                &lt;div id="city-info"&gt;&lt;/div&gt;
+                &lt;/div&gt;
+
+                <span class="comment">&lt;!-- Leaflet JS --&gt;</span>
+                &lt;script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"&gt;&lt;/script&gt;
+                &lt;script src="app.js"&gt;&lt;/script&gt;
+                &lt;/body&gt;
+                &lt;/html&gt;
+            </div>
+
+            <h3>📜 کد JavaScript</h3>
+            <div class="code-block">
+                <span class="comment">// web/app.js</span>
+
+                <span class="comment">// ایجاد نقشه</span>
+                const map = L.map('map').setView([32.4279, 53.6880], 5);
+
+                <span class="comment">// لایه پایه OpenStreetMap</span>
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                <span class="comment">// اتصال به GeoServer WMS</span>
+                const provincesWMS = L.tileLayer.wms('http://localhost:8080/geoserver/wms', {
+                layers: 'webgis:provinces',
+                format: 'image/png',
+                transparent: true,
+                attribution: 'GeoServer'
+                }).addTo(map);
+
+                <span class="comment">// دریافت شهرها از WFS</span>
+                fetch('http://localhost:8080/geoserver/wfs?' + new URLSearchParams({
+                service: 'WFS',
+                version: '2.0.0',
+                request: 'GetFeature',
+                typeName: 'webgis:cities',
+                outputFormat: 'application/json'
+                }))
+                .then(response => response.json())
+                .then(data => {
+                L.geoJSON(data, {
+                pointToLayer: (feature, latlng) => {
+                const population = feature.properties.population;
+                const radius = Math.sqrt(population) / 500;
+                return L.circleMarker(latlng, {
+                radius: radius,
+                fillColor: '#e74c3c',
+                color: '#c0392b',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.7
+                });
+                },
+                onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                const props = feature.properties;
+                document.getElementById('city-info').innerHTML = `
+                &lt;h4&gt;${props.name_fa}&lt;/h4&gt;
+                &lt;p&gt;&lt;strong&gt;نام انگلیسی:&lt;/strong&gt; ${props.name}&lt;/p&gt;
+                &lt;p&gt;&lt;strong&gt;جمعیت:&lt;/strong&gt;
+                ${props.population.toLocaleString('fa-IR')}&lt;/p&gt;
+                &lt;p&gt;&lt;strong&gt;استان:&lt;/strong&gt; ${props.province}&lt;/p&gt;
+                `;
+                });
+                layer.bindTooltip(feature.properties.name_fa);
+                }
+                }).addTo(map);
+                });
+
+                <span class="comment">// کنترل لایه‌ها</span>
+                const baseMaps = {
+                "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'),
+                "Satellite":
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}')
+                };
+
+                const overlayMaps = {
+                "استان‌ها": provincesWMS
+                };
+
+                L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+                <span class="comment">// مقیاس</span>
+                L.control.scale({ imperial: false }).addTo(map);
+            </div>
+
+            <h3>🚀 اجرای پروژه</h3>
+            <div class="code-block">
+                <span class="comment"># 1. اجرای Docker Compose</span>
+                <span class="command">docker-compose up -d</span>
+
+                <span class="comment"># 2. بررسی وضعیت</span>
+                <span class="command">docker-compose ps</span>
+
+                <span class="comment"># 3. پیکربندی GeoServer</span>
+                <span class="comment"># - به http://localhost:8080/geoserver بروید</span>
+                <span class="comment"># - با admin/geoserver وارد شوید</span>
+                <span class="comment"># - یک Workspace به نام webgis بسازید</span>
+                <span class="comment"># - یک Store از نوع PostGIS اضافه کنید</span>
+                <span class="comment"># - لایه‌های cities و provinces را publish کنید</span>
+
+                <span class="comment"># 4. مشاهده نتیجه</span>
+                <span class="comment"># http://localhost در مرورگر</span>
+
+                <span class="comment"># 5. توقف</span>
+                <span class="command">docker-compose down</span>
+            </div>
+
+            <div class="success-box">
+                <h4>🎉 تبریک!</h4>
+                <p>
+                    شما یک سیستم WebGIS کامل ساختید که شامل پایگاه داده مکانی، سرور نقشه،
+                    و کلاینت وب است. این معماری پایه‌ای برای بسیاری از پروژه‌های واقعی است.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 17: منابع و خلاصه -->
+        <div class="slide">
+            <div class="slide-number">17</div>
+            <h2>📚 منابع و خلاصه</h2>
+
+            <h3>🔗 لینک‌های مهم</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>منبع</th>
+                        <th>آدرس</th>
+                        <th>توضیحات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>OSGeo</strong></td>
+                        <td><a href="https://www.osgeo.org" target="_blank">osgeo.org</a></td>
+                        <td>وب‌سایت رسمی بنیاد</td>
+                    </tr>
+                    <tr>
+                        <td><strong>QGIS</strong></td>
+                        <td><a href="https://qgis.org" target="_blank">qgis.org</a></td>
+                        <td>دانلود و مستندات</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PostGIS</strong></td>
+                        <td><a href="https://postgis.net" target="_blank">postgis.net</a></td>
+                        <td>مستندات و آموزش</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GeoServer</strong></td>
+                        <td><a href="https://geoserver.org" target="_blank">geoserver.org</a></td>
+                        <td>دانلود و راهنما</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GDAL</strong></td>
+                        <td><a href="https://gdal.org" target="_blank">gdal.org</a></td>
+                        <td>مستندات API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OSGeo Live</strong></td>
+                        <td><a href="https://live.osgeo.org" target="_blank">live.osgeo.org</a></td>
+                        <td>دانلود DVD</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OpenLayers</strong></td>
+                        <td><a href="https://openlayers.org" target="_blank">openlayers.org</a></td>
+                        <td>مثال‌ها و API</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Leaflet</strong></td>
+                        <td><a href="https://leafletjs.com" target="_blank">leafletjs.com</a></td>
+                        <td>مستندات و پلاگین‌ها</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📖 کتاب‌های پیشنهادی</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">📘</div>
+                    <h4>QGIS Training Manual</h4>
+                    <p>راهنمای رسمی آموزش QGIS</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📗</div>
+                    <h4>PostGIS in Action</h4>
+                    <p>کتاب جامع PostGIS</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📙</div>
+                    <h4>GeoServer Beginner's Guide</h4>
+                    <p>شروع کار با GeoServer</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">📕</div>
+                    <h4>Python for GIS</h4>
+                    <p>برنامه‌نویسی GIS با پایتون</p>
+                </div>
+            </div>
+
+            <h3>📋 خلاصه آموزش</h3>
+            <div class="project-card">
+                <h4>✅ آنچه یاد گرفتیم:</h4>
+                <ol>
+                    <li><strong>OSGeo:</strong> بنیاد متن‌باز ژئواسپیشیال و اهداف آن</li>
+                    <li><strong>تاریخچه:</strong> از 2006 تا امروز</li>
+                    <li><strong>ساختار:</strong> هیئت مدیره، PSC، Chapters</li>
+                    <li><strong>Desktop GIS:</strong> QGIS, GRASS GIS, gvSIG</li>
+                    <li><strong>Web GIS:</strong> GeoServer, MapServer, OpenLayers, Leaflet</li>
+                    <li><strong>کتابخانه‌ها:</strong> GDAL, PROJ, GEOS</li>
+                    <li><strong>پایگاه داده:</strong> PostGIS, SpatiaLite</li>
+                    <li><strong>فراداده:</strong> GeoNetwork, pycsw</li>
+                    <li><strong>سنجش از دور:</strong> Orfeo ToolBox, OSSIM</li>
+                    <li><strong>OSGeo Live:</strong> توزیع آماده استفاده</li>
+                    <li><strong>FOSS4G:</strong> کنفرانس جهانی</li>
+                    <li><strong>GeoForAll:</strong> برنامه آموزشی</li>
+                    <li><strong>مشارکت:</strong> نحوه کمک به پروژه‌ها</li>
+                    <li><strong>استانداردها:</strong> OGC WMS, WFS, WCS</li>
+                    <li><strong>OpenStreetMap:</strong> داده‌های آزاد نقشه</li>
+                    <li><strong>پروژه عملی:</strong> ساخت WebGIS کامل</li>
+                </ol>
+            </div>
+
+            <h3>🎯 قدم‌های بعدی</h3>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="icon">1️⃣</div>
+                    <h4>نصب QGIS</h4>
+                    <p>شروع کار با محبوب‌ترین GIS متن‌باز</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">2️⃣</div>
+                    <h4>یادگیری PostGIS</h4>
+                    <p>تسلط بر پایگاه داده مکانی</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">3️⃣</div>
+                    <h4>ساخت WebGIS</h4>
+                    <p>ترکیب GeoServer و Leaflet</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">4️⃣</div>
+                    <h4>مشارکت</h4>
+                    <p>کمک به جامعه متن‌باز</p>
+                </div>
+            </div>
+
+            <h3>🌐 جوامع آنلاین</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>جامعه</th>
+                        <th>پلتفرم</th>
+                        <th>لینک</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>QGIS Community</strong></td>
+                        <td>Mailing List, Discord</td>
+                        <td>qgis.org/community</td>
+                    </tr>
+                    <tr>
+                        <td><strong>GIS StackExchange</strong></td>
+                        <td>Q&A</td>
+                        <td>gis.stackexchange.com</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OSGeo Discourse</strong></td>
+                        <td>Forum</td>
+                        <td>discourse.osgeo.org</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reddit r/gis</strong></td>
+                        <td>Reddit</td>
+                        <td>reddit.com/r/gis</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OSGeo IRC</strong></td>
+                        <td>Chat</td>
+                        <td>#osgeo on Libera.Chat</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box">
+                <h4>💬 جامعه فارسی‌زبان</h4>
+                <p>
+                    برای ارتباط با جامعه فارسی‌زبان GIS متن‌باز می‌توانید در گروه‌های
+                    تلگرام و انجمن‌های فارسی عضو شوید. همچنین ترجمه مستندات به فارسی
+                    یکی از راه‌های مهم مشارکت است.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 18: سوالات متداول -->
+        <div class="slide">
+            <div class="slide-number">18</div>
+            <h2>❓ سوالات متداول (FAQ)</h2>
+
+            <div class="project-card">
+                <h4>🤔 آیا نرم‌افزارهای OSGeo واقعاً رایگان هستند؟</h4>
+                <p>
+                    بله، تمام نرم‌افزارهای OSGeo تحت لایسنس‌های متن‌باز (مثل GPL, MIT, Apache)
+                    منتشر می‌شوند و برای استفاده شخصی و تجاری کاملاً رایگان هستند.
+                    می‌توانید آن‌ها را دانلود، نصب، تغییر و حتی بفروشید.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h4>🤔 آیا QGIS می‌تواند جایگزین ArcGIS شود؟</h4>
+                <p>
+                    برای بسیاری از کاربردها، بله. QGIS امکانات مشابه و گاهی بهتر از ArcGIS دارد.
+                    البته برخی ابزارهای تخصصی ESRI ممکن است معادل مستقیم نداشته باشند،
+                    اما با پلاگین‌ها و GRASS GIS می‌توان اکثر نیازها را برطرف کرد.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h4>🤔 کدام پایگاه داده مکانی بهتر است؟</h4>
+                <p>
+                    <strong>PostGIS</strong> برای پروژه‌های سازمانی و وب بهترین انتخاب است.
+                    <strong>SpatiaLite</strong> برای پروژه‌های کوچک و موبایل مناسب‌تر است.
+                    <strong>GeoPackage</strong> برای تبادل داده بین نرم‌افزارها عالی است.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h4>🤔 GeoServer یا MapServer؟</h4>
+                <p>
+                    <strong>GeoServer:</strong> رابط مدیریت وب، پیکربندی آسان، REST API کامل،
+                    مناسب برای اکثر پروژه‌ها.<br>
+                    <strong>MapServer:</strong> سریع‌تر، مصرف منابع کمتر، مناسب برای سرورهای
+                    با ترافیک بالا، نیاز به تجربه بیشتر.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h4>🤔 چطور می‌توانم در پروژه‌های OSGeo مشارکت کنم؟</h4>
+                <p>
+                    راه‌های مختلفی وجود دارد: گزارش باگ، نوشتن مستندات، ترجمه به فارسی،
+                    پاسخ به سوالات کاربران در فروم‌ها، و البته کدنویسی. حتی یک tweet یا
+                    پست وبلاگ درباره OSGeo کمک بزرگی است!
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h4>🤔 آیا داده‌های OpenStreetMap قابل اعتماد هستند؟</h4>
+                <p>
+                    کیفیت OSM بسته به منطقه متفاوت است. در شهرهای بزرگ معمولاً بسیار دقیق است.
+                    برای کارهای حساس، همیشه داده‌ها را بررسی کنید. مزیت OSM این است که
+                    می‌توانید خودتان آن را بهبود دهید!
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h4>🤔 بهترین راه یادگیری GIS متن‌باز چیست؟</h4>
+                <p>
+                    <strong>1.</strong> OSGeo Live را دانلود کنید و با نرم‌افزارها آشنا شوید<br>
+                    <strong>2.</strong> QGIS Training Manual را مطالعه کنید<br>
+                    <strong>3.</strong> یک پروژه واقعی تعریف کنید و انجام دهید<br>
+                    <strong>4.</strong> در جامعه شرکت کنید و سوال بپرسید<br>
+                    <strong>5.</strong> در FOSS4G یا رویدادهای محلی شرکت کنید
+                </p>
+            </div>
+
+            <div class="project-card">
+                <h4>🤔 آیا شرکت‌ها از OSGeo استفاده می‌کنند؟</h4>
+                <p>
+                    بله! شرکت‌های بزرگی مثل Google, Amazon, Microsoft, Uber, و بسیاری از
+                    سازمان‌های دولتی از پروژه‌های OSGeo استفاده می‌کنند. GDAL تقریباً در
+                    هر نرم‌افزار GIS (حتی ArcGIS) استفاده می‌شود.
+                </p>
+            </div>
+
+            <div class="success-box">
+                <h4>💡 سوال دارید؟</h4>
+                <p>
+                    اگر سوالی دارید که در این لیست نیست، می‌توانید در
+                    <a href="https://gis.stackexchange.com" target="_blank" style="color: var(--accent-green);">GIS
+                        StackExchange</a>
+                    بپرسید یا در
+                    <a href="https://discourse.osgeo.org" target="_blank" style="color: var(--accent-green);">OSGeo
+                        Discourse</a>
+                    مطرح کنید.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید پایانی -->
+        <div class="slide" style="text-align: center; background: linear-gradient(135deg, #e3f2fd, #bbdefb);">
+            <div class="slide-number">🎉</div>
+            <h2 style="border: none; text-align: center;">پایان آموزش</h2>
+
+            <div style="font-size: 6em; margin: 40px 0;">🌍</div>
+
+            <h3 style="border: none; text-align: center; font-size: 2.5em; color: var(--primary-blue);">
+                به دنیای GIS متن‌باز خوش آمدید!
+            </h3>
+
+            <p style="font-size: 1.4em; max-width: 800px; margin: 30px auto;">
+                OSGeo فقط مجموعه‌ای از نرم‌افزارها نیست، بلکه یک <strong>جامعه جهانی</strong>
+                از افرادی است که به اشتراک‌گذاری دانش و ابزارها باور دارند.
+            </p>
+
+            <div class="stats-grid" style="max-width: 800px; margin: 50px auto;">
+                <div class="stat-card">
+                    <div class="number">🔓</div>
+                    <div class="label">آزادی</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">🤝</div>
+                    <div class="label">همکاری</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">🌱</div>
+                    <div class="label">نوآوری</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number">🌍</div>
+                    <div class="label">جهانی</div>
+                </div>
+            </div>
+
+            <div class="badge-container" style="margin: 40px 0;">
+                <span class="badge" style="font-size: 1.2em; padding: 15px 30px;">🗺️ QGIS</span>
+                <span class="badge" style="font-size: 1.2em; padding: 15px 30px;">🐘 PostGIS</span>
+                <span class="badge" style="font-size: 1.2em; padding: 15px 30px;">🌐 GeoServer</span>
+                <span class="badge" style="font-size: 1.2em; padding: 15px 30px;">⚙️ GDAL</span>
+                <span class="badge" style="font-size: 1.2em; padding: 15px 30px;">🌿 GRASS</span>
+                <span class="badge" style="font-size: 1.2em; padding: 15px 30px;">🗺️ OpenLayers</span>
+            </div>
+
+            <div class="highlight-box" style="max-width: 600px; margin: 40px auto; text-align: center;">
+                <h4 style="font-size: 1.5em;">🚀 شروع کنید!</h4>
+                <p style="font-size: 1.2em;">
+                    همین امروز QGIS را نصب کنید و اولین نقشه خود را بسازید.
+                    <br><br>
+                    <a href="https://qgis.org/download/" target="_blank" style="background: var(--accent-green); color: white; padding: 15px 40px; 
+                              border-radius: 30px; text-decoration: none; font-size: 1.1em; 
+                              display: inline-block; margin-top: 15px;">
+                        دانلود QGIS
+                    </a>
+                </p>
+            </div>
+
+            <p style="font-size: 1.1em; color: #666; margin-top: 50px;">
+                "The power of Open Source is the power of the people."
+                <br>
+                <em>- قدرت متن‌باز، قدرت مردم است.</em>
+            </p>
+        </div>
+
+    </div>
+
+    <footer>
+        <div style="max-width: 1000px; margin: 0 auto;">
+            <h3 style="font-size: 2.5em; margin-bottom: 30px;">🌍 OSGeo - Open Source Geospatial Foundation
+            </h3>
+
+            <p style="font-size: 1.3em; margin-bottom: 20px;">
+                بنیاد نرم‌افزارهای متن‌باز جغرافیایی
+            </p>
+
+            <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin: 40px 0;">
+                <a href="https://www.osgeo.org" target="_blank"
+                    style="color: white; text-decoration: none; padding: 12px 25px; background: rgba(255,255,255,0.2); border-radius: 25px;">
+                    🌐 osgeo.org
+                </a>
+                <a href="https://qgis.org" target="_blank"
+                    style="color: white; text-decoration: none; padding: 12px 25px; background: rgba(255,255,255,0.2); border-radius: 25px;">
+                    🗺️ qgis.org
+                </a>
+                <a href="https://live.osgeo.org" target="_blank"
+                    style="color: white; text-decoration: none; padding: 12px 25px; background: rgba(255,255,255,0.2); border-radius: 25px;">
+                    💿 OSGeo Live
+                </a>
+                <a href="https://foss4g.org" target="_blank"
+                    style="color: white; text-decoration: none; padding: 12px 25px; background: rgba(255,255,255,0.2); border-radius: 25px;">
+                    🎪 FOSS4G
+                </a>
+            </div>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.3); padding-top: 30px; margin-top: 30px;">
+                <p style="font-size: 1em; opacity: 0.9;">
+                    📚 این آموزش برای جامعه فارسی‌زبان GIS تهیه شده است
+                </p>
+                <p style="font-size: 0.95em; opacity: 0.8; margin-top: 15px;">
+                    © 2024 | تحت لایسنس Creative Commons BY-SA 4.0
+                </p>
+                <p style="font-size: 0.9em; opacity: 0.7; margin-top: 10px;">
+                    با ❤️ برای جامعه OSGeo
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    e.preventDefault();
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.slide').forEach(slide => {
+            slide.style.opacity = '0';
+            slide.style.transform = 'translateY(30px)';
+            slide.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(slide);
+        });
+
+        // Print functionality
+        function printPresentation() {
+            window.print();
+        }
+
+        // Keyboard navigation
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                currentSlide = Math.min(currentSlide + 1, slides.length - 1);
+                slides[currentSlide].scrollIntoView({
+                    behavior: 'smooth'
+                });
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                currentSlide = Math.max(currentSlide - 1, 0);
+                slides[currentSlide].scrollIntoView({
+                    behavior: 'smooth'
+                });
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                currentSlide = 0;
+                slides[currentSlide].scrollIntoView({
+                    behavior: 'smooth'
+                });
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                currentSlide = slides.length - 1;
+                slides[currentSlide].scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // Update current slide on scroll
+        window.addEventListener('scroll', () => {
+            slides.forEach((slide, index) => {
+                const rect = slide.getBoundingClientRect();
+                if (rect.top >= 0 && rect.top < window.innerHeight / 2) {
+                    currentSlide = index;
+                }
+            });
+        });
+
+        console.log('🌍 OSGeo Training Presentation Loaded!');
+        console.log('📚 Use Arrow keys or Page Up/Down to navigate');
+        console.log('🔗 Visit https://osgeo.org for more information');
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/python.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/sql.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/yaml.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.code-block').forEach(block => {
+                const sampleText = block.textContent || '';
+                const lang = block.dataset.lang || detectLanguage(sampleText);
+                const codeEl = document.createElement('code');
+                codeEl.className = `language-${lang}`;
+                codeEl.setAttribute('tabindex', '0');
+                codeEl.innerHTML = block.innerHTML.trim();
+                block.innerHTML = '';
+                block.appendChild(codeEl);
+            });
+            hljs.highlightAll();
+        });
+
+        function detectLanguage(text) {
+            const sample = (text || '').toLowerCase();
+            if (sample.includes('services:') || sample.includes('version:') || sample.includes('image:') || sample.includes('ports:')) {
+                return 'yaml';
+            }
+            if (/(select|insert|update|create|from|where)/.test(sample)) {
+                return 'sql';
+            }
+            if (sample.includes('const ') || sample.includes('fetch(') || sample.includes('=>')) {
+                return 'javascript';
+            }
+            if (sample.includes('import') || sample.includes('print(') || sample.includes('def ') || sample.includes('python')) {
+                return 'python';
+            }
+            return 'bash';
+        }
+    </script>
+
+</body>
+
+</html>
