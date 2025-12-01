@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <title>آموزش معماری Hexagonal با Django</title>
     <style>
         * {
@@ -12,7 +15,7 @@
         }
 
         body {
-            font-family: 'Tahoma', 'Arial', sans-serif;
+            font-family: 'Vazirmatn', sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #e4e4e4;
             line-height: 1.8;
@@ -152,14 +155,13 @@
             white-space: pre;
         }
 
-        /* Syntax Highlighting */
-        .keyword { color: #ff7b72; }
-        .string { color: #a5d6ff; }
-        .comment { color: #8b949e; font-style: italic; }
-        .function { color: #d2a8ff; }
-        .class-name { color: #ffd93d; }
-        .decorator { color: #79c0ff; }
-        .number { color: #79c0ff; }
+        /* Highlight.js styling override */
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Syntax Highlighting removed - using Highlight.js */
 
         /* Diagram Styles */
         .diagram {
@@ -711,4 +713,2543 @@
             <div class="info-box success">
                 <strong>✅ تفاوت کلیدی:</strong><br>
                 <strong>Inbound Ports:</strong> چه کاری می‌خواهیم انجام دهیم (What)<br>
-                <strong>Outbound Ports:</strong> چگونه این کار را انجام می‌دهیم (How)
+                <strong>Outbound Ports:</strong> چگونه این کار را انجام می‌دهیم (How)</div>
+        </section>
+
+        <!-- Section 4: Adapters -->
+        <section id="adapters">
+            <h2>🔌 ۴. Adapters (آداپترها)</h2>
+
+            <h3>Inbound Adapters (آداپترهای ورودی)</h3>
+            <p>
+                آداپترهای ورودی وظیفه تبدیل درخواست‌های خارجی (HTTP، CLI، GraphQL و...) به فراخوانی Use Case‌ها را دارند.
+                در Django، این آداپترها معمولاً به صورت Views پیاده‌سازی می‌شوند.
+            </p>
+
+            <div class="flow-diagram">
+                <div class="flow-box request">HTTP Request</div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-box adapter">Django View<br>(Inbound Adapter)</div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-box usecase">Use Case</div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-box domain">Domain</div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-box response">HTTP Response</div>
+            </div>
+
+            <h3>Outbound Adapters (آداپترهای خروجی)</h3>
+            <p>
+                آداپترهای خروجی پیاده‌سازی واقعی پورت‌های خروجی هستند. این آداپترها با فناوری‌های خاص 
+                (Django ORM، PostgreSQL، Redis، External APIs و...) کار می‌کنند.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>نوع آداپتر</th>
+                        <th>Inbound (ورودی)</th>
+                        <th>Outbound (خروجی)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>هدف</strong></td>
+                        <td>دریافت درخواست از دنیای خارج</td>
+                        <td>ارتباط با منابع خارجی</td>
+                    </tr>
+                    <tr>
+                        <td><strong>مثال در Django</strong></td>
+                        <td>Views, API Endpoints</td>
+                        <td>ORM Repositories, Services</td>
+                    </tr>
+                    <tr>
+                        <td><strong>پیاده‌سازی می‌کند</strong></td>
+                        <td>فراخوانی Use Case</td>
+                        <td>Outbound Port Interface</td>
+                    </tr>
+                    <tr>
+                        <td><strong>وابستگی</strong></td>
+                        <td>به Use Case وابسته است</td>
+                        <td>Port به آن وابسته نیست</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 5: Project Structure -->
+        <section id="structure">
+            <h2>📁 ۵. ساختار پروژه</h2>
+
+            <h3>ساختار کامل پروژه احراز هویت</h3>
+            
+            <div class="folder-structure">
+<span class="folder">auth_project/</span>
+│
+├── <span class="folder">core/</span>                          <span class="comment"># هسته اصلی (مستقل از فریم‌ورک)</span>
+│   │
+│   ├── <span class="folder">domain/</span>                    <span class="comment"># لایه دامنه</span>
+│   │   ├── <span class="file">__init__.py</span>
+│   │   ├── <span class="folder">models/</span>                <span class="comment"># مدل‌های دامنه</span>
+│   │   │   ├── <span class="file">__init__.py</span>
+│   │   │   └── <span class="file">user.py</span>              <span class="comment"># مدل کاربر</span>
+│   │   ├── <span class="folder">exceptions/</span>            <span class="comment"># استثناهای دامنه</span>
+│   │   │   ├── <span class="file">__init__.py</span>
+│   │   │   └── <span class="file">auth_exceptions.py</span>
+│   │   └── <span class="folder">value_objects/</span>         <span class="comment"># Value Objects</span>
+│   │       ├── <span class="file">__init__.py</span>
+│   │       ├── <span class="file">email.py</span>
+│   │       └── <span class="file">password.py</span>
+│   │
+│   ├── <span class="folder">ports/</span>                     <span class="comment"># پورت‌ها (اینترفیس‌ها)</span>
+│   │   ├── <span class="file">__init__.py</span>
+│   │   ├── <span class="folder">inbound/</span>               <span class="comment"># پورت‌های ورودی</span>
+│   │   │   ├── <span class="file">__init__.py</span>
+│   │   │   └── <span class="file">user_service_port.py</span>
+│   │   └── <span class="folder">outbound/</span>              <span class="comment"># پورت‌های خروجی</span>
+│   │       ├── <span class="file">__init__.py</span>
+│   │       ├── <span class="file">user_repository_port.py</span>
+│   │       ├── <span class="file">auth_service_port.py</span>
+│   │       └── <span class="file">token_service_port.py</span>
+│   │
+│   └── <span class="folder">use_cases/</span>                 <span class="comment"># Use Case‌ها</span>
+│       ├── <span class="file">__init__.py</span>
+│       ├── <span class="file">register_user.py</span>
+│       ├── <span class="file">login_user.py</span>
+│       └── <span class="file">get_user.py</span>
+│
+├── <span class="folder">adapters/</span>                      <span class="comment"># آداپترها</span>
+│   ├── <span class="file">__init__.py</span>
+│   │
+│   ├── <span class="folder">inbound/</span>                   <span class="comment"># آداپترهای ورودی</span>
+│   │   ├── <span class="file">__init__.py</span>
+│   │   └── <span class="folder">django/</span>
+│   │       ├── <span class="file">__init__.py</span>
+│   │       ├── <span class="file">views.py</span>             <span class="comment"># Django Views</span>
+│   │       ├── <span class="file">serializers.py</span>       <span class="comment"># سریالایزرها</span>
+│   │       └── <span class="file">urls.py</span>              <span class="comment"># URL‌ها</span>
+│   │
+│   └── <span class="folder">outbound/</span>                  <span class="comment"># آداپترهای خروجی</span>
+│       ├── <span class="file">__init__.py</span>
+│       └── <span class="folder">django/</span>
+│           ├── <span class="file">__init__.py</span>
+│           ├── <span class="file">user_repository.py</span>   <span class="comment"># پیاده‌سازی Repository</span>
+│           ├── <span class="file">auth_service.py</span>      <span class="comment"># سرویس احراز هویت</span>
+│           ├── <span class="file">token_service.py</span>     <span class="comment"># سرویس توکن</span>
+│           └── <span class="file">models.py</span>            <span class="comment"># مدل‌های Django</span>
+│
+├── <span class="folder">infrastructure/</span>               <span class="comment"># زیرساخت</span>
+│   ├── <span class="file">__init__.py</span>
+│   └── <span class="folder">config/</span>
+│       ├── <span class="file">__init__.py</span>
+│       ├── <span class="file">dependency_injection.py</span> <span class="comment"># تزریق وابستگی</span>
+│       └── <span class="file">settings.py</span>             <span class="comment"># تنظیمات</span>
+│
+├── <span class="folder">tests/</span>                         <span class="comment"># تست‌ها</span>
+│   ├── <span class="file">__init__.py</span>
+│   ├── <span class="folder">unit/</span>                      <span class="comment"># تست‌های واحد</span>
+│   │   ├── <span class="file">test_user_domain.py</span>
+│   │   ├── <span class="file">test_register_usecase.py</span>
+│   │   └── <span class="file">test_login_usecase.py</span>
+│   ├── <span class="folder">integration/</span>               <span class="comment"># تست‌های یکپارچگی</span>
+│   │   └── <span class="file">test_user_repository.py</span>
+│   └── <span class="folder">e2e/</span>                       <span class="comment"># تست‌های End-to-End</span>
+│       └── <span class="file">test_auth_api.py</span>
+│
+├── <span class="file">manage.py</span>
+└── <span class="file">requirements.txt</span>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 نکته مهم:</strong>
+                پوشه <code>core/</code> هیچ وابستگی به Django یا هر فریم‌ورک دیگری ندارد. 
+                این پوشه فقط شامل Python خالص است و می‌تواند در هر پروژه‌ای استفاده شود.
+            </div>
+        </section>
+
+        <!-- Section 6: Domain Layer -->
+        <section id="domain">
+            <h2>🎯 ۶. Domain Layer (لایه دامنه)</h2>
+
+            <h3>مدل دامنه کاربر</h3>
+            <p>
+                مدل دامنه یک کلاس Python خالص است که منطق کسب‌وکار مربوط به کاربر را در خود دارد.
+                این مدل هیچ وابستگی به فریم‌ورک یا دیتابیس ندارد.
+            </p>
+
+            <div class="code-block" data-filename="core/domain/models/user.py">
+<code><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field
+<span class="keyword">from</span> typing <span class="keyword">import</span> Optional, List
+<span class="keyword">from</span> uuid <span class="keyword">import</span> uuid4
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+<span class="keyword">import</span> re
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">UserDomain</span>:
+    <span class="string">"""
+    مدل دامنه کاربر
+    این کلاس شامل تمام منطق کسب‌وکار مربوط به کاربر است
+    """</span>
+    
+    <span class="comment"># فیلدهای اصلی</span>
+    id: Optional[<span class="class-name">str</span>] = field(default_factory=<span class="keyword">lambda</span>: <span class="class-name">str</span>(uuid4()))
+    username: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    email: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    password: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    first_name: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    last_name: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    
+    <span class="comment"># فیلدهای وضعیت</span>
+    is_active: <span class="class-name">bool</span> = <span class="keyword">True</span>
+    is_verified: <span class="class-name">bool</span> = <span class="keyword">False</span>
+    
+    <span class="comment"># فیلدهای زمانی</span>
+    created_at: Optional[datetime] = field(default_factory=datetime.utcnow)
+    updated_at: Optional[datetime] = <span class="keyword">None</span>
+    last_login: Optional[datetime] = <span class="keyword">None</span>
+    
+    <span class="comment"># نقش‌ها</span>
+    roles: List[<span class="class-name">str</span>] = field(default_factory=<span class="keyword">list</span>)
+
+    <span class="comment"># ===== متدهای اعتبارسنجی =====</span>
+    
+    <span class="keyword">def</span> <span class="function">validate</span>(self) -> <span class="class-name">bool</span>:
+        <span class="string">"""اعتبارسنجی کامل کاربر"""</span>
+        <span class="keyword">return</span> (
+            self.validate_username() <span class="keyword">and</span>
+            self.validate_email() <span class="keyword">and</span>
+            self.validate_password()
+        )
+
+    <span class="keyword">def</span> <span class="function">validate_username</span>(self) -> <span class="class-name">bool</span>:
+        <span class="string">"""اعتبارسنجی نام کاربری"""</span>
+        <span class="keyword">if not</span> self.username:
+            <span class="keyword">return</span> <span class="keyword">False</span>
+        <span class="keyword">if</span> <span class="class-name">len</span>(self.username) < <span class="number">3</span>:
+            <span class="keyword">return</span> <span class="keyword">False</span>
+        <span class="keyword">if</span> <span class="class-name">len</span>(self.username) > <span class="number">50</span>:
+            <span class="keyword">return</span> <span class="keyword">False</span>
+        <span class="comment"># فقط حروف، اعداد و آندرلاین مجاز است</span>
+        <span class="keyword">if not</span> re.match(<span class="string">r'^[a-zA-Z0-9_]+$'</span>, self.username):
+            <span class="keyword">return</span> <span class="keyword">False</span>
+        <span class="keyword">return</span> <span class="keyword">True</span>
+
+    <span class="keyword">def</span> <span class="function">validate_email</span>(self) -> <span class="class-name">bool</span>:
+        <span class="string">"""اعتبارسنجی ایمیل"""</span>
+        <span class="keyword">if not</span> self.email:
+            <span class="keyword">return</span> <span class="keyword">False</span>
+        email_pattern = <span class="string">r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'</span>
+        <span class="keyword">return</span> <span class="class-name">bool</span>(re.match(email_pattern, self.email))
+
+    <span class="keyword">def</span> <span class="function">validate_password</span>(self) -> <span class="class-name">bool</span>:
+        <span class="string">"""اعتبارسنجی رمز عبور (حداقل ۸ کاراکتر)"""</span>
+        <span class="keyword">if not</span> self.password:
+            <span class="keyword">return</span> <span class="keyword">False</span>
+        <span class="keyword">return</span> <span class="class-name">len</span>(self.password) >= <span class="number">8</span>
+
+    <span class="comment"># ===== متدهای کمکی =====</span>
+
+    <span class="keyword">def</span> <span class="function">get_full_name</span>(self) -> <span class="class-name">str</span>:
+        <span class="string">"""دریافت نام کامل کاربر"""</span>
+        <span class="keyword">if</span> self.first_name <span class="keyword">and</span> self.last_name:
+            <span class="keyword">return</span> <span class="string">f"</span>{self.first_name} {self.last_name}<span class="string">"</span>
+        <span class="keyword">return</span> self.username <span class="keyword">or</span> <span class="string">""</span>
+
+    <span class="keyword">def</span> <span class="function">has_role</span>(self, role: <span class="class-name">str</span>) -> <span class="class-name">bool</span>:
+        <span class="string">"""بررسی داشتن نقش خاص"""</span>
+        <span class="keyword">return</span> role <span class="keyword">in</span> self.roles
+
+    <span class="keyword">def</span> <span class="function">add_role</span>(self, role: <span class="class-name">str</span>) -> <span class="keyword">None</span>:
+        <span class="string">"""افزودن نقش به کاربر"""</span>
+        <span class="keyword">if</span> role <span class="keyword">not in</span> self.roles:
+            self.roles.append(role)
+
+    <span class="keyword">def</span> <span class="function">remove_role</span>(self, role: <span class="class-name">str</span>) -> <span class="keyword">None</span>:
+        <span class="string">"""حذف نقش از کاربر"""</span>
+        <span class="keyword">if</span> role <span class="keyword">in</span> self.roles:
+            self.roles.remove(role)
+
+    <span class="keyword">def</span> <span class="function">activate</span>(self) -> <span class="keyword">None</span>:
+        <span class="string">"""فعال‌سازی کاربر"""</span>
+        self.is_active = <span class="keyword">True</span>
+
+    <span class="keyword">def</span> <span class="function">deactivate</span>(self) -> <span class="keyword">None</span>:
+        <span class="string">"""غیرفعال‌سازی کاربر"""</span>
+        self.is_active = <span class="keyword">False</span>
+
+    <span class="keyword">def</span> <span class="function">verify</span>(self) -> <span class="keyword">None</span>:
+        <span class="string">"""تایید حساب کاربر"""</span>
+        self.is_verified = <span class="keyword">True</span>
+
+    <span class="keyword">def</span> <span class="function">update_last_login</span>(self) -> <span class="keyword">None</span>:
+        <span class="string">"""به‌روزرسانی آخرین ورود"""</span>
+        self.last_login = datetime.utcnow()
+
+    <span class="keyword">def</span> <span class="function">to_dict</span>(self) -> <span class="class-name">dict</span>:
+        <span class="string">"""تبدیل به دیکشنری (بدون رمز عبور)"""</span>
+        <span class="keyword">return</span> {
+            <span class="string">'id'</span>: self.id,
+            <span class="string">'username'</span>: self.username,
+            <span class="string">'email'</span>: self.email,
+            <span class="string">'first_name'</span>: self.first_name,
+            <span class="string">'last_name'</span>: self.last_name,
+            <span class="string">'is_active'</span>: self.is_active,
+            <span class="string">'is_verified'</span>: self.is_verified,
+            <span class="string">'roles'</span>: self.roles,
+            <span class="string">'created_at'</span>: self.created_at.isoformat() <span class="keyword">if</span> self.created_at <span class="keyword">else</span> <span class="keyword">None</span>,
+            <span class="string">'last_login'</span>: self.last_login.isoformat() <span class="keyword">if</span> self.last_login <span class="keyword">else</span> <span class="keyword">None</span>,
+        }
+</code>
+            </div>
+
+            <h3>استثناهای دامنه</h3>
+            <p>
+                استثناهای دامنه برای مدیریت خطاهای مربوط به منطق کسب‌وکار استفاده می‌شوند.
+            </p>
+
+            <div class="code-block" data-filename="core/domain/exceptions/auth_exceptions.py">
+<code><span class="keyword">class</span> <span class="class-name">DomainException</span>(<span class="class-name">Exception</span>):
+    <span class="string">"""استثنای پایه دامنه"""</span>
+    <span class="keyword">pass</span>
+
+
+<span class="keyword">class</span> <span class="class-name">UserNotFoundException</span>(<span class="class-name">DomainException</span>):
+    <span class="string">"""کاربر یافت نشد"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, identifier: <span class="class-name">str</span>):
+        self.message = <span class="string">f"کاربر با شناسه '</span>{identifier}<span class="string">' یافت نشد"</span>
+        <span class="keyword">super</span>().__init__(self.message)
+
+
+<span class="keyword">class</span> <span class="class-name">UserAlreadyExistsException</span>(<span class="class-name">DomainException</span>):
+    <span class="string">"""کاربر از قبل وجود دارد"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, field: <span class="class-name">str</span>, value: <span class="class-name">str</span>):
+        self.message = <span class="string">f"کاربر با </span>{field}<span class="string"> '</span>{value}<span class="string">' از قبل وجود دارد"</span>
+        <span class="keyword">super</span>().__init__(self.message)
+
+
+<span class="keyword">class</span> <span class="class-name">InvalidCredentialsException</span>(<span class="class-name">DomainException</span>):
+    <span class="string">"""اطلاعات ورود نامعتبر"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.message = <span class="string">"نام کاربری یا رمز عبور اشتباه است"</span>
+        <span class="keyword">super</span>().__init__(self.message)
+
+
+<span class="keyword">class</span> <span class="class-name">InvalidUserDataException</span>(<span class="class-name">DomainException</span>):
+    <span class="string">"""اطلاعات کاربر نامعتبر"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, errors: <span class="class-name">list</span>):
+        self.errors = errors
+        self.message = <span class="string">"اطلاعات کاربر نامعتبر است: "</span> + <span class="string">", "</span>.join(errors)
+        <span class="keyword">super</span>().__init__(self.message)
+
+
+<span class="keyword">class</span> <span class="class-name">UserNotActiveException</span>(<span class="class-name">DomainException</span>):
+    <span class="string">"""کاربر غیرفعال است"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.message = <span class="string">"حساب کاربری غیرفعال است"</span>
+        <span class="keyword">super</span>().__init__(self.message)
+
+
+<span class="keyword">class</span> <span class="class-name">TokenExpiredException</span>(<span class="class-name">DomainException</span>):
+    <span class="string">"""توکن منقضی شده"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.message = <span class="string">"توکن منقضی شده است"</span>
+        <span class="keyword">super</span>().__init__(self.message)
+
+
+<span class="keyword">class</span> <span class="class-name">InvalidTokenException</span>(<span class="class-name">DomainException</span>):
+    <span class="string">"""توکن نامعتبر"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.message = <span class="string">"توکن نامعتبر است"</span>
+        <span class="keyword">super</span>().__init__(self.message)
+</code>
+            </div>
+        </section>
+
+        <!-- Section 7: Use Cases -->
+        <section id="usecases">
+            <h2>⚙️ ۷. Use Cases</h2>
+
+            <h3>Use Case ثبت‌نام کاربر</h3>
+            <p>
+                این Use Case فرآیند ثبت‌نام کاربر جدید را مدیریت می‌کند. 
+                تمام منطق مربوط به ثبت‌نام در این کلاس متمرکز است.
+            </p>
+
+            <div class="code-block" data-filename="core/use_cases/register_user.py">
+<code><span class="keyword">from</span> typing <span class="keyword">import</span> Optional
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass
+
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    UserAlreadyExistsException,
+    InvalidUserDataException
+)
+<span class="keyword">from</span> core.ports.outbound.user_repository_port <span class="keyword">import</span> UserRepositoryPort
+<span class="keyword">from</span> core.ports.outbound.auth_service_port <span class="keyword">import</span> AuthServicePort
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">RegisterUserRequest</span>:
+    <span class="string">"""درخواست ثبت‌نام کاربر"""</span>
+    username: <span class="class-name">str</span>
+    email: <span class="class-name">str</span>
+    password: <span class="class-name">str</span>
+    first_name: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    last_name: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">RegisterUserResponse</span>:
+    <span class="string">"""پاسخ ثبت‌نام کاربر"""</span>
+    user: UserDomain
+    success: <span class="class-name">bool</span>
+    message: <span class="class-name">str</span>
+
+
+<span class="keyword">class</span> <span class="class-name">RegisterUserUseCase</span>:
+    <span class="string">"""
+    Use Case ثبت‌نام کاربر
+    
+    این کلاس مسئول اجرای منطق ثبت‌نام کاربر جدید است.
+    از پورت‌های خروجی برای ارتباط با زیرساخت استفاده می‌کند.
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">__init__</span>(
+        self,
+        user_repository: UserRepositoryPort,
+        auth_service: AuthServicePort
+    ):
+        <span class="string">"""
+        سازنده Use Case
+        
+        Args:
+            user_repository: پورت مخزن کاربر
+            auth_service: پورت سرویس احراز هویت
+        """</span>
+        self._user_repository = user_repository
+        self._auth_service = auth_service
+
+    <span class="keyword">def</span> <span class="function">execute</span>(self, request: Registerاجرای Use Case ثبت‌نام
+        
+        Args:
+            request: درخواست ثبت‌نام شامل اطلاعات کاربر
+            
+        Returns:
+            RegisterUserResponse: پاسخ شامل کاربر ایجاد شده
+            
+        Raises:
+            UserAlreadyExistsException: اگر کاربر از قبل وجود داشته باشد
+            InvalidUserDataException: اگر اطلاعات نامعتبر باشد
+        """</span>
+        
+        <span class="comment"># ۱. بررسی وجود کاربر با نام کاربری</span>
+        existing_user = self._user_repository.find_by_username(request.username)
+        <span class="keyword">if</span> existing_user:
+            <span class="keyword">raise</span> UserAlreadyExistsException(<span class="string">"نام کاربری"</span>, request.username)
+        
+        <span class="comment"># ۲. بررسی وجود کاربر با ایمیل</span>
+        existing_email = self._user_repository.find_by_email(request.email)
+        <span class="keyword">if</span> existing_email:
+            <span class="keyword">raise</span> UserAlreadyExistsException(<span class="string">"ایمیل"</span>, request.email)
+        
+        <span class="comment"># ۳. ایجاد مدل دامنه کاربر</span>
+        user = UserDomain(
+            username=request.username,
+            email=request.email,
+            password=request.password,
+            first_name=request.first_name,
+            last_name=request.last_name
+        )
+        
+        <span class="comment"># ۴. اعتبارسنجی کاربر</span>
+        errors = []
+        <span class="keyword">if not</span> user.validate_username():
+            errors.append(<span class="string">"نام کاربری نامعتبر است"</span>)
+        <span class="keyword">if not</span> user.validate_email():
+            errors.append(<span class="string">"ایمیل نامعتبر است"</span>)
+        <span class="keyword">if not</span> user.validate_password():
+            errors.append(<span class="string">"رمز عبور باید حداقل ۸ کاراکتر باشد"</span>)
+        
+        <span class="keyword">if</span> errors:
+            <span class="keyword">raise</span> InvalidUserDataException(errors)
+        
+        <span class="comment"># ۵. هش کردن رمز عبور</span>
+        user.password = self._auth_service.hash_password(request.password)
+        
+        <span class="comment"># ۶. ذخیره کاربر</span>
+        saved_user = self._user_repository.save(user)
+        
+        <span class="comment"># ۷. برگرداندن پاسخ</span>
+        <span class="keyword">return</span> RegisterUserResponse(
+            user=saved_user,
+            success=<span class="keyword">True</span>,
+            message=<span class="string">"ثبت‌نام با موفقیت انجام شد"</span>
+        )
+</code>
+            </div>
+
+            <h3>Use Case ورود کاربر</h3>
+            <p>
+                این Use Case فرآیند ورود کاربر به سیستم را مدیریت می‌کند و در صورت موفقیت، توکن JWT برمی‌گرداند.
+            </p>
+
+            <div class="code-block" data-filename="core/use_cases/login_user.py">
+<code><span class="keyword">from</span> typing <span class="keyword">import</span> Optional
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass
+
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    UserNotFoundException,
+    InvalidCredentialsException,
+    UserNotActiveException
+)
+<span class="keyword">from</span> core.ports.outbound.user_repository_port <span class="keyword">import</span> UserRepositoryPort
+<span class="keyword">from</span> core.ports.outbound.auth_service_port <span class="keyword">import</span> AuthServicePort, TokenServicePort
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">LoginUserRequest</span>:
+    <span class="string">"""درخواست ورود کاربر"""</span>
+    username: <span class="class-name">str</span>
+    password: <span class="class-name">str</span>
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">LoginUserResponse</span>:
+    <span class="string">"""پاسخ ورود کاربر"""</span>
+    user: UserDomain
+    access_token: <span class="class-name">str</span>
+    refresh_token: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    token_type: <span class="class-name">str</span> = <span class="string">"Bearer"</span>
+    success: <span class="class-name">bool</span> = <span class="keyword">True</span>
+    message: <span class="class-name">str</span> = <span class="string">"ورود موفقیت‌آمیز"</span>
+
+
+<span class="keyword">class</span> <span class="class-name">LoginUserUseCase</span>:
+    <span class="string">"""
+    Use Case ورود کاربر
+    
+    این کلاس مسئول اجرای منطق ورود کاربر به سیستم است.
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">__init__</span>(
+        self,
+        user_repository: UserRepositoryPort,
+        auth_service: AuthServicePort,
+        token_service: TokenServicePort
+    ):
+        <span class="string">"""
+        سازنده Use Case
+        
+        Args:
+            user_repository: پورت مخزن کاربر
+            auth_service: پورت سرویس احراز هویت
+            token_service: پورت سرویس توکن
+        """</span>
+        self._user_repository = user_repository
+        self._auth_service = auth_service
+        self._token_service = token_service
+
+    <span class="keyword">def</span> <span class="function">execute</span>(self, request: LoginUserRequest) -> LoginUserResponse:
+        <span class="string">"""
+        اجرای Use Case ورود
+        
+        Args:
+            request: درخواست ورود شامل نام کاربری و رمز عبور
+            
+        Returns:
+            LoginUserResponse: پاسخ شامل توکن و اطلاعات کاربر
+            
+        Raises:
+            UserNotFoundException: اگر کاربر یافت نشود
+            InvalidCredentialsException: اگر رمز عبور اشتباه باشد
+            UserNotActiveException: اگر کاربر غیرفعال باشد
+        """</span>
+        
+        <span class="comment"># ۱. جستجوی کاربر با نام کاربری</span>
+        user = self._user_repository.find_by_username(request.username)
+        
+        <span class="keyword">if not</span> user:
+            <span class="keyword">raise</span> UserNotFoundException(request.username)
+        
+        <span class="comment"># ۲. بررسی فعال بودن کاربر</span>
+        <span class="keyword">if not</span> user.is_active:
+            <span class="keyword">raise</span> UserNotActiveException()
+        
+        <span class="comment"># ۳. تایید رمز عبور</span>
+        <span class="keyword">if not</span> self._auth_service.verify_password(request.password, user.password):
+            <span class="keyword">raise</span> InvalidCredentialsException()
+        
+        <span class="comment"># ۴. به‌روزرسانی آخرین ورود</span>
+        user.update_last_login()
+        self._user_repository.save(user)
+        
+        <span class="comment"># ۵. تولید توکن</span>
+        access_token = self._token_service.generate_token(user.id)
+        
+        <span class="comment"># ۶. برگرداندن پاسخ</span>
+        <span class="keyword">return</span> LoginUserResponse(
+            user=user,
+            access_token=access_token,
+            success=<span class="keyword">True</span>,
+            message=<span class="string">"ورود با موفقیت انجام شد"</span>
+        )
+</code>
+            </div>
+
+            <h3>Use Case دریافت اطلاعات کاربر</h3>
+
+            <div class="code-block" data-filename="core/use_cases/get_user.py">
+<code><span class="keyword">from</span> typing <span class="keyword">import</span> Optional
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass
+
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> UserNotFoundException
+<span class="keyword">from</span> core.ports.outbound.user_repository_port <span class="keyword">import</span> UserRepositoryPort
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">GetUserRequest</span>:
+    <span class="string">"""درخواست دریافت اطلاعات کاربر"""</span>
+    user_id: <span class="class-name">str</span>
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">GetUserResponse</span>:
+    <span class="string">"""پاسخ دریافت اطلاعات کاربر"""</span>
+    user: UserDomain
+    success: <span class="class-name">bool</span> = <span class="keyword">True</span>
+
+
+<span class="keyword">class</span> <span class="class-name">GetUserUseCase</span>:
+    <span class="string">"""
+    Use Case دریافت اطلاعات کاربر
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, user_repository: UserRepositoryPort):
+        self._user_repository = user_repository
+
+    <span class="keyword">def</span> <span class="function">execute</span>(self, request: GetUserRequest) -> GetUserResponse:
+        <span class="string">"""دریافت اطلاعات کاربر با شناسه"""</span>
+        
+        user = self._user_repository.find_by_id(request.user_id)
+        
+        <span class="keyword">if not</span> user:
+            <span class="keyword">raise</span> UserNotFoundException(request.user_id)
+        
+        <span class="keyword">return</span> GetUserResponse(user=user, success=<span class="keyword">True</span>)
+</code>
+            </div>
+        </section>
+
+        <!-- Section 8: Implementation -->
+        <section id="implementation">
+            <h2>🔧 ۸. پیاده‌سازی آداپترها</h2>
+
+            <h3>آداپتر خروجی: Django User Repository</h3>
+            <p>
+                این آداپتر پورت <code>UserRepositoryPort</code> را با استفاده از Django ORM پیاده‌سازی می‌کند.
+            </p>
+
+            <div class="code-block" data-filename="adapters/outbound/django/models.py">
+<code><span class="keyword">from</span> django.db <span class="keyword">import</span> models
+<span class="keyword">from</span> django.contrib.auth.models <span class="keyword">import</span> AbstractBaseUser, PermissionsMixin, BaseUserManager
+<span class="keyword">import</span> uuid
+
+
+<span class="keyword">class</span> <span class="class-name">CustomUserManager</span>(BaseUserManager):
+    <span class="string">"""مدیر سفارشی کاربر"""</span>
+    
+    <span class="keyword">def</span> <span class="function">create_user</span>(self, username, email, password=<span class="keyword">None</span>, **extra_fields):
+        <span class="keyword">if not</span> email:
+            <span class="keyword">raise</span> <span class="class-name">ValueError</span>(<span class="string">'ایمیل الزامی است'</span>)
+        <span class="keyword">if not</span> username:
+            <span class="keyword">raise</span> <span class="class-name">ValueError</span>(<span class="string">'نام کاربری الزامی است'</span>)
+        
+        email = self.normalize_email(email)
+        user = self.model(username=username, email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        <span class="keyword">return</span> user
+
+    <span class="keyword">def</span> <span class="function">create_superuser</span>(self, username, email, password=<span class="keyword">None</span>, **extra_fields):
+        extra_fields.setdefault(<span class="string">'is_staff'</span>, <span class="keyword">True</span>)
+        extra_fields.setdefault(<span class="string">'is_superuser'</span>, <span class="keyword">True</span>)
+        <span class="keyword">return</span> self.create_user(username, email, password, **extra_fields)
+
+
+<span class="keyword">class</span> <span class="class-name">UserModel</span>(AbstractBaseUser, PermissionsMixin):
+    <span class="string">"""مدل Django برای کاربر"""</span>
+    
+    id = models.UUIDField(primary_key=<span class="keyword">True</span>, default=uuid.uuid4, editable=<span class="keyword">False</span>)
+    username = models.CharField(max_length=<span class="number">50</span>, unique=<span class="keyword">True</span>)
+    email = models.EmailField(unique=<span class="keyword">True</span>)
+    first_name = models.CharField(max_length=<span class="number">100</span>, blank=<span class="keyword">True</span>)
+    last_name = models.CharField(max_length=<span class="number">100</span>, blank=<span class="keyword">True</span>)
+    
+    is_active = models.BooleanField(default=<span class="keyword">True</span>)
+    is_verified = models.BooleanField(default=<span class="keyword">False</span>)
+    is_staff = models.BooleanField(default=<span class="keyword">False</span>)
+    
+    created_at = models.DateTimeField(auto_now_add=<span class="keyword">True</span>)
+    updated_at = models.DateTimeField(auto_now=<span class="keyword">True</span>)
+    last_login = models.DateTimeField(null=<span class="keyword">True</span>, blank=<span class="keyword">True</span>)
+    
+    objects = CustomUserManager()
+    
+    USERNAME_FIELD = <span class="string">'username'</span>
+    REQUIRED_FIELDS = [<span class="string">'email'</span>]
+    
+    <span class="keyword">class</span> <span class="class-name">Meta</span>:
+        db_table = <span class="string">'users'</span>
+        verbose_name = <span class="string">'کاربر'</span>
+        verbose_name_plural = <span class="string">'کاربران'</span>
+</code>
+            </div>
+
+            <div class="code-block" data-filename="adapters/outbound/django/user_repository.py">
+<code><span class="keyword">from</span> typing <span class="keyword">import</span> Optional, List
+<span class="keyword">from</span> core.ports.outbound.user_repository_port <span class="keyword">import</span> UserRepositoryPort
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+<span class="keyword">from</span> .models <span class="keyword">import</span> UserModel
+
+
+<span class="keyword">class</span> <span class="class-name">DjangoUserRepository</span>(UserRepositoryPort):
+    <span class="string">"""
+    پیاده‌سازی Django برای پورت مخزن کاربر
+    
+    این کلاس مسئول تبدیل بین مدل دامنه و مدل Django است.
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">_to_domain</span>(self, django_user: UserModel) -> UserDomain:
+        <span class="string">"""تبدیل مدل Django به مدل دامنه"""</span>
+        <span class="keyword">return</span> UserDomain(
+            id=<span class="class-name">str</span>(django_user.id),
+            username=django_user.username,
+            email=django_user.email,
+            password=django_user.password,
+            first_name=django_user.first_name,
+            last_name=django_user.last_name,
+            is_active=django_user.is_active,
+            is_verified=django_user.is_verified,
+            created_at=django_user.created_at,
+            updated_at=django_user.updated_at,
+            last_login=django_user.last_login,
+            roles=[group.name <span class="keyword">for</span> group <span class="keyword">in</span> django_user.groups.all()]
+        )
+
+    <span class="keyword">def</span> <span class="function">_to_django</span>(self, user: UserDomain) -> <span class="class-name">dict</span>:
+        <span class="string">"""تبدیل مدل دامنه به دیکشنری برای Django"""</span>
+        <span class="keyword">return</span> {
+            <span class="string">'username'</span>: user.username,
+            <span class="string">'email'</span>: user.email,
+            <span class="string">'password'</span>: user.password,
+            <span class="string">'first_name'</span>: user.first_name <span class="keyword">or</span> <span class="string">''</span>,
+            <span class="string">'last_name'</span>: user.last_name <span class="keyword">or</span> <span class="string">''</span>,
+            <span class="string">'is_active'</span>: user.is_active,
+            <span class="string">'is_verified'</span>: user.is_verified,
+        }
+
+    <span class="keyword">def</span> <span class="function">save</span>(self, user: UserDomain) -> UserDomain:
+        <span class="string">"""ذخیره یا به‌روزرسانی کاربر"""</span>
+        
+        <span class="keyword">if</span> user.id:
+            <span class="comment"># به‌روزرسانی کاربر موجود</span>
+            <span class="keyword">try</span>:
+                django_user = UserModel.objects.get(id=user.id)
+                <span class="keyword">for</span> key, value <span class="keyword">in</span> self._to_django(user).items():
+                    setattr(django_user, key, value)
+                django_user.save()
+            <span class="keyword">except</span> UserModel.DoesNotExist:
+                <span class="comment"># ایجاد کاربر جدید</span>
+                django_user = UserModel.objects.create(**self._to_django(user))
+        <span class="keyword">else</span>:
+            <span class="comment"># ایجاد کاربر جدید</span>
+            django_user = UserModel.objects.create(**self._to_django(user))
+        
+        <span class="keyword">return</span> self._to_domain(django_user)
+
+    <span class="keyword">def</span> <span class="function">find_by_id</span>(self, user_id: <span class="class-name">str</span>) -> Optional[UserDomain]:
+        <span class="string">"""جستجوی کاربر با شناسه"""</span>
+        <span class="keyword">try</span>:
+            django_user = UserModel.objects.get(id=user_id)
+            <span class="keyword">return</span> self._to_domain(django_user)
+        <span class="keyword">except</span> UserModel.DoesNotExist:
+            <span class="keyword">return</span> <span class="keyword">None</span>
+
+    <span class="keyword">def</span> <span class="function">find_by_username</span>(self, username: <span class="class-name">str</span>) -> Optional[UserDomain]:
+        <span class="string">"""جستجوی کاربر با نام کاربری"""</span>
+        <span class="keyword">try</span>:
+            django_user = UserModel.objects.get(username=username)
+            <span class="keyword">return</span> self._to_domain(django_user)
+        <span class="keyword">except</span> UserModel.DoesNotExist:
+            <span class="keyword">return</span> <span class="keyword">None</span>
+
+    <span class="keyword">def</span> <span class="function">find_by_email</span>(self, email: <span class="class-name">str</span>) -> Optional[UserDomain]:
+        <span class="string">"""جستجوی کاربر با ایمیل"""</span>
+        <span class="keyword">try</span>:
+            django_user = UserModel.objects.get(email=email)
+            <span class="keyword">return</span> self._to_domain(django_user)
+        <span class="keyword">except</span> UserModel.DoesNotExist:
+            <span class="keyword">return</span> <span class="keyword">None</span>
+
+    <span class="keyword">def</span> <span class="function">delete</span>(self, user_id: <span class="class-name">str</span>) -> <span class="class-name">bool</span>:
+        <span class="string">"""حذف کاربر"""</span>
+        <span class="keyword">try</span>:
+            django_user = UserModel.objects.get(id=user_id)
+            django_user.delete()
+            <span class="keyword">return</span> <span class="keyword">True</span>
+        <span class="keyword">except</span> UserModel.DoesNotExist:
+            <span class="keyword">return</span> <span class="keyword">False</span>
+</code>
+            </div>
+
+            <h3>آداپتر خروجی: سرویس احراز هویت</h3>
+
+            <div class="code-block" data-filename="adapters/outbound/django/auth_service.py">
+<code><span class="keyword">from</span> django.contrib.auth.hashers <span class="keyword">import</span> make_password, check_password
+<span class="keyword">from</span> core.ports.outbound.auth_service_port <span class="keyword">import</span> AuthServicePort
+
+
+<span class="keyword">class</span> <span class="class-name">DjangoAuthService</span>(AuthServicePort):
+    <span class="string">"""
+    پیاده‌سازی Django برای سرویس احراز هویت
+    
+    از سیستم هش Django برای امنیت رمز عبور استفاده می‌کند.
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">hash_password</span>(self, password: <span class="class-name">str</span>) -> <span class="class-name">str</span>:
+        <span class="string">"""
+        هش کردن رمز عبور با الگوریتم پیش‌فرض Django
+        
+        Args:
+            password: رمز عبور خام
+            
+        Returns:
+            str: رمز عبور هش شده
+        """</span>
+        <span class="keyword">return</span> make_password(password)
+
+    <span class="keyword">def</span> <span class="function">verify_password</span>(self, plain_password: <span class="class-name">str</span>, hashed_password: <span class="class-name">str</span>) -> <span class="class-name">bool</span>:
+        <span class="string">"""
+        تایید رمز عبور
+        
+        Args:
+            plain_password: رمز عبور خام
+            hashed_password: رمز عبور هش شده
+            
+        Returns:
+            bool: True اگر رمز عبور صحیح باشد
+        """</span>
+        <span class="keyword">return</span> check_password(plain_password, hashed_password)
+</code>
+            </div>
+
+            <h3>آداپتر خروجی: سرویس توکن JWT</h3>
+
+            <div class="code-block" data-filename="adapters/outbound/django/token_service.py">
+<code><span class="keyword">from</span> typing <span class="keyword">import</span> Optional
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta
+<span class="keyword">import</span> jwt
+<span class="keyword">from</span> django.conf <span class="keyword">import</span> settings
+
+<span class="keyword">from</span> core.ports.outbound.auth_service_port <span class="keyword">import</span> TokenServicePort
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    TokenExpiredException,
+    InvalidTokenException
+)
+
+
+<span class="keyword">class</span> <span class="class-name">JWTTokenService</span>(TokenServicePort):
+    <span class="string">"""
+    پیاده‌سازی سرویس توکن با JWT
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">__init__</span>(
+        self,
+        secret_key: <span class="class-name">str</span> = <span class="keyword">None</span>,
+        algorithm: <span class="class-name">str</span> = <span class="string">'HS256'</span>,
+        access_token_expire_minutes: <span class="class-name">int</span> = <span class="number">60</span>,
+        refresh_token_expire_days: <span class="class-name">int</span> = <span class="number">7</span>
+    ):
+        self._secret_key = secret_key <span class="keyword">or</span> settings.SECRET_KEY
+        self._algorithm = algorithm
+        self._access_token_expire = timedelta(minutes=access_token_expire_minutes)
+        self._refresh_token_expire = timedelta(days=refresh_token_expire_days)
+
+    <span class="keyword">def</span> <span class="function">generate_token</span>(self, user_id: <span class="class-name">str</span>) -> <span class="class-name">str</span>:
+        <span class="string">"""
+        تولید Access Token
+        
+        Args:
+            user_id: شناسه کاربر
+            
+        Returns:
+            str: توکن JWT
+        """</span>
+        payload = {
+            <span class="string">'user_id'</span>: user_id,
+            <span class="string">'type'</span>: <span class="string">'access'</span>,
+            <span class="string">'exp'</span>: datetime.utcnow() + self._access_token_expire,
+            <span class="string">'iat'</span>: datetime.utcnow()
+        }
+        <span class="keyword">return</span> jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
+
+    <span class="keyword">def</span> <span class="function">generate_refresh_token</span>(self, user_id: <span class="class-name">str</span>) -> <span class="class-name">str</span>:
+        <span class="string">"""
+        تولید Refresh Token
+        
+        Args:
+            user_id: شناسه کاربر
+            
+        Returns:
+            str: توکن JWT
+        """</span>
+        payload = {
+            <span class="string">'user_id'</span>: user_id,
+            <span class="string">'type'</span>: <span class="string">'refresh'</span>,
+            <span class="string">'exp'</span>: datetime.utcnow() + self._refresh_token_expire,
+            <span class="string">'iat'</span>: datetime.utcnow()
+        }
+        <span class="keyword">return</span> jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
+
+    <span class="keyword">def</span> <span class="function">verify_token</span>(self, token: <span class="class-name">str</span>) -> Optional[<span class="class-name">str</span>]:
+        <span class="string">"""
+        تایید توکن و برگرداندن user_id
+        
+        Args:
+            token: توکن JWT
+            
+        Returns:
+            str: شناسه کاربر
+            
+        Raises:
+            TokenExpiredException: اگر توکن منقضی شده باشد
+            InvalidTokenException: اگر توکن نامعتبر باشد
+        """</span>
+        <span class="keyword">try</span>:
+            payload = jwt.decode(
+                token,
+                self._secret_key,
+                algorithms=[self._algorithm]
+            )
+            <span class="keyword">return</span> payload.get(<span class="string">'user_id'</span>)
+        <span class="keyword">except</span> jwt.ExpiredSignatureError:
+            <span class="keyword">raise</span> TokenExpiredException()
+        <span class="keyword">except</span> jwt.InvalidTokenError:
+            <span class="keyword">raise</span> InvalidTokenException()
+</code>
+            </div>
+
+            <h3>آداپتر ورودی: Django Views</h3>
+            <p>
+                این آداپترها درخواست‌های HTTP را دریافت کرده و به Use Case‌ها تبدیل می‌کنند.
+            </p>
+
+            <div class="code-block" data-filename="adapters/inbound/django/serializers.py">
+<code><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass
+<span class="keyword">from</span> typing <span class="keyword">import</span> Optional, List
+<span class="keyword">import</span> json
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">RegisterRequestDTO</span>:
+    <span class="string">"""DTO برای درخواست ثبت‌نام"""</span>
+    username: <span class="class-name">str</span>
+    email: <span class="class-name">str</span>
+    password: <span class="class-name">str</span>
+    first_name: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+    last_name: Optional[<span class="class-name">str</span>] = <span class="keyword">None</span>
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">from_json</span>(cls, json_data: <span class="class-name">dict</span>) -> <span class="string">'RegisterRequestDTO'</span>:
+        <span class="string">"""ایجاد DTO از داده JSON"""</span>
+        <span class="keyword">return</span> cls(
+            username=json_data.get(<span class="string">'username'</span>, <span class="string">''</span>),
+            email=json_data.get(<span class="string">'email'</span>, <span class="string">''</span>),
+            password=json_data.get(<span class="string">'password'</span>, <span class="string">''</span>),
+            first_name=json_data.get(<span class="string">'first_name'</span>),
+            last_name=json_data.get(<span class="string">'last_name'</span>)
+        )
+
+    <span class="keyword">def</span> <span class="function">validate</span>(self) -> List[<span class="class-name">str</span>]:
+        <span class="string">"""اعتبارسنجی ورودی"""</span>
+        errors = []
+        <span class="keyword">if not</span> self.username:
+            errors.append(<span class="string">'نام کاربری الزامی است'</span>)
+        <span class="keyword">if not</span> self.email:
+            errors.append(<span class="string">'ایمیل الزامی است'</span>)
+        <span class="keyword">if not</span> self.password:
+            errors.append(<span class="string">'رمز عبور الزامی است'</span>)
+        <span class="keyword">return</span> errors
+
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class-name">LoginRequestDTO</span>:
+    <span class="string">"""DTO برای درخواست ورود"""</span>
+    username: <span class="class-name">str</span>
+    password: <span class="class-name">str</span>
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">from_json</span>(cls, json_data: <span class="class-name">dict</span>) -> <span class="string">'LoginRequestDTO'</span>:
+        <span class="string">"""ایجاد DTO از داده JSON"""</span>
+        <span class="keyword">return</span> cls(
+            username=json_data.get(<span class="string">'username'</span>, <span class="string">''</span>),
+            password=json_data.get(<span class="string">'password'</span>, <span class="string">''</span>)
+        )
+
+    <span class="keyword">def</span> <span class="function">validate</span>(self) -> List[<span class="class-name">str</span>]:
+        <span class="string">"""اعتبارسنجی ورودی"""</span>
+        errors = []
+        <span class="keyword">if not</span> self.username:
+            errors.append(<span class="string">'نام کاربری الزامی است'</span>)
+        <span class="keyword">if not</span> self.password:
+            errors.append(<span class="string">'رمز عبور الزامی است'</span>)
+        <span class="keyword">return</span> errors
+
+
+<span class="keyword">class</span> <span class="class-name">UserResponseDTO</span>:
+    <span class="string">"""DTO برای پاسخ کاربر"""</span>
+    
+    <span class="decorator">@staticmethod</span>
+    <span class="keyword">def</span> <span class="function">from_domain</span>(user) -> <span class="class-name">dict</span>:
+        <span class="string">"""تبدیل مدل دامنه به پاسخ JSON"""</span>
+        <span class="keyword">return</span> {
+            <span class="string">'id'</span>: user.id,
+            <span class="string">'username'</span>: user.username,
+            <span class="string">'email'</span>: user.email,
+            <span class="string">'first_name'</span>: user.first_name,
+            <span class="string">'last_name'</span>: user.last_name,
+            <span class="string">'is_active'</span>: user.is_active,
+            <span class="string">'is_verified'</span>: user.is_verified,
+            <span class="string">'roles'</span>: user.roles,
+            <span class="string">'created_at'</span>: user.created_at.isoformat() <span class="keyword">if</span> user.created_at <span class="keyword">else</span> <span class="keyword">None</span>
+        }
+</code>
+            </div>
+
+            <div class="code-block" data-filename="adapters/inbound/django/views.py">
+<code><span class="keyword">import</span> json
+<span class="keyword">from</span> django.views <span class="keyword">import</span> View
+<span class="keyword">from</span> django.http <span class="keyword">import</span> JsonResponse
+<span class="keyword">from</span> django.views.decorators.csrf <span class="keyword">import</span> csrf_exempt
+<span class="keyword">from</span> django.utils.decorators <span class="keyword">import</span> method_decorator
+
+<span class="keyword">from</span> .serializers <span class="keyword">import</span> (
+    RegisterRequestDTO,
+    LoginRequestDTO,
+    UserResponseDTO
+)
+<span class="keyword">from</span> core.use_cases.register_user <span class="keyword">import</span> RegisterUserUseCase, RegisterUserRequest
+<span class="keyword">from</span> core.use_cases.login_user <span class="keyword">import</span> LoginUserUseCase, LoginUserRequest
+<span class="keyword">from</span> core.use_cases.get_user <span class="keyword">import</span> GetUserUseCase, GetUserRequest
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    UserAlreadyExistsException,
+    InvalidUserDataException,
+    UserNotFoundException,
+    InvalidCredentialsException,
+    UserNotActiveException,
+    InvalidTokenException,
+    TokenExpiredException
+)
+<span class="keyword">from</span> infrastructure.config.dependency_injection <span class="keyword">import</span> DependencyContainer
+
+
+<span class="decorator">@method_decorator</span>(csrf_exempt, name=<span class="string">'dispatch'</span>)
+<span class="keyword">class</span> <span class="class-name">RegisterView</span>(View):
+    <span class="string">"""
+    آداپتر ورودی برای ثبت‌نام کاربر
+    
+    Endpoint: POST /api/auth/register/
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">post</span>(self, request):
+        <span class="keyword">try</span>:
+            <span class="comment"># ۱. دریافت و پارس داده JSON</span>
+            data = json.loads(request.body.decode(<span class="string">'utf-8'</span>))
+            dto = RegisterRequestDTO.from_json(data)
+            
+            <span class="comment"># ۲. اعتبارسنجی ورودی</span>
+            errors = dto.validate()
+            <span class="keyword">if</span> errors:
+                <span class="keyword">return</span> JsonResponse({
+                    <span class="string">'success'</span>: <span class="keyword">False</span>,
+                    <span class="string">'errors'</span>: errors
+                }, status=<span class="number">400</span>)
+            
+            <span class="comment"># ۳. دریافت Use Case از Container</span>
+            use_case = DependencyContainer.get_register_use_case()
+            
+            <span class="comment"># ۴. ایجاد درخواست Use Case</span>
+            use_case_request = RegisterUserRequest(
+                username=dto.username,
+                email=dto.email,
+                password=dto.password,
+                first_name=dto.first_name,
+                last_name=dto.last_name
+            )
+            
+            <span class="comment"># ۵. اجرای Use Case</span>
+            response = use_case.execute(use_case_request)
+            
+            <span class="comment"># ۶. برگرداندن پاسخ موفق</span>
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">True</span>,
+                <span class="string">'message'</span>: response.message,
+                <span class="string">'data'</span>: {
+                    <span class="string">'user'</span>: UserResponseDTO.from_domain(response.user)
+                }
+            }, status=<span class="number">201</span>)
+        
+        <span class="keyword">except</span> UserAlreadyExistsException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e)
+            }, status=<span class="number">409</span>)
+        
+        <span class="keyword">except</span> InvalidUserDataException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'errors'</span>: e.errors
+            }, status=<span class="number">400</span>)
+        
+        <span class="keyword">except</span> json.JSONDecodeError:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'فرمت JSON نامعتبر است'</span>
+            }, status=<span class="number">400</span>)
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'خطای سرور'</span>
+            }, status=<span class="number">500</span>)
+
+
+<span class="decorator">@method_decorator</span>(csrf_exempt, name=<span class="string">'dispatch'</span>)
+<span class="keyword">class</span> <span class="class-name">LoginView</span>(View):
+    <span class="string">"""
+    آداپتر ورودی برای ورود کاربر
+    
+    Endpoint: POST /api/auth/login/
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">post</span>(self, request):
+        <span class="keyword">try</span>:
+            <span class="comment"># ۱. دریافت و پارس داده JSON</span>
+            data = json.loads(request.body.decode(<span class="string">'utf-8'</span>))
+            dto = LoginRequestDTO.from_json(data)
+            
+            <span class="comment"># ۲. اعتبارسنجی ورودی</span>
+            errors = dto.validate()
+            <span class="keyword">if</span> errors:
+                <span class="keyword">return</span> JsonResponse({
+                    <span class="string">'success'</span>: <span class="keyword">False</span>,
+                    <span class="string">'errors'</span>: errors
+                }, status=<span class="number">400</span>)
+            
+            <span class="comment"># ۳. دریافت Use Case از Container</span>
+            use_case = DependencyContainer.get_login_use_case()
+            
+            <span class="comment"># ۴. ایجاد درخواست Use Case</span>
+            use_case_request = LoginUserRequest(
+                username=dto.username,
+                password=dto.password
+            )
+            
+            <span class="comment"># ۵. اجرای Use Case</span>
+            response = use_case.execute(use_case_request)
+            
+            <span class="comment"># ۶. برگرداندن پاسخ موفق</span>
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">True</span>,
+                <span class="string">'message'</span>: response.message,
+                <span class="string">'data'</span>: {
+                    <span class="string">'user'</span>: UserResponseDTO.from_domain(response.user),
+                    <span class="string">'access_token'</span>: response.access_token,
+                    <span class="string">'token_type'</span>: response.token_type
+                }
+            }, status=<span class="number">200</span>)
+        
+        <span class="keyword">except</span> UserNotFoundException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'نام کاربری یا رمز عبور اشتباه است'</span>
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> InvalidCredentialsException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e)
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> UserNotActiveException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e)
+            }, status=<span class="number">403</span>)
+        
+        <span class="keyword">except</span> json.JSONDecodeError:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'فرمت JSON نامعتبر است'</span>
+            }, status=<span class="number">400</span>)
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'خطای سرور'</span>
+            }, status=<span class="number">500</span>)
+
+
+<span class="decorator">@method_decorator</span>(csrf_exempt, name=<span class="string">'dispatch'</span>)
+<span class="keyword">class</span> <span class="class-name">ProfileView</span>(View):
+    <span class="string">"""
+    آداپتر ورودی برای دریافت پروفایل کاربر
+    
+    Endpoint: GET /api/auth/profile/
+    Headers: Authorization: Bearer <token>
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">get</span>(self, request):
+        <span class="keyword">try</span>:
+            <span class="comment"># ۱. دریافت توکن از هدر</span>
+            auth_header = request.headers.get(<span class="string">'Authorization'</span>, <span class="string">''</span>)
+            <span class="keyword">if not</span> auth_header.startswith(<span class="string">'Bearer '</span>):
+                <span class="keyword">return</span> JsonResponse({
+                    <span class="string">'success'</span>: <span class="keyword">False</span>,
+                    <span class="string">'error'</span>: <span class="string">'توکن احراز هویت یافت نشد'</span>
+                }, status=<span class="number">401</span>)
+            
+            token = auth_header.split(<span class="string">' '</span>)[<span class="number">1</span>]
+            
+            <span class="comment"># ۲. تایید توکن</span>
+            token_service = DependencyContainer.get_token_service()
+            user_id = token_service.verify_token(token)
+            
+            <span class="comment"># ۳. دریافت اطلاعات کاربر</span>
+            use_case = DependencyContainer.get_user_use_case()
+            response = use_case.execute(GetUserRequest(user_id=user_id))
+            
+            <span class="comment"># ۴. برگرداندن پاسخ</span>
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">True</span>,
+                <span class="string">'data'</span>: {
+                    <span class="string">'user'</span>: UserResponseDTO.from_domain(response.user)
+                }
+            }, status=<span class="number">200</span>)
+        
+        <span class="keyword">except</span> TokenExpiredException:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'توکن منقضی شده است'</span>
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> InvalidTokenException:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'توکن نامعتبر است'</span>
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> UserNotFoundException:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'کاربر یافت نشد'</span>
+            }, status=<span class="number">404</span>)
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'خطای سرور'</span>
+            }, status=<span class="number">500</span>)
+</code>
+            </div>
+
+            <h3>تنظیمات URL</h3>
+
+            <div class="code-block" data-filename="adapters/inbound/django/urls.py">
+<code><span class="keyword">from</span> django.urls <span class="keyword">import</span> path
+<span class="keyword">from</span> .views <span class="keyword">import</span> RegisterView, LoginView, ProfileView
+
+app_name = <span class="string">'auth'</span>
+
+urlpatterns = [
+    path(<span class="string">'register/'</span>, RegisterView.as_view(), name=<span class="string">'register'</span>),
+    path(<span class="string">'login/'</span>, LoginView.as_view(), name=<span class="string">'login'</span>),
+    path(<span class="string">'profile/'</span>, ProfileView.as_view(), name=<span class="string">'profile'</span>),
+]
+</code>
+            </div>
+
+            <h3>تزریق وابستگی (Dependency Injection)</h3>
+
+            <div class="code-block" data-filename="infrastructure/config/dependency_injection.py">
+<code><span class="keyword">from</span> django.conf <span class="keyword">import</span> settings
+
+<span class="comment"># پورت‌های خروجی</span>
+<span class="keyword">from</span> core.ports.outbound.user_repository_port <span class="keyword">import</span> UserRepositoryPort
+<span class="keyword">from</span> core.ports.outbound.auth_service_port <span class="keyword">import</span> AuthServicePort, TokenServicePort
+
+<span class="comment"># آداپترهای خروجی</span>
+<span class="keyword">from</span> adapters.outbound.django.user_repository <span class="keyword">import</span> DjangoUserRepository
+<span class="keyword">from</span> adapters.outbound.django.auth_service <span class="keyword">import</span> DjangoAuthService
+<span class="keyword">from</span> adapters.outbound.django.token_service <span class="keyword">import</span> JWTTokenService
+
+<span class="comment"># Use Case‌ها</span>
+<span class="keyword">from</span> core.use_cases.register_user <span class="keyword">import</span> RegisterUserUseCase
+<span class="keyword">from</span> core.use_cases.login_user <span class="keyword">import</span> LoginUserUseCase
+<span class="keyword">from</span> core.use_cases.get_user <span class="keyword">import</span> GetUserUseCase
+
+
+<span class="keyword">class</span> <span class="class-name">DependencyContainer</span>:
+    <span class="string">"""
+    کانتینر تزریق وابستگی
+    
+    این کلاس مسئول ایجاد و مدیریت وابستگی‌ها است.
+    با تغییر این کلاس می‌توان آداپترهای مختلف را جایگزین کرد.
+    """</span>
+    
+    <span class="comment"># کش برای Singleton‌ها</span>
+    _user_repository: UserRepositoryPort = <span class="keyword">None</span>
+    _auth_service: AuthServicePort = <span class="keyword">None</span>
+    _token_service: TokenServicePort = <span class="keyword">None</span>
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_user_repository</span>(cls) -> UserRepositoryPort:
+        <span class="string">"""دریافت Repository کاربر"""</span>
+        <span class="keyword">if</span> cls._user_repository <span class="keyword">is</span> <span class="keyword">None</span>:
+            cls._user_repository = DjangoUserRepository()
+        <span class="keyword">return</span> cls._user_repository
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_auth_service</span>(cls) -> AuthServicePort:
+        <span class="string">"""دریافت سرویس احراز هویت"""</span>
+        <span class="keyword">if</span> cls._auth_service <span class="keyword">is</span> <span class="keyword">None</span>:
+            cls._auth_service = DjangoAuthService()
+        <span class="keyword">return</span> cls._auth_service
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_token_service</span>(cls) -> TokenServicePort:
+        <span class="string">"""دریافت سرویس توکن"""</span>
+        <span class="keyword">if</span> cls._token_service <span class="keyword">is</span> <span class="keyword">None</span>:
+            cls._token_service = JWTTokenService(
+                secret_key=settings.SECRET_KEY,
+                access_token_expire_minutes=<span class="number">60</span>
+            )
+        <span class="keyword">return</span> cls._token_service
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_register_use_case</span>(cls) -> RegisterUserUseCase:
+        <span class="string">"""دریافت Use Case ثبت‌نام"""</span>
+        <span class="keyword">return</span> RegisterUserUseCase(
+            user_repository=cls.get_user_repository(),
+            auth_service=cls.get_auth_service()
+        )
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_login_use_case</span>(cls) -> LoginUserUseCase:
+        <span class="string">"""دریافت Use Case ورود"""</span>
+        <span class="keyword">return</span> LoginUserUseCase(
+            user_repository=cls.get_user_repository(),
+            auth_service=cls.get_auth_service(),
+            token_service=cls.get_token_service()
+        )
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_user_use_case</span>(cls) -> GetUserUseCase:
+        <span class="string">"""دریافت Use Case کاربر"""</span>
+        <span class="keyword">return</span> GetUserUseCase(
+            user_repository=cls.get_user_repository()
+        )
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">reset</span>(cls):
+        <span class="string">"""ریست کردن کش (برای تست‌ها)"""</span>
+        cls._user_repository = <span class="keyword">None</span>
+        cls._auth_service = <span class="keyword">None</span>
+        cls._token_service = <span class="keyword">None</span>
+</code>
+            </div>
+        </section>
+
+        <!-- Section 9: Testing -->
+        <section id="testing">
+            <h2>🧪 ۹. تست‌نویسی</h2>
+
+            <h3>تست واحد Use Case ثبت‌نام</h3>
+            <p>
+                در معماری Hexagonal، تست‌نویسی بسیار ساده است زیرا می‌توان پورت‌ها را با Mock جایگزین کرد.
+            </p>
+
+            <div class="code-block" data-filename="tests/unit/test_register_usecase.py">
+<code><span class="keyword">import</span> unittest
+<span class="keyword">from</span> unittest.mock <span class="keyword">import</span> Mock, MagicMock
+
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+<span class="keyword">from</span> core.use_cases.register_user <span class="keyword">import</span> (
+    RegisterUserUseCase,
+    RegisterUserRequest
+)
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    UserAlreadyExistsException,
+    InvalidUserDataException
+)
+
+
+<span class="keyword">class</span> <span class="class-name">TestRegisterUserUseCase</span>(unittest.TestCase):
+    <span class="string">"""تست‌های Use Case ثبت‌نام کاربر"""</span>
+
+    <span class="keyword">def</span> <span class="function">setUp</span>(self):
+        <span class="string">"""تنظیمات اولیه برای هر تست"""</span>
+        <span class="comment"># ایجاد Mock برای پورت‌ها</span>
+        self.mock_user_repository = Mock()
+        self.mock_auth_service = Mock()
+        
+        <span class="comment"># تنظیم رفتار پیش‌فرض</span>
+        self.mock_user_repository.find_by_username.return_value = <span class="keyword">None</span>
+        self.mock_user_repository.find_by_email.return_value = <span class="keyword">None</span>
+        self.mock_auth_service.hash_password.return_value = <span class="string">'hashed_password'</span>
+        
+        <span class="comment"># ایجادامه فایل HTML را تولید می‌کنم:
+
+```html
+Error:
+            <span class="keyword">raise</span> InvalidTokenException()
+</code>
+            </div>
+
+            <h3>آداپتر ورودی: Django Views</h3>
+            <p>
+                این آداپتر درخواست‌های HTTP را دریافت کرده و به Use Case‌ها تبدیل می‌کند.
+            </p>
+
+            <div class="code-block" data-filename="adapters/inbound/django/views.py">
+<code><span class="keyword">import</span> json
+<span class="keyword">from</span> django.views <span class="keyword">import</span> View
+<span class="keyword">from</span> django.http <span class="keyword">import</span> JsonResponse
+<span class="keyword">from</span> django.views.decorators.csrf <span class="keyword">import</span> csrf_exempt
+<span class="keyword">from</span> django.utils.decorators <span class="keyword">import</span> method_decorator
+
+<span class="keyword">from</span> core.use_cases.register_user <span class="keyword">import</span> RegisterUserUseCase, RegisterUserRequest
+<span class="keyword">from</span> core.use_cases.login_user <span class="keyword">import</span> LoginUserUseCase, LoginUserRequest
+<span class="keyword">from</span> core.use_cases.get_user <span class="keyword">import</span> GetUserUseCase, GetUserRequest
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    UserAlreadyExistsException,
+    InvalidUserDataException,
+    UserNotFoundException,
+    InvalidCredentialsException,
+    UserNotActiveException,
+    InvalidTokenException,
+    TokenExpiredException
+)
+<span class="keyword">from</span> infrastructure.config.dependency_injection <span class="keyword">import</span> DependencyContainer
+
+
+<span class="decorator">@method_decorator</span>(csrf_exempt, name=<span class="string">'dispatch'</span>)
+<span class="keyword">class</span> <span class="class-name">RegisterView</span>(View):
+    <span class="string">"""
+    آداپتر ورودی برای ثبت‌نام کاربر
+    
+    Endpoint: POST /api/auth/register/
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">post</span>(self, request):
+        <span class="keyword">try</span>:
+            <span class="comment"># ۱. دریافت داده‌های درخواست</span>
+            data = json.loads(request.body.decode(<span class="string">'utf-8'</span>))
+            
+            <span class="comment"># ۲. ایجاد درخواست Use Case</span>
+            use_case_request = RegisterUserRequest(
+                username=data.get(<span class="string">'username'</span>),
+                email=data.get(<span class="string">'email'</span>),
+                password=data.get(<span class="string">'password'</span>),
+                first_name=data.get(<span class="string">'first_name'</span>),
+                last_name=data.get(<span class="string">'last_name'</span>)
+            )
+            
+            <span class="comment"># ۳. دریافت Use Case از Container</span>
+            use_case = DependencyContainer.get_register_use_case()
+            
+            <span class="comment"># ۴. اجرای Use Case</span>
+            response = use_case.execute(use_case_request)
+            
+            <span class="comment"># ۵. برگرداندن پاسخ موفق</span>
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">True</span>,
+                <span class="string">'message'</span>: response.message,
+                <span class="string">'data'</span>: {
+                    <span class="string">'user'</span>: response.user.to_dict()
+                }
+            }, status=<span class="number">201</span>)
+        
+        <span class="keyword">except</span> UserAlreadyExistsException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e),
+                <span class="string">'code'</span>: <span class="string">'USER_EXISTS'</span>
+            }, status=<span class="number">409</span>)
+        
+        <span class="keyword">except</span> InvalidUserDataException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e),
+                <span class="string">'errors'</span>: e.errors,
+                <span class="string">'code'</span>: <span class="string">'INVALID_DATA'</span>
+            }, status=<span class="number">400</span>)
+        
+        <span class="keyword">except</span> json.JSONDecodeError:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'فرمت JSON نامعتبر است'</span>,
+                <span class="string">'code'</span>: <span class="string">'INVALID_JSON'</span>
+            }, status=<span class="number">400</span>)
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'خطای داخلی سرور'</span>,
+                <span class="string">'code'</span>: <span class="string">'INTERNAL_ERROR'</span>
+            }, status=<span class="number">500</span>)
+
+
+<span class="decorator">@method_decorator</span>(csrf_exempt, name=<span class="string">'dispatch'</span>)
+<span class="keyword">class</span> <span class="class-name">LoginView</span>(View):
+    <span class="string">"""
+    آداپتر ورودی برای ورود کاربر
+    
+    Endpoint: POST /api/auth/login/
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">post</span>(self, request):
+        <span class="keyword">try</span>:
+            <span class="comment"># ۱. دریافت داده‌های درخواست</span>
+            data = json.loads(request.body.decode(<span class="string">'utf-8'</span>))
+            
+            <span class="comment"># ۲. ایجاد درخواست Use Case</span>
+            use_case_request = LoginUserRequest(
+                username=data.get(<span class="string">'username'</span>),
+                password=data.get(<span class="string">'password'</span>)
+            )
+            
+            <span class="comment"># ۳. دریافت Use Case از Container</span>
+            use_case = DependencyContainer.get_login_use_case()
+            
+            <span class="comment"># ۴. اجرای Use Case</span>
+            response = use_case.execute(use_case_request)
+            
+            <span class="comment"># ۵. برگرداندن پاسخ موفق</span>
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">True</span>,
+                <span class="string">'message'</span>: response.message,
+                <span class="string">'data'</span>: {
+                    <span class="string">'user'</span>: response.user.to_dict(),
+                    <span class="string">'access_token'</span>: response.access_token,
+                    <span class="string">'token_type'</span>: response.token_type
+                }
+            }, status=<span class="number">200</span>)
+        
+        <span class="keyword">except</span> UserNotFoundException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'نام کاربری یا رمز عبور اشتباه است'</span>,
+                <span class="string">'code'</span>: <span class="string">'INVALID_CREDENTIALS'</span>
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> InvalidCredentialsException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e),
+                <span class="string">'code'</span>: <span class="string">'INVALID_CREDENTIALS'</span>
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> UserNotActiveException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e),
+                <span class="string">'code'</span>: <span class="string">'USER_INACTIVE'</span>
+            }, status=<span class="number">403</span>)
+        
+        <span class="keyword">except</span> json.JSONDecodeError:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'فرمت JSON نامعتبر است'</span>,
+                <span class="string">'code'</span>: <span class="string">'INVALID_JSON'</span>
+            }, status=<span class="number">400</span>)
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'خطای داخلی سرور'</span>,
+                <span class="string">'code'</span>: <span class="string">'INTERNAL_ERROR'</span>
+            }, status=<span class="number">500</span>)
+
+
+<span class="decorator">@method_decorator</span>(csrf_exempt, name=<span class="string">'dispatch'</span>)
+<span class="keyword">class</span> <span class="class-name">ProfileView</span>(View):
+    <span class="string">"""
+    آداپتر ورودی برای دریافت پروفایل کاربر
+    
+    Endpoint: GET /api/auth/profile/
+    Headers: Authorization: Bearer <token>
+    """</span>
+
+    <span class="keyword">def</span> <span class="function">get</span>(self, request):
+        <span class="keyword">try</span>:
+            <span class="comment"># ۱. دریافت توکن از هدر</span>
+            auth_header = request.META.get(<span class="string">'HTTP_AUTHORIZATION'</span>, <span class="string">''</span>)
+            
+            <span class="keyword">if not</span> auth_header.startswith(<span class="string">'Bearer '</span>):
+                <span class="keyword">return</span> JsonResponse({
+                    <span class="string">'success'</span>: <span class="keyword">False</span>,
+                    <span class="string">'error'</span>: <span class="string">'توکن ارائه نشده است'</span>,
+                    <span class="string">'code'</span>: <span class="string">'NO_TOKEN'</span>
+                }, status=<span class="number">401</span>)
+            
+            token = auth_header.split(<span class="string">' '</span>)[<span class="number">1</span>]
+            
+            <span class="comment"># ۲. تایید توکن و دریافت user_id</span>
+            token_service = DependencyContainer.get_token_service()
+            user_id = token_service.verify_token(token)
+            
+            <span class="comment"># ۳. دریافت اطلاعات کاربر</span>
+            use_case = DependencyContainer.get_user_use_case()
+            response = use_case.execute(GetUserRequest(user_id=user_id))
+            
+            <span class="comment"># ۴. برگرداندن پاسخ</span>
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">True</span>,
+                <span class="string">'data'</span>: {
+                    <span class="string">'user'</span>: response.user.to_dict()
+                }
+            }, status=<span class="number">200</span>)
+        
+        <span class="keyword">except</span> TokenExpiredException:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'توکن منقضی شده است'</span>,
+                <span class="string">'code'</span>: <span class="string">'TOKEN_EXPIRED'</span>
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> InvalidTokenException:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'توکن نامعتبر است'</span>,
+                <span class="string">'code'</span>: <span class="string">'INVALID_TOKEN'</span>
+            }, status=<span class="number">401</span>)
+        
+        <span class="keyword">except</span> UserNotFoundException <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="class-name">str</span>(e),
+                <span class="string">'code'</span>: <span class="string">'USER_NOT_FOUND'</span>
+            }, status=<span class="number">404</span>)
+        
+        <span class="keyword">except</span> <span class="class-name">Exception</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> JsonResponse({
+                <span class="string">'success'</span>: <span class="keyword">False</span>,
+                <span class="string">'error'</span>: <span class="string">'خطای داخلی سرور'</span>,
+                <span class="string">'code'</span>: <span class="string">'INTERNAL_ERROR'</span>
+            }, status=<span class="number">500</span>)
+</code>
+            </div>
+
+            <h3>تنظیم URL‌ها</h3>
+
+            <div class="code-block" data-filename="adapters/inbound/django/urls.py">
+<code><span class="keyword">from</span> django.urls <span class="keyword">import</span> path
+<span class="keyword">from</span> .views <span class="keyword">import</span> RegisterView, LoginView, ProfileView
+
+app_name = <span class="string">'auth'</span>
+
+urlpatterns = [
+    path(<span class="string">'register/'</span>, RegisterView.as_view(), name=<span class="string">'register'</span>),
+    path(<span class="string">'login/'</span>, LoginView.as_view(), name=<span class="string">'login'</span>),
+    path(<span class="string">'profile/'</span>, ProfileView.as_view(), name=<span class="string">'profile'</span>),
+]
+</code>
+            </div>
+
+            <h3>Dependency Injection Container</h3>
+            <p>
+                این کلاس مسئول ایجاد و مدیریت وابستگی‌ها است. تمام Use Case‌ها و سرویس‌ها از طریق این Container ساخته می‌شوند.
+            </p>
+
+            <div class="code-block" data-filename="infrastructure/config/dependency_injection.py">
+<code><span class="keyword">from</span> django.conf <span class="keyword">import</span> settings
+
+<span class="comment"># Outbound Adapters</span>
+<span class="keyword">from</span> adapters.outbound.django.user_repository <span class="keyword">import</span> DjangoUserRepository
+<span class="keyword">from</span> adapters.outbound.django.auth_service <span class="keyword">import</span> DjangoAuthService
+<span class="keyword">from</span> adapters.outbound.django.token_service <span class="keyword">import</span> JWTTokenService
+
+<span class="comment"># Use Cases</span>
+<span class="keyword">from</span> core.use_cases.register_user <span class="keyword">import</span> RegisterUserUseCase
+<span class="keyword">from</span> core.use_cases.login_user <span class="keyword">import</span> LoginUserUseCase
+<span class="keyword">from</span> core.use_cases.get_user <span class="keyword">import</span> GetUserUseCase
+
+
+<span class="keyword">class</span> <span class="class-name">DependencyContainer</span>:
+    <span class="string">"""
+    Container برای مدیریت وابستگی‌ها
+    
+    این کلاس تمام وابستگی‌ها را ایجاد و مدیریت می‌کند.
+    در صورت نیاز به تغییر پیاده‌سازی، فقط این کلاس تغییر می‌کند.
+    """</span>
+    
+    <span class="comment"># Singleton instances</span>
+    _user_repository = <span class="keyword">None</span>
+    _auth_service = <span class="keyword">None</span>
+    _token_service = <span class="keyword">None</span>
+
+    <span class="comment"># ===== Outbound Adapters =====</span>
+    
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_user_repository</span>(cls):
+        <span class="string">"""دریافت Repository کاربر"""</span>
+        <span class="keyword">if</span> cls._user_repository <span class="keyword">is</span> <span class="keyword">None</span>:
+            cls._user_repository = DjangoUserRepository()
+        <span class="keyword">return</span> cls._user_repository
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_auth_service</span>(cls):
+        <span class="string">"""دریافت سرویس احراز هویت"""</span>
+        <span class="keyword">if</span> cls._auth_service <span class="keyword">is</span> <span class="keyword">None</span>:
+            cls._auth_service = DjangoAuthService()
+        <span class="keyword">return</span> cls._auth_service
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_token_service</span>(cls):
+        <span class="string">"""دریافت سرویس توکن"""</span>
+        <span class="keyword">if</span> cls._token_service <span class="keyword">is</span> <span class="keyword">None</span>:
+            cls._token_service = JWTTokenService(
+                secret_key=settings.SECRET_KEY,
+                access_token_expire_minutes=<span class="number">60</span>,
+                refresh_token_expire_days=<span class="number">7</span>
+            )
+        <span class="keyword">return</span> cls._token_service
+
+    <span class="comment"># ===== Use Cases =====</span>
+    
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_register_use_case</span>(cls):
+        <span class="string">"""دریافت Use Case ثبت‌نام"""</span>
+        <span class="keyword">return</span> RegisterUserUseCase(
+            user_repository=cls.get_user_repository(),
+            auth_service=cls.get_auth_service()
+        )
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_login_use_case</span>(cls):
+        <span class="string">"""دریافت Use Case ورود"""</span>
+        <span class="keyword">return</span> LoginUserUseCase(
+            user_repository=cls.get_user_repository(),
+            auth_service=cls.get_auth_service(),
+            token_service=cls.get_token_service()
+        )
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">get_user_use_case</span>(cls):
+        <span class="string">"""دریافت Use Case دریافت کاربر"""</span>
+        <span class="keyword">return</span> GetUserUseCase(
+            user_repository=cls.get_user_repository()
+        )
+
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">reset</span>(cls):
+        <span class="string">"""ریست کردن تمام instance‌ها (برای تست)"""</span>
+        cls._user_repository = <span class="keyword">None</span>
+        cls._auth_service = <span class="keyword">None</span>
+        cls._token_service = <span class="keyword">None</span>
+</code>
+            </div>
+        </section>
+
+        <!-- Section 9: Testing -->
+        <section id="testing">
+            <h2>🧪 ۹. تست‌نویسی</h2>
+
+            <h3>مزایای تست‌پذیری در معماری Hexagonal</h3>
+            <p>
+                یکی از بزرگترین مزایای معماری Hexagonal، قابلیت تست‌پذیری بالای آن است.
+                با استفاده از پورت‌ها می‌توان به راحتی وابستگی‌ها را Mock کرد.
+            </p>
+
+            <div class="info-box success">
+                <strong>✅ انواع تست در معماری Hexagonal:</strong>
+                <ul>
+                    <li><strong>Unit Tests:</strong> تست Use Case‌ها با Mock کردن پورت‌ها</li>
+                    <li><strong>Integration Tests:</strong> تست آداپترها با زیرساخت واقعی</li>
+                    <li><strong>E2E Tests:</strong> تست کامل سیستم از API تا دیتابیس</li>
+                </ul>
+            </div>
+
+            <h3>تست واحد Use Case ثبت‌نام</h3>
+
+            <div class="code-block" data-filename="tests/unit/test_register_usecase.py">
+<code><span class="keyword">import</span> pytest
+<span class="keyword">from</span> unittest.mock <span class="keyword">import</span> Mock, MagicMock
+
+<span class="keyword">from</span> core.use_cases.register_user <span class="keyword">import</span> (
+    RegisterUserUseCase,
+    RegisterUserRequest,
+    RegisterUserResponse
+)
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    UserAlreadyExistsException,
+    InvalidUserDataException
+)
+
+
+<span class="keyword">class</span> <span class="class-name">TestRegisterUserUseCase</span>:
+    <span class="string">"""تست‌های Use Case ثبت‌نام"""</span>
+
+    <span class="keyword">def</span> <span class="function">setup_method</span>(self):
+        <span class="string">"""راه‌اندازی قبل از هر تست"""</span>
+        <span class="comment"># ایجاد Mock برای پورت‌های خروجی</span>
+        self.mock_user_repository = Mock()
+        self.mock_auth_service = Mock()
+        
+        <span class="comment"># ایجاد Use Case با Mock‌ها</span>
+        self.use_case = RegisterUserUseCase(
+            user_repository=self.mock_user_repository,
+            auth_service=self.mock_auth_service
+        )
+
+    <span class="keyword">def</span> <span class="function">test_successful_registration</span>(self):
+        <span class="string">"""تست ثبت‌نام موفق"""</span>
+        
+        <span class="comment"># Arrange: تنظیم رفتار Mock‌ها</span>
+        self.mock_user_repository.find_by_username.return_value = <span class="keyword">None</span>
+        self.mock_user_repository.find_by_email.return_value = <span class="keyword">None</span>
+        self.mock_auth_service.hash_password.return_value = <span class="string">'hashed_password'</span>
+        
+        saved_user = UserDomain(
+            id=<span class="string">'123'</span>,
+            username=<span class="string">'testuser'</span>,
+            email=<span class="string">'test@example.com'</span>,
+            password=<span class="string">'hashed_password'</span>
+        )
+        self.mock_user_repository.save.return_value = saved_user
+        
+        <span class="comment"># Act: اجرای Use Case</span>
+        request = RegisterUserRequest(
+            username=<span class="string">'testuser'</span>,
+            email=<span class="string">'test@example.com'</span>,
+            password=<span class="string">'securepassword123'</span>
+        )
+        response = self.use_case.execute(request)
+        
+        <span class="comment"># Assert: بررسی نتیجه</span>
+        <span class="keyword">assert</span> response.success == <span class="keyword">True</span>
+        <span class="keyword">assert</span> response.user.username == <span class="string">'testuser'</span>
+        <span class="keyword">assert</span> response.user.email == <span class="string">'test@example.com'</span>
+        
+        <span class="comment"># بررسی فراخوانی متدها</span>
+        self.mock_user_repository.find_by_username.assert_called_once_with(<span class="string">'testuser'</span>)
+        self.mock_user_repository.find_by_email.assert_called_once_with(<span class="string">'test@example.com'</span>)
+        self.mock_auth_service.hash_password.assert_called_once_with(<span class="string">'securepassword123'</span>)
+        self.mock_user_repository.save.assert_called_once()
+
+    <span class="keyword">def</span> <span class="function">test_registration_with_existing_username</span>(self):
+        <span class="string">"""تست ثبت‌نام با نام کاربری تکراری"""</span>
+        
+        <span class="comment"># Arrange: کاربر موجود</span>
+        existing_user = UserDomain(
+            id=<span class="string">'456'</span>,
+            username=<span class="string">'existinguser'</span>,
+            email=<span class="string">'existing@example.com'</span>
+        )
+        self.mock_user_repository.find_by_username.return_value = existing_user
+        
+        <span class="comment"># Act & Assert</span>
+        request = RegisterUserRequest(
+            username=<span class="string">'existinguser'</span>,
+            email=<span class="string">'new@example.com'</span>,
+            password=<span class="string">'securepassword123'</span>
+        )
+        
+        <span class="keyword">with</span> pytest.raises(UserAlreadyExistsException):
+            self.use_case.execute(request)
+
+    <span class="keyword">def</span> <span class="function">test_registration_with_invalid_email</span>(self):
+        <span class="string">"""تست ثبت‌نام با ایمیل نامعتبر"""</span>
+        
+        <span class="comment"># Arrange</span>
+        self.mock_user_repository.find_by_username.return_value = <span class="keyword">None</span>
+        self.mock_user_repository.find_by_email.return_value = <span class="keyword">None</span>
+        
+        <span class="comment"># Act & Assert</span>
+        request = RegisterUserRequest(
+            username=<span class="string">'testuser'</span>,
+            email=<span class="string">'invalid-email'</span>,  <span class="comment"># ایمیل نامعتبر</span>
+            password=<span class="string">'securepassword123'</span>
+        )<span class="keyword">with</span> pytest.raises(InvalidUserDataException):
+            self.use_case.execute(request)
+
+    <span class="keyword">def</span> <span class="function">test_registration_with_short_password</span>(self):
+        <span class="string">"""تست ثبت‌نام با رمز عبور کوتاه"""</span>
+        
+        <span class="comment"># Arrange</span>
+        self.mock_user_repository.find_by_username.return_value = <span class="keyword">None</span>
+        self.mock_user_repository.find_by_email.return_value = <span class="keyword">None</span>
+        
+        <span class="comment"># Act & Assert</span>
+        request = RegisterUserRequest(
+            username=<span class="string">'testuser'</span>,
+            email=<span class="string">'test@example.com'</span>,
+            password=<span class="string">'123'</span>  <span class="comment"># رمز عبور کوتاه</span>
+        )
+        
+        <span class="keyword">with</span> pytest.raises(InvalidUserDataException) <span class="keyword">as</span> exc_info:
+            self.use_case.execute(request)
+        
+        <span class="keyword">assert</span> <span class="string">'رمز عبور'</span> <span class="keyword">in</span> <span class="class-name">str</span>(exc_info.value)
+</code>
+            </div>
+
+            <h3>تست واحد Use Case ورود</h3>
+
+            <div class="code-block" data-filename="tests/unit/test_login_usecase.py">
+<code><span class="keyword">import</span> pytest
+<span class="keyword">from</span> unittest.mock <span class="keyword">import</span> Mock
+
+<span class="keyword">from</span> core.use_cases.login_user <span class="keyword">import</span> (
+    LoginUserUseCase,
+    LoginUserRequest,
+    LoginUserResponse
+)
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+<span class="keyword">from</span> core.domain.exceptions.auth_exceptions <span class="keyword">import</span> (
+    UserNotFoundException,
+    InvalidCredentialsException,
+    UserNotActiveException
+)
+
+
+<span class="keyword">class</span> <span class="class-name">TestLoginUserUseCase</span>:
+    <span class="string">"""تست‌های Use Case ورود"""</span>
+
+    <span class="keyword">def</span> <span class="function">setup_method</span>(self):
+        <span class="string">"""راه‌اندازی قبل از هر تست"""</span>
+        self.mock_user_repository = Mock()
+        self.mock_auth_service = Mock()
+        self.mock_token_service = Mock()
+        
+        self.use_case = LoginUserUseCase(
+            user_repository=self.mock_user_repository,
+            auth_service=self.mock_auth_service,
+            token_service=self.mock_token_service
+        )
+
+    <span class="keyword">def</span> <span class="function">test_successful_login</span>(self):
+        <span class="string">"""تست ورود موفق"""</span>
+        
+        <span class="comment"># Arrange</span>
+        user = UserDomain(
+            id=<span class="string">'123'</span>,
+            username=<span class="string">'testuser'</span>,
+            email=<span class="string">'test@example.com'</span>,
+            password=<span class="string">'hashed_password'</span>,
+            is_active=<span class="keyword">True</span>
+        )
+        
+        self.mock_user_repository.find_by_username.return_value = user
+        self.mock_auth_service.verify_password.return_value = <span class="keyword">True</span>
+        self.mock_token_service.generate_token.return_value = <span class="string">'jwt_token_123'</span>
+        self.mock_user_repository.save.return_value = user
+        
+        <span class="comment"># Act</span>
+        request = LoginUserRequest(
+            username=<span class="string">'testuser'</span>,
+            password=<span class="string">'correct_password'</span>
+        )
+        response = self.use_case.execute(request)
+        
+        <span class="comment"># Assert</span>
+        <span class="keyword">assert</span> response.success == <span class="keyword">True</span>
+        <span class="keyword">assert</span> response.access_token == <span class="string">'jwt_token_123'</span>
+        <span class="keyword">assert</span> response.user.username == <span class="string">'testuser'</span>
+        
+        self.mock_auth_service.verify_password.assert_called_once_with(
+            <span class="string">'correct_password'</span>, <span class="string">'hashed_password'</span>
+        )
+
+    <span class="keyword">def</span> <span class="function">test_login_user_not_found</span>(self):
+        <span class="string">"""تست ورود با کاربر ناموجود"""</span>
+        
+        <span class="comment"># Arrange</span>
+        self.mock_user_repository.find_by_username.return_value = <span class="keyword">None</span>
+        
+        <span class="comment"># Act & Assert</span>
+        request = LoginUserRequest(
+            username=<span class="string">'nonexistent'</span>,
+            password=<span class="string">'any_password'</span>
+        )
+        
+        <span class="keyword">with</span> pytest.raises(UserNotFoundException):
+            self.use_case.execute(request)
+
+    <span class="keyword">def</span> <span class="function">test_login_wrong_password</span>(self):
+        <span class="string">"""تست ورود با رمز عبور اشتباه"""</span>
+        
+        <span class="comment"># Arrange</span>
+        user = UserDomain(
+            id=<span class="string">'123'</span>,
+            username=<span class="string">'testuser'</span>,
+            password=<span class="string">'hashed_password'</span>,
+            is_active=<span class="keyword">True</span>
+        )
+        
+        self.mock_user_repository.find_by_username.return_value = user
+        self.mock_auth_service.verify_password.return_value = <span class="keyword">False</span>
+        
+        <span class="comment"># Act & Assert</span>
+        request = LoginUserRequest(
+            username=<span class="string">'testuser'</span>,
+            password=<span class="string">'wrong_password'</span>
+        )
+        
+        <span class="keyword">with</span> pytest.raises(InvalidCredentialsException):
+            self.use_case.execute(request)
+
+    <span class="keyword">def</span> <span class="function">test_login_inactive_user</span>(self):
+        <span class="string">"""تست ورود با کاربر غیرفعال"""</span>
+        
+        <span class="comment"># Arrange</span>
+        user = UserDomain(
+            id=<span class="string">'123'</span>,
+            username=<span class="string">'testuser'</span>,
+            password=<span class="string">'hashed_password'</span>,
+            is_active=<span class="keyword">False</span>  <span class="comment"># کاربر غیرفعال</span>
+        )
+        
+        self.mock_user_repository.find_by_username.return_value = user
+        
+        <span class="comment"># Act & Assert</span>
+        request = LoginUserRequest(
+            username=<span class="string">'testuser'</span>,
+            password=<span class="string">'any_password'</span>
+        )
+        
+        <span class="keyword">with</span> pytest.raises(UserNotActiveException):
+            self.use_case.execute(request)
+</code>
+            </div>
+
+            <h3>تست یکپارچگی Repository</h3>
+
+            <div class="code-block" data-filename="tests/integration/test_user_repository.py">
+<code><span class="keyword">import</span> pytest
+<span class="keyword">from</span> django.test <span class="keyword">import</span> TestCase
+
+<span class="keyword">from</span> adapters.outbound.django.user_repository <span class="keyword">import</span> DjangoUserRepository
+<span class="keyword">from</span> adapters.outbound.django.models <span class="keyword">import</span> UserModel
+<span class="keyword">from</span> core.domain.models.user <span class="keyword">import</span> UserDomain
+
+
+<span class="keyword">class</span> <span class="class-name">TestDjangoUserRepository</span>(TestCase):
+    <span class="string">"""تست‌های یکپارچگی Repository کاربر"""</span>
+
+    <span class="keyword">def</span> <span class="function">setUp</span>(self):
+        <span class="string">"""راه‌اندازی قبل از هر تست"""</span>
+        self.repository = DjangoUserRepository()
+        
+        <span class="comment"># پاکسازی دیتابیس</span>
+        UserModel.objects.all().delete()
+
+    <span class="keyword">def</span> <span class="function">test_save_new_user</span>(self):
+        <span class="string">"""تست ذخیره کاربر جدید"""</span>
+        
+        <span class="comment"># Arrange</span>
+        user = UserDomain(
+            username=<span class="string">'newuser'</span>,
+            email=<span class="string">'new@example.com'</span>,
+            password=<span class="string">'hashed_password'</span>,
+            first_name=<span class="string">'علی'</span>,
+            last_name=<span class="string">'محمدی'</span>
+        )
+        
+        <span class="comment"># Act</span>
+        saved_user = self.repository.save(user)
+        
+        <span class="comment"># Assert</span>
+        self.assertIsNotNone(saved_user.id)
+        self.assertEqual(saved_user.username, <span class="string">'newuser'</span>)
+        self.assertEqual(saved_user.email, <span class="string">'new@example.com'</span>)
+        
+        <span class="comment"># بررسی در دیتابیس</span>
+        db_user = UserModel.objects.get(username=<span class="string">'newuser'</span>)
+        self.assertEqual(db_user.email, <span class="string">'new@example.com'</span>)
+
+    <span class="keyword">def</span> <span class="function">test_find_by_username</span>(self):
+        <span class="string">"""تست جستجو با نام کاربری"""</span>
+        
+        <span class="comment"># Arrange: ایجاد کاربر در دیتابیس</span>
+        UserModel.objects.create(
+            username=<span class="string">'findme'</span>,
+            email=<span class="string">'find@example.com'</span>,
+            password=<span class="string">'hashed'</span>
+        )
+        
+        <span class="comment"># Act</span>
+        found_user = self.repository.find_by_username(<span class="string">'findme'</span>)
+        
+        <span class="comment"># Assert</span>
+        self.assertIsNotNone(found_user)
+        self.assertEqual(found_user.username, <span class="string">'findme'</span>)
+        self.assertEqual(found_user.email, <span class="string">'find@example.com'</span>)
+
+    <span class="keyword">def</span> <span class="function">test_find_by_username_not_found</span>(self):
+        <span class="string">"""تست جستجوی کاربر ناموجود"""</span>
+        
+        <span class="comment"># Act</span>
+        found_user = self.repository.find_by_username(<span class="string">'nonexistent'</span>)
+        
+        <span class="comment"># Assert</span>
+        self.assertIsNone(found_user)
+
+    <span class="keyword">def</span> <span class="function">test_delete_user</span>(self):
+        <span class="string">"""تست حذف کاربر"""</span>
+        
+        <span class="comment"># Arrange</span>
+        db_user = UserModel.objects.create(
+            username=<span class="string">'deleteme'</span>,
+            email=<span class="string">'delete@example.com'</span>,
+            password=<span class="string">'hashed'</span>
+        )
+        
+        <span class="comment"># Act</span>
+        result = self.repository.delete(<span class="class-name">str</span>(db_user.id))
+        
+        <span class="comment"># Assert</span>
+        self.assertTrue(result)
+        self.assertFalse(UserModel.objects.filter(id=db_user.id).exists())
+</code>
+            </div>
+
+            <h3>تست End-to-End API</h3>
+
+            <div class="code-block" data-filename="tests/e2e/test_auth_api.py">
+<code><span class="keyword">import</span> json
+<span class="keyword">from</span> django.test <span class="keyword">import</span> TestCase, Client
+<span class="keyword">from</span> django.urls <span class="keyword">import</span> reverse
+
+<span class="keyword">from</span> adapters.outbound.django.models <span class="keyword">import</span> UserModel
+
+
+<span class="keyword">class</span> <span class="class-name">TestAuthAPI</span>(TestCase):
+    <span class="string">"""تست‌های End-to-End برای API احراز هویت"""</span>
+
+    <span class="keyword">def</span> <span class="function">setUp</span>(self):
+        <span class="string">"""راه‌اندازی قبل از هر تست"""</span>
+        self.client = Client()
+        UserModel.objects.all().delete()
+
+    <span class="keyword">def</span> <span class="function">test_register_success</span>(self):
+        <span class="string">"""تست ثبت‌نام موفق از طریق API"""</span>
+        
+        <span class="comment"># Arrange</span>
+        data = {
+            <span class="string">'username'</span>: <span class="string">'apiuser'</span>,
+            <span class="string">'email'</span>: <span class="string">'api@example.com'</span>,
+            <span class="string">'password'</span>: <span class="string">'securepassword123'</span>,
+            <span class="string">'first_name'</span>: <span class="string">'کاربر'</span>,
+            <span class="string">'last_name'</span>: <span class="string">'تست'</span>
+        }
+        
+        <span class="comment"># Act</span>
+        response = self.client.post(
+            <span class="string">'/api/auth/register/'</span>,
+            data=json.dumps(data),
+            content_type=<span class="string">'application/json'</span>
+        )
+        
+        <span class="comment"># Assert</span>
+        self.assertEqual(response.status_code, <span class="number">201</span>)
+        
+        response_data = response.json()
+        self.assertTrue(response_data[<span class="string">'success'</span>])
+        self.assertEqual(response_data[<span class="string">'data'</span>][<span class="string">'user'</span>][<span class="string">'username'</span>], <span class="string">'apiuser'</span>)
+
+    <span class="keyword">def</span> <span class="function">test_register_duplicate_username</span>(self):
+        <span class="string">"""تست ثبت‌نام با نام کاربری تکراری"""</span>
+        
+        <span class="comment"># Arrange: ایجاد کاربر اول</span>
+        UserModel.objects.create(
+            username=<span class="string">'existing'</span>,
+            email=<span class="string">'existing@example.com'</span>,
+            password=<span class="string">'hashed'</span>
+        )
+        
+        data = {
+            <span class="string">'username'</span>: <span class="string">'existing'</span>,  <span class="comment"># نام تکراری</span>
+            <span class="string">'email'</span>: <span class="string">'new@example.com'</span>,
+            <span class="string">'password'</span>: <span class="string">'securepassword123'</span>
+        }
+        
+        <span class="comment"># Act</span>
+        response = self.client.post(
+            <span class="string">'/api/auth/register/'</span>,
+            data=json.dumps(data),
+            content_type=<span class="string">'application/json'</span>
+        )
+        
+        <span class="comment"># Assert</span>
+        self.assertEqual(response.status_code, <span class="number">409</span>)
+        self.assertFalse(response.json()[<span class="string">'success'</span>])
+
+    <span class="keyword">def</span> <span class="function">test_login_success</span>(self):
+        <span class="string">"""تست ورود موفق"""</span>
+        
+        <span class="comment"># Arrange: ابتدا ثبت‌نام</span>
+        register_data = {
+            <span class="string">'username'</span>: <span class="string">'loginuser'</span>,
+            <span class="string">'email'</span>: <span class="string">'login@example.com'</span>,
+            <span class="string">'password'</span>: <span class="string">'securepassword123'</span>
+        }
+        self.client.post(
+            <span class="string">'/api/auth/register/'</span>,
+            data=json.dumps(register_data),
+            content_type=<span class="string">'application/json'</span>
+        )
+        
+        <span class="comment"># Act: ورود</span>
+        login_data = {
+            <span class="string">'username'</span>: <span class="string">'loginuser'</span>,
+            <span class="string">'password'</span>: <span class="string">'securepassword123'</span>
+        }
+        response = self.client.post(
+            <span class="string">'/api/auth/login/'</span>,
+            data=json.dumps(login_data),
+            content_type=<span class="string">'application/json'</span>
+        )
+        
+        <span class="comment"># Assert</span>
+        self.assertEqual(response.status_code, <span class="number">200</span>)
+        
+        response_data = response.json()
+        self.assertTrue(response_data[<span class="string">'success'</span>])
+        self.assertIn(<span class="string">'access_token'</span>, response_data[<span class="string">'data'</span>])
+
+    <span class="keyword">def</span> <span class="function">test_profile_with_valid_token</span>(self):
+        <span class="string">"""تست دریافت پروفایل با توکن معتبر"""</span>
+        
+        <span class="comment"># Arrange: ثبت‌نام و ورود</span>
+        register_data = {
+            <span class="string">'username'</span>: <span class="string">'profileuser'</span>,
+            <span class="string">'email'</span>: <span class="string">'profile@example.com'</span>,
+            <span class="string">'password'</span>: <span class="string">'securepassword123'</span>
+        }
+        self.client.post(
+            <span class="string">'/api/auth/register/'</span>,
+            data=json.dumps(register_data),
+            content_type=<span class="string">'application/json'</span>
+        )
+        
+        login_response = self.client.post(
+            <span class="string">'/api/auth/login/'</span>,
+            data=json.dumps({
+                <span class="string">'username'</span>: <span class="string">'profileuser'</span>,
+                <span class="string">'password'</span>: <span class="string">'securepassword123'</span>
+            }),
+            content_type=<span class="string">'application/json'</span>
+        )
+        
+        token = login_response.json()[<span class="string">'data'</span>][<span class="string">'access_token'</span>]
+        
+        <span class="comment"># Act: دریافت پروفایل</span>
+        response = self.client.get(
+            <span class="string">'/api/auth/profile/'</span>,
+            HTTP_AUTHORIZATION=<span class="string">f'Bearer </span>{token}<span class="string">'</span>
+        )
+        
+        <span class="comment"># Assert</span>
+        self.assertEqual(response.status_code, <span class="number">200</span>)
+        self.assertEqual(
+            response.json()[<span class="string">'data'</span>][<span class="string">'user'</span>][<span class="string">'username'</span>],
+            <span class="string">'profileuser'</span>
+        )
+
+    <span class="keyword">def</span> <span class="function">test_profile_without_token</span>(self):
+        <span class="string">"""تست دریافت پروفایل بدون توکن"""</span>
+        
+        <span class="comment"># Act</span>
+        response = self.client.get(<span class="string">'/api/auth/profile/'</span>)
+        
+        <span class="comment"># Assert</span>
+        self.assertEqual(response.status_code, <span class="number">401</span>)
+        self.assertFalse(response.json()[<span class="string">'success'</span>])
+</code>
+            </div>
+
+            <h3>اجرای تست‌ها</h3>
+
+            <div class="code-block" data-filename="Terminal">
+<code><span class="comment"># اجرای تمام تست‌ها</span>
+$ python manage.py test
+
+<span class="comment"># اجرای فقط تست‌های واحد</span>
+$ python manage.py test tests.unit
+
+<span class="comment"># اجرای فقط تست‌های یکپارچگی</span>
+$ python manage.py test tests.integration
+
+<span class="comment"># اجرای با pytest و coverage</span>
+$ pytest --cov=core --cov=adapters tests/
+
+<span class="comment"># گزارش coverage</span>
+$ pytest --cov=core --cov-report=html tests/
+</code>
+            </div>
+        </section>
+
+        <!-- Section 10: Summary -->
+        <section id="summary">
+            <h2>📋 ۱۰. جمع‌بندی</h2>
+
+            <h3>مزایای معماری Hexagonal</h3>
+
+            <div class="info-box success">
+                <ul>
+                    <li><strong>جداسازی کامل:</strong> منطق کسب‌وکار از فریم‌ورک و زیرساخت جدا است</li>
+                    <li><strong>تست‌پذیری:</strong> امکان تست واحد بدون نیاز به دیتابیس یا سرویس خارجی</li>
+                    <li><strong>انعطاف‌پذیری:</strong> تعویض آسان زیرساخت‌ها (مثلاً تغییر دیتابیس)</li>
+                    <li><strong>نگهداری آسان:</strong> تغییرات در یک لایه تأثیری بر لایه‌های دیگر ندارد</li>
+                    <li><strong>مقیاس‌پذیری:</strong> افزودن قابلیت‌های جدید بدون تغییر ساختار</li>
+                </ul>
+            </div>
+
+            <h3>معایب و چالش‌ها</h3>
+
+            <div class="info-box warning">
+                <ul>
+                    <li><strong>پیچیدگی اولیه:</strong> نیاز به نوشتن کد بیشتر در ابتدا</li>
+                    <li><strong>منحنی یادگیری:</strong> درک مفاهیم برای تیم‌های جدید زمان‌بر است</li>
+                    <li><strong>Over-engineering:</strong> برای پروژه‌های کوچک ممکن است بیش از حد باشد</li>
+                    <li><strong>تبدیل داده:</strong> نیاز به Mapper بین لایه‌ها</li>
+                </ul>
+            </div>
+
+            <h3>چه زمانی از Hexagonal استفاده کنیم؟</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>مناسب است برای</th>
+                        <th>مناسب نیست برای</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>پروژه‌های بزرگ و بلندمدت</td>
+                        <td>پروژه‌های کوچک و ساده</td>
+                    </tr>
+                    <tr>
+                        <td>سیستم‌های با منطق پیچیده</td>
+                        <td>MVP و نمونه اولیه</td>
+                    </tr>
+                    <tr>
+                        <td>نیاز به تست‌پذیری بالا</td>
+                        <td>پروژه‌های با عمر کوتاه</td>
+                    </tr>
+                    <tr>
+                        <td>احتمال تغییر زیرساخت</td>
+                        <td>تیم‌های کوچک و کم‌تجربه</td>
+                    </tr>
+                    <tr>
+                        <td>میکروسرویس‌ها</td>
+                        <td>اسکریپت‌های ساده</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>خلاصه اجزای معماری</h3>
+
+            <div class="diagram">
+                <div class="layer-diagram">
+                    <div class="layer adapter-in">
+                        <strong>🌐 Inbound Adapters</strong><br>
+                        Django Views, REST API, GraphQL, CLI
+                    </div>
+                    <div class="arrow">⬇️ درخواست</div>
+                    <div class="layer port-in">
+                        <strong>🚪 Inbound Ports</strong><br>
+                        Service Interfaces (چه کاری انجام دهیم)
+                    </div>
+                    <div class="arrow">⬇️</div>
+                    <div class="layer usecase">
+                        <strong>⚙️ Use Cases</strong><br>
+                        Application Logic, Orchestration
+                    </div>
+                    <div class="arrow">⬇️</div>
+                    <div class="layer domain">
+                        <strong>🎯 Domain</strong><br>
+                        Entities, Value Objects, Business Rules
+                    </div>
+                    <div class="arrow">⬇️</div>
+                    <div class="layer port-out">
+                        <strong>🚪 Outbound Ports</strong><br>
+                        Repository Interfaces (چگونه انجام دهیم)
+                    </div>
+                    <div class="arrow">⬇️ داده</div>
+                    <div class="layer adapter-out">
+                        <strong>💾 Outbound Adapters</strong><br>
+                        Django ORM, External APIs, Cache
+                    </div>
+                </div>
+            </div>
+
+            <h3>قدم‌های بعدی</h3>
+
+            <div class="info-box">
+                <strong>📚 برای یادگیری بیشتر:</strong>
+                <ol>
+                    <li>پیاده‌سازی یک پروژه کوچک با این معماری</li>
+                    <li>مطالعه Clean Architecture و DDD</li>
+                    <li>بررسی الگوهای CQRS و Event Sourcing</li>
+                    <li>استفاده از کتابخانه‌های DI مانند <code>dependency-injector</code></li>
+                    <li>پیاده‌سازی در میکروسرویس‌ها</li>
+                </ol>
+            </div>
+
+            <h3>منابع مفید</h3>
+
+            <ul>
+                <li>📖 <a href="https://alistair.cockburn.us/hexagonal-architecture/" style="color: #00d9ff;">Hexagonal Architecture by Alistair Cockburn</a></li>
+                <li>📖 <a href="https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164" style="color: #00d9ff;">Clean Architecture by Robert C. Martin</a></li>
+                <li>📖 <a href="https://www.amazon.com/Domain-Driven-Design-Tackling-Complexity-Software/dp/0321125215" style="color: #00d9ff;">Domain-Driven Design by Eric Evans</a></li>
+            </ul>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>
+                🔷 آموزش معماری Hexagonal با Django<br>
+                تهیه شده با ❤️ برای جامعه برنامه‌نویسان فارسی‌زبان
+            </p>
+        </footer>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" onclick="scrollToTop()"></div>
+
+    <script>
+        // Smooth scroll to sections
+        document.querySelectorAll('nav ul li a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Scroll to top functionality
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTopBtn = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.style.display = 'flex';
+            } else {
+                scrollTopBtn.style.display = 'none';
+            }
+        });
+
+        // Tab switching
+        function switchTab(tabName) {
+            const contents = document.querySelectorAll('.tab-content');
+            const tabs = document.querySelectorAll('.tab');
+            
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Code highlighting on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Highlight.js
+            hljs.highlightAll();
+
+            // Initial hide of scroll button
+            document.querySelector('.scroll-top').style.display = 'none';
+            
+            // Add animation to sections on scroll
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+
+            document.querySelectorAll('section').forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                section.style.transition = 'all 0.6s ease-out';
+                observer.observe(section);
+            });
+        });
+
+        // Copy code functionality
+        document.querySelectorAll('.code-block').forEach(block => {
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = '📋 کپی کد';
+            copyBtn.style.cssText = `
+                position: absolute;
+                top: 40px;
+                left: 10px;
+                padding: 8px 15px;
+                background: linear-gradient(135deg, #238636 0%, #2ea043 100%);
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 0.85em;
+                transition: all 0.3s ease;
+            `;
+            
+            copyBtn.addEventListener('mouseover', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 5px 15px rgba(46, 160, 67, 0.4)';
+            });
+            
+            copyBtn.addEventListener('mouseout', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+            
+            copyBtn.addEventListener('click', function() {
+                const code = block.querySelector('code').textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = this.textContent;
+                    this.textContent = '✅ کپی شد!';
+                    this.style.background = 'linear-gradient(135deg, #ffd93d 0%, #ff6b6b 100%)';
+                    
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                        this.style.background = 'linear-gradient(135deg, #238636 0%, #2ea043 100%)';
+                    }, 2000);
+                });
+            });
+            
+            block.style.position = 'relative';
+            block.appendChild(copyBtn);
+        });
+    </script>
+</body>
+</html>
