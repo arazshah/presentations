@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>برنامه پروژه فاز اول - سامانه کشاورزی هوشمند</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2ecc71;
+      --primary-dark: #27ae60;
+      --secondary: #3498db;
+      --accent: #e74c3c;
+      --warning: #f39c12;
+      --dark: #2c3e50;
+      --light: #ecf0f1;
+      --white: #ffffff;
+      --shadow: rgba(0,0,0,0.1);
+      --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: var(--dark);
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      text-align: center;
+      padding: 3rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Section */
+    section {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 2.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 40px var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    h2 i {
+      color: var(--primary);
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem;
+      color: var(--secondary);
+    }
+
+    h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 1rem 0 0.5rem;
+      color: var(--dark);
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-radius: 15px;
+      padding: 1.5rem;
+      border: 2px solid var(--light);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px var(--shadow);
+      border-color: var(--primary);
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-icon.backend { color: #27ae60; }
+    .card-icon.frontend { color: #3498db; }
+    .card-icon.design { color: #9b59b6; }
+    .card-icon.devops { color: #e74c3c; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .stat-card {
+      background: var(--gradient);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .stat-card.green { background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); }
+    .stat-card.blue { background: linear-gradient(135deg, #2980b9 0%, #3498db 100%); }
+    .stat-card.orange { background: linear-gradient(135deg, #d35400 0%, #e67e22 100%); }
+    .stat-card.red { background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%); }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px var(--shadow);
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: right;
+      border-bottom: 1px solid var(--light);
+    }
+
+    th {
+      background: var(--dark);
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #f8f9fa;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-right: 30px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      right: 10px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--primary), var(--secondary));
+      border-radius: 2px;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      background: var(--light);
+      border-radius: 15px;
+      margin-right: 30px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      right: -38px;
+      top: 1.5rem;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      border: 4px solid white;
+      box-shadow: 0 0 0 4px var(--primary);
+    }
+
+    .timeline-item.month-1::before { background: #27ae60; box-shadow: 0 0 0 4px #27ae60; }
+    .timeline-item.month-2::before { background: #3498db; box-shadow: 0 0 0 4px #3498db; }
+    .timeline-item.month-3::before { background: #9b59b6; box-shadow: 0 0 0 4px #9b59b6; }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .timeline-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .timeline-date {
+      background: var(--primary);
+      color: white;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+
+    .timeline-item.month-1 .timeline-date { background: #27ae60; }
+    .timeline-item.month-2 .timeline-date { background: #3498db; }
+    .timeline-item.month-3 .timeline-date { background: #9b59b6; }
+
+    /* Progress Bar */
+    .progress-container {
+      margin: 1rem 0;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: var(--light);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+
+    .progress-fill.green { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+    .progress-fill.blue { background: linear-gradient(90deg, #2980b9, #3498db); }
+    .progress-fill.purple { background: linear-gradient(90deg, #8e44ad, #9b59b6); }
+
+    /* Highlight Box */
+    .highlight-box {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 15px;
+      margin: 1.5rem 0;
+    }
+
+    .highlight-box h3, .highlight-box h4 {
+      color: white;
+    }
+
+    .highlight-box ul {
+      list-style: none;
+    }
+
+    .highlight-box ul li {
+      padding: 0.5rem 0;
+      padding-right: 1.5rem;
+      position: relative;
+    }
+
+    .highlight-box ul li::before {
+      content: '✓';
+      position: absolute;
+      right: 0;
+    }
+
+    /* Tech Stack */
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--light);
+      padding: 0.8rem 1.2rem;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .tech-item img {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Budget Table */
+    .budget-table {
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    }
+
+    .budget-table tr.total {
+      background: var(--dark);
+      color: white;
+      font-weight: 700;
+    }
+
+    .budget-table tr.total td {
+      border-bottom: none;
+    }
+
+    /* Gantt Chart */
+    .gantt-container {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+    }
+
+    .gantt {
+      min-width: 800px;
+    }
+
+    .gantt-header {
+      display: grid;
+      grid-template-columns: 200px repeat(12, 1fr);
+      background: var(--dark);
+      color: white;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .gantt-header div {
+      padding: 0.8rem;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .gantt-row {
+      display: grid;
+      grid-template-columns: 200px repeat(12, 1fr);
+      border-bottom: 1px solid var(--light);
+    }
+
+    .gantt-row:last-child {
+      border-bottom: none;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .gantt-task {
+      padding: 0.8rem;
+      font-weight: 500;
+      background: #f8f9fa;
+      border-left: 1px solid var(--light);
+    }
+
+    .gantt-cell {
+      padding: 0.5rem;
+      position: relative;
+      border-left: 1px solid var(--light);
+    }
+
+    .gantt-bar {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 24px;
+      border-radius: 12px;
+      opacity: 0.9;
+    }
+
+    .gantt-bar.backend { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+    .gantt-bar.frontend { background: linear-gradient(90deg, #2980b9, #3498db); }
+    .gantt-bar.design { background: linear-gradient(90deg, #8e44ad, #9b59b6); }
+    .gantt-bar.devops { background: linear-gradient(90deg, #c0392b, #e74c3c); }
+    .gantt-bar.testing { background: linear-gradient(90deg, #d35400, #e67e22); }
+
+    /* Delivery Cards */
+    .delivery-card {
+      border-right: 5px solid var(--primary);
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    }
+
+    .delivery-card.milestone {
+      border-right-color: #e74c3c;
+    }
+
+    .delivery-tag {
+      display: inline-block;
+      padding: 0.2rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+
+    .delivery-tag.api { background: #27ae60; color: white; }
+    .delivery-tag.ui { background: #3498db; color: white; }
+    .delivery-tag.db { background: #9b59b6; color: white; }
+    .delivery-tag.doc { background: #f39c12; color: white; }
+
+    /* Risk Matrix */
+    .risk-matrix {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .risk-item {
+      padding: 1rem;
+      border-radius: 10px;
+      border-right: 4px solid;
+    }
+
+    .risk-item.high {
+      background: #fde8e8;
+      border-right-color: #e74c3c;
+    }
+
+    .risk-item.medium {
+      background: #fef3e2;
+      border-right-color: #f39c12;
+    }
+
+    .risk-item.low {
+      background: #e8f5e9;
+      border-right-color: #27ae60;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      position: relative;
+      height: 300px;
+      margin: 1.5rem 0;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+
+      section {
+        padding: 1.5rem;
+      }
+
+      .gantt-container {
+        font-size: 0.8rem;
+      }
+
+      .risk-matrix {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        background: white;
+      }
+
+      section {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+      }
+
+      .chart-container {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1><i class="fas fa-project-diagram"></i> برنامه پروژه فاز اول</h1>
+    <p>سامانه جامع کشاورزی هوشمند - ایجاد بنیان داده‌های قابل اطمینان</p>
+    <span class="badge"><i class="fas fa-calendar"></i> مدت: ۳ ماه | تیم: ۳ نفر</span>
+  </header>
+
+  <div class="container">
+
+    <!-- Project Overview -->
+    <section>
+      <h2><i class="fas fa-info-circle"></i> خلاصه پروژه</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <span class="stat-number">۳</span>
+          <span class="stat-label">ماه زمان اجرا</span>
+        </div>
+        <div class="stat-card blue">
+          <span class="stat-number">۳</span>
+          <span class="stat-label">نفر تیم توسعه</span>
+        </div>
+        <div class="stat-card orange">
+          <span class="stat-number">۳۱۴</span>
+          <span class="stat-label">میلیون تومان بودجه</span>
+        </div>
+        <div class="stat-card red">
+          <span class="stat-number">۸</span>
+          <span class="stat-label">Milestone اصلی</span>
+        </div>
+      </div>
+
+      <h3><i class="fas fa-bullseye"></i> هدف فاز اول</h3>
+      <p>
+        ایجاد زیرساخت کامل برای <strong>جمع‌آوری، ذخیره‌سازی، اعتبارسنجی و مدیریت داده‌های مزارع</strong> با تمرکز بر داده‌های مکانی (GIS). خروجی نهایی شامل:
+      </p>
+      <ul>
+        <li>✅ سیستم ثبت‌نام و احراز هویت کاربران</li>
+        <li>✅ پنل ثبت اطلاعات مزرعه توسط مزرعه‌دار</li>
+        <li>✅ سیستم ترسیم و مدیریت مرزهای مزرعه روی نقشه</li>
+        <li>✅ داشبورد کارشناس برای اعتبارسنجی داده‌ها</li>
+        <li>✅ API برای دسترسی به داده‌های معتبر</li>
+        <li>✅ داشبورد مدیریتی برای پایش کلان</li>
+      </ul>
+    </section>
+
+    <!-- Team & Tech Stack -->
+    <section>
+      <h2><i class="fas fa-users"></i> تیم پروژه و تکنولوژی‌ها</h2>
+
+      <h3><i class="fas fa-user-tie"></i> ترکیب تیم</h3>
+      
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon backend"><i class="fas fa-server"></i></div>
+          <h4>توسعه‌دهنده Backend ارشد</h4>
+          <p><strong>مسئولیت:</strong> معماری سیستم، طراحی دیتابیس، API اصلی</p>
+          <ul>
+            <li>تجربه: حداقل ۴ سال NestJS</li>
+            <li>مسلط به PostgreSQL و PostGIS</li>
+            <li>آشنا با Docker و CI/CD</li>
+          </ul>
+          <p><strong>حقوق ماهانه:</strong> ۴۵ میلیون تومان</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon backend"><i class="fas fa-code"></i></div>
+          <h4>توسعه‌دهنده Backend میانی</h4>
+          <p><strong>مسئولیت:</strong> پیاده‌سازی ماژول‌ها، تست، مستندسازی</p>
+          <ul>
+            <li>تجربه: حداقل ۲ سال NestJS</li>
+            <li>آشنا با TypeORM</li>
+            <li>توانایی نوشتن تست</li>
+          </ul>
+          <p><strong>حقوق ماهانه:</strong> ۳۵ میلیون تومان</p>
+        </div>
+
+        <div class="card">
+          <div class="card-icon frontend"><i class="fas fa-palette"></i></div>
+          <h4>توسعه‌دهنده Frontend</h4>
+          <p><strong>مسئولیت:</strong> UI/UX، پیاده‌سازی رابط کاربری، نقشه</p>
+          <ul>
+            <li>تجربه: حداقل ۳ سال React</li>
+            <li>مسلط به Leaflet/Mapbox</li>
+            <li>آشنا با Figma</li>
+          </ul>
+          <p><strong>حقوق ماهانه:</strong> ۴۰ میلیون تومان</p>
+        </div>
+      </div>
+
+      <h3><i class="fas fa-laptop-code"></i> Tech Stack</h3>
+      
+      <div class="tech-stack">
+        <div class="tech-item">
+          <i class="fab fa-node-js" style="color: #339933; font-size: 1.5rem;"></i>
+          <span>NestJS</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-database" style="color: #336791; font-size: 1.5rem;"></i>
+          <span>PostgreSQL + PostGIS</span>
+        </div>
+        <div class="tech-item">
+          <i class="fab fa-react" style="color: #61DAFB; font-size: 1.5rem;"></i>
+          <span>React.js</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-map" style="color: #1EB300; font-size: 1.5rem;"></i>
+          <span>Leaflet / Mapbox</span>
+        </div>
+        <div class="tech-item">
+          <i class="fab fa-figma" style="color: #F24E1E; font-size: 1.5rem;"></i>
+          <span>Figma</span>
+        </div>
+        <div class="tech-item">
+          <i class="fab fa-docker" style="color: #2496ED; font-size: 1.5rem;"></i>
+          <span>Docker</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-code-branch" style="color: #F05032; font-size: 1.5rem;"></i>
+          <span>Git / GitHub</span>
+        </div>
+        <div class="tech-item">
+          <i class="fas fa-file-alt" style="color: #85EA2D; font-size: 1.5rem;"></i>
+          <span>Swagger / OpenAPI</span>
+        </div>
+      </div>
+
+      <h3><i class="fas fa-layer-group"></i> معماری فنی</h3>
+      
+      <table>
+        <thead>
+          <tr>
+            <th>لایه</th>
+            <th>تکنولوژی</th>
+            <th>توضیحات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Frontend</strong></td>
+            <td>React + TypeScript + TailwindCSS</td>
+            <td>SPA با قابلیت PWA</td>
+          </tr>
+          <tr>
+            <td><strong>نقشه</strong></td>
+            <td>Leaflet + React-Leaflet + Leaflet.Draw</td>
+            <td>ترسیم و ویرایش پلیگون</td>
+          </tr>
+          <tr>
+            <td><strong>State Management</strong></td>
+            <td>Zustand / React Query</td>
+            <td>مدیریت state و cache</td>
+          </tr>
+          <tr>
+            <td><strong>Backend API</strong></td>
+            <td>NestJS + TypeScript</td>
+            <td>RESTful API + Swagger</td>
+          </tr>
+          <tr>
+            <td><strong>ORM</strong></td>
+            <td>TypeORM</td>
+            <td>با پشتیبانی از PostGIS</td>
+          </tr>
+          <tr>
+            <td><strong>Database</strong></td>
+            <td>PostgreSQL 15 + PostGIS 3.3</td>
+            <td>داده‌های رابطه‌ای و مکانی</td>
+          </tr>
+          <tr>
+            <td><strong>Authentication</strong></td>
+            <td>JWT + Passport.js</td>
+            <td>احراز هویت و مجوزها</td>
+          </tr>
+          <tr>
+            <td><strong>File Storage</strong></td>
+            <td>MinIO / S3</td>
+            <td>ذخیره فایل‌ها و تصاویر</td>
+          </tr>
+          <tr>
+            <td><strong>Container</strong></td>
+            <td>Docker + Docker Compose</td>
+            <td>محیط توسعه و استقرار</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Budget -->
+    <section>
+      <h2><i class="fas fa-calculator"></i> بودجه‌بندی تفصیلی</h2>
+
+      <h3><i class="fas fa-users"></i> هزینه نیروی انسانی (۳ ماه)</h3>
+      
+      <table class="budget-table">
+        <thead>
+          <tr>
+            <th>نقش</th>
+            <th>حقوق ماهانه</th>
+            <th>مدت (ماه)</th>
+            <th>جمع</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Backend Developer ارشد</td>
+            <td>۳۵,۰۰۰,۰۰۰ تومان</td>
+            <td>۳</td>
+            <td>۱۰۵,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr>
+            <td>Backend Developer میانی</td>
+            <td>۲۰,۰۰۰,۰۰۰ تومان</td>
+            <td>۳</td>
+            <td>۶۰,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr>
+            <td>Frontend Developer</td>
+            <td>۳۰,۰۰۰,۰۰۰ تومان</td>
+            <td>۳</td>
+            <td>۹۰,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr class="total">
+            <td colspan="3"><strong>جمع هزینه نیروی انسانی</strong></td>
+            <td><strong>۲۵۵,۰۰۰,۰۰۰ تومان</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3><i class="fas fa-server"></i> هزینه زیرساخت و ابزارها (۳ ماه)</h3>
+      
+      <table class="budget-table">
+        <thead>
+          <tr>
+            <th>آیتم</th>
+            <th>هزینه ماهانه</th>
+            <th>مدت</th>
+            <th>جمع</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>سرور ابری (Development + Staging)</td>
+            <td>۸,۰۰۰,۰۰۰ تومان</td>
+            <td>۳ ماه</td>
+            <td>۲۴,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr class="total">
+            <td colspan="3"><strong>جمع هزینه زیرساخت</strong></td>
+            <td><strong>۲۴,۰۰۰,۰۰۰ تومان</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3><i class="fas fa-ellipsis-h"></i> هزینه‌های متفرقه</h3>
+      
+      <table class="budget-table">
+        <thead>
+          <tr>
+            <th>آیتم</th>
+            <th>مبلغ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>تست نفوذ امنیتی</td>
+            <td>۱۵,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr>
+            <td>ذخیره احتیاطی (۵٪)</td>
+            <td>۲۰,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr class="total">
+            <td><strong>جمع هزینه‌های متفرقه</strong></td>
+            <td><strong>۳۵,۰۰۰,۰۰۰ تومان</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="highlight-box">
+        <h3><i class="fas fa-coins"></i> جمع‌بندی بودجه</h3>
+        <table style="width: 100%; color: rgb(13, 13, 13);">
+          <tr>
+            <td>هزینه نیروی انسانی</td>
+            <td style="text-align: left;">۲۵۵,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr>
+            <td>هزینه زیرساخت</td>
+            <td style="text-align: left;">۲۴,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr>
+            <td>هزینه‌های متفرقه</td>
+            <td style="text-align: left;">۳۵,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+          <tr style="border-top: 2px solid white; font-size: 1.3rem; font-weight: 700;">
+            <td>مجموع کل بودجه</td>
+            <td style="text-align: left;">۳۱۴,۰۰۰,۰۰۰ تومان</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="budgetChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Timeline & Milestones -->
+    <section>
+      <h2><i class="fas fa-calendar-alt"></i> زمان‌بندی و Milestoneها</h2>
+
+      <h3><i class="fas fa-chart-gantt"></i> نمودار گانت</h3>
+      
+      <div class="gantt-container">
+        <div class="gantt">
+          <div class="gantt-header">
+            <div>فعالیت</div>
+            <div>هفته ۱</div>
+            <div>هفته ۲</div>
+            <div>هفته ۳</div>
+            <div>هفته ۴</div>
+            <div>هفته ۵</div>
+            <div>هفته ۶</div>
+            <div>هفته ۷</div>
+            <div>هفته ۸</div>
+            <div>هفته ۹</div>
+            <div>هفته ۱۰</div>
+            <div>هفته ۱۱</div>
+            <div>هفته ۱۲</div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">طراحی UI/UX</div>
+            <div class="gantt-cell"><div class="gantt-bar design" style="right: 5%; width: 90%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar design" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar design" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">معماری و دیتابیس</div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 5%; width: 90%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">ماژول احراز هویت</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">ماژول مزرعه (CRUD)</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">ماژول GIS</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">پنل مزرعه‌دار</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">ماژول اعتبارسنجی</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar backend" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">داشبورد کارشناس</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">داشبورد مدیریت</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar frontend" style="right: 0; width: 50%;"></div></div>
+            <div class="gantt-cell"></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">تست و رفع باگ</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar testing" style="right: 50%; width: 50%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar testing" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar testing" style="right: 0; width: 100%;"></div></div>
+          </div>
+
+          <div class="gantt-row">
+            <div class="gantt-task">مستندسازی</div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"></div>
+            <div class="gantt-cell"><div class="gantt-bar devops" style="right: 0; width: 100%;"></div></div>
+            <div class="gantt-cell"><div class="gantt-bar devops" style="right: 0; width: 100%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+        <span style="display: flex; align-items: center; gap: 0.5rem;"><span style="width: 20px; height: 10px; background: linear-gradient(90deg, #27ae60, #2ecc71); border-radius: 5px;"></span> Backend</span>
+        <span style="display: flex; align-items: center; gap: 0.5rem;"><span style="width: 20px; height: 10px; background: linear-gradient(90deg, #2980b9, #3498db); border-radius: 5px;"></span> Frontend</span>
+        <span style="display: flex; align-items: center; gap: 0.5rem;"><span style="width: 20px; height: 10px; background: linear-gradient(90deg, #8e44ad, #9b59b6); border-radius: 5px;"></span> Design</span>
+        <span style="display: flex; align-items: center; gap: 0.5rem;"><span style="width: 20px; height: 10px; background: linear-gradient(90deg, #d35400, #e67e22); border-radius: 5px;"></span> Testing</span>
+        <span style="display: flex; align-items: center; gap: 0.5rem;"><span style="width: 20px; height: 10px; background: linear-gradient(90deg, #c0392b, #e74c3c); border-radius: 5px;"></span> DevOps/Docs</span>
+      </div>
+
+      <h3><i class="fas fa-flag-checkered"></i> Milestones اصلی</h3>
+
+      <div class="timeline">
+        <div class="timeline-item month-1">
+          <div class="timeline-header">
+            <span class="timeline-title">🏁 M1: پایان ماه اول</span>
+            <span class="timeline-date">هفته ۴</span>
+          </div>
+          <h4>تحویل‌دادنی‌ها:</h4>
+          <ul>
+            <li>✅ طراحی کامل UI/UX در Figma (تمام صفحات)</li>
+            <li>✅ معماری سیستم مستندسازی شده</li>
+            <li>✅ دیتابیس طراحی و پیاده‌سازی شده</li>
+            <li>✅ سیستم احراز هویت کامل (ثبت‌نام، ورود، OTP)</li>
+            <li>✅ API اولیه مزرعه (CRUD بدون GIS)</li>
+            <li>✅ صفحات ورود و ثبت‌نام Frontend</li>
+          </ul>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>پیشرفت کلی</span>
+              <span>۳۳%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill green" style="width: 33%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item month-2">
+          <div class="timeline-header">
+            <span class="timeline-title">🚀 M2: پایان ماه دوم</span>
+            <span class="timeline-date">هفته ۸</span>
+          </div>
+          <h4>تحویل‌دادنی‌ها:</h4>
+          <ul>
+            <li>✅ ماژول کامل GIS (ترسیم، ویرایش، ذخیره پلیگون)</li>
+            <li>✅ API پیشرفته مزرعه با قابلیت‌های مکانی</li>
+            <li>✅ پنل کامل مزرعه‌دار (ثبت مزرعه + نقشه)</li>
+            <li>✅ سیستم اعتبارسنجی (Workflow کارشناس)</li>
+            <li>✅ داشبورد کارشناس (صف انتظار + ابزار بررسی)</li>
+            <li>✅ API بارگذاری فایل (Shapefile, CSV)</li>
+          </ul>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>پیشرفت کلی</span>
+              <span>۷۰%</span>
+            </div>
+         <div class="progress-bar">
+              <div class="progress-fill blue" style="width: 70%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item month-3">
+          <div class="timeline-header">
+            <span class="timeline-title">🎯 M3: پایان پروژه</span>
+            <span class="timeline-date">هفته ۱۲</span>
+          </div>
+          <h4>تحویل‌دادنی‌ها:</h4>
+          <ul>
+            <li>✅ داشبورد مدیریت (آمار کلی، گزارش‌ها)</li>
+            <li>✅ سیستم گزارش‌گیری و Export</li>
+            <li>✅ تست کامل سیستم (Unit + Integration + E2E)</li>
+            <li>✅ مستندات API کامل (Swagger)</li>
+            <li>✅ مستندات کاربری</li>
+            <li>✅ استقرار روی سرور Staging</li>
+            <li>✅ تست نفوذ امنیتی</li>
+          </ul>
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>پیشرفت کلی</span>
+              <span>۱۰۰%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill purple" style="width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detailed Deliverables -->
+    <section>
+      <h2><i class="fas fa-box-open"></i> تحویل‌دادنی‌های تفصیلی</h2>
+
+      <h3><i class="fas fa-calendar-week"></i> ماه اول - پایه‌ریزی</h3>
+      
+      <div class="cards-grid">
+        <div class="card delivery-card">
+          <h4><i class="fas fa-paint-brush"></i> D1.1: طراحی UI/UX</h4>
+          <span class="delivery-tag doc">Figma</span>
+          <ul>
+            <li>Design System (رنگ، فونت، آیکون)</li>
+            <li>Wireframe تمام صفحات</li>
+            <li>High-Fidelity Design</li>
+            <li>Prototype تعاملی</li>
+            <li>Mobile Responsive</li>
+          </ul>
+          <p><strong>مسئول:</strong> Frontend Developer</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-sitemap"></i> D1.2: معماری سیستم</h4>
+          <span class="delivery-tag doc">مستندات</span>
+          <ul>
+            <li>نمودار معماری کلی</li>
+            <li>ERD دیتابیس</li>
+            <li>لیست API Endpoints</li>
+            <li>مستندات امنیتی</li>
+            <li>راهنمای توسعه</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Senior</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-database"></i> D1.3: دیتابیس</h4>
+          <span class="delivery-tag db">PostgreSQL</span>
+          <ul>
+            <li>جداول Users, Farms, Crops</li>
+            <li>PostGIS Extensions</li>
+            <li>Indexes و Constraints</li>
+            <li>Migration Scripts</li>
+            <li>Seed Data</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Senior</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-lock"></i> D1.4: احراز هویت</h4>
+          <span class="delivery-tag api">API</span>
+          <ul>
+            <li>ثبت‌نام با موبایل/ایمیل</li>
+            <li>ورود با رمز عبور</li>
+            <li>OTP و تأیید موبایل</li>
+            <li>JWT Token Management</li>
+            <li>نقش‌ها (کشاورز، کارشناس، ادمین)</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Mid</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-user-circle"></i> D1.5: صفحات Auth</h4>
+          <span class="delivery-tag ui">Frontend</span>
+          <ul>
+            <li>صفحه ورود</li>
+            <li>صفحه ثبت‌نام</li>
+            <li>صفحه تأیید OTP</li>
+            <li>صفحه فراموشی رمز</li>
+            <li>پروفایل کاربر</li>
+          </ul>
+          <p><strong>مسئول:</strong> Frontend Developer</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-tractor"></i> D1.6: API مزرعه (پایه)</h4>
+          <span class="delivery-tag api">API</span>
+          <ul>
+            <li>ایجاد مزرعه جدید</li>
+            <li>لیست مزارع کاربر</li>
+            <li>جزئیات مزرعه</li>
+            <li>ویرایش اطلاعات</li>
+            <li>حذف مزرعه</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Mid</p>
+        </div>
+      </div>
+
+      <h3><i class="fas fa-calendar-week"></i> ماه دوم - توسعه اصلی</h3>
+      
+      <div class="cards-grid">
+        <div class="card delivery-card">
+          <h4><i class="fas fa-map-marked-alt"></i> D2.1: ماژول GIS</h4>
+          <span class="delivery-tag api">API</span>
+          <span class="delivery-tag db">PostGIS</span>
+          <ul>
+            <li>ذخیره Polygon مرز مزرعه</li>
+            <li>محاسبه مساحت خودکار</li>
+            <li>Validation هندسی</li>
+            <li>تشخیص همپوشانی</li>
+            <li>جستجوی مکانی</li>
+            <li>تبدیل فرمت‌ها (GeoJSON, WKT)</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Senior</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-draw-polygon"></i> D2.2: نقشه تعاملی</h4>
+          <span class="delivery-tag ui">Frontend</span>
+          <ul>
+            <li>نمایش نقشه پایه (OSM/Satellite)</li>
+            <li>ترسیم پلیگون جدید</li>
+            <li>ویرایش پلیگون موجود</li>
+            <li>نمایش مزارع روی نقشه</li>
+            <li>Zoom به مزرعه</li>
+            <li>لایه‌های مختلف</li>
+          </ul>
+          <p><strong>مسئول:</strong> Frontend Developer</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-user-edit"></i> D2.3: پنل مزرعه‌دار</h4>
+          <span class="delivery-tag ui">Frontend</span>
+          <ul>
+            <li>داشبورد خلاصه</li>
+            <li>لیست مزارع من</li>
+            <li>فرم ثبت مزرعه جدید</li>
+            <li>ویرایش اطلاعات مزرعه</li>
+            <li>آپلود مدارک</li>
+            <li>پیگیری وضعیت تأیید</li>
+          </ul>
+          <p><strong>مسئول:</strong> Frontend Developer</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-tasks"></i> D2.4: سیستم اعتبارسنجی</h4>
+          <span class="delivery-tag api">API</span>
+          <ul>
+            <li>صف انتظار بررسی</li>
+            <li>تخصیص به کارشناس</li>
+            <li>تغییر وضعیت (Pending/Approved/Rejected)</li>
+            <li>ثبت یادداشت کارشناس</li>
+            <li>تاریخچه تغییرات</li>
+            <li>اعلان به مزرعه‌دار</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Senior</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-user-check"></i> D2.5: داشبورد کارشناس</h4>
+          <span class="delivery-tag ui">Frontend</span>
+          <ul>
+            <li>صف مزارع منتظر بررسی</li>
+            <li>نمایش جزئیات مزرعه</li>
+            <li>مقایسه با تصویر ماهواره</li>
+            <li>ابزار ویرایش مرز</li>
+            <li>فرم تأیید/رد</li>
+            <li>آمار عملکرد کارشناس</li>
+          </ul>
+          <p><strong>مسئول:</strong> Frontend Developer</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-file-upload"></i> D2.6: آپلود فایل</h4>
+          <span class="delivery-tag api">API</span>
+          <ul>
+            <li>آپلود Shapefile</li>
+            <li>آپلود CSV/Excel</li>
+            <li>پردازش و استخراج داده</li>
+            <li>Validation فرمت</li>
+            <li>گزارش خطاها</li>
+            <li>ذخیره در دیتابیس</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Mid</p>
+        </div>
+      </div>
+
+      <h3><i class="fas fa-calendar-week"></i> ماه سوم - تکمیل و تحویل</h3>
+      
+      <div class="cards-grid">
+        <div class="card delivery-card">
+          <h4><i class="fas fa-chart-bar"></i> D3.1: داشبورد مدیریت</h4>
+          <span class="delivery-tag ui">Frontend</span>
+          <ul>
+            <li>آمار کلی سیستم</li>
+            <li>نمودار مزارع ثبت شده</li>
+            <li>نمودار وضعیت تأیید</li>
+            <li>نقشه توزیع مزارع</li>
+            <li>لیست کاربران</li>
+            <li>مدیریت کارشناسان</li>
+          </ul>
+          <p><strong>مسئول:</strong> Frontend Developer</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-file-export"></i> D3.2: گزارش‌گیری</h4>
+          <span class="delivery-tag api">API</span>
+          <ul>
+            <li>Export به Excel</li>
+            <li>Export به PDF</li>
+            <li>Export به GeoJSON/Shapefile</li>
+            <li>فیلترهای پیشرفته</li>
+            <li>گزارش‌های از پیش تعریف شده</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Mid</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-vial"></i> D3.3: تست</h4>
+          <span class="delivery-tag doc">QA</span>
+          <ul>
+            <li>Unit Tests (Coverage > 70%)</li>
+            <li>Integration Tests</li>
+            <li>E2E Tests (Cypress)</li>
+            <li>Performance Tests</li>
+            <li>Security Tests</li>
+            <li>UAT با کاربران واقعی</li>
+          </ul>
+          <p><strong>مسئول:</strong> همه تیم</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-book"></i> D3.4: مستندات</h4>
+          <span class="delivery-tag doc">Docs</span>
+          <ul>
+            <li>Swagger API Documentation</li>
+            <li>راهنمای نصب و راه‌اندازی</li>
+            <li>راهنمای کاربری (مزرعه‌دار)</li>
+            <li>راهنمای کاربری (کارشناس)</li>
+            <li>راهنمای مدیریت</li>
+            <li>مستندات فنی</li>
+          </ul>
+          <p><strong>مسئول:</strong> همه تیم</p>
+        </div>
+
+        <div class="card delivery-card">
+          <h4><i class="fas fa-server"></i> D3.5: استقرار</h4>
+          <span class="delivery-tag api">DevOps</span>
+          <ul>
+            <li>Docker Images</li>
+            <li>Docker Compose</li>
+            <li>Nginx Configuration</li>
+            <li>SSL Certificate</li>
+            <li>Backup Strategy</li>
+            <li>Monitoring Setup</li>
+          </ul>
+          <p><strong>مسئول:</strong> Backend Senior</p>
+        </div>
+
+        <div class="card delivery-card milestone">
+          <h4><i class="fas fa-flag-checkered"></i> D3.6: تحویل نهایی</h4>
+          <span class="delivery-tag" style="background: #e74c3c;">Milestone</span>
+          <ul>
+            <li>سیستم کاملاً عملیاتی</li>
+            <li>تمام مستندات</li>
+            <li>کد منبع در Repository</li>
+            <li>دسترسی به سرور Staging</li>
+            <li>جلسه دمو و آموزش</li>
+            <li>تحویل رسمی پروژه</li>
+          </ul>
+          <p><strong>مسئول:</strong> مدیر پروژه</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- API Endpoints -->
+    <section>
+      <h2><i class="fas fa-plug"></i> API Endpoints</h2>
+
+      <h3><i class="fas fa-lock"></i> Authentication</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>توضیحات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/auth/register</code></td>
+            <td>ثبت‌نام کاربر جدید</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/auth/login</code></td>
+            <td>ورود به سیستم</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/auth/verify-otp</code></td>
+            <td>تأیید کد OTP</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/auth/refresh</code></td>
+            <td>تمدید توکن</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/auth/logout</code></td>
+            <td>خروج از سیستم</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/auth/me</code></td>
+            <td>اطلاعات کاربر جاری</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3><i class="fas fa-tractor"></i> Farms</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>توضیحات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/farms</code></td>
+            <td>لیست مزارع (با فیلتر و صفحه‌بندی)</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/farms</code></td>
+            <td>ایجاد مزرعه جدید</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/farms/:id</code></td>
+            <td>جزئیات یک مزرعه</td>
+          </tr>
+          <tr>
+            <td><span style="background: #f39c12; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">PUT</span></td>
+            <td><code>/api/v1/farms/:id</code></td>
+            <td>ویرایش مزرعه</td>
+          </tr>
+          <tr>
+            <td><span style="background: #e74c3c; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">DELETE</span></td>
+            <td><code>/api/v1/farms/:id</code></td>
+            <td>حذف مزرعه</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/farms/:id/boundary</code></td>
+            <td>ذخیره مرز مزرعه (GeoJSON)</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/farms/:id/boundary</code></td>
+            <td>دریافت مرز مزرعه</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/farms/nearby</code></td>
+            <td>مزارع نزدیک یک نقطه</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3><i class="fas fa-clipboard-check"></i> Validation</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>توضیحات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/validation/queue</code></td>
+            <td>صف مزارع منتظر بررسی</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/validation/:farmId</code></td>
+            <td>جزئیات برای بررسی</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/validation/:farmId/approve</code></td>
+            <td>تأیید مزرعه</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/validation/:farmId/reject</code></td>
+            <td>رد مزرعه</td>
+          </tr>
+          <tr>
+            <td><span style="background: #27ae60; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">POST</span></td>
+            <td><code>/api/v1/validation/:farmId/request-edit</code></td>
+            <td>درخواست اصلاح</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/validation/:farmId/history</code></td>
+            <td>تاریخچه بررسی‌ها</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3><i class="fas fa-chart-pie"></i> Dashboard & Reports</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>توضیحات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/dashboard/stats</code></td>
+            <td>آمار کلی سیستم</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/dashboard/farms-by-status</code></td>
+            <td>تعداد مزارع به تفکیک وضعیت</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/dashboard/farms-by-region</code></td>
+            <td>توزیع جغرافیایی مزارع</td>
+          </tr>
+          <tr>
+            <td><span style="background: #3498db; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">GET</span></td>
+            <td><code>/api/v1/reports/export</code></td>
+            <td>خروجی گزارش (Excel/PDF)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Database Schema -->
+    <section>
+      <h2><i class="fas fa-database"></i> ساختار دیتابیس</h2>
+
+      <h3><i class="fas fa-table"></i> جداول اصلی</h3>
+
+      <div class="cards-grid">
+        <div class="card">
+          <h4><i class="fas fa-users"></i> users</h4>
+          <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;">
+id: UUID (PK)
+phone: VARCHAR(15) UNIQUE
+email: VARCHAR(255) UNIQUE
+password_hash: VARCHAR(255)
+first_name: VARCHAR(100)
+last_name: VARCHAR(100)
+national_code: VARCHAR(10)
+role: ENUM('farmer','expert','admin')
+status: ENUM('active','inactive','pending')
+created_at: TIMESTAMP
+updated_at: TIMESTAMP</pre>
+        </div>
+
+        <div class="card">
+          <h4><i class="fas fa-tractor"></i> farms</h4>
+          <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;">
+id: UUID (PK)
+owner_id: UUID (FK → users)
+name: VARCHAR(255)
+province: VARCHAR(100)
+city: VARCHAR(100)
+village: VARCHAR(100)
+area_hectares: DECIMAL(10,2)
+boundary: GEOMETRY(Polygon, 4326)
+center_point: GEOMETRY(Point, 4326)
+soil_type: VARCHAR(50)
+water_source: VARCHAR(50)
+irrigation_type: VARCHAR(50)
+status: ENUM('draft','pending','approved','rejected')
+created_at: TIMESTAMP
+updated_at: TIMESTAMP</pre>
+        </div>
+
+        <div class="card">
+          <h4><i class="fas fa-seedling"></i> crops</h4>
+          <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;">
+id: UUID (PK)
+farm_id: UUID (FK → farms)
+crop_type: VARCHAR(100)
+variety: VARCHAR(100)
+planting_date: DATE
+expected_harvest: DATE
+area_hectares: DECIMAL(10,2)
+season: VARCHAR(20)
+year: INTEGER
+status: ENUM('planned','active','harvested')
+created_at: TIMESTAMP</pre>
+        </div>
+
+        <div class="card">
+          <h4><i class="fas fa-clipboard-check"></i> validations</h4>
+          <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;">
+id: UUID (PK)
+farm_id: UUID (FK → farms)
+expert_id: UUID (FK → users)
+status: ENUM('pending','approved','rejected','needs_edit')
+notes: TEXT
+boundary_edited: BOOLEAN
+previous_boundary: GEOMETRY
+validated_at: TIMESTAMP
+created_at: TIMESTAMP</pre>
+        </div>
+
+        <div class="card">
+          <h4><i class="fas fa-history"></i> audit_logs</h4>
+          <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;">
+id: UUID (PK)
+user_id: UUID (FK → users)
+action: VARCHAR(50)
+entity_type: VARCHAR(50)
+entity_id: UUID
+old_values: JSONB
+new_values: JSONB
+ip_address: INET
+user_agent: TEXT
+created_at: TIMESTAMP</pre>
+        </div>
+
+        <div class="card">
+          <h4><i class="fas fa-file"></i> attachments</h4>
+          <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; font-size: 0.85rem; overflow-x: auto;">
+id: UUID (PK)
+farm_id: UUID (FK → farms)
+file_name: VARCHAR(255)
+file_type: VARCHAR(50)
+file_size: INTEGER
+storage_path: VARCHAR(500)
+uploaded_by: UUID (FK → users)
+created_at: TIMESTAMP</pre>
+        </div>
+      </div>
+
+      <h3><i class="fas fa-project-diagram"></i> ERD Diagram</h3>
+      
+      <div style="background: #f8f9fa; padding: 2rem; border-radius: 15px; text-align: center;">
+        <pre style="direction: ltr; text-align: left; font-family: monospace; font-size: 0.9rem;">
+┌──────────────┐       ┌──────────────┐       ┌──────────────┐
+│    users     │       │    farms     │       │    crops     │
+├──────────────┤       ├──────────────┤       ├──────────────┤
+│ id (PK)      │───┐   │ id (PK)      │───┐   │ id (PK)      │
+│ phone        │   │   │ owner_id(FK) │◄──┘   │ farm_id (FK) │◄─┐
+│ email        │   │   │ name         │       │ crop_type    │  │
+│ password     │   │   │ province     │       │ variety      │  │
+│ first_name   │   │   │ boundary     │       │ planting_date│  │
+│ last_name    │   │   │ area         │       │ area         │  │
+│ role         │   │   │ status       │       └──────────────┘  │
+│ status       │   │   └──────────────┘                         │
+└──────────────┘   │          │                                 │
+                   │          │                                 │
+                   │          ▼                                 │
+                   │   ┌──────────────┐                         │
+                   │   │ validations  │                         │
+                   │   ├──────────────┤                         │
+                   │   │ id (PK)      │                         │
+                   └──►│ expert_id(FK)│                         │
+                       │ farm_id (FK) │◄────────────────────────┘
+                       │ status       │
+                       │ notes        │
+                       └──────────────┘
+        </pre>
+      </div>
+    </section>
+
+    <!-- Risk Management -->
+    <section>
+      <h2><i class="fas fa-exclamation-triangle"></i> مدیریت ریسک</h2>
+
+      <div class="risk-matrix">
+        <div class="risk-item high">
+          <h4><i class="fas fa-times-circle"></i> ریسک بالا</h4>
+          <p><strong>تأخیر در تحویل GIS:</strong></p>
+          <p>پیچیدگی PostGIS و Leaflet</p>
+          <p><strong>راهکار:</strong> شروع زودتر، مشاوره تخصصی</p>
+        </div>
+        <div class="risk-item high">
+          <h4><i class="fas fa-times-circle"></i> ریسک بالا</h4>
+          <p><strong>ترک نیرو:</strong></p>
+          <p>خروج یکی از توسعه‌دهندگان</p>
+          <p><strong>راهکار:</strong> مستندسازی، Code Review</p>
+        </div>
+        <div class="risk-item medium">
+          <h4><i class="fas fa-exclamation-circle"></i> ریسک متوسط</h4>
+          <p><strong>تغییر نیازمندی:</strong></p>
+          <p>درخواست‌های جدید مشتری</p>
+          <p><strong>راهکار:</strong> Scope محدود، Change Request</p>
+        </div>
+        <div class="risk-item medium">
+          <h4><i class="fas fa-exclamation-circle"></i> ریسک متوسط</h4>
+          <p><strong>مشکلات سرور:</strong></p>
+          <p>قطعی یا کندی سرویس‌دهنده</p>
+          <p><strong>راهکار:</strong> Backup، سرویس‌دهنده جایگزین</p>
+        </div>
+        <div class="risk-item low">
+          <h4><i class="fas fa-check-circle"></i> ریسک پایین</h4>
+          <p><strong>باگ‌های جزئی:</strong></p>
+          <p>مشکلات UI/UX</p>
+          <p><strong>راهکار:</strong> تست مداوم، Sprint Review</p>
+        </div>
+        <div class="risk-item low">
+          <h4><i class="fas fa-check-circle"></i> ریسک پایین</h4>
+          <p><strong>یادگیری تکنولوژی:</strong></p>
+          <p>نیاز به آموزش تیم</p>
+          <p><strong>راهکار:</strong> زمان Buffer، Pair Programming</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Success Criteria -->
+    <section>
+      <h2><i class="fas fa-trophy"></i> معیارهای موفقیت</h2>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon" style="color: #27ae60;"><i class="fas fa-check-double"></i></div>
+          <h4>عملکردی</h4>
+          <ul>
+            <li>ثبت مزرعه در کمتر از ۵ دقیقه</li>
+            <li>بارگذاری نقشه در کمتر از ۳ ثانیه</li>
+            <li>API Response Time < 200ms</li>
+            <li>پشتیبانی از ۱۰۰۰ کاربر همزمان</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-icon" style="color: #3498db;"><i class="fas fa-code"></i></div>
+          <h4>کیفیت کد</h4>
+          <ul>
+            <li>Test Coverage > 70%</li>
+            <li>Zero Critical Bugs</li>
+            <li>مستندات کامل API</li>
+            <li>Code Review برای همه PR</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-icon" style="color: #9b59b6;"><i class="fas fa-users"></i></div>
+          <h4>رضایت کاربر</h4>
+          <ul>
+            <li>UI/UX Score > 4/5</li>
+            <li>Task Completion Rate > 90%</li>
+            <li>Error Rate < 5%</li>
+            <li>آموزش کمتر از ۳۰ دقیقه</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-icon" style="color: #e74c3c;"><i class="fas fa-shield-alt"></i></div>
+          <h4>امنیت</h4>
+          <ul>
+            <li>تست نفوذ موفق</li>
+            <li>رمزنگاری داده‌های حساس</li>
+            <li>HTTPS برای همه ارتباطات</li>
+            <li>Audit Log کامل</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <canvas id="successChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <section style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+      <h2 style="color: white;"><i class="fas fa-flag-checkered"></i> جمع‌بندی</h2>
+
+      <div class="stats-grid">
+        <div class="stat-card" style="background: rgba(255,255,255,0.2);">
+          <span class="stat-number">۳</span>
+          <span class="stat-label">ماه</span>
+        </div>
+        <div class="stat-card" style="background: rgba(255,255,255,0.2);">
+          <span class="stat-number">۳</span>
+          <span class="stat-label">نفر</span>
+        </div>
+        <div class="stat-card" style="background: rgba(255,255,255,0.2);">
+          <span class="stat-number">۳۱۴M</span>
+          <span class="stat-label">تومان</span>
+        </div>
+        <div class="stat-card" style="background: rgba(255,255,255,0.2);">
+          <span class="stat-number">۸</span>
+          <span class="stat-label">Milestone</span>
+        </div>
+      </div>
+
+      <h3 style="color: white;"><i class="fas fa-box-open"></i> خروجی نهایی فاز اول</h3>
+      <ul>
+        <li>✅ سیستم کامل ثبت‌نام و احراز هویت</li>
+        <li>✅ پنل مزرعه‌دار برای ثبت اطلاعات و ترسیم مرز مزرعه</li>
+        <li>✅ داشبورد کارشناس برای بررسی و تأیید داده‌ها</li>
+        <li>✅ داشبورد مدیریت برای پایش کلی سیستم</li>
+        <li>✅ API کامل با مستندات Swagger</li>
+        <li>✅ دیتابیس PostGIS برای داده‌های مکانی</li>
+        <li>✅ سیستم مستقر روی سرور Staging</li>
+        <li>✅ مستندات کاربری و فنی</li>
+      </ul>
+
+      <div class="highlight-box" style="background: rgba(255,255,255,0.1); margin-top: 2rem;">
+        <h4><i class="fas fa-rocket"></i> آمادگی برای فاز دوم</h4>
+        <p>
+          با تکمیل فاز اول، زیرساخت لازم برای شروع فاز دوم (توسعه ماژول‌های تحلیلی) فراهم می‌شود. 
+          API طراحی شده به گونه‌ای است که ماژول‌های جدید به راحتی قابل اضافه شدن هستند.
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    <p><strong>برنامه پروژه فاز اول - سامانه کشاورزی هوشمند</strong></p>
+    <p>تهیه شده توسط: تیم مدیریت پروژه | تاریخ: آذر ۱۴۰۴</p>
+    <p>نسخه: 1.0</p>
+  </footer>
+
+  <script>
+    // Budget Chart
+    const budgetCtx = document.getElementById('budgetChart');
+    if (budgetCtx) {
+      new Chart(budgetCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['نیروی انسانی', 'زیرساخت', 'متفرقه'],
+          datasets: [{
+            data: [255, 24, 35],
+            backgroundColor: ['#667eea', '#27ae60', '#f39c12'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'توزیع بودجه (میلیون تومان)',
+              font: { size: 16, family: 'Vazirmatn' }
+            },
+            legend: {
+              position: 'bottom',
+              labels: { font: { family: 'Vazirmatn' } }
+            }
+          }
+        }
+      });
+    }
+
+    // Success Chart
+    const successCtx = document.getElementById('successChart');
+    if (successCtx) {
+      new Chart(successCtx, {
+        type: 'radar',
+        data: {
+          labels: ['عملکرد', 'کیفیت کد', 'امنیت', 'UX', 'مستندات', 'تست'],
+          datasets: [{
+            label: 'هدف',
+            data: [100, 100, 100, 100, 100, 100],
+            backgroundColor: 'rgba(102, 126, 234, 0.2)',
+            borderColor: '#667eea',
+            pointBackgroundColor: '#667eea'
+          }, {
+            label: 'حداقل قابل قبول',
+            data: [80, 70, 90, 75, 80, 70],
+            backgroundColor: 'rgba(231, 76, 60, 0.2)',
+            borderColor: '#e74c3c',
+            pointBackgroundColor: '#e74c3c'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: {
+              display: true,
+              text: 'معیارهای موفقیت پروژه',
+              font: { size: 16, family: 'Vazirmatn' }
+            },
+            legend: {
+              position: 'bottom',
+              labels: { font: { family: 'Vazirmatn' } }
+            }
+          },
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { font: { family: 'Vazirmatn' } },
+              pointLabels: { font: { family: 'Vazirmatn', size: 12 } }
+            }
+          }
+        }
+      });
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Print button functionality
+    function printPage() {
+      window.print();
+    }
+  </script>
+
+</body>
+</html>
