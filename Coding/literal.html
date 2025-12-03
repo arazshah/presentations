@@ -1,0 +1,2420 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع typing.Literal در پایتون</title>
+    
+    <style>
+        :root {
+            --primary-color: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary-color: #06b6d4;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --bg-primary: #f0f9ff;
+            --bg-secondary: #e0f2fe;
+            --bg-card: #ffffff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --gradient-1: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            --gradient-2: linear-gradient(135deg, #06b6d4, #10b981);
+            --border-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-top: 20px;
+            font-size: 0.95em;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--primary-dark);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Slides/Sections */
+        .slide {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-1);
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: var(--shadow-md);
+        }
+
+        .slide h2 {
+            color: var(--primary-color);
+            font-size: 1.9em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--bg-secondary);
+            padding-right: 60px;
+        }
+
+        .slide h3 {
+            color: var(--primary-dark);
+            font-size: 1.4em;
+            margin: 30px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide h4 {
+            color: var(--text-primary);
+            font-size: 1.15em;
+            margin: 20px 0 10px 0;
+        }
+
+        /* Code Blocks */
+        .code-header {
+            background: #1e293b;
+            color: #94a3b8;
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-header .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-header .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-header .dot.red { background: #ef4444; }
+        .code-header .dot.yellow { background: #f59e0b; }
+        .code-header .dot.green { background: #10b981; }
+
+        .code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            direction: ltr;
+            text-align: left;
+            tab-size: 4;
+        }
+
+        .code-block .keyword { color: #c084fc; font-weight: 600; }
+        .code-block .string { color: #4ade80; }
+        .code-block .function { color: #60a5fa; }
+        .code-block .comment { color: #64748b; font-style: italic; }
+        .code-block .number { color: #fb923c; }
+        .code-block .type { color: #22d3ee; }
+        .code-block .decorator { color: #f472b6; }
+        .code-block .builtin { color: #fbbf24; }
+        .code-block .operator { color: #f472b6; }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+            border-right: 5px solid var(--primary-color);
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+        ```html
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع typing.Literal در پایتون</title>
+    
+    <style>
+        :root {
+            --primary-color: #059669;
+            --primary-light: #10b981;
+            --primary-dark: #047857;
+            --secondary-color: #0d9488;
+            --accent-color: #f59e0b;
+            --bg-primary: #f0fdf4;
+            --bg-secondary: #ecfdf5;
+            --bg-card: #ffffff;
+            --text-primary: #064e3b;
+            --text-secondary: #065f46;
+            --text-muted: #6b7280;
+            --border-color: #d1fae5;
+            --code-bg: #022c22;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --info-color: #06b6d4;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --gradient-1: linear-gradient(135deg, #059669, #10b981);
+            --gradient-2: linear-gradient(135deg, #0d9488, #14b8a6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin: 20px 5px 0;
+            font-size: 0.95em;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--primary-dark);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+
+        nav a:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Slides/Sections */
+        .slide {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: var(--gradient-1);
+            opacity: 0.05;
+            border-radius: 0 20px 0 100%;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: var(--shadow-md);
+        }
+
+        .slide h2 {
+            color: var(--primary-dark);
+            font-size: 1.9em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slide h3 {
+            color: var(--secondary-color);
+            font-size: 1.4em;
+            margin: 30px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide h4 {
+            color: var(--text-secondary);
+            font-size: 1.15em;
+            margin: 20px 0 10px;
+        }
+
+        /* Code Blocks */
+        .code-header {
+            background: #1a1a2e;
+            color: #a5b4fc;
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-header .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-header .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-header .dot.red { background: #ff5f56; }
+        .code-header .dot.yellow { background: #ffbd2e; }
+        .code-header .dot.green { background: #27ca40; }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            direction: ltr;
+            text-align: left;
+            white-space: pre;
+        }
+
+        .code-block .keyword { color: #c792ea; font-weight: bold; }
+        .code-block .builtin { color: #82aaff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .code-block .comment { color: #637777; font-style: italic; }
+        .code-block .function { color: #82aaff; }
+        .code-block .decorator { color: #ffcb6b; }
+        .code-block .type { color: #ffcb6b; }
+        .code-block .operator { color: #89ddff; }
+        .code-block .param { color: #f07178; }
+        .code-block .error { color: #ff5370; }
+        .code-block .success { color: #c3e88d; }
+
+        /* Inline Code */
+        code {
+            background: #d1fae5;
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--gradient-1);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Cards and Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .card h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-right: 5px solid var(--primary-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fefce8, #fef3c7);
+            border-right: 5px solid var(--warning-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #b45309;
+            margin-bottom: 10px;
+        }
+
+        .error-box {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-right: 5px solid var(--error-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .error-box h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #ecfeff, #cffafe);
+            border-right: 5px solid var(--info-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .tip-box h4 {
+            color: #0891b2;
+            margin-bottom: 10px;
+        }
+
+        /* Comparison Box */
+        .compare-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .compare-box .good {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid var(--success-color);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .compare-box .bad {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border: 2px solid var(--error-color);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .compare-box h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0 15px 25px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gradient-1);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer h3 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        footer a {
+            color: #a7f3d0;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2em; }
+            header p { font-size: 1.1em; }
+            .slide { padding: 25px 20px; }
+            .slide h2 { font-size: 1.5em; }
+            nav ul { gap: 5px; }
+            nav a { padding: 8px 12px; font-size: 0.85em; }
+            .compare-box { grid-template-columns: 1fr; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        /* Print Styles */
+        @media print {
+            nav, footer, button { display: none !important; }
+            .slide { 
+                break-inside: avoid; 
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+
+        /* Version Badge */
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gradient-1);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        /* Feature List */
+        .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .feature-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>🔤 typing.Literal در پایتون</h1>
+        <p>
+            آموزش کامل استفاده از Literal برای محدود کردن مقادیر به یک مجموعه مشخص
+        </p>
+        <div>
+            <span class="badge">🐍 Python 3.8+</span>
+            <span class="badge">📦 typing module</span>
+            <span class="badge">✅ Type Safety</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="#intro">معرفی</a></li>
+            <li><a href="#basics">مفاهیم پایه</a></li>
+            <li><a href="#syntax">سینتکس</a></li>
+            <li><a href="#examples">مثال‌ها</a></li>
+            <li><a href="#advanced">پیشرفته</a></li>
+            <li><a href="#patterns">الگوها</a></li>
+            <li><a href="#tools">ابزارها</a></li>
+            <li><a href="#best-practices">بهترین شیوه‌ها</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+
+        <!-- اسلاید 1: معرفی -->
+        <div class="slide" id="intro">
+            <div class="slide-number">1</div>
+            <h2>📖 معرفی Literal</h2>
+
+            <div class="info-box">
+                <h4>🎯 Literal چیست؟</h4>
+                <p>
+                    <code>Literal</code> یک type hint در پایتون است که به شما امکان می‌دهد 
+                    مقادیر یک متغیر را به یک <strong>مجموعه مشخص و محدود</strong> از مقادیر ثابت 
+                    محدود کنید. این مفهوم مشابه <strong>Enum</strong> است اما سبک‌تر و انعطاف‌پذیرتر.
+                </p>
+            </div>
+
+            <h3>🤔 چرا از Literal استفاده کنیم؟</h3>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">🛡️</div>
+                    <h4>Type Safety</h4>
+                    <p>جلوگیری از اشتباهات تایپی و مقادیر نامعتبر در زمان توسعه</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📝</div>
+                    <h4>مستندسازی</h4>
+                    <p>کد خوانا‌تر و مستندسازی خودکار مقادیر مجاز</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔧</div>
+                    <h4>IDE Support</h4>
+                    <p>Autocomplete و هشدار خطا در IDE‌ها</p>
+                </div>
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h4>سبک و سریع</h4>
+                    <p>بدون overhead در runtime، فقط برای type checking</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔄</div>
+                    <h4>سازگاری</h4>
+                    <p>کار با str، int، bool و سایر انواع ثابت</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🎨</div>
+                    <h4>انعطاف‌پذیری</h4>
+                    <p>ترکیب با Union، Optional و سایر type hints</p>
+                </div>
+            </div>
+
+            <h3>📊 مقایسه با روش‌های دیگر</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>روش</th>
+                        <th>Runtime Check</th>
+                        <th>IDE Support</th>
+                        <th>پیچیدگی</th>
+                        <th>استفاده</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Literal</code></td>
+                        <td>❌ خیر</td>
+                        <td>✅ کامل</td>
+                        <td>⭐ ساده</td>
+                        <td>مقادیر ثابت محدود</td>
+                    </tr>
+                    <tr>
+                        <td><code>Enum</code></td>
+                        <td>✅ بله</td>
+                        <td>✅ کامل</td>
+                        <td>⭐⭐ متوسط</td>
+                        <td>مقادیر با معنا</td>
+                    </tr>
+                    <tr>
+                        <td><code>str</code></td>
+                        <td>❌ خیر</td>
+                        <td>❌ ندارد</td>
+                        <td>⭐ ساده</td>
+                        <td>هر رشته‌ای</td>
+                    </tr>
+                    <tr>
+                        <td><code>if/assert</code></td>
+                        <td>✅ بله</td>
+                        <td>❌ محدود</td>
+                        <td>⭐⭐⭐ پیچیده</td>
+                        <td>اعتبارسنجی دستی</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📅 تاریخچه</h3>
+            <div class="feature-list">
+                <span class="feature-item">🐍 Python 3.8: اضافه شدن به typing</span>
+                <span class="feature-item">📦 typing_extensions: برای نسخه‌های قدیمی‌تر</span>
+                <span class="feature-item">📋 PEP 586: مشخصات رسمی</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: مفاهیم پایه -->
+        <div class="slide" id="basics">
+            <div class="slide-number">2</div>
+            <h2>🧱 مفاهیم پایه</h2>
+
+            <h3>📦 Import کردن Literal</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Import</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># Python 3.8+</span>
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+
+<span class="comment"># Python 3.7 و قبل‌تر (نیاز به نصب typing_extensions)</span>
+<span class="comment"># pip install typing_extensions</span>
+<span class="keyword">from</span> typing_extensions <span class="keyword">import</span> Literal
+
+<span class="comment"># Python 3.9+ - می‌توان مستقیم استفاده کرد</span>
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+            </div>
+
+            <h3>🔤 انواع مقادیر قابل استفاده</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Supported Types</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+
+<span class="comment"># ✅ رشته‌ها (Strings)</span>
+Direction = Literal[<span class="string">"north"</span>, <span class="string">"south"</span>, <span class="string">"east"</span>, <span class="string">"west"</span>]
+
+<span class="comment"># ✅ اعداد صحیح (Integers)</span>
+DiceRoll = Literal[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]
+
+<span class="comment"># ✅ بولین (Boolean)</span>
+Enabled = Literal[<span class="keyword">True</span>]
+Disabled = Literal[<span class="keyword">False</span>]
+
+<span class="comment"># ✅ None</span>
+Nothing = Literal[<span class="keyword">None</span>]
+
+<span class="comment"># ✅ بایت‌ها (Bytes)</span>
+Magic = Literal[<span class="string">b"PNG"</span>, <span class="string">b"GIF"</span>, <span class="string">b"JPG"</span>]
+
+<span class="comment"># ✅ ترکیبی</span>
+Mixed = Literal[<span class="string">"auto"</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="keyword">True</span>, <span class="keyword">False</span>]
+
+<span class="comment"># ❌ غیرمجاز - متغیرها</span>
+<span class="comment"># x = "hello"</span>
+<span class="comment"># Bad = Literal[x]  # Error!</span>
+
+<span class="comment"># ❌ غیرمجاز - لیست‌ها و دیکشنری‌ها</span>
+<span class="comment"># Bad = Literal[[1, 2, 3]]  # Error!</span>
+            </div>
+
+            <h3>⚠️ محدودیت‌های Literal</h3>
+
+            <div class="warning-box">
+                <h4>⚠️ فقط مقادیر ثابت (Constant Values)</h4>
+                <p>Literal فقط با مقادیر ثابت کار می‌کند:</p>
+                <ul>
+                    <li>✅ رشته‌های ثابت: <code>"hello"</code></li>
+                    <li>✅ اعداد ثابت: <code>42</code>, <code>3.14</code></li>
+                    <li>✅ بولین: <code>True</code>, <code>False</code></li>
+                    <li>✅ None</li>
+                    <li>✅ بایت‌های ثابت: <code>b"data"</code></li>
+                    <li>❌ متغیرها</li>
+                    <li>❌ فراخوانی توابع</li>
+                    <li>❌ لیست، دیکشنری، مجموعه</li>
+                </ul>
+            </div>
+
+            <h3>🔍 تفاوت با str معمولی</h3>
+
+            <div class="compare-box">
+                <div class="good">
+                    <h4>✅ با Literal</h4>
+                    <div class="code-block" style="font-size: 0.85em;">
+<span class="keyword">def</span> <span class="function">set_mode</span>(mode: Literal[<span class="string">"dark"</span>, <span class="string">"light"</span>]):
+    <span class="keyword">pass</span>
+
+set_mode(<span class="string">"dark"</span>)   <span class="comment"># ✅ OK</span>
+set_mode(<span class="string">"light"</span>)  <span class="comment"># ✅ OK</span>
+set_mode(<span class="string">"blue"</span>)   <span class="comment"># ❌ Type Error!</span>
+                    </div>
+                </div>
+                <div class="bad">
+                    <h4>❌ بدون Literal</h4>
+                    <div class="code-block" style="font-size: 0.85em;">
+<span class="keyword">def</span> <span class="function">set_mode</span>(mode: <span class="builtin">str</span>):
+    <span class="keyword">pass</span>
+
+set_mode(<span class="string">"dark"</span>)   <span class="comment"># ✅ OK</span>
+set_mode(<span class="string">"light"</span>)  <span class="comment"># ✅ OK</span>
+set_mode(<span class="string">"blue"</span>)   <span class="comment"># ✅ OK (اما اشتباه!)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: سینتکس -->
+        <div class="slide" id="syntax">
+            <div class="slide-number">3</div>
+            <h2>📝 سینتکس و استفاده</h2>
+
+            <h3>🎯 تعریف Type Alias</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Type Aliases</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+
+<span class="comment"># تعریف Type Alias برای خوانایی بهتر</span>
+Color = Literal[<span class="string">"red"</span>, <span class="string">"green"</span>, <span class="string">"blue"</span>]
+Size = Literal[<span class="string">"small"</span>, <span class="string">"medium"</span>, <span class="string">"large"</span>]
+HttpMethod = Literal[<span class="string">"GET"</span>, <span class="string">"POST"</span>, <span class="string">"PUT"</span>, <span class="string">"DELETE"</span>, <span class="string">"PATCH"</span>]
+StatusCode = Literal[<span class="number">200</span>, <span class="number">201</span>, <span class="number">400</span>, <span class="number">401</span>, <span class="number">403</span>, <span class="number">404</span>, <span class="number">500</span>]
+
+<span class="comment"># استفاده در توابع</span>
+<span class="keyword">def</span> <span class="function">paint</span>(color: Color) -> <span class="builtin">str</span>:
+    <span class="keyword">return</span> <span class="string">f"Painting with </span>{color}<span class="string">"</span>
+
+<span class="keyword">def</span> <span class="function">resize</span>(size: Size) -> <span class="keyword">None</span>:
+    <span class="builtin">print</span>(<span class="string">f"Resizing to </span>{size}<span class="string">"</span>)
+
+<span class="comment"># استفاده</span>
+paint(<span class="string">"red"</span>)      <span class="comment"># ✅ OK</span>
+paint(<span class="string">"yellow"</span>)   <span class="comment"># ❌ Type Error</span>
+            </div>
+
+            <h3>🔧 استفاده در پارامترهای تابع</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Function Parameters</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+
+<span class="comment"># روش 1: مستقیم در پارامتر</span>
+<span class="keyword">def</span> <span class="function">connect</span>(
+    protocol: Literal[<span class="string">"http"</span>, <span class="string">"https"</span>, <span class="string">"ftp"</span>],
+    port: Literal[<span class="number">80</span>, <span class="number">443</span>, <span class="number">21</span>, <span class="number">8080</span>]
+) -> <span class="builtin">str</span>:
+    <span class="keyword">return</span> <span class="string">f"</span>{protocol}<span class="string">://localhost:</span>{port}<span class="string">"</span>
+
+<span class="comment"># روش 2: با Type Alias</span>
+Protocol = Literal[<span class="string">"http"</span>, <span class="string">"https"</span>, <span class="string">"ftp"</span>]
+Port = Literal[<span class="number">80</span>, <span class="number">443</span>, <span class="number">21</span>, <span class="number">8080</span>]
+
+<span class="keyword">def</span> <span class="function">connect_v2</span>(protocol: Protocol, port: Port) -> <span class="builtin">str</span>:
+    <span class="keyword">return</span> <span class="string">f"</span>{protocol}<span class="string">://localhost:</span>{port}<span class="string">"</span>
+
+<span class="comment"># روش 3: با مقدار پیش‌فرض</span>
+<span class="keyword">def</span> <span class="function">fetch</span>(
+    url: <span class="builtin">str</span>,
+    method: Literal[<span class="string">"GET"</span>, <span class="string">"POST"</span>] = <span class="string">"GET"</span>
+) -> <span class="builtin">dict</span>:
+    <span class="keyword">return</span> {<span class="string">"url"</span>: url, <span class="string">"method"</span>: method}
+
+<span class="comment"># استفاده</span>
+connect(<span class="string">"https"</span>, <span class="number">443</span>)  <span class="comment"># ✅ OK</span>
+connect(<span class="string">"ssh"</span>, <span class="number">22</span>)      <span class="comment"># ❌ Type Error</span>
+fetch(<span class="string">"https://api.com"</span>)  <span class="comment"># ✅ OK - method="GET"</span>
+            </div>
+
+            <h3>📦 استفاده در کلاس‌ها</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Classes</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass
+
+<span class="comment"># تعریف Types</span>
+Priority = Literal[<span class="string">"low"</span>, <span class="string">"medium"</span>, <span class="string">"high"</span>, <span class="string">"critical"</span>]
+Status = Literal[<span class="string">"pending"</span>, <span class="string">"in_progress"</span>, <span class="string">"completed"</span>, <span class="string">"cancelled"</span>]
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="function">Task</span>:
+    title: <span class="builtin">str</span>
+    priority: Priority
+    status: Status = <span class="string">"pending"</span>
+    
+    <span class="keyword">def</span> <span class="function">set_priority</span>(self, priority: Priority) -> <span class="keyword">None</span>:
+        self.priority = priority
+    
+    <span class="keyword">def</span> <span class="function">set_status</span>(self, status: Status) -> <span class="keyword">None</span>:
+        self.status = status
+
+<span class="comment"># استفاده</span>
+task = Task(
+    title=<span class="string">"Fix bug"</span>,
+    priority=<span class="string">"high"</span>,      <span class="comment"># ✅ OK</span>
+    status=<span class="string">"pending"</span>       <span class="comment"># ✅ OK</span>
+)
+
+task.set_priority(<span class="string">"critical"</span>)  <span class="comment"># ✅ OK</span>
+task.set_priority(<span class="string">"urgent"</span>)    <span class="comment"># ❌ Type Error</span>
+            </div>
+
+            <h3>🔄 استفاده در Return Type</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Return Types</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+
+<span class="keyword">def</span> <span class="function">check_age</span>(age: <span class="builtin">int</span>) -> Literal[<span class="string">"child"</span>, <span class="string">"teen"</span>, <span class="string">"adult"</span>, <span class="string">"senior"</span>]:
+    <span class="keyword">if</span> age < <span class="number">13</span>:
+        <span class="keyword">return</span> <span class="string">"child"</span>
+    <span class="keyword">elif</span> age < <span class="number">20</span>:
+        <span class="keyword">return</span> <span class="string">"teen"</span>
+    <span class="keyword">elif</span> age < <span class="number">65</span>:
+        <span class="keyword">return</span> <span class="string">"adult"</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">"senior"</span>
+
+<span class="keyword">def</span> <span class="function">compare</span>(a: <span class="builtin">int</span>, b: <span class="builtin">int</span>) -> Literal[<span class="number">-1</span>, <span class="number">0</span>, <span class="number">1</span>]:
+    <span class="keyword">if</span> a < b:
+        <span class="keyword">return</span> <span class="number">-1</span>
+    <span class="keyword">elif</span> a > b:
+        <span class="keyword">return</span> <span class="number">1</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="number">0</span>
+
+<span class="comment"># Type checker می‌داند که خروجی یکی از این مقادیر است</span>
+result = check_age(<span class="number">25</span>)  <span class="comment"># type: Literal["child", "teen", "adult", "senior"]</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 4: مثال‌های کاربردی -->
+        <div class="slide" id="examples">
+            <div class="slide-number">4</div>
+            <h2>💡 مثال‌های کاربردی</h2>
+
+            <h3>🌐 مثال 1: API Client</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - API Client</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Optional
+<span class="keyword">import</span> requests
+
+<span class="comment"># تعریف Types</span>
+HttpMethod = Literal[<span class="string">"GET"</span>, <span class="string">"POST"</span>, <span class="string">"PUT"</span>, <span class="string">"DELETE"</span>, <span class="string">"PATCH"</span>]
+ContentType = Literal[<span class="string">"application/json"</span>, <span class="string">"application/xml"</span>, <span class="string">"text/plain"</span>]
+
+<span class="keyword">class</span> <span class="function">APIClient</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, base_url: <span class="builtin">str</span>):
+        self.base_url = base_url
+    
+    <span class="keyword">def</span> <span class="function">request</span>(
+        self,
+        endpoint: <span class="builtin">str</span>,
+        method: HttpMethod = <span class="string">"GET"</span>,
+        content_type: ContentType = <span class="string">"application/json"</span>,
+        data: Optional[<span class="builtin">dict</span>] = <span class="keyword">None</span>
+    ) -> <span class="builtin">dict</span>:
+        url = <span class="string">f"</span>{self.base_url}{endpoint}<span class="string">"</span>
+        headers = {<span class="string">"Content-Type"</span>: content_type}
+        
+        response = requests.request(
+            method=method,
+            url=url,
+            headers=headers,
+            json=data <span class="keyword">if</span> content_type == <span class="string">"application/json"</span> <span class="keyword">else</span> <span class="keyword">None</span>
+        )
+        <span class="keyword">return</span> response.json()
+
+<span class="comment"># استفاده</span>
+client = APIClient(<span class="string">"https://api.example.com"</span>)
+
+<span class="comment"># ✅ همه این‌ها معتبر هستند</span>
+client.request(<span class="string">"/users"</span>, method=<span class="string">"GET"</span>)
+client.request(<span class="string">"/users"</span>, method=<span class="string">"POST"</span>, data={<span class="string">"name"</span>: <span class="string">"Ali"</span>})
+
+<span class="comment"># ❌ Type Error - "DOWNLOAD" معتبر نیست</span>
+<span class="comment"># client.request("/files", method="DOWNLOAD")</span>
+            </div>
+
+            <h3>🎨 مثال 2: Theme Manager</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Theme Manager</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, TypedDict
+
+<span class="comment"># تعریف Types</span>
+ThemeMode = Literal[<span class="string">"light"</span>, <span class="string">"dark"</span>, <span class="string">"system"</span>]
+FontSize = Literal[<span class="string">"small"</span>, <span class="string">"medium"</span>, <span class="string">"large"</span>]
+Language = Literal[<span class="string">"en"</span>, <span class="string">"fa"</span>, <span class="string">"ar"</span>, <span class="string">"de"</span>, <span class="string">"fr"</span>]
+
+<span class="keyword">class</span> <span class="function">ThemeConfig</span>(TypedDict):
+    mode: ThemeMode
+    font_size: FontSize
+    language: Language
+    rtl: <span class="builtin">bool</span>
+
+<span class="keyword">class</span> <span class="function">ThemeManager</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self.config: ThemeConfig = {
+            <span class="string">"mode"</span>: <span class="string">"system"</span>,
+            <span class="string">"font_size"</span>: <span class="string">"medium"</span>,
+            <span class="string">"language"</span>: <span class="string">"en"</span>,
+            <span class="string">"rtl"</span>: <span class="keyword">False</span>
+        }
+    
+    <span class="keyword">def</span> <span class="function">set_mode</span>(self, mode: ThemeMode) -> <span class="keyword">None</span>:
+        self.config[<span class="string">"mode"</span>] = mode
+    
+    <span class="keyword">def</span> <span class="function">set_font_size</span>(self, size: FontSize) -> <span class="keyword">None</span>:
+        self.config[<span class="string">"font_size"</span>] = size
+    
+    <span class="keyword">def</span> <span class="function">set_language</span>(self, lang: Language) -> <span class="keyword">None</span>:
+        self.config[<span class="string">"language"</span>] = lang
+        self.config[<span class="string">"rtl"</span>] = lang <span class="keyword">in</span> (<span class="string">"fa"</span>, <span class="string">"ar"</span>)
+
+<span class="comment"># استفاده</span>
+theme = ThemeManager()
+theme.set_mode(<span class="string">"dark"</span>)        <span class="comment"># ✅ OK</span>
+theme.set_language(<span class="string">"fa"</span>)      <span class="comment"># ✅ OK - rtl=True</span>
+theme.set_font_size(<span class="string">"large"</span>)  <span class="comment"># ✅ OK</span>
+
+<span class="comment"># ❌ Type Errors</span>
+<span class="comment"># theme.set_mode("blue")       # Invalid mode</span>
+<span class="comment"># theme.set_language("jp")     # Invalid language</span>
+            </div>
+
+            <h3>📊 مثال 3: Data Validation</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Data Validation with Pydantic</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+<span class="keyword">from</span> pydantic <span class="keyword">import</span> BaseModel, Field
+
+<span class="comment"># تعریف Types</span>
+OrderStatus = Literal[<span class="string">"pending"</span>, <span class="string">"processing"</span>, <span class="string">"shipped"</span>, <span class="string">"delivered"</span>, <span class="string">"cancelled"</span>]
+PaymentMethod = Literal[<span class="string">"credit_card"</span>, <span class="string">"debit_card"</span>, <span class="string">"paypal"</span>, <span class="string">"crypto"</span>]
+Currency = Literal[<span class="string">"USD"</span>, <span class="string">"EUR"</span>, <span class="string">"IRR"</span>, <span class="string">"GBP"</span>]
+
+<span class="keyword">class</span> <span class="function">Order</span>(BaseModel):
+    order_id: <span class="builtin">str</span>
+    customer_name: <span class="builtin">str</span>
+    amount: <span class="builtin">float</span> = Field(gt=<span class="number">0</span>)
+    currency: Currency = <span class="string">"USD"</span>
+    status: OrderStatus = <span class="string">"pending"</span>
+    payment_method: PaymentMethod
+    
+    <span class="keyword">def</span> <span class="function">update_status</span>(self, new_status: OrderStatus) -> <span class="keyword">None</span>:
+        <span class="comment"># اعتبارسنجی در runtime توسط Pydantic</span>
+        self.status = new_status
+
+<span class="comment"># استفاده</span>
+order = Order(
+    order_id=<span class="string">"ORD-001"</span>,
+    customer_name=<span class="string">"علی"</span>,
+    amount=<span class="number">99.99</span>,
+    currency=<span class="string">"USD"</span>,        <span class="comment"># ✅ OK</span>
+    payment_method=<span class="string">"paypal"</span>  <span class="comment"># ✅ OK</span>
+)
+
+<span class="comment"># ❌ ValidationError در runtime</span>
+<span class="comment"># order = Order(..., currency="BTC")  # Invalid currency</span>
+            </div>
+
+            <h3>🎮 مثال 4: Game State</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Game State Management</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field
+
+<span class="comment"># Game Types</span>
+GameState = Literal[<span class="string">"menu"</span>, <span class="string">"playing"</span>, <span class="string">"paused"</span>, <span class="string">"game_over"</span>]
+Difficulty = Literal[<span class="string">"easy"</span>, <span class="string">"normal"</span>, <span class="string">"hard"</span>, <span class="string">"nightmare"</span>]
+Direction = Literal[<span class="string">"up"</span>, <span class="string">"down"</span>, <span class="string">"left"</span>, <span class="string">"right"</span>]
+PowerUp = Literal[<span class="string">"speed"</span>, <span class="string">"shield"</span>, <span class="string">"double_score"</span>, <span class="string">"extra_life"</span>]
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="function">Player</span>:
+    name: <span class="builtin">str</span>
+    x: <span class="builtin">int</span> = <span class="number">0</span>
+    y: <span class="builtin">int</span> = <span class="number">0</span>
+    lives: <span class="builtin">int</span> = <span class="number">3</span>
+    active_powerups: <span class="builtin">list</span>[PowerUp] = field(default_factory=<span class="builtin">list</span>)
+    
+    <span class="keyword">def</span> <span class="function">move</span>(self, direction: Direction, speed: <span class="builtin">int</span> = <span class="number">1</span>) -> <span class="keyword">None</span>:
+        <span class="keyword">if</span> direction == <span class="string">"up"</span>:
+            self.y += speed
+        <span class="keyword">elif</span> direction == <span class="string">"down"</span>:
+            self.y -= speed
+        <span class="keyword">elif</span> direction == <span class="string">"left"</span>:
+            self.x -= speed
+        <span class="keyword">elif</span> direction == <span class="string">"right"</span>:
+            self.x += speed
+    
+    <span class="keyword">def</span> <span class="function">collect_powerup</span>(self, powerup: PowerUp) -> <span class="keyword">None</span>:
+        <span class="keyword">if</span> powerup <span class="keyword">not in</span> self.active_powerups:
+            self.active_powerups.append(powerup)
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="function">Game</span>:
+    state: GameState = <span class="string">"menu"</span>
+    difficulty: Difficulty = <span class="string">"normal"</span>
+    score: <span class="builtin">int</span> = <span class="number">0</span>
+    
+    <span class="keyword">def</span> <span class="function">set_state</span>(self, state: GameState) -> <span class="keyword">None</span>:
+        self.state = state
+    
+    <span class="keyword">def</span> <span class="function">set_difficulty</span>(self, difficulty: Difficulty) -> <span class="keyword">None</span>:
+        self.difficulty = difficulty
+
+<span class="comment"># استفاده</span>
+game = Game()
+player = Player(<span class="string">"Hero"</span>)
+
+game.set_difficulty(<span class="string">"hard"</span>)     <span class="comment"># ✅ OK</span>
+game.set_state(<span class="string">"playing"</span>)        <span class="comment"># ✅ OK</span>
+player.move(<span class="string">"up"</span>)                <span class="comment"># ✅ OK</span>
+player.collect_powerup(<span class="string">"shield"</span>) <span class="comment"># ✅ OK</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: ترکیب با سایر Types -->
+        <div class="slide" id="advanced">
+            <div class="slide-number">5</div>
+            <h2>🔗 ترکیب با سایر Type Hints</h2>
+
+            <h3>🔀 ترکیب با Union</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Literal with Union</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Union
+
+<span class="comment"># ترکیب Literal با Union</span>
+Result = Union[Literal[<span class="string">"success"</span>, <span class="string">"error"</span>], <span class="builtin">int</span>]
+
+<span class="keyword">def</span> <span class="function">process</span>(data: <span class="builtin">str</span>) -> Result:
+    <span class="keyword">if</span> <span class="keyword">not</span> data:
+        <span class="keyword">return</span> <span class="string">"error"</span>
+    <span class="keyword">elif</span> data == <span class="string">"count"</span>:
+        <span class="keyword">return</span> <span class="number">42</span>
+    <span class="keyword">else</span>:
+        <span class="keyword">return</span> <span class="string">"success"</span>
+
+<span class="comment"># Python 3.10+ با | operator</span>
+Result2 = Literal[<span class="string">"success"</span>, <span class="string">"error"</span>] | <span class="builtin">int</span>
+
+<span class="comment"># ترکیب چند Literal</span>
+Color1 = Literal[<span class="string">"red"</span>, <span class="string">"green"</span>]
+Color2 = Literal[<span class="string">"blue"</span>, <span class="string">"yellow"</span>]
+AllColors = Union[Color1, Color2]  <span class="comment"># = Literal["red", "green", "blue", "yellow"]</span>
+            </div>
+
+            <h3>❓ ترکیب با Optional</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Literal with Optional</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Optional
+
+<span class="comment"># Optional[Literal[...]] = Literal[...] | None</span>
+SortOrder = Literal[<span class="string">"asc"</span>, <span class="string">"desc"</span>]
+
+<span class="keyword">def</span> <span class="function">fetch_users</span>(
+    limit: <span class="builtin">int</span> = <span class="number">10</span>,
+    sort_by: Optional[<span class="builtin">str</span>] = <span class="keyword">None</span>,
+    order: Optional[SortOrder] = <span class="keyword">None</span>  <span class="comment"># می‌تواند None باشد</span>
+) -> <span class="builtin">list</span>:
+    <span class="keyword">pass</span>
+
+<span class="comment"># یا با Literal[None]</span>
+MaybeStatus = Literal[<span class="string">"active"</span>, <span class="string">"inactive"</span>, <span class="keyword">None</span>]
+
+<span class="keyword">def</span> <span class="function">get_status</span>() -> MaybeStatus:
+    <span class="keyword">return</span> <span class="keyword">None</span>  <span class="comment"># ✅ OK</span>
+            </div>
+
+            <h3>📋 ترکیب با TypedDict</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Literal with TypedDict</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, TypedDict, Required, NotRequired
+<span class="comment"># تعریف Types</span>
+EventType = Literal[<span class="string">"click"</span>, <span class="string">"hover"</span>, <span class="string">"submit"</span>, <span class="string">"load"</span>]
+Priority = Literal[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]
+
+<span class="keyword">class</span> <span class="function">Event</span>(TypedDict):
+    type: EventType
+    timestamp: <span class="builtin">str</span>
+    priority: Priority
+    data: <span class="builtin">dict</span>
+
+<span class="keyword">class</span> <span class="function">UserConfig</span>(TypedDict, total=<span class="keyword">False</span>):
+    theme: Literal[<span class="string">"light"</span>, <span class="string">"dark"</span>]
+    language: Literal[<span class="string">"en"</span>, <span class="string">"fa"</span>, <span class="string">"ar"</span>]
+    notifications: Literal[<span class="string">"all"</span>, <span class="string">"important"</span>, <span class="string">"none"</span>]
+
+<span class="comment"># Python 3.11+ با Required و NotRequired</span>
+<span class="keyword">class</span> <span class="function">APIResponse</span>(TypedDict):
+    status: Required[Literal[<span class="string">"success"</span>, <span class="string">"error"</span>]]
+    code: Required[Literal[<span class="number">200</span>, <span class="number">400</span>, <span class="number">401</span>, <span class="number">404</span>, <span class="number">500</span>]]
+    message: NotRequired[<span class="builtin">str</span>]
+    data: NotRequired[<span class="builtin">dict</span>]
+
+<span class="comment"># استفاده</span>
+event: Event = {
+    <span class="string">"type"</span>: <span class="string">"click"</span>,       <span class="comment"># ✅ OK</span>
+    <span class="string">"timestamp"</span>: <span class="string">"2024-01-15"</span>,
+    <span class="string">"priority"</span>: <span class="number">1</span>,          <span class="comment"># ✅ OK</span>
+    <span class="string">"data"</span>: {}
+}
+
+response: APIResponse = {
+    <span class="string">"status"</span>: <span class="string">"success"</span>,   <span class="comment"># ✅ Required</span>
+    <span class="string">"code"</span>: <span class="number">200</span>             <span class="comment"># ✅ Required</span>
+    <span class="comment"># message و data اختیاری هستند</span>
+}
+            </div>
+
+            <h3>🎯 ترکیب با Generic</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Literal with Generics</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Generic, TypeVar
+
+T = TypeVar(<span class="string">'T'</span>)
+Status = Literal[<span class="string">"pending"</span>, <span class="string">"success"</span>, <span class="string">"error"</span>]
+
+<span class="keyword">class</span> <span class="function">Response</span>(Generic[T]):
+    <span class="keyword">def</span> <span class="function">__init__</span>(self, status: Status, data: T):
+        self.status = status
+        self.data = data
+    
+    <span class="keyword">def</span> <span class="function">is_success</span>(self) -> <span class="builtin">bool</span>:
+        <span class="keyword">return</span> self.status == <span class="string">"success"</span>
+
+<span class="comment"># استفاده با انواع مختلف</span>
+user_response: Response[<span class="builtin">dict</span>] = Response(<span class="string">"success"</span>, {<span class="string">"name"</span>: <span class="string">"Ali"</span>})
+count_response: Response[<span class="builtin">int</span>] = Response(<span class="string">"success"</span>, <span class="number">42</span>)
+list_response: Response[<span class="builtin">list</span>[<span class="builtin">str</span>]] = Response(<span class="string">"pending"</span>, [])
+            </div>
+
+            <h3>🔄 ترکیب با Callable</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Literal with Callable</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Callable
+
+LogLevel = Literal[<span class="string">"debug"</span>, <span class="string">"info"</span>, <span class="string">"warning"</span>, <span class="string">"error"</span>]
+
+<span class="comment"># تابعی که یک logger می‌پذیرد</span>
+<span class="keyword">def</span> <span class="function">process_with_logging</span>(
+    data: <span class="builtin">str</span>,
+    logger: Callable[[LogLevel, <span class="builtin">str</span>], <span class="keyword">None</span>]
+) -> <span class="builtin">str</span>:
+    logger(<span class="string">"info"</span>, <span class="string">"Processing started"</span>)
+    result = data.upper()
+    logger(<span class="string">"debug"</span>, <span class="string">f"Result: </span>{result}<span class="string">"</span>)
+    <span class="keyword">return</span> result
+
+<span class="comment"># پیاده‌سازی logger</span>
+<span class="keyword">def</span> <span class="function">my_logger</span>(level: LogLevel, message: <span class="builtin">str</span>) -> <span class="keyword">None</span>:
+    <span class="builtin">print</span>(<span class="string">f"[</span>{level.upper()}<span class="string">] </span>{message}<span class="string">"</span>)
+
+<span class="comment"># استفاده</span>
+result = process_with_logging(<span class="string">"hello"</span>, my_logger)
+            </div>
+
+            <h3>📊 جدول ترکیبات رایج</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ترکیب</th>
+                        <th>مثال</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>Literal + Union</code></td>
+                        <td><code>Literal["a", "b"] | int</code></td>
+                        <td>مقدار ثابت یا نوع دیگر</td>
+                    </tr>
+                    <tr>
+                        <td><code>Literal + Optional</code></td>
+                        <td><code>Optional[Literal["x"]]</code></td>
+                        <td>مقدار ثابت یا None</td>
+                    </tr>
+                    <tr>
+                        <td><code>Literal + TypedDict</code></td>
+                        <td><code>class X(TypedDict): y: Literal[1,2]</code></td>
+                        <td>فیلدهای با مقادیر محدود</td>
+                    </tr>
+                    <tr>
+                        <td><code>Literal + list</code></td>
+                        <td><code>list[Literal["a", "b"]]</code></td>
+                        <td>لیستی از مقادیر ثابت</td>
+                    </tr>
+                    <tr>
+                        <td><code>Literal + dict</code></td>
+                        <td><code>dict[str, Literal[1,2,3]]</code></td>
+                        <td>دیکشنری با مقادیر محدود</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- اسلاید 6: الگوهای طراحی -->
+        <div class="slide" id="patterns">
+            <div class="slide-number">6</div>
+            <h2>🎨 الگوهای طراحی با Literal</h2>
+
+            <h3>📌 الگوی 1: Discriminated Unions (Tagged Unions)</h3>
+
+            <div class="info-box">
+                <h4>💡 Discriminated Union چیست؟</h4>
+                <p>
+                    الگویی که در آن یک فیلد مشترک (معمولاً <code>type</code>) تعیین می‌کند 
+                    که کدام نوع داده استفاده شده است. این الگو برای مدیریت انواع مختلف 
+                    پیام، رویداد، یا درخواست بسیار مفید است.
+                </p>
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Discriminated Unions</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Union, TypedDict
+
+<span class="comment"># تعریف انواع مختلف پیام</span>
+<span class="keyword">class</span> <span class="function">TextMessage</span>(TypedDict):
+    type: Literal[<span class="string">"text"</span>]
+    content: <span class="builtin">str</span>
+
+<span class="keyword">class</span> <span class="function">ImageMessage</span>(TypedDict):
+    type: Literal[<span class="string">"image"</span>]
+    url: <span class="builtin">str</span>
+    width: <span class="builtin">int</span>
+    height: <span class="builtin">int</span>
+
+<span class="keyword">class</span> <span class="function">VideoMessage</span>(TypedDict):
+    type: Literal[<span class="string">"video"</span>]
+    url: <span class="builtin">str</span>
+    duration: <span class="builtin">int</span>
+
+<span class="keyword">class</span> <span class="function">AudioMessage</span>(TypedDict):
+    type: Literal[<span class="string">"audio"</span>]
+    url: <span class="builtin">str</span>
+    duration: <span class="builtin">int</span>
+
+<span class="comment"># Union همه انواع پیام</span>
+Message = Union[TextMessage, ImageMessage, VideoMessage, AudioMessage]
+
+<span class="keyword">def</span> <span class="function">process_message</span>(msg: Message) -> <span class="builtin">str</span>:
+    <span class="comment"># Type narrowing بر اساس فیلد type</span>
+    <span class="keyword">if</span> msg[<span class="string">"type"</span>] == <span class="string">"text"</span>:
+        <span class="keyword">return</span> <span class="string">f"Text: </span>{msg[<span class="string">'content'</span>]}<span class="string">"</span>
+    <span class="keyword">elif</span> msg[<span class="string">"type"</span>] == <span class="string">"image"</span>:
+        <span class="keyword">return</span> <span class="string">f"Image: </span>{msg[<span class="string">'width'</span>]}<span class="string">x</span>{msg[<span class="string">'height'</span>]}<span class="string">"</span>
+    <span class="keyword">elif</span> msg[<span class="string">"type"</span>] == <span class="string">"video"</span>:
+        <span class="keyword">return</span> <span class="string">f"Video: </span>{msg[<span class="string">'duration'</span>]}<span class="string">s"</span>
+    <span class="keyword">else</span>:  <span class="comment"># audio</span>
+        <span class="keyword">return</span> <span class="string">f"Audio: </span>{msg[<span class="string">'duration'</span>]}<span class="string">s"</span>
+
+<span class="comment"># استفاده</span>
+text_msg: TextMessage = {<span class="string">"type"</span>: <span class="string">"text"</span>, <span class="string">"content"</span>: <span class="string">"Hello!"</span>}
+image_msg: ImageMessage = {<span class="string">"type"</span>: <span class="string">"image"</span>, <span class="string">"url"</span>: <span class="string">"..."</span>, <span class="string">"width"</span>: <span class="number">800</span>, <span class="string">"height"</span>: <span class="number">600</span>}
+
+<span class="builtin">print</span>(process_message(text_msg))   <span class="comment"># Text: Hello!</span>
+<span class="builtin">print</span>(process_message(image_msg))  <span class="comment"># Image: 800x600</span>
+            </div>
+
+            <h3>📌 الگوی 2: State Machine</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - State Machine Pattern</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass
+
+<span class="comment"># تعریف States</span>
+OrderState = Literal[
+    <span class="string">"draft"</span>,
+    <span class="string">"submitted"</span>,
+    <span class="string">"paid"</span>,
+    <span class="string">"processing"</span>,
+    <span class="string">"shipped"</span>,
+    <span class="string">"delivered"</span>,
+    <span class="string">"cancelled"</span>
+]
+
+<span class="comment"># تعریف Transitions مجاز</span>
+VALID_TRANSITIONS: <span class="builtin">dict</span>[OrderState, <span class="builtin">list</span>[OrderState]] = {
+    <span class="string">"draft"</span>: [<span class="string">"submitted"</span>, <span class="string">"cancelled"</span>],
+    <span class="string">"submitted"</span>: [<span class="string">"paid"</span>, <span class="string">"cancelled"</span>],
+    <span class="string">"paid"</span>: [<span class="string">"processing"</span>, <span class="string">"cancelled"</span>],
+    <span class="string">"processing"</span>: [<span class="string">"shipped"</span>],
+    <span class="string">"shipped"</span>: [<span class="string">"delivered"</span>],
+    <span class="string">"delivered"</span>: [],
+    <span class="string">"cancelled"</span>: [],
+}
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="function">Order</span>:
+    id: <span class="builtin">str</span>
+    state: OrderState = <span class="string">"draft"</span>
+    
+    <span class="keyword">def</span> <span class="function">transition_to</span>(self, new_state: OrderState) -> <span class="builtin">bool</span>:
+        <span class="string">"""تغییر وضعیت با بررسی اعتبار"""</span>
+        <span class="keyword">if</span> new_state <span class="keyword">in</span> VALID_TRANSITIONS[self.state]:
+            self.state = new_state
+            <span class="keyword">return</span> <span class="keyword">True</span>
+        <span class="keyword">return</span> <span class="keyword">False</span>
+    
+    <span class="keyword">def</span> <span class="function">can_cancel</span>(self) -> <span class="builtin">bool</span>:
+        <span class="keyword">return</span> <span class="string">"cancelled"</span> <span class="keyword">in</span> VALID_TRANSITIONS[self.state]
+    
+    <span class="keyword">def</span> <span class="function">submit</span>(self) -> <span class="builtin">bool</span>:
+        <span class="keyword">return</span> self.transition_to(<span class="string">"submitted"</span>)
+    
+    <span class="keyword">def</span> <span class="function">pay</span>(self) -> <span class="builtin">bool</span>:
+        <span class="keyword">return</span> self.transition_to(<span class="string">"paid"</span>)
+    
+    <span class="keyword">def</span> <span class="function">cancel</span>(self) -> <span class="builtin">bool</span>:
+        <span class="keyword">return</span> self.transition_to(<span class="string">"cancelled"</span>)
+
+<span class="comment"># استفاده</span>
+order = Order(<span class="string">"ORD-001"</span>)
+order.submit()  <span class="comment"># draft → submitted ✅</span>
+order.pay()     <span class="comment"># submitted → paid ✅</span>
+order.cancel()  <span class="comment"># paid → cancelled ✅</span>
+            </div>
+
+            <h3>📌 الگوی 3: Builder Pattern با Literal</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Builder Pattern</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Self
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field
+
+<span class="comment"># تعریف Types</span>
+Size = Literal[<span class="string">"small"</span>, <span class="string">"medium"</span>, <span class="string">"large"</span>]
+Crust = Literal[<span class="string">"thin"</span>, <span class="string">"regular"</span>, <span class="string">"thick"</span>]
+Sauce = Literal[<span class="string">"tomato"</span>, <span class="string">"bbq"</span>, <span class="string">"white"</span>, <span class="string">"none"</span>]
+Topping = Literal[<span class="string">"cheese"</span>, <span class="string">"pepperoni"</span>, <span class="string">"mushroom"</span>, <span class="string">"olive"</span>, <span class="string">"onion"</span>]
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="function">Pizza</span>:
+    size: Size
+    crust: Crust
+    sauce: Sauce
+    toppings: <span class="builtin">list</span>[Topping]
+
+<span class="keyword">class</span> <span class="function">PizzaBuilder</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        self._size: Size = <span class="string">"medium"</span>
+        self._crust: Crust = <span class="string">"regular"</span>
+        self._sauce: Sauce = <span class="string">"tomato"</span>
+        self._toppings: <span class="builtin">list</span>[Topping] = []
+    
+    <span class="keyword">def</span> <span class="function">size</span>(self, size: Size) -> Self:
+        self._size = size
+        <span class="keyword">return</span> self
+    
+    <span class="keyword">def</span> <span class="function">crust</span>(self, crust: Crust) -> Self:
+        self._crust = crust
+        <span class="keyword">return</span> self
+    
+    <span class="keyword">def</span> <span class="function">sauce</span>(self, sauce: Sauce) -> Self:
+        self._sauce = sauce
+        <span class="keyword">return</span> self
+    
+    <span class="keyword">def</span> <span class="function">add_topping</span>(self, topping: Topping) -> Self:
+        <span class="keyword">if</span> topping <span class="keyword">not in</span> self._toppings:
+            self._toppings.append(topping)
+        <span class="keyword">return</span> self
+    
+    <span class="keyword">def</span> <span class="function">build</span>(self) -> Pizza:
+        <span class="keyword">return</span> Pizza(
+            size=self._size,
+            crust=self._crust,
+            sauce=self._sauce,
+            toppings=self._toppings.copy()
+        )
+
+<span class="comment"># استفاده با Method Chaining</span>
+pizza = (
+    PizzaBuilder()
+    .size(<span class="string">"large"</span>)          <span class="comment"># ✅ Type-safe</span>
+    .crust(<span class="string">"thin"</span>)          <span class="comment"># ✅ Type-safe</span>
+    .sauce(<span class="string">"bbq"</span>)           <span class="comment"># ✅ Type-safe</span>
+    .add_topping(<span class="string">"cheese"</span>)  <span class="comment"># ✅ Type-safe</span>
+    .add_topping(<span class="string">"pepperoni"</span>)
+    .build()
+)
+            </div>
+
+            <h3>📌 الگوی 4: Configuration Objects</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Configuration Pattern</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, TypedDict
+<span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass
+
+<span class="comment"># تعریف تنظیمات با Literal</span>
+Environment = Literal[<span class="string">"development"</span>, <span class="string">"staging"</span>, <span class="string">"production"</span>]
+LogLevel = Literal[<span class="string">"DEBUG"</span>, <span class="string">"INFO"</span>, <span class="string">"WARNING"</span>, <span class="string">"ERROR"</span>, <span class="string">"CRITICAL"</span>]
+CacheBackend = Literal[<span class="string">"memory"</span>, <span class="string">"redis"</span>, <span class="string">"memcached"</span>]
+DatabaseType = Literal[<span class="string">"postgresql"</span>, <span class="string">"mysql"</span>, <span class="string">"sqlite"</span>]
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="function">AppConfig</span>:
+    environment: Environment
+    debug: <span class="builtin">bool</span>
+    log_level: LogLevel
+    cache_backend: CacheBackend
+    database_type: DatabaseType
+    
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">development</span>(cls) -> <span class="string">"AppConfig"</span>:
+        <span class="keyword">return</span> cls(
+            environment=<span class="string">"development"</span>,
+            debug=<span class="keyword">True</span>,
+            log_level=<span class="string">"DEBUG"</span>,
+            cache_backend=<span class="string">"memory"</span>,
+            database_type=<span class="string">"sqlite"</span>
+        )
+    
+    <span class="decorator">@classmethod</span>
+    <span class="keyword">def</span> <span class="function">production</span>(cls) -> <span class="string">"AppConfig"</span>:
+        <span class="keyword">return</span> cls(
+            environment=<span class="string">"production"</span>,
+            debug=<span class="keyword">False</span>,
+            log_level=<span class="string">"WARNING"</span>,
+            cache_backend=<span class="string">"redis"</span>,
+            database_type=<span class="string">"postgresql"</span>
+        )
+
+<span class="comment"># استفاده</span>
+config = AppConfig.development()
+<span class="builtin">print</span>(config.log_level)  <span class="comment"># DEBUG</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: ابزارهای Type Checking -->
+        <div class="slide" id="tools">
+            <div class="slide-number">7</div>
+            <h2>🔧 ابزارهای Type Checking</h2>
+
+            <h3>🔍 mypy - محبوب‌ترین Type Checker</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal - mypy</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># نصب mypy</span>
+pip install mypy
+
+<span class="comment"># اجرای type checking</span>
+mypy your_script.py
+
+<span class="comment"># با تنظیمات سخت‌گیرانه</span>
+mypy --strict your_script.py
+
+<span class="comment"># بررسی کل پروژه</span>
+mypy src/
+            </div>
+
+            <h3>📝 مثال خطاهای mypy با Literal</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - mypy_example.py</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+
+Mode = Literal[<span class="string">"read"</span>, <span class="string">"write"</span>]
+
+<span class="keyword">def</span> <span class="function">open_file</span>(path: <span class="builtin">str</span>, mode: Mode) -> <span class="keyword">None</span>:
+    <span class="keyword">pass</span>
+
+<span class="comment"># ✅ صحیح</span>
+open_file(<span class="string">"data.txt"</span>, <span class="string">"read"</span>)
+open_file(<span class="string">"data.txt"</span>, <span class="string">"write"</span>)
+
+<span class="comment"># ❌ خطا - mypy این را تشخیص می‌دهد</span>
+open_file(<span class="string">"data.txt"</span>, <span class="string">"append"</span>)
+<span class="comment"># error: Argument 2 to "open_file" has incompatible type</span>
+<span class="comment"># "Literal['append']"; expected "Literal['read', 'write']"</span>
+            </div>
+
+            <h3>⚙️ تنظیمات mypy برای Literal</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>mypy.ini</span>
+            </div>
+            <div class="code-block">
+[mypy]
+python_version = 3.11
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+
+<span class="comment"># برای کتابخانه‌هایی که type hints ندارند</span>
+[mypy-requests.*]
+ignore_missing_imports = True
+            </div>
+
+            <h3>🛠️ سایر ابزارها</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">🔷</div>
+                    <h4>Pyright</h4>
+                    <p>Type checker مایکروسافت، سریع‌تر از mypy</p>
+                    <div class="code-block" style="font-size: 0.85em;">
+pip install pyright
+pyright your_script.py
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon">🔶</div>
+                    <h4>Pylance</h4>
+                    <p>افزونه VS Code بر پایه Pyright</p>
+                    <p style="font-size: 0.9em; color: var(--text-muted);">
+                        نصب از Marketplace → پشتیبانی کامل از Literal
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">🟢</div>
+                    <h4>Pyre</h4>
+                    <p>Type checker فیسبوک/متا</p>
+                    <div class="code-block" style="font-size: 0.85em;">
+pip install pyre-check
+pyre check
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon">🟣</div>
+                    <h4>PyCharm</h4>
+                    <p>IDE با type checking داخلی</p>
+                    <p style="font-size: 0.9em; color: var(--text-muted);">
+                        پشتیبانی کامل از Literal و نمایش خطاها در لحظه
+                    </p>
+                </div>
+            </div>
+
+            <h3>🎯 Type Narrowing با Literal</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Type Narrowing</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, Union, assert_never
+
+Shape = Literal[<span class="string">"circle"</span>, <span class="string">"square"</span>, <span class="string">"triangle"</span>]
+
+<span class="keyword">def</span> <span class="function">get_sides</span>(shape: Shape) -> <span class="builtin">int</span>:
+    <span class="comment"># Type checker می‌داند که shape فقط این سه مقدار است</span>
+    <span class="keyword">if</span> shape == <span class="string">"circle"</span>:
+        <span class="keyword">return</span> <span class="number">0</span>
+    <span class="keyword">elif</span> shape == <span class="string">"square"</span>:
+        <span class="keyword">return</span> <span class="number">4</span>
+    <span class="keyword">elif</span> shape == <span class="string">"triangle"</span>:
+        <span class="keyword">return</span> <span class="number">3</span>
+    <span class="keyword">else</span>:
+        <span class="comment"># Python 3.11+ - اطمینان از پوشش همه حالات</span>
+        assert_never(shape)
+
+<span class="comment"># با match statement (Python 3.10+)</span>
+<span class="keyword">def</span> <span class="function">get_sides_v2</span>(shape: Shape) -> <span class="builtin">int</span>:
+    <span class="keyword">match</span> shape:
+        <span class="keyword">case</span> <span class="string">"circle"</span>:
+            <span class="keyword">return</span> <span class="number">0</span>
+        <span class="keyword">case</span> <span class="string">"square"</span>:
+            <span class="keyword">return</span> <span class="number">4</span>
+        <span class="keyword">case</span> <span class="string">"triangle"</span>:
+            <span class="keyword">return</span> <span class="number">3</span>
+            </div>
+
+            <h3>📊 get_args - دسترسی به مقادیر Literal</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Runtime Introspection</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal, get_args
+
+Color = Literal[<span class="string">"red"</span>, <span class="string">"green"</span>, <span class="string">"blue"</span>]
+
+<span class="comment"># دسترسی به مقادیر در runtime</span>
+colors = get_args(Color)
+<span class="builtin">print</span>(colors)  <span class="comment"># ('red', 'green', 'blue')</span>
+
+<span class="comment"># اعتبارسنجی در runtime</span>
+<span class="keyword">def</span> <span class="function">validate_color</span>(color: <span class="builtin">str</span>) -> Color:
+    valid_colors = get_args(Color)
+    <span class="keyword">if</span> color <span class="keyword">not in</span> valid_colors:
+        <span class="keyword">raise</span> <span class="builtin">ValueError</span>(<span class="string">f"Invalid color: </span>{color}<span class="string">. Must be one of </span>{valid_colors}<span class="string">"</span>)
+    <span class="keyword">return</span> color  <span class="comment"># type: ignore</span>
+
+<span class="comment"># استفاده</span>
+validate_color(<span class="string">"red"</span>)    <span class="comment"># ✅ OK</span>
+validate_color(<span class="string">"yellow"</span>) <span class="comment"># ❌ ValueError</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: بهترین شیوه‌ها -->
+        <div class="slide" id="best-practices">
+            <div class="slide-number">8</div>
+            <h2>✅ بهترین شیوه‌ها</h2>
+
+            <h3>📋 قواعد نام‌گذاری</h3>
+
+            <div class="compare-box">
+                <div class="good">
+                    <h4>✅ صحیح</h4>
+                    <div class="code-block" style="font-size: 0.85em;">
+<span class="comment"># PascalCase برای Type Alias</span>
+HttpMethod = Literal[<span class="string">"GET"</span>, <span class="string">"POST"</span>]
+OrderStatus = Literal[<span class="string">"pending"</span>, <span class="string">"done"</span>]
+
+<span class="comment"># نام‌های توصیفی</span>
+SortDirection = Literal[<span class="string">"asc"</span>, <span class="string">"desc"</span>]
+UserRole = Literal[<span class="string">"admin"</span>, <span class="string">"user"</span>]
+                    </div>
+                </div>
+                <div class="bad">
+                    <h4>❌ اشتباه</h4>
+                    <div class="code-block" style="font-size: 0.85em;">
+<span class="comment"># snake_case برای Type Alias</span>
+http_method = Literal[<span class="string">"GET"</span>, <span class="string">"POST"</span>]
+
+<span class="comment"># نام‌های مبهم</span>
+T = Literal[<span class="string">"a"</span>, <span class="string">"b"</span>]
+X = Literal[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]
+                    </div>
+                </div>
+            </div>
+
+            <h3>🎯 چه زمانی از Literal استفاده کنیم؟</h3>
+
+            <div class="grid-2">
+                <div class="card" style="border: 2px solid var(--success-color);">
+                    <h4>✅ استفاده کنید وقتی:</h4>
+                    <ul>
+                        <li>مقادیر محدود و مشخص دارید</li>
+                        <li>مقادیر رشته‌ای ثابت هستند</li>
+                        <li>نیاز به Type Safety در IDE دارید</li>
+                        <li>می‌خواهید API را مستند کنید</li>
+                        <li>Enum بیش از حد سنگین است</li>
+                    </ul>
+                </div>
+                <div class="card" style="border: 2px solid var(--error-color);">
+                    <h4>❌ استفاده نکنید وقتی:</h4>
+                    <ul>
+                        <li>مقادیر پویا هستند</li>
+                        <li>نیاز به متدهای اضافی دارید</li>
+                        <li>اعتبارسنجی runtime لازم است</li>
+                        <li>مقادیر از دیتابیس می‌آیند</li>
+                        <li>تعداد مقادیر زیاد است (10+)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🔄 Literal vs Enum</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Python - Literal vs Enum</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">from</span> typing <span class="keyword">import</span> Literal
+<span class="keyword">from</span> enum <span class="keyword">import</span> Enum
+
+<span class="comment"># ========== با Literal ==========</span>
+Color = Literal[<span class="string">"red"</span>, <span class="string">"green"</span>, <span class="string">"blue"</span>]
+
+<span class="keyword">def</span> <span class="function">paint_literal</span>(color: Color) -> <span class="builtin">str</span>:
+    <span class="keyword">return</span> <span class="string">f"Painting </span>{color}<span class="string">"</span>
+
+paint_literal(<span class="string">"red"</span>)  <span class="comment"># مستقیم با رشته</span>
+
+
+<span class="comment"># ========== با Enum ==========</span>
+<span class="keyword">class</span> <span class="function">ColorEnum</span>(Enum):
+    RED = <span class="string">"red"</span>
+    GREEN = <span class="string">"green"</span>
+    BLUE = <span class="string">"blue"</span>
+
+<span class="keyword">def</span> <span class="function">paint_enum</span>(color: ColorEnum) -> <span class="builtin">str</span>:
+    <span class="keyword">return</span> <span class="string">f"Painting </span>{color.value}<span class="string">"</span>
+
+paint_enum(ColorEnum.RED)  <span class="comment"># باید از Enum member استفاده کرد</span>
+
+
+<span class="comment"># ========== مقایسه ==========</span>
+<span class="comment"># Literal: سبک، ساده، فقط type checking</span>
+<span class="comment"># Enum: سنگین‌تر، قابلیت‌های بیشتر، runtime validation</span>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>Literal</th>
+                        <th>Enum</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>سادگی استفاده</td>
+                        <td>⭐⭐⭐</td>
+                        <td>⭐⭐</td>
+                    </tr>
+                    <tr>
+                        <td>Runtime Validation</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>متدهای اضافی</td>
+                        <td>❌</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>Serialization</td>
+                        <td>خودکار (str/int)</td>
+                        <td>نیاز به تبدیل</td>
+                    </tr>
+                    <tr>
+                        <td>IDE Autocomplete</td>
+                        <td>✅</td>
+                        <td>✅</td>
+                    </tr>
+                    <tr>
+                        <td>Memory Footprint</td>
+                        <td>صفر</td>
+                        <td>کم</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>💡 نکات مهم</h3>
+
+            <div class="tip-box">
+                <h4>💡 نکته 1: Type Alias تعریف کنید</h4>
+                <p>به جای تکرار Literal در همه جا، یک Type Alias تعریف کنید:</p>
+                <div class="code-block" style="margin-top: 10px; font-size: 0.9em;">
+<span class="comment"># ❌ بد - تکرار</span>
+<span class="keyword">def</span> <span class="function">func1</span>(x: Literal[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]): ...
+<span class="keyword">def</span> <span class="function">func2</span>(x: Literal[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]): ...
+
+<span class="comment"># ✅ خوب - Type Alias</span>
+MyType = Literal[<span class="string">"a"</span>, <span class="string">"b"</span>, <span class="string">"c"</span>]
+<span class="keyword">def</span> <span class="function">func1</span>(x: MyType): ...
+<span class="keyword">def</span> <span class="function">func2</span>(x: MyType): ...
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ نکته 2: Literal فقط برای Type Checking است</h4>
+                <p>
+                    Literal در runtime هیچ اعتبارسنجی انجام نمی‌دهد. اگر نیاز به 
+                    اعتبارسنجی runtime دارید، از Pydantic یا بررسی دستی استفاده کنید.
+                </p>
+            </div>
+
+            <div class="info-box">
+                <h4>📝 نکته 3: مستندسازی خودکار</h4>
+                <p>
+                    Literal به ابزارهای مستندسازی مثل Sphinx کمک می‌کند تا 
+                    مقادیر مجاز را به صورت خودکار نمایش دهند.
+                </p>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: خلاصه و منابع -->
+        <div class="slide" id="summary">
+            <div class="slide-number">9</div>
+            <h2>📚 خلاصه و منابع</h2>
+
+            <h3>📋 خلاصه آموزش</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">1️⃣</div>
+                    <h4>تعریف</h4>
+                    <p>محدود کردن مقادیر به یک مجموعه ثابت</p>
+                </div>
+                <div class="card">
+                    <div class="icon">2️⃣</div>
+                    <h4>سینتکس</h4>
+                    <p><code>Literal["a", "b", 1, 2]</code></p>
+                </div>
+                <div class="card">
+                    <div class="icon">3️⃣</div>
+                    <h4>Type Alias</h4>
+                    <p><code>MyType = Literal[...]</code></p>
+                </div>
+                <div class="card">
+                    <div class="icon">4️⃣</div>
+                    <h4>ترکیب</h4>
+                    <p>Union, Optional, TypedDict</p>
+                </div>
+                <div class="card">
+                    <div class="icon">5️⃣</div>
+                    <h4>الگوها</h4>
+                    <p>Discriminated Union, State Machine</p>
+                </div>
+                <div class="card">
+                    <div class="icon">6️⃣</div>
+                    <h4>ابزارها</h4>
+                    <p>mypy, Pyright, Pylance</p>
+                </div>
+            </div>
+
+            <h3>🔗 منابع بیشتر</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>منبع</th>
+                        <th>آدرس</th>
+                        <th>توضیح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>PEP 586</strong></td>
+                        <td><a href="https://peps.python.org/pep-0586/" target="_blank">peps.python.org/pep-0586</a></td>
+                        <td>مشخصات رسمی Literal</td>
+                    </tr>
+                    <tr>
+                        <td><strong>typing docs</strong></td>
+                        <td><a href="https://docs.python.org/3/library/typing.html" target="_blank">docs.python.org</a></td>
+                        <td>مستندات رسمی typing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>mypy docs</strong></td>
+                        <td><a href="https://mypy.readthedocs.io/" target="_blank">mypy.readthedocs.io</a></td>
+                        <td>مستندات mypy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Real Python</strong></td>
+                        <td><a href="https://realpython.com/python-type-checking/" target="_blank">realpython.com</a></td>
+                        <td>آموزش Type Hints</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🎯 نکات کلیدی</h3>
+
+            <div class="info-box">
+                <ul>
+                    <li>✅ <strong>Literal</strong> برای مقادیر ثابت و محدود استفاده می‌شود</li>
+                    <li>✅ فقط در <strong>زمان توسعه</strong> (Type Checking) کار می‌کند</li>
+                    <li>✅ با <strong>Union</strong>، <strong>Optional</strong>، و <strong>TypedDict</strong> ترکیب می‌شود</li>
+                    <li>✅ برای <strong>API</strong>‌ها و <strong>تنظیمات</strong> عالی است</li>
+                    <li>✅ از <strong>Type Alias</strong> برای خوانایی بهتر استفاده کنید</li>
+                    <li>⚠️ برای <strong>Runtime Validation</strong> از Pydantic استفاده کنید</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید پایانی -->
+        <div class="slide" style="text-align: center; background: linear-gradient(135deg, #ecfdf5, #d1fae5);">
+            <h2 style="border: none; text-align: center;">🎉 پایان آموزش</h2>
+            
+            <div style="font-size: 5em; margin: 40px 0;">🔤</div>
+            
+            <h3 style="border: none; text-align: center; font-size: 2em; color: var(--primary-dark);">
+                typing.Literal
+            </h3>
+            
+            <p style="font-size: 1.3em; max-width: 600px; margin: 30px auto; color: var(--text-secondary);">
+                با Literal، کد شما امن‌تر، خواناتر، و قابل نگهداری‌تر می‌شود.
+            </p>
+
+            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 40px 0;">
+                <span class="version-badge">🐍 Python 3.8+</span>
+                <span class="version-badge">🔍 Type Safety</span>
+                <span class="version-badge">📝 Self-Documenting</span>
+            </div>
+
+            <p style="margin-top: 50px; color: var(--text-muted);">
+                📅 آذر ۱۴۰۴ | تهیه شده با ❤️
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <h3>🔤 آموزش typing.Literal در پایتون</h3>
+        <p style="margin: 20px 0;">
+            <a href="https://docs.python.org/3/library/typing.html" target="_blank">📚 Python Docs</a> |
+            <a href="https://peps.python.org/pep-0586/" target="_blank">📋 PEP 586</a> |
+            <a href="https://mypy.readthedocs.io/" target="_blank">🔍 mypy</a>
+        </p>
+        <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 30px 0;">
+        <p style="opacity: 0.8;">Type Hints - نوشتن کد بهتر با Python</p>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
+            style="position: fixed; bottom: 30px; left: 30px; width: 50px; height: 50px;
+                   background: var(--primary-color); color: white; border: none; 
+                   border-radius: 50%; cursor: pointer; font-size: 1.5em;
+                   box-shadow: var(--shadow-md); z-index: 1000;"
+            title="بازگشت به بالا">
+        ↑
+    </button>
+
+    <!-- JavaScript -->
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Copy code on click
+        document.querySelectorAll('.code-block').forEach(block => {
+            block.style.cursor = 'pointer';
+            block.title = 'کلیک برای کپی';
+            
+            block.addEventListener('click', function() {
+                navigator.clipboard.writeText(this.innerText).then(() => {
+                    const originalBg = this.style.background;
+                    this.style.background = '#064e3b';
+                    setTimeout(() => {
+                        this.style.background = originalBg || 'var(--code-bg)';
+                    }, 200);
+                });
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const slides = document.querySelectorAll('.slide');
+            const currentSlide = Array.from(slides).findIndex(slide => {
+                const rect = slide.getBoundingClientRect();
+                return rect.top >= 0 && rect.top < window.innerHeight / 2;
+            });
+
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                if (currentSlide < slides.length - 1) {
+                    slides[currentSlide + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                if (currentSlide > 0) {
+                    slides[currentSlide - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
