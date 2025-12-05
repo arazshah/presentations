@@ -1,0 +1,3017 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <title>آموزش ساخت WebGIS ساده با NestJS</title>
+    
+    <style>
+        :root {
+            --primary-color: #10b981;
+            --primary-light: #34d399;
+            --primary-dark: #059669;
+            --primary-darker: #047857;
+            --secondary-color: #3b82f6;
+            --accent-color: #f59e0b;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-primary: #ecfdf5;
+            --bg-secondary: #d1fae5;
+            --bg-card: #ffffff;
+            --text-primary: #064e3b;
+            --text-secondary: #065f46;
+            --text-muted: #6b7280;
+            --border-color: #a7f3d0;
+            --code-bg: #022c22;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --gradient-1: linear-gradient(135deg, #10b981, #34d399);
+            --gradient-2: linear-gradient(135deg, #059669, #10b981);
+            --gradient-3: linear-gradient(135deg, #047857, #059669);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Vazirmatn, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 25px;
+            margin: 20px 5px 0;
+            font-size: 0.95em;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--primary-dark);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+
+        nav a:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Slides/Sections */
+        .slide {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: var(--gradient-1);
+            opacity: 0.05;
+            border-radius: 0 20px 0 100%;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
+            box-shadow: var(--shadow-md);
+        }
+
+        .slide h2 {
+            color: var(--primary-dark);
+            font-size: 1.9em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slide h3 {
+            color: var(--primary-color);
+            font-size: 1.4em;
+            margin: 30px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide h4 {
+            color: var(--text-secondary);
+            font-size: 1.15em;
+            margin: 20px 0 10px;
+        }
+
+        /* Code Blocks */
+        .code-header {
+            background: #1a3a2f;
+            color: #6ee7b7;
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-header .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-header .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-header .dot.red { background: #ff5f56; }
+        .code-header .dot.yellow { background: #ffbd2e; }
+        .code-header .dot.green { background: #27ca40; }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            direction: ltr;
+            text-align: left;
+            white-space: pre;
+        }
+
+        .code-block .keyword { color: #c792ea; font-weight: bold; }
+        .code-block .builtin { color: #82aaff; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .code-block .comment { color: #676e95; font-style: italic; }
+        .code-block .function { color: #82aaff; }
+        .code-block .decorator { color: #ffcb6b; }
+        .code-block .type { color: #ffcb6b; }
+        .code-block .operator { color: #89ddff; }
+        .code-block .param { color: #f07178; }
+        .code-block .class { color: #ffcb6b; }
+        .code-block .property { color: #80cbc4; }
+
+        /* Inline Code */
+        code {
+            background: #d1fae5;
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--gradient-1);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Cards and Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .card h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-right: 5px solid var(--primary-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fefce8, #fef3c7);
+            border-right: 5px solid var(--warning-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #b45309;
+            margin-bottom: 10px;
+        }
+
+        .error-box {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-right: 5px solid var(--error-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .error-box h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-right: 5px solid var(--success-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .success-box h4 {
+            color: #059669;
+            margin-bottom: 10px;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-right: 5px solid var(--secondary-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .tip-box h4 {
+            color: #1d4ed8;
+            margin-bottom: 10px;
+        }
+
+        /* Directory Tree */
+        .dir-tree {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+            text-align: left;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+
+        .dir-tree .folder { color: #fbbf24; }
+        .dir-tree .file { color: #6ee7b7; }
+        .dir-tree .ts-file { color: #3b82f6; }
+        .dir-tree .json-file { color: #f472b6; }
+        .dir-tree .html-file { color: #f97316; }
+
+        /* Architecture Diagram */
+        .architecture {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .architecture-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .arch-box {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 15px 25px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .arch-arrow {
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0 15px 25px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Step indicator */
+        .step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gradient-1);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer h3 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        footer a {
+            color: #d1fae5;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: white;
+        }
+
+        /* API Endpoint Box */
+        .endpoint {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            direction: ltr;
+        }
+
+        .endpoint .method {
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .endpoint .method.post { background: #3b82f6; }
+        .endpoint .method.put { background: #f59e0b; }
+        .endpoint .method.delete { background: #ef4444; }
+
+        .endpoint .url {
+            color: #6ee7b7;
+            font-family: 'Consolas', monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2em; }
+            header p { font-size: 1.1em; }
+            .slide { padding: 25px 20px; }
+            .slide h2 { font-size: 1.5em; }
+            nav ul { gap: 5px; }
+            nav a { padding: 8px 12px; font-size: 0.85em; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .architecture-flow { flex-direction: column; }
+            .arch-arrow { transform: rotate(90deg); }
+        }
+
+        /* Print Styles */
+        @media print {
+            nav, footer { display: none !important; }
+            .slide { 
+                break-inside: avoid; 
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>🗺️ ساخت WebGIS با NestJS</h1>
+        <p>
+            آموزش گام به گام ساخت یک سرویس WebGIS ساده برای نمایش WKT روی نقشه
+        </p>
+        <div>
+            <span class="badge">🚀 NestJS</span>
+            <span class="badge">🗺️ Leaflet</span>
+            <span class="badge">📍 WKT</span>
+            <span class="badge">🌐 OpenLayers</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="#intro">معرفی</a></li>
+            <li><a href="#setup">راه‌اندازی</a></li>
+            <li><a href="#backend">Backend</a></li>
+            <li><a href="#wkt">WKT Parser</a></li>
+            <li><a href="#frontend">Frontend</a></li>
+            <li><a href="#api">API</a></li>
+            <li><a href="#test">تست</a></li>
+            <li><a href="#advanced">پیشرفته</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+
+        <!-- اسلاید 1: معرفی -->
+        <div class="slide" id="intro">
+            <div class="slide-number">1</div>
+            <h2>🎯 معرفی پروژه</h2>
+
+            <div class="info-box">
+                <h4>📋 هدف پروژه</h4>
+                <p>
+                    ساخت یک <strong>WebGIS ساده</strong> با NestJS که بتواند یک 
+                    <strong>WKT (Well-Known Text)</strong> را از URL دریافت کرده و 
+                    روی نقشه نمایش دهد.
+                </p>
+            </div>
+
+            <h3>🗺️ WKT چیست؟</h3>
+            <p>
+                <strong>Well-Known Text (WKT)</strong> یک فرمت متنی استاندارد برای نمایش 
+                اشکال هندسی مکانی است. این فرمت توسط OGC تعریف شده و در سیستم‌های GIS 
+                بسیار پرکاربرد است.
+            </p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">📍</div>
+                    <h4>Point</h4>
+                    <code>POINT(51.4 35.7)</code>
+                </div>
+                <div class="card">
+                    <div class="icon">📏</div>
+                    <h4>LineString</h4>
+                    <code>LINESTRING(0 0, 1 1, 2 2)</code>
+                </div>
+                <div class="card">
+                    <div class="icon">🔷</div>
+                    <h4>Polygon</h4>
+                    <code>POLYGON((0 0, 0 1, 1 1, 0 0))</code>
+                </div>
+            </div>
+
+            <h3>🏗️ معماری پروژه</h3>
+
+            <div class="architecture">
+                <div class="architecture-flow">
+                    <div class="arch-box">🌐 Browser</div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">🚀 NestJS API</div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">📍 WKT Parser</div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">🗺️ GeoJSON</div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">🗺️ Leaflet Map</div>
+                </div>
+            </div>
+
+            <h3>🛠️ تکنولوژی‌ها</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>تکنولوژی</th>
+                        <th>کاربرد</th>
+                        <th>نسخه</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>NestJS</strong></td>
+                        <td>Backend Framework</td>
+                        <td>v10+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Leaflet</strong></td>
+                        <td>نمایش نقشه</td>
+                        <td>v1.9+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Wicket</strong></td>
+                        <td>پارس WKT</td>
+                        <td>v1.3+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TypeScript</strong></td>
+                        <td>زبان برنامه‌نویسی</td>
+                        <td>v5+</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📁 ساختار نهایی پروژه</h3>
+
+            <div class="dir-tree">
+<span class="folder">📁 webgis-nestjs/</span>
+├── <span class="folder">📁 src/</span>
+│   ├── <span class="folder">📁 geo/</span>
+│   │   ├── <span class="ts-file">📄 geo.module.ts</span>
+│   │   ├── <span class="ts-file">📄 geo.controller.ts</span>
+│   │   ├── <span class="ts-file">📄 geo.service.ts</span>
+│   │   └── <span class="folder">📁 dto/</span>
+│   │       └── <span class="ts-file">📄 wkt.dto.ts</span>
+│   ├── <span class="folder">📁 public/</span>
+│   │   └── <span class="html-file">📄 index.html</span>
+│   ├── <span class="ts-file">📄 app.module.ts</span>
+│   └── <span class="ts-file">📄 main.ts</span>
+├── <span class="json-file">📄 package.json</span>
+├── <span class="json-file">📄 tsconfig.json</span>
+└── <span class="file">📄 nest-cli.json</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: راه‌اندازی -->
+        <div class="slide" id="setup">
+            <div class="slide-number">2</div>
+            <h2>⚙️ راه‌اندازی پروژه</h2>
+
+            <h3><span class="step">1</span> نصب NestJS CLI</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># نصب NestJS CLI به صورت global</span>
+npm install -g @nestjs/cli
+
+<span class="comment"># بررسی نسخه</span>
+nest --version
+            </div>
+
+            <h3><span class="step">2</span> ایجاد پروژه جدید</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># ایجاد پروژه جدید</span>
+nest new webgis-nestjs
+
+<span class="comment"># انتخاب npm یا yarn</span>
+? Which package manager would you ❤️ to use? npm
+
+<span class="comment"># ورود به دایرکتوری پروژه</span>
+cd webgis-nestjs
+            </div>
+
+            <h3><span class="step">3</span> نصب پکیج‌های مورد نیاز</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># پکیج‌های اصلی</span>
+npm install @nestjs/serve-static wicket
+
+<span class="comment"># پکیج‌های validation</span>
+npm install class-validator class-transformer
+
+<span class="comment"># Types برای TypeScript</span>
+npm install -D @types/wicket
+            </div>
+
+            <div class="info-box">
+                <h4>📦 توضیح پکیج‌ها</h4>
+                <ul>
+                    <li><strong>@nestjs/serve-static:</strong> سرو فایل‌های استاتیک (HTML, CSS, JS)</li>
+                    <li><strong>wicket:</strong> پارس و تبدیل WKT به GeoJSON</li>
+                    <li><strong>class-validator:</strong> اعتبارسنجی DTO‌ها</li>
+                </ul>
+            </div>
+
+            <h3><span class="step">4</span> ایجاد ماژول Geo</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># ایجاد ماژول، کنترلر و سرویس</span>
+nest generate module geo
+nest generate controller geo
+nest generate service geo
+
+<span class="comment"># یا به صورت خلاصه</span>
+nest g mo geo
+nest g co geo
+nest g s geo
+            </div>
+
+            <h3><span class="step">5</span> ایجاد پوشه public</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># ایجاد پوشه برای فایل‌های استاتیک</span>
+mkdir -p src/public
+            </div>
+
+            <div class="success-box">
+                <h4>✅ پروژه آماده است!</h4>
+                <p>اکنون ساختار اولیه پروژه ایجاد شده و آماده کدنویسی هستیم.</p>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: Backend -->
+        <div class="slide" id="backend">
+            <div class="slide-number">3</div>
+            <h2>🚀 پیاده‌سازی Backend</h2>
+
+            <h3>📄 main.ts - نقطه ورود</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/main.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { NestFactory } <span class="keyword">from</span> <span class="string">'@nestjs/core'</span>;
+<span class="keyword">import</span> { ValidationPipe } <span class="keyword">from</span> <span class="string">'@nestjs/common'</span>;
+<span class="keyword">import</span> { AppModule } <span class="keyword">from</span> <span class="string">'./app.module'</span>;
+
+<span class="keyword">async function</span> <span class="function">bootstrap</span>() {
+  <span class="keyword">const</span> app = <span class="keyword">await</span> NestFactory.<span class="function">create</span>(AppModule);
+  
+  <span class="comment">// فعال‌سازی CORS</span>
+  app.<span class="function">enableCors</span>();
+  
+  <span class="comment">// فعال‌سازی Validation</span>
+  app.<span class="function">useGlobalPipes</span>(<span class="keyword">new</span> <span class="class">ValidationPipe</span>({
+    transform: <span class="keyword">true</span>,
+    whitelist: <span class="keyword">true</span>,
+  }));
+  
+  <span class="keyword">await</span> app.<span class="function">listen</span>(<span class="number">3000</span>);
+  console.<span class="function">log</span>(<span class="string">`🗺️ WebGIS running on http://localhost:3000`</span>);
+}
+
+<span class="function">bootstrap</span>();
+            </div>
+
+            <h3>📄 app.module.ts - ماژول اصلی</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/app.module.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { Module } <span class="keyword">from</span> <span class="string">'@nestjs/common'</span>;
+<span class="keyword">import</span> { ServeStaticModule } <span class="keyword">from</span> <span class="string">'@nestjs/serve-static'</span>;
+<span class="keyword">import</span> { join } <span class="keyword">from</span> <span class="string">'path'</span>;
+<span class="keyword">import</span> { GeoModule } <span class="keyword">from</span> <span class="string">'./geo/geo.module'</span>;
+
+<span class="decorator">@Module</span>({
+  imports: [
+    <span class="comment">// سرو فایل‌های استاتیک از پوشه public</span>
+    ServeStaticModule.<span class="function">forRoot</span>({
+      rootPath: <span class="function">join</span>(__dirname, <span class="string">'..'</span>, <span class="string">'src'</span>, <span class="string">'public'</span>),
+      serveRoot: <span class="string">'/'</span>,
+    }),
+    GeoModule,
+  ],
+})
+<span class="keyword">export class</span> <span class="class">AppModule</span> {}
+            </div>
+
+            <h3>📄 geo.module.ts - ماژول Geo</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/geo.module.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { Module } <span class="keyword">from</span> <span class="string">'@nestjs/common'</span>;
+<span class="keyword">import</span> { GeoController } <span class="keyword">from</span> <span class="string">'./geo.controller'</span>;
+<span class="keyword">import</span> { GeoService } <span class="keyword">from</span> <span class="string">'./geo.service'</span>;
+
+<span class="decorator">@Module</span>({
+  controllers: [GeoController],
+  providers: [GeoService],
+  exports: [GeoService],
+})
+<span class="keyword">export class</span> <span class="class">GeoModule</span> {}
+            </div>
+
+            <h3>📄 wkt.dto.ts - Data Transfer Object</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/dto/wkt.dto.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { IsString, IsNotEmpty, IsOptional } <span class="keyword">from</span> <span class="string">'class-validator'</span>;
+
+<span class="keyword">export class</span> <span class="class">WktQueryDto</span> {
+  <span class="decorator">@IsString</span>()
+  <span class="decorator">@IsNotEmpty</span>({ message: <span class="string">'WKT نمی‌تواند خالی باشد'</span> })
+  wkt: <span class="type">string</span>;
+
+  <span class="decorator">@IsOptional</span>()
+  <span class="decorator">@IsString</span>()
+  name?: <span class="type">string</span>;
+
+  <span class="decorator">@IsOptional</span>()
+  <span class="decorator">@IsString</span>()
+  color?: <span class="type">string</span>;
+}
+
+<span class="keyword">export class</span> <span class="class">WktBodyDto</span> {
+  <span class="decorator">@IsString</span>()
+  <span class="decorator">@IsNotEmpty</span>()
+  wkt: <span class="type">string</span>;
+
+  <span class="decorator">@IsOptional</span>()
+  properties?: <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">any</span>&gt;;
+}
+            </div>
+        </div>
+
+        <!-- اسلاید 4: WKT Parser -->
+        <div class="slide" id="wkt">
+            <div class="slide-number">4</div>
+            <h2>📍 سرویس WKT Parser</h2>
+
+            <h3>📄 geo.service.ts - سرویس اصلی</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/geo.service.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { Injectable, BadRequestException } <span class="keyword">from</span> <span class="string">'@nestjs/common'</span>;
+<span class="keyword">import</span> * <span class="keyword">as</span> Wkt <span class="keyword">from</span> <span class="string">'wicket'</span>;
+
+<span class="keyword">export interface</span> <span class="class">GeoJsonFeature</span> {
+  type: <span class="string">'Feature'</span>;
+  geometry: <span class="type">any</span>;
+  properties: <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">any</span>&gt;;
+}
+
+<span class="keyword">export interface</span> <span class="class">GeoJsonFeatureCollection</span> {
+  type: <span class="string">'FeatureCollection'</span>;
+  features: GeoJsonFeature[];
+}
+
+<span class="decorator">@Injectable</span>()
+<span class="keyword">export class</span> <span class="class">GeoService</span> {
+  <span class="keyword">private</span> wkt: <span class="type">any</span>;
+
+  <span class="function">constructor</span>() {
+    <span class="keyword">this</span>.wkt = <span class="keyword">new</span> Wkt.Wkt();
+  }
+
+  <span class="comment">/**
+   * تبدیل WKT به GeoJSON
+   */</span>
+  <span class="function">wktToGeoJson</span>(
+    wktString: <span class="type">string</span>,
+    properties: <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">any</span>&gt; = {}
+  ): GeoJsonFeature {
+    <span class="keyword">try</span> {
+      <span class="comment">// پارس WKT</span>
+      <span class="keyword">this</span>.wkt.<span class="function">read</span>(wktString);
+      
+      <span class="comment">// تبدیل به GeoJSON</span>
+      <span class="keyword">const</span> geoJson = <span class="keyword">this</span>.wkt.<span class="function">toJson</span>();
+      
+      <span class="keyword">return</span> {
+        type: <span class="string">'Feature'</span>,
+        geometry: geoJson,
+        properties: {
+          ...properties,
+          originalWkt: wktString,
+          createdAt: <span class="keyword">new</span> <span class="class">Date</span>().<span class="function">toISOString</span>(),
+        },
+      };
+    } <span class="keyword">catch</span> (error) {
+      <span class="keyword">throw new</span> <span class="class">BadRequestException</span>(
+        <span class="string">`WKT نامعتبر است: </span>${error.message}<span class="string">`</span>
+      );
+    }
+  }
+
+  <span class="comment">/**
+   * تبدیل چند WKT به FeatureCollection
+   */</span>
+  <span class="function">wktsToFeatureCollection</span>(
+    wkts: { wkt: <span class="type">string</span>; properties?: <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">any</span>&gt; }[]
+  ): GeoJsonFeatureCollection {
+    <span class="keyword">const</span> features = wkts.<span class="function">map</span>((item, index) =&gt;
+      <span class="keyword">this</span>.<span class="function">wktToGeoJson</span>(item.wkt, {
+        ...item.properties,
+        featureIndex: index,
+      })
+    );
+
+    <span class="keyword">return</span> {
+      type: <span class="string">'FeatureCollection'</span>,
+      features,
+    };
+  }
+
+  <span class="comment">/**
+   * تبدیل GeoJSON به WKT
+   */</span>
+  <span class="function">geoJsonToWkt</span>(geoJson: <span class="type">any</span>): <span class="type">string</span> {
+    <span class="keyword">try</span> {
+      <span class="keyword">this</span>.wkt.<span class="function">fromJson</span>(geoJson);
+      <span class="keyword">return</span> <span class="keyword">this</span>.wkt.<span class="function">write</span>();
+    } <span class="keyword">catch</span> (error) {
+      <span class="keyword">throw new</span> <span class="class">BadRequestException</span>(
+        <span class="string">`GeoJSON نامعتبر است: </span>${error.message}<span class="string">`</span>
+      );
+    }
+  }
+
+  <span class="comment">/**
+   * اعتبارسنجی WKT
+   */</span>
+  <span class="function">validateWkt</span>(wktString: <span class="type">string</span>): <span class="type">boolean</span> {
+    <span class="keyword">try</span> {
+      <span class="keyword">this</span>.wkt.<span class="function">read</span>(wktString);
+      <span class="keyword">return</span> <span class="keyword">true</span>;
+    } <span class="keyword">catch</span> {
+      <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+  }
+
+  <span class="comment">/**
+   * دریافت نوع هندسه
+   */</span>
+  <span class="function">getGeometryType</span>(wktString: <span class="type">string</span>): <span class="type">string</span> {
+    <span class="keyword">this</span>.wkt.<span class="function">read</span>(wktString);
+    <span class="keyword">return</span> <span class="keyword">this</span>.wkt.type;
+  }
+
+  <span class="comment">/**
+   * محاسبه مرکز هندسه (ساده)
+   */</span>
+  <span class="function">getCentroid</span>(wktString: <span class="type">string</span>): { lat: <span class="type">number</span>; lng: <span class="type">number</span> } {
+    <span class="keyword">const</span> geoJson = <span class="keyword">this</span>.<span class="function">wktToGeoJson</span>(wktString);
+    <span class="keyword">const</span> coords = <span class="keyword">this</span>.<span class="function">extractCoordinates</span>(geoJson.geometry);
+    
+    <span class="keyword">if</span> (coords.length === <span class="number">0</span>) {
+      <span class="keyword">throw new</span> <span class="class">BadRequestException</span>(<span class="string">'مختصاتی یافت نشد'</span>);
+    }
+
+    <span class="keyword">const</span> sum = coords.<span class="function">reduce</span>(
+      (acc, coord) =&gt; ({
+        lat: acc.lat + coord[<span class="number">1</span>],
+        lng: acc.lng + coord[<span class="number">0</span>],
+      }),
+      { lat: <span class="number">0</span>, lng: <span class="number">0</span> }
+    );
+
+    <span class="keyword">return</span> {
+      lat: sum.lat / coords.length,
+      lng: sum.lng / coords.length,
+    };
+  }
+
+  <span class="keyword">private</span> <span class="function">extractCoordinates</span>(geometry: <span class="type">any</span>): <span class="type">number</span>[][] {
+    <span class="keyword">const</span> coords: <span class="type">number</span>[][] = [];
+    
+    <span class="keyword">const</span> <span class="function">extract</span> = (item: <span class="type">any</span>) =&gt; {
+      <span class="keyword">if</span> (<span class="class">Array</span>.<span class="function">isArray</span>(item)) {
+        <span class="keyword">if</span> (<span class="keyword">typeof</span> item[<span class="number">0</span>] === <span class="string">'number'</span>) {
+          coords.<span class="function">push</span>(item <span class="keyword">as</span> <span class="type">number</span>[]);
+        } <span class="keyword">else</span> {
+          item.<span class="function">forEach</span>(extract);
+        }
+      }
+    };
+
+    <span class="function">extract</span>(geometry.coordinates);
+    <span class="keyword">return</span> coords;
+  }
+}
+            </div>
+
+            <h3>📊 انواع WKT پشتیبانی شده</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>نوع</th>
+                        <th>مثال</th>
+                        <th>توضیح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>POINT</code></td>
+                        <td><code>POINT(51.4 35.7)</code></td>
+                        <td>یک نقطه</td>
+                    </tr>
+                    <tr>
+                        <td><code>LINESTRING</code></td>
+                        <td><code>LINESTRING(0 0, 1 1, 2 2)</code></td>
+                        <td>خط</td>
+                    </tr>
+                    <tr>
+                        <td><code>POLYGON</code></td>
+                        <td><code>POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))</code></td>
+                        <td>چندضلعی</td>
+                    </tr>
+                    <tr>
+                        <td><code>MULTIPOINT</code></td>
+                        <td><code>MULTIPOINT((0 0), (1 1))</code></td>
+                        <td>چند نقطه</td>
+                    </tr>
+                    <tr>
+                        <td><code>MULTILINESTRING</code></td>
+                        <td><code>MULTILINESTRING((0 0, 1 1), (2 2, 3 3))</code></td>
+                        <td>چند خط</td>
+                    </tr>
+                    <tr>
+                        <td><code>MULTIPOLYGON</code></td>
+                        <td><code>MULTIPOLYGON(((0 0, ...)), ((2 2, ...)))</code></td>
+                        <td>چند چندضلعی</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- اسلاید 5: Controller -->
+        <div class="slide" id="controller">
+            <div class="slide-number">5</div>
+            <h2>🎮 کنترلر API</h2>
+
+            <h3>📄 geo.controller.ts</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/geo.controller.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> {
+  Controller,
+  Get,
+  Post,
+  Query,
+  Body,
+  Param,
+  HttpCode,
+  HttpStatus,
+} <span class="keyword">from</span> <span class="string">'@nestjs/common'</span>;
+<span class="keyword">import</span> { GeoService } <span class="keyword">from</span> <span class="string">'./geo.service'</span>;
+<span class="keyword">import</span> { WktQueryDto, WktBodyDto } <span class="keyword">from</span> <span class="string">'./dto/wkt.dto'</span>;
+
+<span class="decorator">@Controller</span>(<span class="string">'api/geo'</span>)
+<span class="keyword">export class</span> <span class="class">GeoController</span> {
+  <span class="function">constructor</span>(<span class="keyword">private readonly</span> geoService: GeoService) {}
+
+  <span class="comment">/**
+   * GET /api/geo/wkt?wkt=POINT(51.4 35.7)
+   * دریافت WKT از Query Parameter
+   */</span>
+  <span class="decorator">@Get</span>(<span class="string">'wkt'</span>)
+  <span class="function">getWktFromQuery</span>(<span class="decorator">@Query</span>() query: WktQueryDto) {
+    <span class="keyword">const</span> geoJson = <span class="keyword">this</span>.geoService.<span class="function">wktToGeoJson</span>(query.wkt, {
+      name: query.name || <span class="string">'Unnamed Feature'</span>,
+      color: query.color || <span class="string">'#10b981'</span>,
+    });
+
+    <span class="keyword">return</span> {
+      success: <span class="keyword">true</span>,
+      data: geoJson,
+      meta: {
+        geometryType: <span class="keyword">this</span>.geoService.<span class="function">getGeometryType</span>(query.wkt),
+        centroid: <span class="keyword">this</span>.geoService.<span class="function">getCentroid</span>(query.wkt),
+      },
+    };
+  }
+
+  <span class="comment">/**
+   * POST /api/geo/wkt
+   * دریافت WKT از Body
+   */</span>
+  <span class="decorator">@Post</span>(<span class="string">'wkt'</span>)
+  <span class="decorator">@HttpCode</span>(HttpStatus.OK)
+  <span class="function">postWkt</span>(<span class="decorator">@Body</span>() body: WktBodyDto) {
+    <span class="keyword">const</span> geoJson = <span class="keyword">this</span>.geoService.<span class="function">wktToGeoJson</span>(
+      body.wkt,
+      body.properties || {}
+    );
+
+    <span class="keyword">return</span> {
+      success: <span class="keyword">true</span>,
+      data: geoJson,
+    };
+  }
+
+  <span class="comment">/**
+   * POST /api/geo/wkt/batch
+   * تبدیل چند WKT به FeatureCollection
+   */</span>
+  <span class="decorator">@Post</span>(<span class="string">'wkt/batch'</span>)
+  <span class="decorator">@HttpCode</span>(HttpStatus.OK)
+  <span class="function">batchWkt</span>(
+    <span class="decorator">@Body</span>() body: { features: WktBodyDto[] }
+  ) {
+    <span class="keyword">const</span> featureCollection = <span class="keyword">this</span>.geoService.<span class="function">wktsToFeatureCollection</span>(
+      body.features
+    );
+
+    <span class="keyword">return</span> {
+      success: <span class="keyword">true</span>,
+      data: featureCollection,
+      count: featureCollection.features.length,
+    };
+  }
+
+  <span class="comment">/**
+   * GET /api/geo/validate?wkt=...
+   * اعتبارسنجی WKT
+   */</span>
+  <span class="decorator">@Get</span>(<span class="string">'validate'</span>)
+  <span class="function">validateWkt</span>(<span class="decorator">@Query</span>(<span class="string">'wkt'</span>) wkt: <span class="type">string</span>) {
+    <span class="keyword">const</span> isValid = <span class="keyword">this</span>.geoService.<span class="function">validateWkt</span>(wkt);
+    
+    <span class="keyword">return</span> {
+      success: <span class="keyword">true</span>,
+      valid: isValid,
+      wkt: wkt,
+      geometryType: isValid 
+        ? <span class="keyword">this</span>.geoService.<span class="function">getGeometryType</span>(wkt) 
+        : <span class="keyword">null</span>,
+    };
+  }
+
+  <span class="comment">/**
+   * POST /api/geo/geojson-to-wkt
+   * تبدیل GeoJSON به WKT
+   */</span>
+  <span class="decorator">@Post</span>(<span class="string">'geojson-to-wkt'</span>)
+  <span class="decorator">@HttpCode</span>(HttpStatus.OK)
+  <span class="function">geoJsonToWkt</span>(<span class="decorator">@Body</span>() body: { geometry: <span class="type">any</span> }) {
+    <span class="keyword">const</span> wkt = <span class="keyword">this</span>.geoService.<span class="function">geoJsonToWkt</span>(body.geometry);
+    
+    <span class="keyword">return</span> {
+      success: <span class="keyword">true</span>,
+      wkt: wkt,
+    };
+  }
+
+  <span class="comment">/**
+   * GET /api/geo/examples
+   * نمونه‌های WKT
+   */</span>
+  <span class="decorator">@Get</span>(<span class="string">'examples'</span>)
+  <span class="function">getExamples</span>() {
+    <span class="keyword">return</span> {
+      success: <span class="keyword">true</span>,
+      examples: [
+        {
+          name: <span class="string">'نقطه تهران'</span>,
+          wkt: <span class="string">'POINT(51.3890 35.6892)'</span>,
+          description: <span class="string">'مرکز تهران'</span>,
+        },
+        {
+          name: <span class="string">'خط'</span>,
+          wkt: <span class="string">'LINESTRING(51.3 35.6, 51.5 35.7, 51.4 35.8)'</span>,
+          description: <span class="string">'یک مسیر ساده'</span>,
+        },
+        {
+          name: <span class="string">'مربع'</span>,
+          wkt: <span class="string">'POLYGON((51.3 35.6, 51.5 35.6, 51.5 35.8, 51.3 35.8, 51.3 35.6))'</span>,
+          description: <span class="string">'یک چندضلعی مربعی'</span>,
+        },
+        {
+          name: <span class="string">'چند نقطه'</span>,
+          wkt: <span class="string">'MULTIPOINT((51.3 35.6), (51.4 35.7), (51.5 35.8))'</span>,
+          description: <span class="string">'سه نقطه'</span>,
+        },
+      ],
+    };
+  }
+}
+            </div>
+
+            <h3>🔗 API Endpoints</h3>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/geo/wkt?wkt=POINT(51.4 35.7)</span>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="url">/api/geo/wkt</span>
+            </div>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="url">/api/geo/wkt/batch</span>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/geo/validate?wkt=...</span>
+            </div>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/geo/examples</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: Frontend -->
+        <div class="slide" id="frontend">
+            <div class="slide-number">6</div>
+            <h2>🗺️ Frontend - نقشه Leaflet</h2>
+
+            <h3>📄 index.html - صفحه اصلی</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/public/index.html</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">&lt;!DOCTYPE html&gt;</span>
+<span class="keyword">&lt;html</span> <span class="property">lang</span>=<span class="string">"fa"</span> <span class="property">dir</span>=<span class="string">"rtl"</span><span class="keyword">&gt;</span>
+<span class="keyword">&lt;head&gt;</span>
+    <span class="keyword">&lt;meta</span> <span class="property">charset</span>=<span class="string">"UTF-8"</span><span class="keyword">&gt;</span>
+    <span class="keyword">&lt;meta</span> <span class="property">name</span>=<span class="string">"viewport"</span> <span class="property">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span><span class="keyword">&gt;</span>
+    <span class="keyword">&lt;title&gt;</span>WebGIS - نمایش WKT روی نقشه<span class="keyword">&lt;/title&gt;</span>
+    
+    <span class="comment">&lt;!-- Leaflet CSS --&gt;</span>
+    <span class="keyword">&lt;link</span> <span class="property">rel</span>=<span class="string">"stylesheet"</span> 
+          <span class="property">href</span>=<span class="string">"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"</span><span class="keyword">&gt;</span>
+    
+    <span class="keyword">&lt;style&gt;</span>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f0fdf4;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 400px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #065f46;
+        }
+        
+        .form-group textarea,
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1fae5;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Consolas', monospace;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group textarea:focus,
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        /* Examples */
+        .examples {
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .example-btn {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-radius: 8px;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-btn:hover {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .example-btn .name {
+            font-weight: 600;
+            color: #065f46;
+        }
+        
+        .example-btn .wkt {
+            font-size: 0.8em;
+            color: #6b7280;
+            font-family: 'Consolas', monospace;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+        
+        /* Status Messages */
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+            display: block;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #ef4444;
+            display: block;
+        }
+        
+        /* Feature Info */
+        .feature-info {
+            background: #f0fdf4;
+            border: 1px solid #a7f3d0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .feature-info h4 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+        
+        .feature-info .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #d1fae5;
+        }
+        
+        .feature-info .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .feature-info .label {
+            color: #6b7280;
+        }
+        
+        .feature-info .value {
+            font-weight: 600;
+            color: #065f46;
+            font-family: 'Consolas', monospace;
+        }
+        
+        /* Map Container */
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Map Controls */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .map-controls h4 {
+            margin-bottom: 10px;
+            color: #065f46;
+        }
+        
+        /* Color Picker */
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .color-option:hover,
+        .color-option.active {
+            transform: scale(1.2);
+            border-color: #374151;
+        }
+        
+        /* Loading Overlay */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #d1fae5;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 50vh;
+            }
+            
+            .map-container {
+                height: 50vh;
+            }
+        }
+    <span class="keyword">&lt;/style&gt;</span>
+<span class="keyword">&lt;/head&gt;</span>
+<span class="keyword">&lt;body&gt;</span>
+
+    <span class="comment">&lt;!-- Loading Overlay --&gt;</span>
+    <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"loading"</span> <span class="property">id</span>=<span class="string">"loading"</span><span class="keyword">&gt;</span>
+        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"spinner"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+    <span class="keyword">&lt;/div&gt;</span>
+
+    <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"container"</span><span class="keyword">&gt;</span>
+        <span class="comment">&lt;!-- Sidebar --&gt;</span>
+        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"sidebar"</span><span class="keyword">&gt;</span>
+            <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"sidebar-header"</span><span class="keyword">&gt;</span>
+                <span class="keyword">&lt;h1&gt;</span>🗺️ WebGIS<span class="keyword">&lt;/h1&gt;</span>
+                <span class="keyword">&lt;p&gt;</span>نمایش WKT روی نقشه<span class="keyword">&lt;/p&gt;</span>
+            <span class="keyword">&lt;/div&gt;</span>
+            
+            <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"sidebar-content"</span><span class="keyword">&gt;</span>
+                <span class="comment">&lt;!-- WKT Input --&gt;</span>
+                <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"form-group"</span><span class="keyword">&gt;</span>
+                    <span class="keyword">&lt;label</span> <span class="property">for</span>=<span class="string">"wktInput"</span><span class="keyword">&gt;</span>📍 WKT را وارد کنید:<span class="keyword">&lt;/label&gt;</span>
+                    <span class="keyword">&lt;textarea</span> 
+                        <span class="property">id</span>=<span class="string">"wktInput"</span> 
+                        <span class="property">placeholder</span>=<span class="string">"POINT(51.3890 35.6892)"</span>
+                    <span class="keyword">&gt;&lt;/textarea&gt;</span>
+                <span class="keyword">&lt;/div&gt;</span>
+                
+                <span class="comment">&lt;!-- Feature Name --&gt;</span>
+                <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"form-group"</span><span class="keyword">&gt;</span>
+                    <span class="keyword">&lt;label</span> <span class="property">for</span>=<span class="string">"featureName"</span><span class="keyword">&gt;</span>📝 نام عارضه:<span class="keyword">&lt;/label&gt;</span>
+                    <span class="keyword">&lt;input</span> 
+                        <span class="property">type</span>=<span class="string">"text"</span> 
+                        <span class="property">id</span>=<span class="string">"featureName"</span> 
+                        <span class="property">placeholder</span>=<span class="string">"مثال: موقعیت من"</span>
+                    <span class="keyword">&gt;</span>
+                <span class="keyword">&lt;/div&gt;</span>
+                
+                <span class="comment">&lt;!-- Color Picker --&gt;</span>
+                <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"form-group"</span><span class="keyword">&gt;</span>
+                    <span class="keyword">&lt;label&gt;</span>🎨 رنگ:<span class="keyword">&lt;/label&gt;</span>
+                    <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"color-picker"</span> <span class="property">id</span>=<span class="string">"colorPicker"</span><span class="keyword">&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"color-option active"</span> <span class="property">data-color</span>=<span class="string">"#10b981"</span> <span class="property">style</span>=<span class="string">"background:#10b981"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"color-option"</span> <span class="property">data-color</span>=<span class="string">"#3b82f6"</span> <span class="property">style</span>=<span class="string">"background:#3b82f6"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"color-option"</span> <span class="property">data-color</span>=<span class="string">"#ef4444"</span> <span class="property">style</span>=<span class="string">"background:#ef4444"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"color-option"</span> <span class="property">data-color</span>=<span class="string">"#f59e0b"</span> <span class="property">style</span>=<span class="string">"background:#f59e0b"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"color-option"</span> <span class="property">data-color</span>=<span class="string">"#8b5cf6"</span> <span class="property">style</span>=<span class="string">"background:#8b5cf6"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"color-option"</span> <span class="property">data-color</span>=<span class="string">"#ec4899"</span> <span class="property">style</span>=<span class="string">"background:#ec4899"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                    <span class="keyword">&lt;/div&gt;</span>
+                <span class="keyword">&lt;/div&gt;</span>
+                
+                <span class="comment">&lt;!-- Buttons --&gt;</span>
+                <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"btn-group"</span><span class="keyword">&gt;</span>
+                    <span class="keyword">&lt;button</span> <span class="property">class</span>=<span class="string">"btn btn-primary"</span> <span class="property">onclick</span>=<span class="string">"showOnMap()"</span><span class="keyword">&gt;</span>
+                        🗺️ نمایش روی نقشه
+                    <span class="keyword">&lt;/button&gt;</span>
+                    <span class="keyword">&lt;button</span> <span class="property">class</span>=<span class="string">"btn btn-secondary"</span> <span class="property">onclick</span>=<span class="string">"clearMap()"</span><span class="keyword">&gt;</span>
+                        🗑️ پاک کردن
+                    <span class="keyword">&lt;/button&gt;</span>
+                <span class="keyword">&lt;/div&gt;</span>
+                
+                <span class="comment">&lt;!-- Status --&gt;</span>
+                <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"status"</span> <span class="property">id</span>=<span class="string">"status"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                
+                <span class="comment">&lt;!-- Feature Info --&gt;</span>
+                <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"feature-info"</span> <span class="property">id</span>=<span class="string">"featureInfo"</span> <span class="property">style</span>=<span class="string">"display:none"</span><span class="keyword">&gt;</span>
+                    <span class="keyword">&lt;h4&gt;</span>📊 اطلاعات عارضه<span class="keyword">&lt;/h4&gt;</span>
+                    <span class="keyword">&lt;div</span> <span class="property">id</span>=<span class="string">"featureInfoContent"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+                <span class="keyword">&lt;/div&gt;</span>
+                
+                <span class="comment">&lt;!-- Examples --&gt;</span>
+                <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"examples"</span><span class="keyword">&gt;</span>
+                    <span class="keyword">&lt;h3&gt;</span>📋 نمونه‌ها:<span class="keyword">&lt;/h3&gt;</span>
+                    
+                    <span class="keyword">&lt;button</span> <span class="property">class</span>=<span class="string">"example-btn"</span> <span class="property">onclick</span>=<span class="string">"loadExample('point')"</span><span class="keyword">&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"name"</span><span class="keyword">&gt;</span>📍 نقطه - تهران<span class="keyword">&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"wkt"</span><span class="keyword">&gt;</span>POINT(51.3890 35.6892)<span class="keyword">&lt;/div&gt;</span>
+                    <span class="keyword">&lt;/button&gt;</span>
+                    
+                    <span class="keyword">&lt;button</span> <span class="property">class</span>=<span class="string">"example-btn"</span> <span class="property">onclick</span>=<span class="string">"loadExample('line')"</span><span class="keyword">&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"name"</span><span class="keyword">&gt;</span>📏 خط - مسیر<span class="keyword">&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"wkt"</span><span class="keyword">&gt;</span>LINESTRING(51.3 35.6, 51.5 35.7, 51.4 35.8)<span class="keyword">&lt;/div&gt;</span>
+                    <span class="keyword">&lt;/button&gt;</span>
+                    
+                    <span class="keyword">&lt;button</span> <span class="property">class</span>=<span class="string">"example-btn"</span> <span class="property">onclick</span>=<span class="string">"loadExample('polygon')"</span><span class="keyword">&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"name"</span><span class="keyword">&gt;</span>🔷 چندضلعی - منطقه<span class="keyword">&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"wkt"</span><span class="keyword">&gt;</span>POLYGON((51.3 35.6, 51.5 35.6, 51.5 35.8, 51.3 35.8, 51.3 35.6))<span class="keyword">&lt;/div&gt;</span>
+                    <span class="keyword">&lt;/button&gt;</span>
+                    
+                    <span class="keyword">&lt;button</span> <span class="property">class</span>=<span class="string">"example-btn"</span> <span class="property">onclick</span>=<span class="string">"loadExample('multipoint')"</span><span class="keyword">&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"name"</span><span class="keyword">&gt;</span>📍📍 چند نقطه<span class="keyword">&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"wkt"</span><span class="keyword">&gt;</span>MULTIPOINT((51.3 35.6), (51.4 35.7), (51.5 35.8))<span class="keyword">&lt;/div&gt;</span>
+                    <span class="keyword">&lt;/button&gt;</span>
+                    
+                    <span class="keyword">&lt;button</span> <span class="property">class</span>=<span class="string">"example-btn"</span> <span class="property">onclick</span>=<span class="string">"loadExample('circle')"</span><span class="keyword">&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"name"</span><span class="keyword">&gt;</span>⭕ دایره (تقریبی)<span class="keyword">&lt;/div&gt;</span>
+                        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"wkt"</span><span class="keyword">&gt;</span>POLYGON با 32 ضلع<span class="keyword">&lt;/div&gt;</span>
+                    <span class="keyword">&lt;/button&gt;</span>
+                <span class="keyword">&lt;/div&gt;</span>
+            <span class="keyword">&lt;/div&gt;</span>
+        <span class="keyword">&lt;/div&gt;</span>
+        
+        <span class="comment">&lt;!-- Map --&gt;</span>
+        <span class="keyword">&lt;div</span> <span class="property">class</span>=<span class="string">"map-container"</span><span class="keyword">&gt;</span>
+            <span class="keyword">&lt;div</span> <span class="property">id</span>=<span class="string">"map"</span><span class="keyword">&gt;&lt;/div&gt;</span>
+        <span class="keyword">&lt;/div&gt;</span>
+    <span class="keyword">&lt;/div&gt;</span>
+
+    <span class="comment">&lt;!-- Leaflet JS --&gt;</span>
+    <span class="keyword">&lt;script</span> <span class="property">src</span>=<span class="string">"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"</span><span class="keyword">&gt;&lt;/script&gt;</span>
+    
+    <span class="keyword">&lt;script&gt;</span>
+        <span class="comment">// ===== تنظیمات =====</span>
+        <span class="keyword">const</span> API_BASE = <span class="string">'/api/geo'</span>;
+        <span class="keyword">let</span> selectedColor = <span class="string">'#10b981'</span>;
+        <span class="keyword">let</span> geoJsonLayer = <span class="keyword">null</span>;
+        
+        <span class="comment">// ===== نمونه‌های WKT =====</span>
+        <span class="keyword">const</span> examples = {
+            point: <span class="string">'POINT(51.3890 35.6892)'</span>,
+            line: <span class="string">'LINESTRING(51.3 35.6, 51.4 35.65, 51.5 35.7, 51.45 35.75, 51.4 35.8)'</span>,
+            polygon: <span class="string">'POLYGON((51.3 35.6, 51.5 35.6, 51.5 35.8, 51.3 35.8, 51.3 35.6))'</span>,
+            multipoint: <span class="string">'MULTIPOINT((51.3 35.6), (51.4 35.7), (51.5 35.8), (51.35 35.75))'</span>,
+            circle: generateCircleWkt(<span class="number">51.4</span>, <span class="number">35.7</span>, <span class="number">0.05</span>, <span class="number">32</span>)
+        };
+        
+        <span class="comment">// ===== تولید دایره به صورت WKT =====</span>
+        <span class="keyword">function</span> <span class="function">generateCircleWkt</span>(centerX, centerY, radius, numPoints) {
+            <span class="keyword">const</span> points = [];
+            <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i <= numPoints; i++) {
+                <span class="keyword">const</span> angle = (i / numPoints) * <span class="number">2</span> * Math.PI;
+                <span class="keyword">const</span> x = centerX + radius * Math.<span class="function">cos</span>(angle);
+                <span class="keyword">const</span> y = centerY + radius * Math.<span class="function">sin</span>(angle);
+                points.<span class="function">push</span>(<span class="string">`</span>${x.<span class="function">toFixed</span>(<span class="number">6</span>)}<span class="string"> </span>${y.<span class="function">toFixed</span>(<span class="number">6</span>)}<span class="string">`</span>);
+            }
+            <span class="keyword">return</span> <span class="string">`POLYGON((</span>${points.<span class="function">join</span>(<span class="string">', '</span>)}<span class="string">))`</span>;
+        }
+        
+        <span class="comment">// ===== راه‌اندازی نقشه =====</span>
+        <span class="keyword">const</span> map = L.<span class="function">map</span>(<span class="string">'map'</span>).<span class="function">setView</span>([<span class="number">35.6892</span>, <span class="number">51.3890</span>], <span class="number">10</span>);
+        
+        <span class="comment">// لایه‌های نقشه</span>
+        <span class="keyword">const</span> baseLayers = {
+            <span class="string">'OpenStreetMap'</span>: L.<span class="function">tileLayer</span>(
+                <span class="string">'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'</span>,
+                { attribution: <span class="string">'© OpenStreetMap contributors'</span> }
+            ),
+            <span class="string">'Satellite'</span>: L.<span class="function">tileLayer</span>(
+                <span class="string">'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'</span>,
+                { attribution: <span class="string">'© Esri'</span> }
+            ),
+            <span class="string">'Terrain'</span>: L.<span class="function">tileLayer</span>(
+                <span class="string">'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'</span>,
+                { attribution: <span class="string">'© OpenTopoMap'</span> }
+            )
+        };
+        
+        baseLayers[<span class="string">'OpenStreetMap'</span>].<span class="function">addTo</span>(map);
+        L.control.<span class="function">layers</span>(baseLayers).<span class="function">addTo</span>(map);
+        
+        <span class="comment">// ===== انتخاب رنگ =====</span>
+        document.<span class="function">querySelectorAll</span>(<span class="string">'.color-option'</span>).<span class="function">forEach</span>(el => {
+            el.<span class="function">addEventListener</span>(<span class="string">'click'</span>, () => {
+                document.<span class="function">querySelectorAll</span>(<span class="string">'.color-option'</span>).<span class="function">forEach</span>(e => 
+                    e.classList.<span class="function">remove</span>(<span class="string">'active'</span>)
+                );
+                el.classList.<span class="function">add</span>(<span class="string">'active'</span>);
+                selectedColor = el.dataset.color;
+            });
+        });
+        
+        <span class="comment">// ===== بارگذاری نمونه =====</span>
+        <span class="keyword">function</span> <span class="function">loadExample</span>(type) {
+            document.<span class="function">getElementById</span>(<span class="string">'wktInput'</span>).value = examples[type];
+            document.<span class="function">getElementById</span>(<span class="string">'featureName'</span>).value = type.<span class="function">charAt</span>(<span class="number">0</span>).<span class="function">toUpperCase</span>() + type.<span class="function">slice</span>(<span class="number">1</span>);
+        }
+        
+        <span class="comment">// ===== نمایش روی نقشه =====</span>
+        <span class="keyword">async function</span> <span class="function">showOnMap</span>() {
+            <span class="keyword">const</span> wkt = document.<span class="function">getElementById</span>(<span class="string">'wktInput'</span>).value.<span class="function">trim</span>();
+            <span class="keyword">const</span> name = document.<span class="function">getElementById</span>(<span class="string">'featureName'</span>).value.<span class="function">trim</span>() || <span class="string">'عارضه'</span>;
+            
+            <span class="keyword">if</span> (!wkt) {
+                <span class="function">showStatus</span>(<span class="string">'لطفاً یک WKT وارد کنید'</span>, <span class="string">'error'</span>);
+                <span class="keyword">return</span>;
+            }
+            
+            <span class="function">showLoading</span>(<span class="keyword">true</span>);
+            
+            <span class="keyword">try</span> {
+                <span class="comment">// فراخوانی API</span>
+                <span class="keyword">const</span> encodedWkt = <span class="function">encodeURIComponent</span>(wkt);
+                <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(
+                    <span class="string">`</span>${API_BASE}<span class="string">/wkt?wkt=</span>${encodedWkt}<span class="string">&name=</span>${<span class="function">encodeURIComponent</span>(name)}<span class="string">&color=</span>${<span class="function">encodeURIComponent</span>(selectedColor)}<span class="string">`</span>
+                );
+                
+                <span class="keyword">const</span> result = <span class="keyword">await</span> response.<span class="function">json</span>();
+                
+                <span class="keyword">if</span> (!result.success) {
+                    <span class="keyword">throw new</span> <span class="class">Error</span>(result.message || <span class="string">'خطا در پردازش WKT'</span>);
+                }
+                
+                <span class="comment">// حذف لایه قبلی</span>
+                <span class="keyword">if</span> (geoJsonLayer) {
+                    map.<span class="function">removeLayer</span>(geoJsonLayer);
+                }
+                
+                <span class="comment">// افزودن لایه جدید</span>
+                geoJsonLayer = L.<span class="function">geoJSON</span>(result.data, {
+                    style: {
+                        color: selectedColor,
+                        weight: <span class="number">3</span>,
+                        opacity: <span class="number">0.8</span>,
+                        fillColor: selectedColor,
+                        fillOpacity: <span class="number">0.3</span>
+                    },
+                    pointToLayer: (feature, latlng) => {
+                        <span class="keyword">return</span> L.<span class="function">circleMarker</span>(latlng, {
+                            radius: <span class="number">10</span>,
+                            fillColor: selectedColor,
+                            color: <span class="string">'#fff'</span>,
+                            weight: <span class="number">2</span>,
+                            opacity: <span class="number">1</span>,
+                            fillOpacity: <span class="number">0.8</span>
+                        });
+                    },
+                    onEachFeature: (feature, layer) => {
+                        layer.<span class="function">bindPopup</span>(<span class="string">`
+                            &lt;div style="direction:rtl; text-align:right;"&gt;
+                                &lt;h3 style="color:</span>${selectedColor}<span class="string">;margin:0 0 10px 0;"&gt;</span>${name}<span class="string">&lt;/h3&gt;
+                                &lt;p&gt;&lt;strong&gt;نوع:&lt;/strong&gt; </span>${result.meta?.geometryType || <span class="string">'نامشخص'</span>}<span class="string">&lt;/p&gt;
+                            &lt;/div&gt;
+                        `</span>);
+                    }
+                }).<span class="function">addTo</span>(map);
+                
+                <span class="comment">// زوم به عارضه</span>
+                map.<span class="function">fitBounds</span>(geoJsonLayer.<span class="function">getBounds</span>(), { padding: [<span class="number">50</span>, <span class="number">50</span>] });
+                
+                <span class="comment">// نمایش اطلاعات</span>
+                <span class="function">showFeatureInfo</span>(result);
+                <span class="function">showStatus</span>(<span class="string">'✅ عارضه با موفقیت روی نقشه نمایش داده شد'</span>, <span class="string">'success'</span>);
+                
+            } <span class="keyword">catch</span> (error) {
+                <span class="function">showStatus</span>(<span class="string">`❌ خطا: </span>${error.message}<span class="string">`</span>, <span class="string">'error'</span>);
+            } <span class="keyword">finally</span> {
+                <span class="function">showLoading</span>(<span class="keyword">false</span>);
+            }
+        }
+        
+        <span class="comment">// ===== پاک کردن نقشه =====</span>
+        <span class="keyword">function</span> <span class="function">clearMap</span>() {
+            <span class="keyword">if</span> (geoJsonLayer) {
+                map.<span class="function">removeLayer</span>(geoJsonLayer);
+                geoJsonLayer = <span class="keyword">null</span>;
+            }
+            document.<span class="function">getElementById</span>(<span class="string">'wktInput'</span>).value = <span class="string">''</span>;
+            document.<span class="function">getElementById</span>(<span class="string">'featureName'</span>).value = <span class="string">''</span>;
+            document.<span class="function">getElementById</span>(<span class="string">'featureInfo'</span>).style.display = <span class="string">'none'</span>;
+            document.<span class="function">getElementById</span>(<span class="string">'status'</span>).className = <span class="string">'status'</span>;
+            map.<span class="function">setView</span>([<span class="number">35.6892</span>, <span class="number">51.3890</span>], <span class="number">10</span>);
+        }
+        
+        <span class="comment">// ===== نمایش وضعیت =====</span>
+        <span class="keyword">function</span> <span class="function">showStatus</span>(message, type) {
+            <span class="keyword">const</span> status = document.<span class="function">getElementById</span>(<span class="string">'status'</span>);
+            status.textContent = message;
+            status.className = <span class="string">`status </span>${type}<span class="string">`</span>;
+        }
+        
+        <span class="comment">// ===== نمایش اطلاعات عارضه =====</span>
+        <span class="keyword">function</span> <span class="function">showFeatureInfo</span>(result) {
+            <span class="keyword">const</span> container = document.<span class="function">getElementById</span>(<span class="string">'featureInfo'</span>);
+            <span class="keyword">const</span> content = document.<span class="function">getElementById</span>(<span class="string">'featureInfoContent'</span>);
+            
+            <span class="keyword">let</span> html = <span class="string">`
+                &lt;div class="info-row"&gt;
+                    &lt;span class="label"&gt;نوع هندسه:&lt;/span&gt;
+                    &lt;span class="value"&gt;</span>${result.meta?.geometryType || <span class="string">'نامشخص'</span>}<span class="string">&lt;/span&gt;
+                &lt;/div&gt;
+            `</span>;
+            
+            <span class="keyword">if</span> (result.meta?.centroid) {
+                html += <span class="string">`
+                    &lt;div class="info-row"&gt;
+                        &lt;span class="label"&gt;مرکز (Lat):&lt;/span&gt;
+                        &lt;span class="value"&gt;</span>${result.meta.centroid.lat.<span class="function">toFixed</span>(<span class="number">6</span>)}<span class="string">&lt;/span&gt;
+                    &lt;/div&gt;
+                    &lt;div class="info-row"&gt;
+                        &lt;span class="label"&gt;مرکز (Lng):&lt;/span&gt;
+                        &lt;span class="value"&gt;</span>${result.meta.centroid.lng.<span class="function">toFixed</span>(<span class="number">6</span>)}<span class="string">&lt;/span&gt;
+                    &lt;/div&gt;
+                `</span>;
+            }
+            
+            content.innerHTML = html;
+            container.style.display = <span class="string">'block'</span>;
+        }
+        
+        <span class="comment">// ===== نمایش/مخفی کردن loading =====</span>
+        <span class="keyword">function</span> <span class="function">showLoading</span>(show) {
+            document.<span class="function">getElementById</span>(<span class="string">'loading'</span>).classList.<span class="function">toggle</span>(<span class="string">'show'</span>, show);
+        }
+        
+        <span class="comment">// ===== بررسی URL برای WKT =====</span>
+        <span class="keyword">function</span> <span class="function">checkUrlForWkt</span>() {
+            <span class="keyword">const</span> params = <span class="keyword">new</span> <span class="class">URLSearchParams</span>(window.location.search);
+            <span class="keyword">const</span> wkt = params.<span class="function">get</span>(<span class="string">'wkt'</span>);
+            
+            <span class="keyword">if</span> (wkt) {
+                document.<span class="function">getElementById</span>(<span class="string">'wktInput'</span>).value = wkt;
+                <span class="keyword">const</span> name = params.<span class="function">get</span>(<span class="string">'name'</span>);
+                <span class="keyword">if</span> (name) {
+                    document.<span class="function">getElementById</span>(<span class="string">'featureName'</span>).value = name;
+                }
+                <span class="function">showOnMap</span>();
+            }
+        }
+        
+        <span class="comment">// بررسی URL در بارگذاری صفحه</span>
+        window.<span class="function">addEventListener</span>(<span class="string">'load'</span>, checkUrlForWkt);
+    <span class="keyword">&lt;/script&gt;</span>
+<span class="keyword">&lt;/body&gt;</span>
+<span class="keyword">&lt;/html&gt;</span>
+            </div>
+        </div>
+
+        <!-- اسلاید 7: API Documentation -->
+        <div class="slide" id="api">
+            <div class="slide-number">7</div>
+            <h2>📚 مستندات API</h2>
+
+            <h3>🔗 Endpoint های موجود</h3>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/geo/wkt?wkt=POINT(51.4 35.7)&name=Tehran&color=#10b981</span>
+            </div>
+
+            <div class="info-box">
+                <h4>📝 پارامترها</h4>
+                <ul>
+                    <li><code>wkt</code> (required): رشته WKT</li>
+                    <li><code>name</code> (optional): نام عارضه</li>
+                    <li><code>color</code> (optional): رنگ عارضه</li>
+                </ul>
+            </div>
+
+            <h4>📤 نمونه Response:</h4>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>JSON Response</span>
+            </div>
+            <div class="code-block">
+{
+  <span class="string">"success"</span>: <span class="keyword">true</span>,
+  <span class="string">"data"</span>: {
+    <span class="string">"type"</span>: <span class="string">"Feature"</span>,
+    <span class="string">"geometry"</span>: {
+      <span class="string">"type"</span>: <span class="string">"Point"</span>,
+      <span class="string">"coordinates"</span>: [<span class="number">51.4</span>, <span class="number">35.7</span>]
+    },
+    <span class="string">"properties"</span>: {
+      <span class="string">"name"</span>: <span class="string">"Tehran"</span>,
+      <span class="string">"color"</span>: <span class="string">"#10b981"</span>,
+      <span class="string">"originalWkt"</span>: <span class="string">"POINT(51.4 35.7)"</span>,
+      <span class="string">"createdAt"</span>: <span class="string">"2024-12-15T10:30:00.000Z"</span>
+    }
+  },
+  <span class="string">"meta"</span>: {
+    <span class="string">"geometryType"</span>: <span class="string">"point"</span>,
+    <span class="string">"centroid"</span>: {
+      <span class="string">"lat"</span>: <span class="number">35.7</span>,
+      <span class="string">"lng"</span>: <span class="number">51.4</span>
+    }
+  }
+}
+            </div>
+
+            <h3>📮 POST - ارسال WKT در Body</h3>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="url">/api/geo/wkt</span>
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Request Body</span>
+            </div>
+            <div class="code-block">
+{
+  <span class="string">"wkt"</span>: <span class="string">"POLYGON((51.3 35.6, 51.5 35.6, 51.5 35.8, 51.3 35.8, 51.3 35.6))"</span>,
+  <span class="string">"properties"</span>: {
+    <span class="string">"name"</span>: <span class="string">"منطقه تهران"</span>,
+    <span class="string">"area"</span>: <span class="number">1000</span>
+  }
+}
+            </div>
+
+            <h3>📦 POST - Batch (چند WKT)</h3>
+
+            <div class="endpoint">
+                <span class="method post">POST</span>
+                <span class="url">/api/geo/wkt/batch</span>
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Request Body</span>
+            </div>
+            <div class="code-block">
+{
+  <span class="string">"features"</span>: [
+    {
+      <span class="string">"wkt"</span>: <span class="string">"POINT(51.4 35.7)"</span>,
+      <span class="string">"properties"</span>: { <span class="string">"name"</span>: <span class="string">"نقطه ۱"</span> }
+    },
+    {
+      <span class="string">"wkt"</span>: <span class="string">"POINT(51.5 35.8)"</span>,
+      <span class="string">"properties"</span>: { <span class="string">"name"</span>: <span class="string">"نقطه ۲"</span> }
+    }
+  ]
+}
+            </div>
+
+            <h3>✅ اعتبارسنجی WKT</h3>
+
+            <div class="endpoint">
+                <span class="method">GET</span>
+                <span class="url">/api/geo/validate?wkt=POINT(51.4 35.7)</span>
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Response</span>
+            </div>
+            <div class="code-block">
+{
+  <span class="string">"success"</span>: <span class="keyword">true</span>,
+  <span class="string">"valid"</span>: <span class="keyword">true</span>,
+  <span class="string">"wkt"</span>: <span class="string">"POINT(51.4 35.7)"</span>,
+  <span class="string">"geometryType"</span>: <span class="string">"point"</span>
+}
+            </div>
+
+            <h3>🧪 تست با cURL</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal - cURL</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># GET - تبدیل WKT به GeoJSON</span>
+curl "http://localhost:3000/api/geo/wkt?wkt=POINT(51.4%2035.7)"
+
+<span class="comment"># POST - ارسال WKT در body</span>
+curl -X POST http://localhost:3000/api/geo/wkt \
+  -H "Content-Type: application/json" \
+  -d '{"wkt": "POLYGON((51.3 35.6, 51.5 35.6, 51.5 35.8, 51.3 35.8, 51.3 35.6))"}'
+
+<span class="comment"># اعتبارسنجی</span>
+curl "http://localhost:3000/api/geo/validate?wkt=POINT(51.4%2035.7)"
+
+<span class="comment"># نمونه‌ها</span>
+curl http://localhost:3000/api/geo/examples
+            </div>
+        </div>
+
+        <!-- اسلاید 8: تست و اجرا -->
+        <div class="slide" id="test">
+            <div class="slide-number">8</div>
+            <h2>🧪 تست و اجرا</h2>
+
+            <h3><span class="step">1</span> اجرای پروژه</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># اجرا در حالت development</span>
+npm run start:dev
+
+<span class="comment"># خروجی:</span>
+[Nest] 12345  - 🗺️ WebGIS running on http://localhost:3000
+            </div>
+
+            <h3><span class="step">2</span> تست در مرورگر</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">🌐</div>
+                    <h4>صفحه اصلی</h4>
+                    <p><code>http://localhost:3000</code></p>
+                    <p>نمایش نقشه و فرم ورود WKT</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔗</div>
+                    <h4>با پارامتر URL</h4>
+                    <p><code>http://localhost:3000?wkt=POINT(51.4 35.7)</code></p>
+                    <p>نمایش مستقیم WKT روی نقشه</p>
+                </div>
+            </div>
+
+            <h3><span class="step">3</span> نمونه URL‌ها</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>URLs</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># نقطه تهران</span>
+http://localhost:3000?wkt=POINT(51.3890%2035.6892)&name=Tehran
+
+<span class="comment"># خط</span>
+http://localhost:3000?wkt=LINESTRING(51.3%2035.6,%2051.5%2035.7,%2051.4%2035.8)
+
+<span class="comment"># چندضلعی</span>
+http://localhost:3000?wkt=POLYGON((51.3%2035.6,%2051.5%2035.6,%2051.5%2035.8,%2051.3%2035.8,%2051.3%2035.6))
+            </div>
+
+            <h3><span class="step">4</span> تست API با Postman</h3>
+
+            <div class="info-box">
+                <h4>📮 مراحل تست در Postman</h4>
+                <ol>
+                    <li>یک Request جدید ایجاد کنید</li>
+                    <li>Method را روی <code>GET</code> یا <code>POST</code> تنظیم کنید</li>
+                    <li>URL را وارد کنید: <code>http://localhost:3000/api/geo/wkt</code></li>
+                    <li>برای POST، در Body گزینه raw و JSON را انتخاب کنید</li>
+                    <li>Send را بزنید</li>
+                </ol>
+            </div>
+
+            <h3>🖼️ نمای نهایی</h3>
+
+            <div class="success-box">
+                <h4>✅ پروژه آماده است!</h4>
+                <p>اکنون می‌توانید:</p>
+                <ul>
+                    <li>WKT را در فرم وارد کنید و روی نقشه ببینید</li>
+                    <li>از نمونه‌های آماده استفاده کنید</li>
+                    <li>رنگ عارضه را تغییر دهید</li>
+                    <li>WKT را از طریق URL ارسال کنید</li>
+                    <li>از API برای تبدیل WKT به GeoJSON استفاده کنید</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: پیشرفته -->
+        <div class="slide" id="advanced">
+            <div class="slide-number">9</div>
+            <h2>🚀 قابلیت‌های پیشرفته</h2>
+
+            <h3>📍 افزودن پشتیبانی PostGIS</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal - نصب پکیج‌ها</span>
+            </div>
+            <div class="code-block">
+npm install @nestjs/typeorm typeorm pg
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/entities/feature.entity.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { Entity, PrimaryGeneratedColumn, Column } <span class="keyword">from</span> <span class="string">'typeorm'</span>;
+
+<span class="decorator">@Entity</span>(<span class="string">'features'</span>)
+<span class="keyword">export class</span> <span class="class">Feature</span> {
+  <span class="decorator">@PrimaryGeneratedColumn</span>()
+  id: <span class="type">number</span>;
+
+  <span class="decorator">@Column</span>()
+  name: <span class="type">string</span>;
+
+  <span class="decorator">@Column</span>(<span class="string">'geometry'</span>, {
+    spatialFeatureType: <span class="string">'Geometry'</span>,
+    srid: <span class="number">4326</span>,
+  })
+  geom: <span class="type">string</span>;
+
+  <span class="decorator">@Column</span>({ type: <span class="string">'jsonb'</span>, nullable: <span class="keyword">true</span> })
+  properties: <span class="type">Record</span>&lt;<span class="type">string</span>, <span class="type">any</span>&gt;;
+
+  <span class="decorator">@Column</span>({ type: <span class="string">'timestamp'</span>, default: () => <span class="string">'CURRENT_TIMESTAMP'</span> })
+  createdAt: <span class="type">Date</span>;
+}
+            </div>
+
+            <h3>🔍 افزودن جستجوی مکانی</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/geo.service.ts - Spatial Queries</span>
+            </div>
+            <div class="code-block">
+<span class="comment">// جستجوی عوارض در یک محدوده</span>
+<span class="keyword">async</span> <span class="function">findInBounds</span>(
+  minX: <span class="type">number</span>, minY: <span class="type">number</span>,
+  maxX: <span class="type">number</span>, maxY: <span class="type">number</span>
+): <span class="type">Promise</span>&lt;Feature[]&gt; {
+  <span class="keyword">return</span> <span class="keyword">this</span>.featureRepo
+    .<span class="function">createQueryBuilder</span>(<span class="string">'f'</span>)
+    .<span class="function">where</span>(<span class="string">`ST_Intersects(
+        f.geom,
+        ST_MakeEnvelope(:minX, :minY, :maxX, :maxY, 4326)
+      )`</span>, { minX, minY, maxX, maxY })
+    .<span class="function">getMany</span>();
+}
+
+<span class="comment">// جستجوی عوارض نزدیک یک نقطه</span>
+<span class="keyword">async</span> <span class="function">findNearby</span>(
+  lng: <span class="type">number</span>, lat: <span class="type">number</span>, 
+  radiusMeters: <span class="type">number</span>
+): <span class="type">Promise</span>&lt;Feature[]&gt; {
+  <span class="keyword">return</span> <span class="keyword">this</span>.featureRepo
+    .<span class="function">createQueryBuilder</span>(<span class="string">'f'</span>)
+    .<span class="function">where</span>(<span class="string">`ST_DWithin(
+        f.geom::geography,
+        ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,
+        :radius
+      )`</span>, { lng, lat, radius: radiusMeters })
+    .<span class="function">orderBy</span>(<span class="string">`ST_Distance(
+        f.geom::geography,
+        ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography
+      )`</span>)
+    .<span class="function">getMany</span>();
+}
+            </div>
+
+            <h3>🎨 افزودن استایل‌های مختلف</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>JavaScript - Dynamic Styling</span>
+            </div>
+            <div class="code-block"><span class="comment">// استایل‌های پویا بر اساس نوع هندسه</span>
+<span class="keyword">function</span> <span class="function">getStyleByGeometryType</span>(feature) {
+  <span class="keyword">const</span> type = feature.geometry.type;
+  
+  <span class="keyword">const</span> styles = {
+    <span class="string">'Point'</span>: {
+      radius: <span class="number">8</span>,
+      fillColor: <span class="string">'#10b981'</span>,
+      color: <span class="string">'#fff'</span>,
+      weight: <span class="number">2</span>,
+      fillOpacity: <span class="number">0.8</span>
+    },
+    <span class="string">'LineString'</span>: {
+      color: <span class="string">'#3b82f6'</span>,
+      weight: <span class="number">4</span>,
+      opacity: <span class="number">0.8</span>,
+      dashArray: <span class="string">'10, 5'</span>
+    },
+    <span class="string">'Polygon'</span>: {
+      fillColor: <span class="string">'#f59e0b'</span>,
+      color: <span class="string">'#d97706'</span>,
+      weight: <span class="number">2</span>,
+      fillOpacity: <span class="number">0.4</span>
+    },
+    <span class="string">'MultiPoint'</span>: {
+      radius: <span class="number">6</span>,
+      fillColor: <span class="string">'#8b5cf6'</span>,
+      color: <span class="string">'#fff'</span>,
+      weight: <span class="number">2</span>,
+      fillOpacity: <span class="number">0.8</span>
+    },
+    <span class="string">'MultiLineString'</span>: {
+      color: <span class="string">'#ec4899'</span>,
+      weight: <span class="number">3</span>,
+      opacity: <span class="number">0.8</span>
+    },
+    <span class="string">'MultiPolygon'</span>: {
+      fillColor: <span class="string">'#06b6d4'</span>,
+      color: <span class="string">'#0891b2'</span>,
+      weight: <span class="number">2</span>,
+      fillOpacity: <span class="number">0.4</span>
+    }
+  };
+  
+  <span class="keyword">return</span> styles[type] || styles[<span class="string">'Polygon'</span>];
+}
+
+<span class="comment">// استایل بر اساس property</span>
+<span class="keyword">function</span> <span class="function">getStyleByProperty</span>(feature) {
+  <span class="keyword">const</span> value = feature.properties?.category;
+  
+  <span class="keyword">const</span> categoryColors = {
+    <span class="string">'residential'</span>: <span class="string">'#22c55e'</span>,
+    <span class="string">'commercial'</span>: <span class="string">'#3b82f6'</span>,
+    <span class="string">'industrial'</span>: <span class="string">'#f59e0b'</span>,
+    <span class="string">'park'</span>: <span class="string">'#10b981'</span>,
+    <span class="string">'water'</span>: <span class="string">'#06b6d4'</span>
+  };
+  
+  <span class="keyword">return</span> {
+    fillColor: categoryColors[value] || <span class="string">'#6b7280'</span>,
+    color: <span class="string">'#374151'</span>,
+    weight: <span class="number">2</span>,
+    fillOpacity: <span class="number">0.5</span>
+  };
+}
+            </div>
+
+            <h3>📤 افزودن Export به فرمت‌های مختلف</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/geo.controller.ts - Export Endpoints</span>
+            </div>
+            <div class="code-block">
+<span class="decorator">@Get</span>(<span class="string">'export/geojson'</span>)
+<span class="function">exportGeoJson</span>(<span class="decorator">@Query</span>(<span class="string">'wkt'</span>) wkt: <span class="type">string</span>, <span class="decorator">@Res</span>() res: Response) {
+  <span class="keyword">const</span> geoJson = <span class="keyword">this</span>.geoService.<span class="function">wktToGeoJson</span>(wkt);
+  
+  res.<span class="function">setHeader</span>(<span class="string">'Content-Type'</span>, <span class="string">'application/geo+json'</span>);
+  res.<span class="function">setHeader</span>(<span class="string">'Content-Disposition'</span>, <span class="string">'attachment; filename="feature.geojson"'</span>);
+  res.<span class="function">send</span>(JSON.<span class="function">stringify</span>(geoJson, <span class="keyword">null</span>, <span class="number">2</span>));
+}
+
+<span class="decorator">@Get</span>(<span class="string">'export/kml'</span>)
+<span class="function">exportKml</span>(<span class="decorator">@Query</span>(<span class="string">'wkt'</span>) wkt: <span class="type">string</span>, <span class="decorator">@Res</span>() res: Response) {
+  <span class="keyword">const</span> geoJson = <span class="keyword">this</span>.geoService.<span class="function">wktToGeoJson</span>(wkt);
+  <span class="keyword">const</span> kml = <span class="keyword">this</span>.<span class="function">convertToKml</span>(geoJson);
+  
+  res.<span class="function">setHeader</span>(<span class="string">'Content-Type'</span>, <span class="string">'application/vnd.google-earth.kml+xml'</span>);
+  res.<span class="function">setHeader</span>(<span class="string">'Content-Disposition'</span>, <span class="string">'attachment; filename="feature.kml"'</span>);
+  res.<span class="function">send</span>(kml);
+}
+
+<span class="keyword">private</span> <span class="function">convertToKml</span>(geoJson: <span class="type">any</span>): <span class="type">string</span> {
+  <span class="keyword">const</span> coords = geoJson.geometry.coordinates;
+  <span class="keyword">let</span> kmlCoords = <span class="string">''</span>;
+  
+  <span class="keyword">if</span> (geoJson.geometry.type === <span class="string">'Point'</span>) {
+    kmlCoords = <span class="string">`</span>${coords[<span class="number">0</span>]}<span class="string">,</span>${coords[<span class="number">1</span>]}<span class="string">,0`</span>;
+  }
+  
+  <span class="keyword">return</span> <span class="string">`&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;kml xmlns="http://www.opengis.net/kml/2.2"&gt;
+  &lt;Document&gt;
+    &lt;Placemark&gt;
+      &lt;name&gt;</span>${geoJson.properties?.name || <span class="string">'Feature'</span>}<span class="string">&lt;/name&gt;
+      &lt;Point&gt;
+        &lt;coordinates&gt;</span>${kmlCoords}<span class="string">&lt;/coordinates&gt;
+      &lt;/Point&gt;
+    &lt;/Placemark&gt;
+  &lt;/Document&gt;
+&lt;/kml&gt;`</span>;
+}
+            </div>
+
+            <h3>🔧 افزودن Swagger Documentation</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+npm install @nestjs/swagger swagger-ui-express
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/main.ts - Swagger Setup</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { SwaggerModule, DocumentBuilder } <span class="keyword">from</span> <span class="string">'@nestjs/swagger'</span>;
+
+<span class="keyword">async function</span> <span class="function">bootstrap</span>() {
+  <span class="keyword">const</span> app = <span class="keyword">await</span> NestFactory.<span class="function">create</span>(AppModule);
+  
+  <span class="comment">// Swagger configuration</span>
+  <span class="keyword">const</span> config = <span class="keyword">new</span> DocumentBuilder()
+    .<span class="function">setTitle</span>(<span class="string">'WebGIS API'</span>)
+    .<span class="function">setDescription</span>(<span class="string">'API برای تبدیل WKT به GeoJSON و نمایش روی نقشه'</span>)
+    .<span class="function">setVersion</span>(<span class="string">'1.0'</span>)
+    .<span class="function">addTag</span>(<span class="string">'geo'</span>, <span class="string">'عملیات مکانی'</span>)
+    .<span class="function">build</span>();
+  
+  <span class="keyword">const</span> document = SwaggerModule.<span class="function">createDocument</span>(app, config);
+  SwaggerModule.<span class="function">setup</span>(<span class="string">'api/docs'</span>, app, document);
+  
+  <span class="keyword">await</span> app.<span class="function">listen</span>(<span class="number">3000</span>);
+  console.<span class="function">log</span>(<span class="string">`🗺️ WebGIS: http://localhost:3000`</span>);
+  console.<span class="function">log</span>(<span class="string">`📚 Swagger: http://localhost:3000/api/docs`</span>);
+}
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>src/geo/dto/wkt.dto.ts - Swagger Decorators</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { ApiProperty, ApiPropertyOptional } <span class="keyword">from</span> <span class="string">'@nestjs/swagger'</span>;
+
+<span class="keyword">export class</span> <span class="class">WktQueryDto</span> {
+  <span class="decorator">@ApiProperty</span>({
+    description: <span class="string">'رشته WKT'</span>,
+    example: <span class="string">'POINT(51.3890 35.6892)'</span>,
+  })
+  <span class="decorator">@IsString</span>()
+  <span class="decorator">@IsNotEmpty</span>()
+  wkt: <span class="type">string</span>;
+
+  <span class="decorator">@ApiPropertyOptional</span>({
+    description: <span class="string">'نام عارضه'</span>,
+    example: <span class="string">'تهران'</span>,
+  })
+  <span class="decorator">@IsOptional</span>()
+  <span class="decorator">@IsString</span>()
+  name?: <span class="type">string</span>;
+
+  <span class="decorator">@ApiPropertyOptional</span>({
+    description: <span class="string">'رنگ عارضه (hex)'</span>,
+    example: <span class="string">'#10b981'</span>,
+  })
+  <span class="decorator">@IsOptional</span>()
+  <span class="decorator">@IsString</span>()
+  color?: <span class="type">string</span>;
+}
+            </div>
+
+            <h3>🗺️ افزودن لایه‌های اضافی به نقشه</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>JavaScript - Additional Map Layers</span>
+            </div>
+            <div class="code-block">
+<span class="comment">// لایه‌های پایه مختلف</span>
+<span class="keyword">const</span> baseLayers = {
+  <span class="string">'OpenStreetMap'</span>: L.<span class="function">tileLayer</span>(
+    <span class="string">'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'</span>,
+    { attribution: <span class="string">'© OpenStreetMap'</span> }
+  ),
+  
+  <span class="string">'Satellite'</span>: L.<span class="function">tileLayer</span>(
+    <span class="string">'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'</span>,
+    { attribution: <span class="string">'© Esri'</span> }
+  ),
+  
+  <span class="string">'Terrain'</span>: L.<span class="function">tileLayer</span>(
+    <span class="string">'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'</span>,
+    { attribution: <span class="string">'© OpenTopoMap'</span> }
+  ),
+  
+  <span class="string">'Dark'</span>: L.<span class="function">tileLayer</span>(
+    <span class="string">'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'</span>,
+    { attribution: <span class="string">'© CartoDB'</span> }
+  ),
+  
+  <span class="string">'Light'</span>: L.<span class="function">tileLayer</span>(
+    <span class="string">'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'</span>,
+    { attribution: <span class="string">'© CartoDB'</span> }
+  )
+};
+
+<span class="comment">// لایه‌های overlay</span>
+<span class="keyword">const</span> overlayLayers = {
+  <span class="string">'مرزها'</span>: L.<span class="function">tileLayer</span>(
+    <span class="string">'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'</span>,
+    { opacity: <span class="number">0.3</span> }
+  ),
+  
+  <span class="string">'برچسب‌ها'</span>: L.<span class="function">tileLayer</span>(
+    <span class="string">'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'</span>,
+    { pane: <span class="string">'shadowPane'</span> }
+  )
+};
+
+<span class="comment">// افزودن کنترل لایه‌ها</span>
+L.control.<span class="function">layers</span>(baseLayers, overlayLayers, {
+  position: <span class="string">'topright'</span>,
+  collapsed: <span class="keyword">true</span>
+}).<span class="function">addTo</span>(map);
+
+<span class="comment">// افزودن مقیاس</span>
+L.control.<span class="function">scale</span>({
+  metric: <span class="keyword">true</span>,
+  imperial: <span class="keyword">false</span>,
+  position: <span class="string">'bottomleft'</span>
+}).<span class="function">addTo</span>(map);
+
+<span class="comment">// افزودن موقعیت مکان‌نما</span>
+map.<span class="function">on</span>(<span class="string">'mousemove'</span>, <span class="keyword">function</span>(e) {
+  document.<span class="function">getElementById</span>(<span class="string">'coords'</span>).innerHTML = 
+    <span class="string">`Lat: </span>${e.latlng.lat.<span class="function">toFixed</span>(<span class="number">6</span>)}<span class="string">, Lng: </span>${e.latlng.lng.<span class="function">toFixed</span>(<span class="number">6</span>)}<span class="string">`</span>;
+});
+            </div>
+
+            <h3>✏️ افزودن ابزار ترسیم</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Terminal</span>
+            </div>
+            <div class="code-block">
+<span class="comment"># افزودن Leaflet.draw از CDN در HTML</span>
+&lt;link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"&gt;
+&lt;script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"&gt;&lt;/script&gt;
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>JavaScript - Drawing Tools</span>
+            </div>
+            <div class="code-block">
+<span class="comment">// لایه برای ذخیره عوارض ترسیم شده</span>
+<span class="keyword">const</span> drawnItems = <span class="keyword">new</span> L.FeatureGroup();
+map.<span class="function">addLayer</span>(drawnItems);
+
+<span class="comment">// تنظیمات ابزار ترسیم</span>
+<span class="keyword">const</span> drawControl = <span class="keyword">new</span> L.Control.Draw({
+  position: <span class="string">'topleft'</span>,
+  draw: {
+    polyline: {
+      shapeOptions: {
+        color: <span class="string">'#3b82f6'</span>,
+        weight: <span class="number">3</span>
+      }
+    },
+    polygon: {
+      allowIntersection: <span class="keyword">false</span>,
+      shapeOptions: {
+        color: <span class="string">'#10b981'</span>,
+        fillOpacity: <span class="number">0.3</span>
+      }
+    },
+    circle: {
+      shapeOptions: {
+        color: <span class="string">'#f59e0b'</span>
+      }
+    },
+    rectangle: {
+      shapeOptions: {
+        color: <span class="string">'#8b5cf6'</span>
+      }
+    },
+    marker: <span class="keyword">true</span>,
+    circlemarker: <span class="keyword">false</span>
+  },
+  edit: {
+    featureGroup: drawnItems,
+    remove: <span class="keyword">true</span>
+  }
+});
+
+map.<span class="function">addControl</span>(drawControl);
+
+<span class="comment">// رویداد ایجاد عارضه جدید</span>
+map.<span class="function">on</span>(L.Draw.Event.CREATED, <span class="keyword">function</span>(event) {
+  <span class="keyword">const</span> layer = event.layer;
+  drawnItems.<span class="function">addLayer</span>(layer);
+  
+  <span class="comment">// تبدیل به GeoJSON</span>
+  <span class="keyword">const</span> geoJson = layer.<span class="function">toGeoJSON</span>();
+  console.<span class="function">log</span>(<span class="string">'GeoJSON:'</span>, geoJson);
+  
+  <span class="comment">// تبدیل به WKT و نمایش</span>
+  <span class="function">convertToWktAndDisplay</span>(geoJson);
+});
+
+<span class="comment">// تبدیل GeoJSON به WKT</span>
+<span class="keyword">async function</span> <span class="function">convertToWktAndDisplay</span>(geoJson) {
+  <span class="keyword">try</span> {
+    <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="function">fetch</span>(<span class="string">'/api/geo/geojson-to-wkt'</span>, {
+      method: <span class="string">'POST'</span>,
+      headers: { <span class="string">'Content-Type'</span>: <span class="string">'application/json'</span> },
+      body: JSON.<span class="function">stringify</span>({ geometry: geoJson.geometry })
+    });
+    
+    <span class="keyword">const</span> result = <span class="keyword">await</span> response.<span class="function">json</span>();
+    
+    <span class="keyword">if</span> (result.success) {
+      document.<span class="function">getElementById</span>(<span class="string">'wktInput'</span>).value = result.wkt;
+      <span class="function">showStatus</span>(<span class="string">'✅ عارضه ترسیم شد'</span>, <span class="string">'success'</span>);
+    }
+  } <span class="keyword">catch</span> (error) {
+    console.<span class="function">error</span>(<span class="string">'Error:'</span>, error);
+  }
+}
+            </div>
+        </div>
+
+        <!-- اسلاید 10: خلاصه و منابع -->
+        <div class="slide" id="summary">
+            <div class="slide-number">10</div>
+            <h2>📝 خلاصه و منابع</h2>
+
+            <h3>✅ آنچه یاد گرفتیم</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">🚀</div>
+                    <h4>Backend با NestJS</h4>
+                    <ul>
+                        <li>ایجاد Module, Controller, Service</li>
+                        <li>تبدیل WKT به GeoJSON</li>
+                        <li>Validation با class-validator</li>
+                        <li>سرو فایل‌های استاتیک</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="icon">🗺️</div>
+                    <h4>Frontend با Leaflet</h4>
+                    <ul>
+                        <li>نمایش نقشه تعاملی</li>
+                        <li>نمایش GeoJSON روی نقشه</li>
+                        <li>لایه‌های مختلف نقشه</li>
+                        <li>استایل‌دهی عوارض</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="icon">📍</div>
+                    <h4>WKT و GeoJSON</h4>
+                    <ul>
+                        <li>فرمت‌های مکانی استاندارد</li>
+                        <li>تبدیل بین فرمت‌ها</li>
+                        <li>انواع هندسه‌ها</li>
+                        <li>اعتبارسنجی داده‌ها</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="icon">🔧</div>
+                    <h4>قابلیت‌های پیشرفته</h4>
+                    <ul>
+                        <li>اتصال به PostGIS</li>
+                        <li>جستجوی مکانی</li>
+                        <li>ابزار ترسیم</li>
+                        <li>Export به فرمت‌های مختلف</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>📁 ساختار نهایی پروژه</h3>
+
+            <div class="dir-tree">
+<span class="folder">📁 webgis-nestjs/</span>
+├── <span class="folder">📁 src/</span>
+│   ├── <span class="folder">📁 geo/</span>
+│   │   ├── <span class="folder">📁 dto/</span>
+│   │   │   └── <span class="ts-file">📄 wkt.dto.ts</span>
+│   │   ├── <span class="folder">📁 entities/</span>
+│   │   │   └── <span class="ts-file">📄 feature.entity.ts</span>
+│   │   ├── <span class="ts-file">📄 geo.module.ts</span>
+│   │   ├── <span class="ts-file">📄 geo.controller.ts</span>
+│   │   └── <span class="ts-file">📄 geo.service.ts</span>
+│   ├── <span class="folder">📁 public/</span>
+│   │   ├── <span class="html-file">📄 index.html</span>
+│   │   └── <span class="folder">📁 assets/</span>
+│   ├── <span class="ts-file">📄 app.module.ts</span>
+│   └── <span class="ts-file">📄 main.ts</span>
+├── <span class="json-file">📄 package.json</span>
+├── <span class="json-file">📄 tsconfig.json</span>
+├── <span class="file">📄 nest-cli.json</span>
+└── <span class="file">📄 README.md</span>
+            </div>
+
+            <h3>🔗 منابع مفید</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">📖</div>
+                    <h4>NestJS</h4>
+                    <p><a href="https://nestjs.com/" target="_blank">nestjs.com</a></p>
+                    <p>مستندات رسمی NestJS</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🗺️</div>
+                    <h4>Leaflet</h4>
+                    <p><a href="https://leafletjs.com/" target="_blank">leafletjs.com</a></p>
+                    <p>کتابخانه نقشه JavaScript</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📍</div>
+                    <h4>WKT</h4>
+                    <p><a href="https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry" target="_blank">Wikipedia</a></p>
+                    <p>استاندارد OGC</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🌐</div>
+                    <h4>GeoJSON</h4>
+                    <p><a href="https://geojson.org/" target="_blank">geojson.org</a></p>
+                    <p>فرمت GeoJSON</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🐘</div>
+                    <h4>PostGIS</h4>
+                    <p><a href="https://postgis.net/" target="_blank">postgis.net</a></p>
+                    <p>افزونه مکانی PostgreSQL</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📦</div>
+                    <h4>Wicket</h4>
+                    <p><a href="https://github.com/arthur-e/Wicket" target="_blank">GitHub</a></p>
+                    <p>پارسر WKT برای JavaScript</p>
+                </div>
+            </div>
+
+            <h3>🚀 قدم‌های بعدی</h3>
+
+            <div class="info-box">
+                <h4>💡 ایده‌های توسعه</h4>
+                <ul>
+                    <li>🔐 افزودن احراز هویت (JWT)</li>
+                    <li>💾 ذخیره عوارض در دیتابیس PostGIS</li>
+                    <li>🔍 جستجوی مکانی پیشرفته</li>
+                    <li>📊 محاسبه مساحت و طول</li>
+                    <li>🎨 ویرایشگر استایل عوارض</li>
+                    <li>📤 Import/Export فایل‌های Shapefile</li>
+                    <li>🗂️ مدیریت لایه‌ها</li>
+                    <li>👥 همکاری چندکاربره (WebSocket)</li>
+                </ul>
+            </div>
+
+            <div class="success-box" style="margin-top: 30px;">
+                <h4>🎉 تبریک!</h4>
+                <p>
+                    شما یک <strong>WebGIS ساده</strong> با NestJS ساختید که می‌تواند:
+                </p>
+                <ul>
+                    <li>✅ WKT را از URL یا فرم دریافت کند</li>
+                    <li>✅ آن را به GeoJSON تبدیل کند</li>
+                    <li>✅ روی نقشه Leaflet نمایش دهد</li>
+                    <li>✅ انواع هندسه‌ها را پشتیبانی کند</li>
+                </ul>
+                <p style="margin-top: 15px;">
+                    این پایه‌ای عالی برای ساخت سیستم‌های GIS پیچیده‌تر است! 🗺️
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <h3>🗺️ WebGIS با NestJS</h3>
+        <p style="margin: 20px 0;">
+            آموزش ساخت سرویس WebGIS برای نمایش WKT روی نقشه
+        </p>
+        <div style="margin-top: 20px;">
+            <a href="https://nestjs.com/" target="_blank">📖 NestJS Docs</a>
+            <a href="https://leafletjs.com/" target="_blank">🗺️ Leaflet</a>
+            <a href="https://geojson.org/" target="_blank">📍 GeoJSON</a>
+            <a href="https://postgis.net/" target="_blank">🐘 PostGIS</a>
+        </div>
+        <p style="margin-top: 30px; opacity: 0.8;">
+            ساخته شده با ❤️ برای توسعه‌دهندگان GIS | آذر ۱۴۰۴
+        </p>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add copy button to code blocks
+        document.querySelectorAll('.code-block').forEach(block => {
+            const button = document.createElement('button');
+            button.textContent = '📋 Copy';
+            button.style.cssText = `
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background: rgba(255,255,255,0.1);
+                border: none;
+                color: #6ee7b7;
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 12px;
+                opacity: 0;
+                transition: opacity 0.3s;
+            `;
+            
+            block.style.position = 'relative';
+            block.appendChild(button);
+            
+            block.addEventListener('mouseenter', () => button.style.opacity = '1');
+            block.addEventListener('mouseleave', () => button.style.opacity = '0');
+            
+            button.addEventListener('click', () => {
+                const code = block.textContent.replace('📋 Copy', '').trim();
+                navigator.clipboard.writeText(code).then(() => {
+                    button.textContent = '✅ Copied!';
+                    setTimeout(() => button.textContent = '📋 Copy', 2000);
+                });
+            });
+        });
+
+        // Highlight current section in navigation
+        const observerOptions = {
+            root: null,
+            rootMargin: '-20% 0px -80% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('nav a').forEach(link => {
+                        link.style.background = link.getAttribute('href') === `#${id}` 
+                            ? 'var(--primary-light)' 
+                            : 'transparent';
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.slide[id]').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+
+</body>
+</html>
