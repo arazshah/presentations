@@ -1,0 +1,3555 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <title>آموزش کامل معماری نرم‌افزار | Software Architecture</title>
+    
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary-color: #0ea5e9;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-primary: #f5f3ff;
+            --bg-secondary: #ede9fe;
+            --bg-card: #ffffff;
+            --text-primary: #1e1b4b;
+            --text-secondary: #3730a3;
+            --text-muted: #6b7280;
+            --border-color: #c7d2fe;
+            --code-bg: #1e1b4b;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 25px 50px -12px rgba(0,0,0,0.25);
+            --gradient-1: linear-gradient(135deg, #6366f1, #818cf8);
+            --gradient-2: linear-gradient(135deg, #4f46e5, #6366f1);
+            --gradient-3: linear-gradient(135deg, #0ea5e9, #38bdf8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.9;
+            font-size: 17px;
+        }
+
+        /* Header */
+        header {
+            background: var(--gradient-1);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.07'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 22px;
+            border-radius: 30px;
+            margin: 25px 8px 0;
+            font-size: 0.95em;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--primary-dark);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-md);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            white-space: nowrap;
+        }
+
+        nav a:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 50px 20px;
+        }
+
+        /* Slides/Sections */
+        .slide {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 45px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: var(--gradient-1);
+            opacity: 0.03;
+            border-radius: 0 20px 0 100%;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            box-shadow: var(--shadow-md);
+        }
+
+        .slide h2 {
+            color: var(--primary-dark);
+            font-size: 1.9em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slide h3 {
+            color: var(--text-secondary);
+            font-size: 1.4em;
+            margin: 35px 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide h4 {
+            color: var(--text-secondary);
+            font-size: 1.15em;
+            margin: 25px 0 12px;
+        }
+
+        .slide p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* Code Blocks */
+        .code-header {
+            background: #312e81;
+            color: #a5b4fc;
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-header .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-header .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .code-header .dot.red { background: #ff5f56; }
+        .code-header .dot.yellow { background: #ffbd2e; }
+        .code-header .dot.green { background: #27ca40; }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 0 0 12px 12px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-block .keyword { color: #c792ea; font-weight: bold; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .number { color: #f78c6c; }
+        .code-block .comment { color: #676e95; font-style: italic; }
+        .code-block .function { color: #82aaff; }
+        .code-block .class { color: #ffcb6b; }
+        .code-block .decorator { color: #f78c6c; }
+        .code-block .interface { color: #82aaff; }
+
+        code {
+            background: var(--bg-secondary);
+            color: var(--primary-dark);
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+            border-right: 5px solid var(--secondary-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .info-box h4 {
+            color: #1d4ed8;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-right: 5px solid var(--success-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .tip-box h4 {
+            color: #047857;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-right: 5px solid var(--warning-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .warning-box h4 {
+            color: #b45309;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .error-box {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-right: 5px solid var(--error-color);
+            padding: 20px 25px;
+            border-radius: 0 12px 12px 0;
+            margin: 20px 0;
+        }
+
+        .error-box h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Cards and Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 18px;
+            margin: 25px 0;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+
+        .card .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .card h4 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+            margin-top: 0;
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .arch-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .arch-box {
+            background: white;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 15px 25px;
+            font-weight: bold;
+            color: var(--primary-dark);
+            box-shadow: var(--shadow-sm);
+            min-width: 120px;
+        }
+
+        .arch-arrow {
+            color: var(--primary-color);
+            font-size: 1.5em;
+        }
+
+        .layer-box {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .layer-box.presentation { border-color: #3b82f6; background: #eff6ff; }
+        .layer-box.application { border-color: #10b981; background: #ecfdf5; }
+        .layer-box.domain { border-color: #f59e0b; background: #fffbeb; }
+        .layer-box.infrastructure { border-color: #8b5cf6; background: #f5f3ff; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--gradient-1);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            overflow-x: auto;
+        }
+
+        .comparison-table table {
+            min-width: 800px;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 15px 0 15px 25px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        /* Pattern Card */
+        .pattern-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .pattern-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-1);
+            border-radius: 15px 15px 0 0;
+        }
+
+        .pattern-card h4 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .pattern-card .tags {
+            margin-top: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--bg-secondary);
+            color: var(--primary-dark);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            margin: 3px;
+        }
+
+        /* Principle Box */
+        .principle-box {
+            background: linear-gradient(135deg, #faf5ff, #f3e8ff);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-right: 5px solid #a855f7;
+        }
+
+        .principle-box h4 {
+            color: #7c3aed;
+            margin-bottom: 10px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-right: 30px;
+            margin: 30px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: -26px;
+            top: 25px;
+            width: 15px;
+            height: 15px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            border: 3px solid white;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--gradient-2);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer h3 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        footer a {
+            color: #c7d2fe;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: white;
+        }
+
+        /* Highlight */
+        .highlight {
+            background: linear-gradient(180deg, transparent 60%, #fef08a 60%);
+            padding: 0 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.2em; }
+            header p { font-size: 1.1em; }
+            .slide { padding: 25px 20px; }
+            .slide h2 { font-size: 1.5em; }
+            nav ul { gap: 5px; }
+            nav a { padding: 8px 12px; font-size: 0.8em; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .arch-flow { flex-direction: column; }
+            .arch-arrow { transform: rotate(90deg); }
+        }
+
+        /* Print */
+        @media print {
+            nav, footer { display: none !important; }
+            .slide { 
+                break-inside: avoid; 
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>🏗️ معماری نرم‌افزار</h1>
+        <p>
+            راهنمای جامع طراحی و پیاده‌سازی سیستم‌های نرم‌افزاری مقیاس‌پذیر و قابل نگهداری
+        </p>
+        <div>
+            <span class="badge">🎯 Design Patterns</span>
+            <span class="badge">🔧 SOLID Principles</span>
+            <span class="badge">☁️ Microservices</span>
+            <span class="badge">🏛️ Clean Architecture</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <ul>
+            <li><a href="#intro">مقدمه</a></li>
+            <li><a href="#principles">اصول</a></li>
+            <li><a href="#patterns">الگوها</a></li>
+            <li><a href="#styles">سبک‌ها</a></li>
+            <li><a href="#microservices">Microservices</a></li>
+            <li><a href="#clean">Clean Architecture</a></li>
+            <li><a href="#ddd">DDD</a></li>
+            <li><a href="#quality">کیفیت</a></li>
+            <li><a href="#tools">ابزارها</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+
+        <!-- اسلاید 1: مقدمه -->
+        <div class="slide" id="intro">
+            <div class="slide-number">1</div>
+            <h2>🎯 معماری نرم‌افزار چیست؟</h2>
+
+            <p>
+                <strong>معماری نرم‌افزار</strong> (Software Architecture) به ساختار سطح بالای یک سیستم نرم‌افزاری، 
+                اجزای تشکیل‌دهنده آن، روابط بین این اجزا و اصول حاکم بر طراحی و تکامل سیستم اشاره دارد.
+            </p>
+
+            <div class="info-box">
+                <h4>📖 تعریف IEEE</h4>
+                <p>
+                    «معماری نرم‌افزار، سازماندهی بنیادین یک سیستم است که در اجزا، روابط آن‌ها با یکدیگر 
+                    و محیط، و اصول هدایت‌کننده طراحی و تکامل آن تجسم می‌یابد.»
+                </p>
+            </div>
+
+            <h3>🤔 چرا معماری نرم‌افزار مهم است؟</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">📈</div>
+                    <h4>مقیاس‌پذیری</h4>
+                    <p>امکان رشد سیستم با افزایش کاربران و داده‌ها</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔧</div>
+                    <h4>قابلیت نگهداری</h4>
+                    <p>سهولت در تغییر، رفع باگ و افزودن ویژگی جدید</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🧪</div>
+                    <h4>قابلیت تست</h4>
+                    <p>امکان تست واحد و یکپارچه‌سازی مؤثر</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔄</div>
+                    <h4>انعطاف‌پذیری</h4>
+                    <p>سازگاری با تغییرات نیازمندی‌ها و تکنولوژی</p>
+                </div>
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h4>کارایی</h4>
+                    <p>پاسخ‌دهی سریع و استفاده بهینه از منابع</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔒</div>
+                    <h4>امنیت</h4>
+                    <p>محافظت از داده‌ها و جلوگیری از حملات</p>
+                </div>
+            </div>
+
+            <h3>👤 نقش معمار نرم‌افزار</h3>
+
+            <p>
+                معمار نرم‌افزار مسئول تصمیمات کلان فنی است که بر کل سیستم تأثیر می‌گذارند:
+            </p>
+
+            <ul>
+                <li><strong>انتخاب تکنولوژی:</strong> زبان برنامه‌نویسی، فریمورک، دیتابیس</li>
+                <li><strong>طراحی ساختار:</strong> تقسیم سیستم به اجزا و ماژول‌ها</li>
+                <li><strong>تعیین استانداردها:</strong> الگوهای کدنویسی و بهترین شیوه‌ها</li>
+                <li><strong>مستندسازی:</strong> ثبت تصمیمات و دلایل آن‌ها (ADR)</li>
+                <li><strong>هدایت تیم:</strong> آموزش و راهنمایی توسعه‌دهندگان</li>
+            </ul>
+
+            <h3>📊 سطوح معماری</h3>
+
+            <div class="architecture-diagram">
+                <div class="layer-box" style="background: #fef3c7; border-color: #f59e0b;">
+                    <strong>🌐 Enterprise Architecture</strong>
+                    <p>معماری سازمانی - استراتژی کلی IT سازمان</p>
+                </div>
+                <div class="layer-box" style="background: #dbeafe; border-color: #3b82f6;">
+                    <strong>🏗️ Solution Architecture</strong>
+                    <p>معماری راه‌حل - طراحی سیستم‌های خاص</p>
+                </div>
+                <div class="layer-box" style="background: #d1fae5; border-color: #10b981;">
+                    <strong>💻 Software Architecture</strong>
+                    <p>معماری نرم‌افزار - ساختار داخلی اپلیکیشن</p>
+                </div>
+                <div class="layer-box" style="background: #f3e8ff; border-color: #a855f7;">
+                    <strong>📝 Code Architecture</strong>
+                    <p>معماری کد - الگوها و ساختار کد</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 2: اصول SOLID -->
+        <div class="slide" id="principles">
+            <div class="slide-number">2</div>
+            <h2>⚖️ اصول طراحی (SOLID)</h2>
+
+            <p>
+                <strong>SOLID</strong> مجموعه‌ای از پنج اصل طراحی شیءگرا است که توسط 
+                <span class="highlight">رابرت مارتین (Uncle Bob)</span> معرفی شده و به ایجاد 
+                کد قابل نگهداری و توسعه‌پذیر کمک می‌کند.
+            </p>
+
+            <div class="principle-box">
+                <h4>🔤 S - Single Responsibility Principle (SRP)</h4>
+                <p><strong>اصل مسئولیت واحد:</strong> هر کلاس باید فقط یک دلیل برای تغییر داشته باشد.</p>
+                
+                <div class="grid-2" style="margin-top: 15px;">
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>❌ نقض SRP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">class</span> <span class="class">User</span> {
+    <span class="function">saveToDatabase</span>() { }
+    <span class="function">sendEmail</span>() { }
+    <span class="function">generateReport</span>() { }
+    <span class="function">validateData</span>() { }
+}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>✅ رعایت SRP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">class</span> <span class="class">User</span> { }
+<span class="keyword">class</span> <span class="class">UserRepository</span> { }
+<span class="keyword">class</span> <span class="class">EmailService</span> { }
+<span class="keyword">class</span> <span class="class">ReportGenerator</span> { }
+<span class="keyword">class</span> <span class="class">UserValidator</span> { }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="principle-box">
+                <h4>🔤 O - Open/Closed Principle (OCP)</h4>
+                <p><strong>اصل باز/بسته:</strong> کلاس‌ها باید برای توسعه باز و برای تغییر بسته باشند.</p>
+                
+                <div class="code-header">
+                    <div class="dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <span>✅ رعایت OCP با Strategy Pattern</span>
+                </div>
+                <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">PaymentStrategy</span> {
+    <span class="function">pay</span>(amount: <span class="class">number</span>): <span class="keyword">void</span>;
+}
+
+<span class="keyword">class</span> <span class="class">CreditCardPayment</span> <span class="keyword">implements</span> <span class="interface">PaymentStrategy</span> {
+    <span class="function">pay</span>(amount: <span class="class">number</span>) { <span class="comment">/* پرداخت با کارت */</span> }
+}
+
+<span class="keyword">class</span> <span class="class">PayPalPayment</span> <span class="keyword">implements</span> <span class="interface">PaymentStrategy</span> {
+    <span class="function">pay</span>(amount: <span class="class">number</span>) { <span class="comment">/* پرداخت با PayPal */</span> }
+}
+
+<span class="comment">// افزودن روش جدید بدون تغییر کد موجود</span>
+<span class="keyword">class</span> <span class="class">CryptoPayment</span> <span class="keyword">implements</span> <span class="interface">PaymentStrategy</span> {
+    <span class="function">pay</span>(amount: <span class="class">number</span>) { <span class="comment">/* پرداخت با رمزارز */</span> }
+}
+                </div>
+            </div>
+
+            <div class="principle-box">
+                <h4>🔤 L - Liskov Substitution Principle (LSP)</h4>
+                <p><strong>اصل جایگزینی لیسکوف:</strong> اشیاء کلاس‌های فرزند باید بتوانند جایگزین کلاس والد شوند.</p>
+                
+                <div class="grid-2" style="margin-top: 15px;">
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>❌ نقض LSP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">class</span> <span class="class">Rectangle</span> {
+    <span class="function">setWidth</span>(w) { }
+    <span class="function">setHeight</span>(h) { }
+}
+
+<span class="keyword">class</span> <span class="class">Square</span> <span class="keyword">extends</span> <span class="class">Rectangle</span> {
+    <span class="comment">// مربع نمی‌تواند عرض و</span>
+    <span class="comment">// ارتفاع متفاوت داشته باشد!</span>
+}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>✅ رعایت LSP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Shape</span> {
+    <span class="function">getArea</span>(): <span class="class">number</span>;
+}
+
+<span class="keyword">class</span> <span class="class">Rectangle</span> <span class="keyword">implements</span> <span class="interface">Shape</span> {
+    <span class="function">getArea</span>() { <span class="keyword">return</span> w * h; }
+}
+
+<span class="keyword">class</span> <span class="class">Square</span> <span class="keyword">implements</span> <span class="interface">Shape</span> {
+    <span class="function">getArea</span>() { <span class="keyword">return</span> s * s; }
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="principle-box">
+                <h4>🔤 I - Interface Segregation Principle (ISP)</h4>
+                <p><strong>اصل تفکیک اینترفیس:</strong> کلاینت‌ها نباید مجبور به وابستگی به متدهایی شوند که استفاده نمی‌کنند.</p>
+                
+                <div class="grid-2" style="margin-top: 15px;">
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>❌ نقض ISP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Worker</span> {
+    <span class="function">work</span>();
+    <span class="function">eat</span>();
+    <span class="function">sleep</span>();
+}
+
+<span class="comment">// ربات نمی‌تواند بخورد یا بخوابد!</span>
+<span class="keyword">class</span> <span class="class">Robot</span> <span class="keyword">implements</span> <span class="interface">Worker</span> { }
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>✅ رعایت ISP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Workable</span> {
+    <span class="function">work</span>();
+}
+<span class="keyword">interface</span> <span class="interface">Eatable</span> {
+    <span class="function">eat</span>();
+}
+<span class="keyword">interface</span> <span class="interface">Sleepable</span> {
+    <span class="function">sleep</span>();
+}
+
+<span class="keyword">class</span> <span class="class">Robot</span> <span class="keyword">implements</span> <span class="interface">Workable</span> { }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="principle-box">
+                <h4>🔤 D - Dependency Inversion Principle (DIP)</h4>
+                <p><strong>اصل وارونگی وابستگی:</strong> ماژول‌های سطح بالا نباید به ماژول‌های سطح پایین وابسته باشند. هر دو باید به انتزاع‌ها وابسته باشند.</p>
+                
+                <div class="grid-2" style="margin-top: 15px;">
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>❌ نقض DIP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">class</span> <span class="class">UserService</span> {
+    <span class="keyword">private</span> db = <span class="keyword">new</span> <span class="class">MySQLDatabase</span>();
+    
+    <span class="function">getUser</span>(id) {
+        <span class="keyword">return</span> <span class="keyword">this</span>.db.<span class="function">query</span>(...);
+    }
+}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="code-header">
+                            <div class="dots">
+                                <span class="dot red"></span>
+                                <span class="dot yellow"></span>
+                                <span class="dot green"></span>
+                            </div>
+                            <span>✅ رعایت DIP</span>
+                        </div>
+                        <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Database</span> {
+    <span class="function">query</span>(sql: <span class="class">string</span>);
+}
+
+<span class="keyword">class</span> <span class="class">UserService</span> {
+    <span class="function">constructor</span>(
+        <span class="keyword">private</span> db: <span class="interface">Database</span>
+    ) {}
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>📐 سایر اصول مهم</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>DRY - Don't Repeat Yourself</h4>
+                    <p>از تکرار کد خودداری کنید. هر قطعه دانش باید یک نمایش واحد داشته باشد.</p>
+                </div>
+                <div class="card">
+                    <h4>KISS - Keep It Simple, Stupid</h4>
+                    <p>سادگی را حفظ کنید. پیچیدگی غیرضروری از دشمنان اصلی نرم‌افزار است.</p>
+                </div>
+                <div class="card">
+                    <h4>YAGNI - You Aren't Gonna Need It</h4>
+                    <p>چیزی که الان نیاز ندارید را پیاده‌سازی نکنید.</p>
+                </div>
+                <div class="card">
+                    <h4>Separation of Concerns</h4>
+                    <p>هر بخش از سیستم باید مسئولیت مشخص و جداگانه‌ای داشته باشد.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 3: الگوهای طراحی -->
+        <div class="slide" id="patterns">
+            <div class="slide-number">3</div>
+            <h2>🎨 الگوهای طراحی (Design Patterns)</h2>
+
+            <p>
+                <strong>الگوهای طراحی</strong> راه‌حل‌های تکرارپذیر برای مشکلات رایج در طراحی نرم‌افزار هستند. 
+                این الگوها توسط <span class="highlight">Gang of Four (GoF)</span> دسته‌بندی شده‌اند.
+            </p>
+
+            <h3>🏭 الگوهای ایجادی (Creational)</h3>
+            <p>مربوط به نحوه ایجاد اشیاء</p>
+
+            <div class="grid-2">
+                <div class="pattern-card">
+                    <h4>🏭 Factory Method</h4>
+                    <p>ایجاد اشیاء بدون مشخص کردن کلاس دقیق آن‌ها</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Product</span> {
+    <span class="function">operation</span>(): <span class="class">string</span>;
+}
+
+<span class="keyword">abstract class</span> <span class="class">Creator</span> {
+    <span class="keyword">abstract</span> <span class="function">createProduct</span>(): <span class="interface">Product</span>;
+    
+    <span class="function">doSomething</span>() {
+        <span class="keyword">const</span> product = <span class="keyword">this</span>.<span class="function">createProduct</span>();
+        <span class="keyword">return</span> product.<span class="function">operation</span>();
+    }
+}
+
+<span class="keyword">class</span> <span class="class">ConcreteCreatorA</span> <span class="keyword">extends</span> <span class="class">Creator</span> {
+    <span class="function">createProduct</span>() {
+        <span class="keyword">return new</span> <span class="class">ProductA</span>();
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">ایجاد شیء</span>
+                        <span class="tag">انتزاع</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🔨 Singleton</h4>
+                    <p>تضمین وجود فقط یک نمونه از کلاس</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">Singleton</span> {
+    <span class="keyword">private static</span> instance: <span class="class">Singleton</span>;
+    
+    <span class="keyword">private</span> <span class="function">constructor</span>() {}
+    
+    <span class="keyword">static</span> <span class="function">getInstance</span>(): <span class="class">Singleton</span> {
+        <span class="keyword">if</span> (!<span class="class">Singleton</span>.instance) {
+            <span class="class">Singleton</span>.instance = 
+                <span class="keyword">new</span> <span class="class">Singleton</span>();
+        }
+        <span class="keyword">return</span> <span class="class">Singleton</span>.instance;
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">یک نمونه</span>
+                        <span class="tag">Global Access</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🏗️ Builder</h4>
+                    <p>ساخت اشیاء پیچیده مرحله به مرحله</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">UserBuilder</span> {
+    <span class="keyword">private</span> user = <span class="keyword">new</span> <span class="class">User</span>();
+    
+    <span class="function">setName</span>(name: <span class="class">string</span>) {
+        <span class="keyword">this</span>.user.name = name;
+        <span class="keyword">return this</span>;
+    }
+    
+    <span class="function">setEmail</span>(email: <span class="class">string</span>) {
+        <span class="keyword">this</span>.user.email = email;
+        <span class="keyword">return this</span>;
+    }
+    
+    <span class="function">build</span>() {
+        <span class="keyword">return this</span>.user;
+    }
+}
+
+<span class="comment">// استفاده</span>
+<span class="keyword">const</span> user = <span class="keyword">new</span> <span class="class">UserBuilder</span>()
+    .<span class="function">setName</span>(<span class="string">'Ali'</span>)
+    .<span class="function">setEmail</span>(<span class="string">'ali@test.com'</span>)
+    .<span class="function">build</span>();
+                    </div>
+                    <div class="tags">
+                        <span class="tag">Fluent Interface</span>
+                        <span class="tag">اشیاء پیچیده</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>📋 Prototype</h4>
+                    <p>ایجاد اشیاء جدید با کپی از نمونه موجود</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Prototype</span> {
+    <span class="function">clone</span>(): <span class="interface">Prototype</span>;
+}
+
+<span class="keyword">class</span> <span class="class">Document</span> <span class="keyword">implements</span> <span class="interface">Prototype</span> {
+    <span class="function">constructor</span>(
+        <span class="keyword">public</span> title: <span class="class">string</span>,
+        <span class="keyword">public</span> content: <span class="class">string</span>
+    ) {}
+    
+    <span class="function">clone</span>(): <span class="class">Document</span> {
+        <span class="keyword">return new</span> <span class="class">Document</span>(
+            <span class="keyword">this</span>.title,
+            <span class="keyword">this</span>.content
+        );
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">کپی</span>
+                        <span class="tag">Clone</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔗 الگوهای ساختاری (Structural)</h3>
+            <p>مربوط به ترکیب کلاس‌ها و اشیاء</p>
+
+            <div class="grid-2">
+                <div class="pattern-card">
+                    <h4>🔌 Adapter</h4>
+                    <p>تبدیل اینترفیس یک کلاس به اینترفیس مورد انتظار کلاینت</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// اینترفیس مورد انتظار</span>
+<span class="keyword">interface</span> <span class="interface">Target</span> {
+    <span class="function">request</span>(): <span class="class">string</span>;
+}
+
+<span class="comment">// کلاس قدیمی با اینترفیس متفاوت</span>
+<span class="keyword">class</span> <span class="class">Adaptee</span> {
+    <span class="function">specificRequest</span>() {
+        <span class="keyword">return</span> <span class="string">'Specific behavior'</span>;
+    }
+}
+
+<span class="comment">// آداپتور</span>
+<span class="keyword">class</span> <span class="class">Adapter</span> <span class="keyword">implements</span> <span class="interface">Target</span> {
+    <span class="function">constructor</span>(<span class="keyword">private</span> adaptee: <span class="class">Adaptee</span>) {}
+    
+    <span class="function">request</span>() {
+        <span class="keyword">return this</span>.adaptee.<span class="function">specificRequest</span>();
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">سازگاری</span>
+                        <span class="tag">Wrapper</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🎭 Facade</h4>
+                    <p>ارائه یک اینترفیس ساده برای یک سیستم پیچیده</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">OrderFacade</span> {
+    <span class="function">constructor</span>(
+        <span class="keyword">private</span> inventory: <span class="class">InventoryService</span>,
+        <span class="keyword">private</span> payment: <span class="class">PaymentService</span>,
+        <span class="keyword">private</span> shipping: <span class="class">ShippingService</span>
+    ) {}
+    
+    <span class="function">placeOrder</span>(order: <span class="class">Order</span>) {
+        <span class="comment">// یک متد ساده به جای چندین فراخوانی</span>
+        <span class="keyword">this</span>.inventory.<span class="function">check</span>(order);
+        <span class="keyword">this</span>.payment.<span class="function">process</span>(order);
+        <span class="keyword">this</span>.shipping.<span class="function">arrange</span>(order);
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">ساده‌سازی</span>
+                        <span class="tag">اینترفیس یکپارچه</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🎨 Decorator</h4>
+                    <p>افزودن قابلیت جدید به شیء بدون تغییر ساختار آن</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Coffee</span> {
+    <span class="function">cost</span>(): <span class="class">number</span>;
+    <span class="function">description</span>(): <span class="class">string</span>;
+}
+
+<span class="keyword">class</span> <span class="class">SimpleCoffee</span> <span class="keyword">implements</span> <span class="interface">Coffee</span> {
+    <span class="function">cost</span>() { <span class="keyword">return</span> <span class="number">10</span>; }
+    <span class="function">description</span>() { <span class="keyword">return</span> <span class="string">'Coffee'</span>; }
+}
+
+<span class="keyword">class</span> <span class="class">MilkDecorator</span> <span class="keyword">implements</span> <span class="interface">Coffee</span> {
+    <span class="function">constructor</span>(<span class="keyword">private</span> coffee: <span class="interface">Coffee</span>) {}
+    
+    <span class="function">cost</span>() { 
+        <span class="keyword">return this</span>.coffee.<span class="function">cost</span>() + <span class="number">2</span>; 
+    }
+    <span class="function">description</span>() { 
+        <span class="keyword">return this</span>.coffee.<span class="function">description</span>() + <span class="string">' + Milk'</span>; 
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">توسعه داینامیک</span>
+                        <span class="tag">Wrapper</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🌳 Composite</h4>
+                    <p>ترکیب اشیاء در ساختار درختی</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Component</span> {
+    <span class="function">render</span>(): <span class="class">string</span>;
+}
+
+<span class="keyword">class</span> <span class="class">Leaf</span> <span class="keyword">implements</span> <span class="interface">Component</span> {
+    <span class="function">render</span>() { <span class="keyword">return</span> <span class="string">'Leaf'</span>; }
+}
+
+<span class="keyword">class</span> <span class="class">Container</span> <span class="keyword">implements</span> <span class="interface">Component</span> {
+    <span class="keyword">private</span> children: <span class="interface">Component</span>[] = [];
+    
+    <span class="function">add</span>(c: <span class="interface">Component</span>) {
+        <span class="keyword">this</span>.children.<span class="function">push</span>(c);
+    }
+    
+    <span class="function">render</span>() {
+        <span class="keyword">return this</span>.children
+            .<span class="function">map</span>(c => c.<span class="function">render</span>())
+            .<span class="function">join</span>(<span class="string">''</span>);
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">ساختار درختی</span>
+                        <span class="tag">بازگشتی</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔄 الگوهای رفتاری (Behavioral)</h3>
+            <p>مربوط به ارتباط و تعامل بین اشیاء</p>
+
+            <div class="grid-2">
+                <div class="pattern-card">
+                    <h4>📡 Observer</h4>
+                    <p>اطلاع‌رسانی خودکار به اشیاء وابسته هنگام تغییر</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Observer</span> {
+    <span class="function">update</span>(data: <span class="class">any</span>): <span class="keyword">void</span>;
+}
+
+<span class="keyword">class</span> <span class="class">Subject</span> {
+    <span class="keyword">private</span> observers: <span class="interface">Observer</span>[] = [];
+    
+    <span class="function">subscribe</span>(obs: <span class="interface">Observer</span>) {
+        <span class="keyword">this</span>.observers.<span class="function">push</span>(obs);
+    }
+    
+    <span class="function">notify</span>(data: <span class="class">any</span>) {
+        <span class="keyword">this</span>.observers.<span class="function">forEach</span>(
+            obs => obs.<span class="function">update</span>(data)
+        );
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">Event</span>
+                        <span class="tag">Pub/Sub</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🎯 Strategy</h4>
+                    <p>تعریف خانواده‌ای از الگوریتم‌ها و قابل تعویض بودن آن‌ها</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">SortStrategy</span> {
+    <span class="function">sort</span>(data: <span class="class">number</span>[]): <span class="class">number</span>[];
+}
+
+<span class="keyword">class</span> <span class="class">QuickSort</span> <span class="keyword">implements</span> <span class="interface">SortStrategy</span> {
+    <span class="function">sort</span>(data) { <span class="comment">/* ... */</span> }
+}
+
+<span class="keyword">class</span> <span class="class">MergeSort</span> <span class="keyword">implements</span> <span class="interface">SortStrategy</span> {
+    <span class="function">sort</span>(data) { <span class="comment">/* ... */</span> }
+}
+
+<span class="keyword">class</span> <span class="class">Sorter</span> {
+    <span class="function">constructor</span>(<span class="keyword">private</span> strategy: <span class="interface">SortStrategy</span>) {}
+    
+    <span class="function">setStrategy</span>(s: <span class="interface">SortStrategy</span>) {
+        <span class="keyword">this</span>.strategy = s;
+    }
+    
+    <span class="function">sort</span>(data: <span class="class">number</span>[]) {
+        <span class="keyword">return this</span>.strategy.<span class="function">sort</span>(data);
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">الگوریتم</span>
+                        <span class="tag">قابل تعویض</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>⛓️ Chain of Responsibility</h4>
+                    <p>عبور درخواست از زنجیره‌ای از handlers</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">abstract class</span> <span class="class">Handler</span> {
+    <span class="keyword">protected</span> next: <span class="class">Handler</span> | <span class="keyword">null</span> = <span class="keyword">null</span>;
+    
+    <span class="function">setNext</span>(handler: <span class="class">Handler</span>) {
+        <span class="keyword">this</span>.next = handler;
+        <span class="keyword">return</span> handler;
+    }
+    
+    <span class="keyword">abstract</span> <span class="function">handle</span>(request: <span class="class">string</span>): <span class="class">string</span>;
+}
+
+<span class="keyword">class</span> <span class="class">AuthHandler</span> <span class="keyword">extends</span> <span class="class">Handler</span> {
+    <span class="function">handle</span>(request) {
+        <span class="keyword">if</span> (<span class="comment">/* authenticated */</span>) {
+            <span class="keyword">return this</span>.next?.<span class="function">handle</span>(request);
+        }
+        <span class="keyword">return</span> <span class="string">'Not authenticated'</span>;
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">Middleware</span>
+                        <span class="tag">Pipeline</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>📜 Command</h4>
+                    <p>تبدیل درخواست به یک شیء مستقل</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">Command</span> {
+    <span class="function">execute</span>(): <span class="keyword">void</span>;
+    <span class="function">undo</span>(): <span class="keyword">void</span>;
+}
+
+<span class="keyword">class</span> <span class="class">AddTextCommand</span> <span class="keyword">implements</span> <span class="interface">Command</span> {
+    <span class="function">constructor</span>(
+        <span class="keyword">private</span> editor: <span class="class">Editor</span>,
+        <span class="keyword">private</span> text: <span class="class">string</span>
+    ) {}
+    
+    <span class="function">execute</span>() {
+        <span class="keyword">this</span>.editor.<span class="function">add</span>(<span class="keyword">this</span>.text);
+    }
+    
+    <span class="function">undo</span>() {
+        <span class="keyword">this</span>.editor.<span class="function">remove</span>(<span class="keyword">this</span>.text);
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">Undo/Redo</span>
+                        <span class="tag">Queue</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🔄 State</h4>
+                    <p>تغییر رفتار شیء بر اساس وضعیت داخلی</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">State</span> {
+    <span class="function">handle</span>(context: <span class="class">Context</span>): <span class="keyword">void</span>;
+}
+
+<span class="keyword">class</span> <span class="class">DraftState</span> <span class="keyword">implements</span> <span class="interface">State</span> {
+    <span class="function">handle</span>(context) {
+        console.<span class="function">log</span>(<span class="string">'Draft mode'</span>);
+        context.<span class="function">setState</span>(<span class="keyword">new</span> <span class="class">PublishedState</span>());
+    }
+}
+
+<span class="keyword">class</span> <span class="class">Context</span> {
+    <span class="keyword">private</span> state: <span class="interface">State</span>;
+    
+    <span class="function">setState</span>(state: <span class="interface">State</span>) {
+        <span class="keyword">this</span>.state = state;
+    }
+    
+    <span class="function">request</span>() {
+        <span class="keyword">this</span>.state.<span class="function">handle</span>(<span class="keyword">this</span>);
+    }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">State Machine</span>
+                        <span class="tag">Workflow</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>📝 Template Method</h4>
+                    <p>تعریف اسکلت الگوریتم و واگذاری جزئیات به زیرکلاس‌ها</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>TypeScript</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">abstract class</span> <span class="class">DataProcessor</span> {
+    <span class="comment">// Template Method</span>
+    <span class="function">process</span>() {
+        <span class="keyword">this</span>.<span class="function">readData</span>();
+        <span class="keyword">this</span>.<span class="function">processData</span>();
+        <span class="keyword">this</span>.<span class="function">saveData</span>();
+    }
+    
+    <span class="keyword">abstract</span> <span class="function">readData</span>(): <span class="keyword">void</span>;
+    <span class="keyword">abstract</span> <span class="function">processData</span>(): <span class="keyword">void</span>;
+    <span class="keyword">abstract</span> <span class="function">saveData</span>(): <span class="keyword">void</span>;
+}
+
+<span class="keyword">class</span> <span class="class">CSVProcessor</span> <span class="keyword">extends</span> <span class="class">DataProcessor</span> {
+    <span class="function">readData</span>() { <span class="comment">/* CSV */</span> }
+    <span class="function">processData</span>() { <span class="comment">/* ... */</span> }
+    <span class="function">saveData</span>() { <span class="comment">/* ... */</span> }
+}
+                    </div>
+                    <div class="tags">
+                        <span class="tag">Hook</span>
+                        <span class="tag">Framework</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>📊 خلاصه الگوهای طراحی</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>دسته</th>
+                        <th>الگو</th>
+                        <th>هدف</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="4"><strong>ایجادی</strong></td>
+                        <td>Factory</td>
+                        <td>انتزاع ایجاد شیء</td>
+                        <td>وقتی نوع شیء در زمان اجرا مشخص می‌شود</td>
+                    </tr>
+                    <tr>
+                        <td>Singleton</td>
+                        <td>یک نمونه</td>
+                        <td>Logger, Config, Connection Pool</td>
+                    </tr>
+                    <tr>
+                        <td>Builder</td>
+                        <td>ساخت مرحله‌ای</td>
+                        <td>اشیاء با پارامترهای زیاد</td>
+                    </tr>
+                    <tr>
+                        <td>Prototype</td>
+                        <td>کپی شیء</td>
+                        <td>ایجاد سریع اشیاء مشابه</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="4"><strong>ساختاری</strong></td>
+                        <td>Adapter</td>
+                        <td>سازگاری اینترفیس</td>
+                        <td>یکپارچه‌سازی سیستم‌های قدیمی</td>
+                    </tr>
+                    <tr>
+                        <td>Facade</td>
+                        <td>ساده‌سازی</td>
+                        <td>API یکپارچه برای سیستم پیچیده</td>
+                    </tr>
+                    <tr>
+                        <td>Decorator</td>
+                        <td>افزودن قابلیت</td>
+                        <td>توسعه داینامیک بدون ارث‌بری</td>
+                    </tr>
+                    <tr>
+                        <td>Composite</td>
+                        <td>ساختار درختی</td>
+                        <td>UI Components, File System</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="4"><strong>رفتاری</strong></td>
+                        <td>Observer</td>
+                        <td>اطلاع‌رسانی</td>
+                        <td>Event System, Reactive</td>
+                    </tr>
+                    <tr>
+                        <td>Strategy</td>
+                        <td>الگوریتم قابل تعویض</td>
+                        <td>روش‌های مختلف پرداخت/مرتب‌سازی</td>
+                    </tr>
+                    <tr>
+                        <td>Command</td>
+                        <td>کپسوله‌سازی درخواست</td>
+                        <td>Undo/Redo, Task Queue</td>
+                    </tr>
+                    <tr>
+                        <td>State</td>
+                        <td>رفتار بر اساس وضعیت</td>
+                        <td>Workflow, Game States</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- اسلاید 4: سبک‌های معماری -->
+        <div class="slide" id="styles">
+            <div class="slide-number">4</div>
+            <h2>🏛️ سبک‌های معماری (Architectural Styles)</h2>
+
+            <p>
+                سبک‌های معماری، الگوهای سطح بالایی هستند که ساختار کلی سیستم را تعیین می‌کنند.
+            </p>
+
+            <h3>🏢 معماری لایه‌ای (Layered Architecture)</h3>
+
+            <div class="architecture-diagram">
+                <div class="layer-box presentation">
+                    <strong>🖥️ Presentation Layer</strong>
+                    <p>UI, Controllers, Views</p>
+                </div>
+                <div style="text-align: center; padding: 10px;">⬇️ ⬆️</div>
+                <div class="layer-box application">
+                    <strong>⚙️ Application Layer</strong>
+                    <p>Services, Use Cases, DTOs</p>
+                </div>
+                <div style="text-align: center; padding: 10px;">⬇️ ⬆️</div>
+                <div class="layer-box domain">
+                    <strong>💼 Domain Layer</strong>
+                    <p>Entities, Business Logic, Domain Services</p>
+                </div>
+                <div style="text-align: center; padding: 10px;">⬇️ ⬆️</div>
+                <div class="layer-box infrastructure">
+                    <strong>🗄️ Infrastructure Layer</strong>
+                    <p>Database, External APIs, File System</p>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="tip-box">
+                    <h4>✅ مزایا</h4>
+                    <ul>
+                        <li>جداسازی مسئولیت‌ها</li>
+                        <li>قابلیت تست هر لایه به صورت مستقل</li>
+                        <li>سادگی در درک و نگهداری</li>
+                        <li>امکان تعویض لایه‌ها</li>
+                    </ul>
+                </div>
+                <div class="warning-box">
+                    <h4>⚠️ معایب</h4>
+                    <ul>
+                        <li>ممکن است باعث کندی شود (عبور از لایه‌ها)</li>
+                        <li>تغییرات ممکن است چندین لایه را تحت تأثیر قرار دهد</li>
+                        <li>برای سیستم‌های ساده، پیچیدگی اضافی ایجاد می‌کند</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🔷 معماری شش‌ضلعی (Hexagonal Architecture)</h3>
+
+            <p>
+                این معماری که به <span class="highlight">Ports and Adapters</span> نیز معروف است، 
+                توسط Alistair Cockburn معرفی شده و هدف آن جداسازی منطق کسب‌وکار از جزئیات فنی است.
+            </p>
+
+            <div class="architecture-diagram">
+                <svg viewBox="0 0 400 300" style="max-width: 500px; margin: 0 auto; display: block;">
+                    <!-- Hexagon -->
+                    <polygon points="200,30 320,90 320,210 200,270 80,210 80,90" 
+                             fill="#f0f9ff" stroke="#3b82f6" stroke-width="3"/>
+                    
+                    <!-- Core -->
+                    <circle cx="200" cy="150" r="50" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                    <text x="200" y="145" text-anchor="middle" font-size="12" fill="#92400e">Domain</text>
+                    <text x="200" y="160" text-anchor="middle" font-size="12" fill="#92400e">Logic</text>
+                    
+                    <!-- Ports -->
+                    <circle cx="130" cy="100" r="20" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                    <text x="130" y="105" text-anchor="middle" font-size="10">Port</text>
+                    
+                    <circle cx="270" cy="100" r="20" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                    <text x="270" y="105" text-anchor="middle" font-size="10">Port</text>
+                    
+                    <circle cx="130" cy="200" r="20" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                    <text x="130" y="205" text-anchor="middle" font-size="10">Port</text>
+                    
+                    <circle cx="270" cy="200" r="20" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                    <text x="270" y="205" text-anchor="middle" font-size="10">Port</text>
+                    
+                    <!-- Adapters -->
+                    <rect x="20" y="85" width="50" height="30" rx="5" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+                    <text x="45" y="105" text-anchor="middle" font-size="9">REST</text>
+                    
+                    <rect x="330" y="85" width="50" height="30" rx="5" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+                    <text x="355" y="105" text-anchor="middle" font-size="9">DB</text>
+                    
+                    <rect x="20" y="185" width="50" height="30" rx="5" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+                    <text x="45" y="205" text-anchor="middle" font-size="9">CLI</text>
+                    
+                    <rect x="330" y="185" width="50" height="30" rx="5" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+                    <text x="355" y="205" text-anchor="middle" font-size="9">Queue</text>
+                </svg>
+            </div>
+
+            <div class="info-box">
+                <h4>🔑 مفاهیم کلیدی</h4>
+                <ul>
+                    <li><strong>Port:</strong> اینترفیس‌هایی که Domain تعریف می‌کند (ورودی و خروجی)</li>
+                    <li><strong>Adapter:</strong> پیاده‌سازی‌های مشخص برای هر Port (REST, GraphQL, SQL, etc.)</li>
+                    <li><strong>Domain:</strong> منطق کسب‌وکار که از جزئیات فنی بی‌خبر است</li>
+                </ul>
+            </div>
+
+            <h3>📡 معماری رویدادمحور (Event-Driven Architecture)</h3>
+
+            <div class="architecture-diagram">
+                <div class="arch-flow">
+                    <div class="arch-box">Producer</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box" style="background: #fef3c7;">Event Bus</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box">Consumer 1</div>
+                </div>
+                <div class="arch-flow" style="margin-top: -10px;">
+                    <div style="width: 135px;"></div>
+                    <div style="width: 50px;"></div>
+                    <div class="arch-box" style="background: #fef3c7; visibility: hidden;">Event Bus</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box">Consumer 2</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📤 Event Sourcing</h4>
+                    <p>
+                        ذخیره تمام تغییرات به صورت رویداد. وضعیت فعلی با پخش مجدد رویدادها بازسازی می‌شود.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>Events</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// به جای ذخیره وضعیت فعلی</span>
+{ balance: <span class="number">150</span> }
+
+<span class="comment">// ذخیره رویدادها</span>
+[
+  { type: <span class="string">'AccountCreated'</span>, amount: <span class="number">0</span> },
+  { type: <span class="string">'Deposited'</span>, amount: <span class="number">200</span> },
+  { type: <span class="string">'Withdrawn'</span>, amount: <span class="number">50</span> }
+]
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>📊 CQRS</h4>
+                    <p>
+                        Command Query Responsibility Segregation - جداسازی عملیات خواندن و نوشتن.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>CQRS</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// Command (Write)</span>
+<span class="keyword">class</span> <span class="class">CreateOrderCommand</span> {
+    <span class="function">execute</span>(data) { <span class="comment">/* ... */</span> }
+}
+
+<span class="comment">// Query (Read)</span>
+<span class="keyword">class</span> <span class="class">GetOrderQuery</span> {
+    <span class="function">execute</span>(id) { <span class="comment">/* ... */</span> }
+}
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔄 مقایسه سبک‌های معماری</h3>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>سبک</th>
+                            <th>پیچیدگی</th>
+                            <th>مقیاس‌پذیری</th>
+                            <th>کاربرد مناسب</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Monolithic</strong></td>
+                            <td>کم</td>
+                            <td>محدود</td>
+                            <td>پروژه‌های کوچک، MVP</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Layered</strong></td>
+                            <td>متوسط</td>
+                            <td>متوسط</td>
+                            <td>اپلیکیشن‌های سازمانی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hexagonal</strong></td>
+                            <td>متوسط</td>
+                            <td>خوب</td>
+                            <td>سیستم‌های با منطق پیچیده</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Microservices</strong></td>
+                            <td>بالا</td>
+                            <td>عالی</td>
+                            <td>سیستم‌های بزرگ و توزیع‌شده</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Event-Driven</strong></td>
+                            <td>بالا</td>
+                            <td>عالی</td>
+                            <td>سیستم‌های Real-time</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Serverless</strong></td>
+                            <td>متوسط</td>
+                            <td>عالی</td>
+                            <td>عملیات کوتاه و بدون وضعیت</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- اسلاید 5: Microservices -->
+        <div class="slide" id="microservices">
+            <div class="slide-number">5</div>
+            <h2>☁️ معماری Microservices</h2>
+
+            <p>
+                <strong>Microservices</strong> یک سبک معماری است که در آن اپلیکیشن به مجموعه‌ای از 
+                سرویس‌های کوچک، مستقل و loosely coupled تقسیم می‌شود.
+            </p>
+
+            <div class="architecture-diagram">
+                <h4 style="margin-bottom: 20px;">🌐 نمای کلی معماری Microservices</h4>
+                <div class="arch-flow">
+                    <div class="arch-box">Client</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-box" style="background: #dbeafe;">API Gateway</div>
+                    <span class="arch-arrow">→</span>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="arch-box" style="background: #d1fae5;">User Service</div>
+                        <div class="arch-box" style="background: #fef3c7;">Order Service</div>
+                        <div class="arch-box" style="background: #fce7f3;">Payment Service</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🎯 ویژگی‌های کلیدی</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">🔓</div>
+                    <h4>Loosely Coupled</h4>
+                    <p>سرویس‌ها مستقل از هم هستند و تغییر یکی، دیگران را تحت تأثیر قرار نمی‌دهد</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🎯</div>
+                    <h4>Single Responsibility</h4>
+                    <p>هر سرویس یک کار مشخص انجام می‌دهد و در آن تخصص دارد</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🗄️</div>
+                    <h4>Database per Service</h4>
+                    <p>هر سرویس دیتابیس مخصوص به خود دارد</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🚀</div>
+                    <h4>Independent Deployment</h4>
+                    <p>هر سرویس می‌تواند به صورت مستقل deploy شود</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🛠️</div>
+                    <h4>Technology Agnostic</h4>
+                    <p>هر سرویس می‌تواند با تکنولوژی متفاوتی پیاده‌سازی شود</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📈</div>
+                    <h4>Scalability</h4>
+                    <p>هر سرویس می‌تواند به صورت مستقل scale شود</p>
+                </div>
+            </div>
+
+            <h3>🔧 الگوهای مهم در Microservices</h3>
+
+            <div class="grid-2">
+                <div class="pattern-card">
+                    <h4>🚪 API Gateway</h4>
+                    <p>نقطه ورود واحد برای تمام درخواست‌های کلاینت</p>
+                    <ul>
+                        <li>Authentication/Authorization</li>
+                        <li>Rate Limiting</li>
+                        <li>Load Balancing</li>
+                        <li>Request Routing</li>
+                    </ul>
+                    <div class="tags">
+                        <span class="tag">Kong</span>
+                        <span class="tag">AWS API Gateway</span>
+                        <span class="tag">Nginx</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🔍 Service Discovery</h4>
+                    <p>مکانیزم پیدا کردن آدرس سرویس‌ها در زمان اجرا</p>
+                    <ul>
+                        <li>Client-side Discovery</li>
+                        <li>Server-side Discovery</li>
+                        <li>Service Registry</li>
+                    </ul>
+                    <div class="tags">
+                        <span class="tag">Consul</span>
+                        <span class="tag">Eureka</span>
+                        <span class="tag">etcd</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>⚡ Circuit Breaker</h4>
+                    <p>جلوگیری از گسترش خطا در سیستم توزیع‌شده</p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>States</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// سه وضعیت Circuit Breaker</span>
+CLOSED  → درخواست‌ها عبور می‌کنند
+OPEN    → درخواست‌ها بلاک می‌شوند
+HALF_OPEN → تست برای بازگشت به حالت عادی
+                    </div>
+                    <div class="tags">
+                        <span class="tag">Resilience4j</span>
+                        <span class="tag">Hystrix</span>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>📨 Saga Pattern</h4>
+                    <p>مدیریت تراکنش‌های توزیع‌شده بین سرویس‌ها</p>
+                    <ul>
+                        <li><strong>Choreography:</strong> سرویس‌ها با event ارتباط برقرار می‌کنند</li>
+                        <li><strong>Orchestration:</strong> یک orchestrator مرکزی هماهنگی می‌کند</li>
+                    </ul>
+                    <div class="tags">
+                        <span class="tag">Distributed Transaction</span>
+                        <span class="tag">Compensation</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>📡 ارتباط بین سرویس‌ها</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔄 Synchronous (همزمان)</h4>
+                    <ul>
+                        <li><strong>REST:</strong> HTTP/JSON - ساده و رایج</li>
+                        <li><strong>gRPC:</strong> Protocol Buffers - سریع و type-safe</li>
+                        <li><strong>GraphQL:</strong> Query language - انعطاف‌پذیر</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📨 Asynchronous (ناهمزمان)</h4>
+                    <ul>
+                        <li><strong>Message Queue:</strong> RabbitMQ, Amazon SQS</li>
+                        <li><strong>Event Streaming:</strong> Apache Kafka</li>
+                        <li><strong>Pub/Sub:</strong> Redis, Google Pub/Sub</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>⚖️ مزایا و معایب</h3>
+
+            <div class="grid-2">
+                <div class="tip-box">
+                    <h4>✅ مزایا</h4>
+                    <ul>
+                        <li>مقیاس‌پذیری مستقل هر سرویس</li>
+                        <li>استقلال تیم‌های توسعه</li>
+                        <li>انعطاف در انتخاب تکنولوژی</li>
+                        <li>Fault Isolation - خطا محدود می‌ماند</li>
+                        <li>Deploy سریع‌تر و مکرر</li>
+                    </ul>
+                </div>
+                <div class="error-box">
+                    <h4>❌ معایب</h4>
+                    <ul>
+                        <li>پیچیدگی عملیاتی بالا</li>
+                        <li>چالش‌های تست یکپارچه</li>
+                        <li>مدیریت داده توزیع‌شده</li>
+                        <li>Network Latency</li>
+                        <li>نیاز به DevOps قوی</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ چه زمانی از Microservices استفاده نکنیم؟</h4>
+                <ul>
+                    <li>پروژه‌های کوچک یا MVP</li>
+                    <li>تیم کوچک بدون تجربه DevOps</li>
+                    <li>زمانی که Domain به خوبی شناخته نشده</li>
+                    <li>نیاز به تراکنش‌های ACID قوی</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 6: Clean Architecture -->
+        <div class="slide" id="clean">
+            <div class="slide-number">6</div>
+            <h2>🧹 Clean Architecture</h2>
+
+            <p>
+                <strong>Clean Architecture</strong> توسط <span class="highlight">Robert C. Martin (Uncle Bob)</span> 
+                معرفی شده و هدف آن ایجاد سیستم‌هایی است که:
+            </p>
+
+            <ul>
+                <li>مستقل از Framework باشند</li>
+                <li>قابل تست باشند</li>
+                <li>مستقل از UI باشند</li>
+                <li>مستقل از Database باشند</li>
+                <li>مستقل از هر عامل خارجی باشند</li>
+            </ul>
+
+            <h3>🎯 دایره‌های Clean Architecture</h3>
+
+            <div class="architecture-diagram">
+                <svg viewBox="0 0 400 400" style="max-width: 450px; margin: 0 auto; display: block;">
+                    <!-- Outer circle - Frameworks -->
+                    <circle cx="200" cy="200" r="180" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                    <text x="200" y="40" text-anchor="middle" font-size="14" fill="#1d4ed8">Frameworks & Drivers</text>
+                    
+                    <!-- Interface Adapters -->
+                    <circle cx="200" cy="200" r="140" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                    <text x="200" y="80" text-anchor="middle" font-size="14" fill="#047857">Interface Adapters</text>
+                    
+                    <!-- Application Business Rules -->
+                    <circle cx="200" cy="200" r="100" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                    <text x="200" y="120" text-anchor="middle" font-size="14" fill="#b45309">Application</text>
+                    <text x="200" y="138" text-anchor="middle" font-size="14" fill="#b45309">Business Rules</text>
+                    
+                    <!-- Enterprise Business Rules (Core) -->
+                    <circle cx="200" cy="200" r="60" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/>
+                    <text x="200" y="195" text-anchor="middle" font-size="13" fill="#be185d">Entities</text>
+                    <text x="200" y="212" text-anchor="middle" font-size="11" fill="#be185d">(Domain)</text>
+                    
+                    <!-- Arrow showing dependency direction -->
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1"/>
+                        </marker>
+                    </defs>
+                    <line x1="380" y1="200" x2="280" y2="200" stroke="#6366f1" stroke-width="2" marker-end="url(#arrowhead)"/>
+                    <text x="330" y="220" text-anchor="middle" font-size="11" fill="#6366f1">Dependency</text>
+                </svg>
+            </div>
+
+            <div class="info-box">
+                <h4>📌 قانون وابستگی (Dependency Rule)</h4>
+                <p>
+                    وابستگی‌ها فقط می‌توانند به سمت <strong>داخل</strong> باشند. 
+                    لایه‌های داخلی نباید هیچ چیزی از لایه‌های خارجی بدانند.
+                </p>
+            </div>
+
+            <h3>📂 ساختار پروژه Clean Architecture</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Project Structure</span>
+            </div>
+            <div class="code-block">
+src/
+├── <span class="class">domain/</span>                    <span class="comment"># Entities & Business Rules</span>
+│   ├── entities/
+│   │   ├── User.ts
+│   │   └── Order.ts
+│   ├── repositories/           <span class="comment"># Interfaces (Ports)</span>
+│   │   ├── IUserRepository.ts
+│   │   └── IOrderRepository.ts
+│   └── value-objects/
+│       └── Email.ts
+│
+├── <span class="class">application/</span>               <span class="comment"># Use Cases</span>
+│   ├── use-cases/
+│   │   ├── CreateUser.ts
+│   │   └── PlaceOrder.ts
+│   ├── dto/
+│   │   └── CreateUserDTO.ts
+│   └── services/
+│       └── NotificationService.ts
+│
+├── <span class="class">infrastructure/</span>           <span class="comment"># Frameworks & External</span>
+│   ├── database/
+│   │   ├── PostgresUserRepository.ts
+│   │   └── migrations/
+│   ├── http/
+│   │   ├── controllers/
+│   │   └── middleware/
+│   └── external/
+│       └── StripePaymentGateway.ts
+│
+└── <span class="class">presentation/</span>             <span class="comment"># UI Layer</span>
+    ├── api/
+    │   └── routes.ts
+    └── web/
+        └── views/
+            </div>
+
+            <h3>💻 پیاده‌سازی عملی</h3>
+
+            <div class="grid-2">
+                <div>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>domain/entities/User.ts</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// Entity - قلب Domain</span>
+<span class="keyword">export class</span> <span class="class">User</span> {
+    <span class="keyword">private</span> <span class="function">constructor</span>(
+        <span class="keyword">public readonly</span> id: <span class="class">string</span>,
+        <span class="keyword">public</span> name: <span class="class">string</span>,
+        <span class="keyword">public</span> email: <span class="class">Email</span>,
+        <span class="keyword">public</span> createdAt: <span class="class">Date</span>
+    ) {}
+
+    <span class="keyword">static</span> <span class="function">create</span>(
+        name: <span class="class">string</span>, 
+        email: <span class="class">string</span>
+    ): <span class="class">User</span> {
+        <span class="comment">// Business validation</span>
+        <span class="keyword">if</span> (name.length < <span class="number">2</span>) {
+            <span class="keyword">throw new</span> <span class="class">Error</span>(<span class="string">'Invalid name'</span>);
+        }
+        
+        <span class="keyword">return new</span> <span class="class">User</span>(
+            <span class="function">generateId</span>(),
+            name,
+            <span class="keyword">new</span> <span class="class">Email</span>(email),
+            <span class="keyword">new</span> <span class="class">Date</span>()
+        );
+    }
+}
+                    </div>
+                </div>
+
+                <div>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>domain/repositories/IUserRepository.ts</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// Port - Interface for Repository</span>
+<span class="keyword">export interface</span> <span class="interface">IUserRepository</span> {
+    <span class="function">findById</span>(id: <span class="class">string</span>): <span class="class">Promise</span><<span class="class">User</span> | <span class="keyword">null</span>>;
+    
+    <span class="function">findByEmail</span>(
+        email: <span class="class">string</span>
+    ): <span class="class">Promise</span><<span class="class">User</span> | <span class="keyword">null</span>>;
+    
+    <span class="function">save</span>(user: <span class="class">User</span>): <span class="class">Promise</span><<span class="keyword">void</span>>;
+    
+    <span class="function">delete</span>(id: <span class="class">string</span>): <span class="class">Promise</span><<span class="keyword">void</span>>;
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>application/use-cases/CreateUser.ts</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// Use Case - Application Logic</span>
+<span class="keyword">export class</span> <span class="class">CreateUserUseCase</span> {
+    <span class="function">constructor</span>(
+        <span class="keyword">private</span> userRepo: <span class="interface">IUserRepository</span>,
+        <span class="keyword">private</span> emailService: <span class="interface">IEmailService</span>
+    ) {}
+
+    <span class="keyword">async</span> <span class="function">execute</span>(
+        dto: <span class="class">CreateUserDTO</span>
+    ): <span class="class">Promise</span><<span class="class">User</span>> {
+        <span class="comment">// Check if exists</span>
+        <span class="keyword">const</span> existing = <span class="keyword">await</span> <span class="keyword">this</span>
+            .userRepo.<span class="function">findByEmail</span>(dto.email);
+        
+        <span class="keyword">if</span> (existing) {
+            <span class="keyword">throw new</span> <span class="class">Error</span>(<span class="string">'User exists'</span>);
+        }
+
+        <span class="comment">// Create entity</span>
+        <span class="keyword">const</span> user = <span class="class">User</span>.<span class="function">create</span>(
+            dto.name, 
+            dto.email
+        );
+
+        <span class="comment">// Persist</span>
+        <span class="keyword">await</span> <span class="keyword">this</span>.userRepo.<span class="function">save</span>(user);
+
+        <span class="comment">// Side effect</span>
+        <span class="keyword">await</span> <span class="keyword">this</span>.emailService
+            .<span class="function">sendWelcome</span>(user.email);
+
+        <span class="keyword">return</span> user;
+    }
+}
+                    </div>
+                </div>
+
+                <div>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>infrastructure/database/PostgresUserRepo.ts</span>
+                    </div>
+                    <div class="code-block">
+<span class="comment">// Adapter - Concrete Implementation</span>
+<span class="keyword">export class</span> <span class="class">PostgresUserRepository</span> 
+    <span class="keyword">implements</span> <span class="interface">IUserRepository</span> {
+    
+    <span class="function">constructor</span>(
+        <span class="keyword">private</span> db: <span class="class">Database</span>
+    ) {}
+
+    <span class="keyword">async</span> <span class="function">findById</span>(
+        id: <span class="class">string</span>
+    ): <span class="class">Promise</span><<span class="class">User</span> | <span class="keyword">null</span>> {
+        <span class="keyword">const</span> row = <span class="keyword">await</span> <span class="keyword">this</span>.db.<span class="function">query</span>(
+            <span class="string">'SELECT * FROM users WHERE id = $1'</span>,
+            [id]
+        );
+        
+        <span class="keyword">if</span> (!row) <span class="keyword">return null</span>;
+        
+        <span class="keyword">return this</span>.<span class="function">mapToEntity</span>(row);
+    }
+
+    <span class="keyword">async</span> <span class="function">save</span>(user: <span class="class">User</span>): <span class="class">Promise</span><<span class="keyword">void</span>> {
+        <span class="keyword">await</span> <span class="keyword">this</span>.db.<span class="function">query</span>(
+            <span class="string">`INSERT INTO users 
+             VALUES ($1, $2, $3, $4)`</span>,
+            [user.id, user.name, 
+             user.email.value, user.createdAt]
+        );
+    }
+}
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔌 Dependency Injection</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Composition Root</span>
+            </div>
+            <div class="code-block">
+<span class="comment">// main.ts - Composition Root</span>
+<span class="keyword">import</span> { Container } <span class="keyword">from</span> <span class="string">'inversify'</span>;
+
+<span class="keyword">const</span> container = <span class="keyword">new</span> <span class="class">Container</span>();
+
+<span class="comment">// Bind interfaces to implementations</span>
+container.<span class="function">bind</span><<span class="interface">IUserRepository</span>>(<span class="string">'IUserRepository'</span>)
+    .<span class="function">to</span>(<span class="class">PostgresUserRepository</span>);
+
+container.<span class="function">bind</span><<span class="interface">IEmailService</span>>(<span class="string">'IEmailService'</span>)
+    .<span class="function">to</span>(<span class="class">SendGridEmailService</span>);
+
+container.<span class="function">bind</span><<span class="class">CreateUserUseCase</span>>(<span class="string">'CreateUserUseCase'</span>)
+    .<span class="function">to</span>(<span class="class">CreateUserUseCase</span>);
+
+<span class="comment">// Now we can easily swap implementations for testing</span>
+<span class="keyword">export</span> { container };
+            </div>
+        </div>
+
+        <!-- اسلاید 7: Domain-Driven Design -->
+        <div class="slide" id="ddd">
+            <div class="slide-number">7</div>
+            <h2>🎯 Domain-Driven Design (DDD)</h2>
+
+            <p>
+                <strong>DDD</strong> یک رویکرد برای طراحی نرم‌افزار است که توسط 
+                <span class="highlight">Eric Evans</span> در کتاب معروفش معرفی شده. 
+                تمرکز اصلی DDD بر روی <strong>Domain</strong> (حوزه کسب‌وکار) و 
+                <strong>Domain Logic</strong> است.
+            </p>
+
+            <h3>📚 مفاهیم استراتژیک (Strategic Patterns)</h3>
+
+            <div class="grid-2">
+                <div class="pattern-card">
+                    <h4>🌍 Bounded Context</h4>
+                    <p>
+                        مرز منطقی که در آن یک مدل خاص معتبر است. هر Bounded Context 
+                        می‌تواند زبان و مدل مخصوص به خود داشته باشد.
+                    </p>
+                    <div class="architecture-diagram" style="padding: 15px;">
+                        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                            <div style="border: 2px dashed #3b82f6; padding: 15px; border-radius: 10px;">
+                                <strong>Sales Context</strong>
+                                <p style="font-size: 0.9em;">Customer, Order, Product</p>
+                            </div>
+                            <div style="border: 2px dashed #10b981; padding: 15px; border-radius: 10px;">
+                                <strong>Shipping Context</strong>
+                                <p style="font-size: 0.9em;">Shipment, Address, Carrier</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pattern-card">
+                    <h4>🗣️ Ubiquitous Language</h4>
+                    <p>
+                        زبان مشترک بین توسعه‌دهندگان و متخصصین دامنه که در کد، 
+                        مستندات و مکالمات استفاده می‌شود.
+                    </p>
+                    <div class="tip-box" style="margin-top: 15px;">
+                        <h4>💡 مثال</h4>
+                        <p>
+                            به جای <code>createOrder()</code> از <code>placeOrder()</code> 
+                            استفاده کنید اگر در زبان کسب‌وکار «ثبت سفارش» می‌گویند.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🧱 مفاهیم تاکتیکی (Tactical Patterns)</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📦 Entity</h4>
+                    <p>
+                        شیئی که هویت منحصر به فرد دارد و در طول زمان قابل ردیابی است.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>Entity</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">Order</span> {
+    <span class="keyword">constructor</span>(
+        <span class="keyword">public readonly</span> id: <span class="class">OrderId</span>,
+        <span class="keyword">private</span> items: <span class="class">OrderItem</span>[],
+        <span class="keyword">private</span> status: <span class="class">OrderStatus</span>
+    ) {}
+    
+    <span class="comment">// هویت بر اساس ID</span>
+    <span class="function">equals</span>(other: <span class="class">Order</span>): <span class="class">boolean</span> {
+        <span class="keyword">return</span> <span class="keyword">this</span>.id.<span class="function">equals</span>(other.id);
+    }
+}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>💎 Value Object</h4>
+                    <p>
+                        شیئی که هویت ندارد و بر اساس مقادیرش تعریف می‌شود. Immutable است.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>Value Object</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">Money</span> {
+    <span class="keyword">constructor</span>(
+        <span class="keyword">public readonly</span> amount: <span class="class">number</span>,
+        <span class="keyword">public readonly</span> currency: <span class="class">string</span>
+    ) {
+        <span class="keyword">if</span> (amount < <span class="number">0</span>) 
+            <span class="keyword">throw new</span> <span class="class">Error</span>(<span class="string">'Invalid'</span>);
+    }
+    
+    <span class="function">add</span>(other: <span class="class">Money</span>): <span class="class">Money</span> {
+        <span class="keyword">return new</span> <span class="class">Money</span>(
+            <span class="keyword">this</span>.amount + other.amount,
+            <span class="keyword">this</span>.currency
+        );
+    }
+}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>🌳 Aggregate</h4>
+                    <p>
+                        گروهی از Entity و Value Object که به عنوان یک واحد مدیریت می‌شوند.
+                        دارای یک Aggregate Root است.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>Aggregate</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">Order</span> { <span class="comment">// Aggregate Root</span>
+    <span class="keyword">private</span> items: <span class="class">OrderItem</span>[] = [];
+    
+    <span class="function">addItem</span>(product: <span class="class">Product</span>, qty: <span class="class">number</span>) {
+        <span class="comment">// تمام قوانین اینجا اعمال می‌شود</span>
+        <span class="keyword">this</span>.items.<span class="function">push</span>(
+            <span class="keyword">new</span> <span class="class">OrderItem</span>(product, qty)
+        );
+        <span class="keyword">this</span>.<span class="function">recalculateTotal</span>();
+    }
+}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>🏭 Domain Service</h4>
+                    <p>
+                        منطقی که به یک Entity خاص تعلق ندارد و بین چند Entity مشترک است.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>Domain Service</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">PricingService</span> {
+    <span class="function">calculateDiscount</span>(
+        customer: <span class="class">Customer</span>,
+        order: <span class="class">Order</span>
+    ): <span class="class">Money</span> {
+        <span class="comment">// منطق پیچیده تخفیف</span>
+        <span class="keyword">if</span> (customer.isVIP()) {
+            <span class="keyword">return</span> order.total
+                .<span class="function">multiply</span>(<span class="number">0.1</span>);
+        }
+        <span class="keyword">return</span> <span class="class">Money</span>.<span class="function">zero</span>();
+    }
+}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>🗄️ Repository</h4>
+                    <p>
+                        انتزاعی برای دسترسی به Aggregate ها. مانند یک Collection در حافظه عمل می‌کند.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>Repository</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">interface</span> <span class="interface">OrderRepository</span> {
+    <span class="function">findById</span>(id: <span class="class">OrderId</span>): <span class="class">Promise</span><<span class="class">Order</span>>;
+    <span class="function">save</span>(order: <span class="class">Order</span>): <span class="class">Promise</span><<span class="keyword">void</span>>;
+    <span class="function">nextId</span>(): <span class="class">OrderId</span>;
+}
+
+<span class="comment">// فقط Aggregate Root ذخیره می‌شود</span>
+<span class="comment">// OrderItem ها همراه Order ذخیره می‌شوند</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4>📡 Domain Event</h4>
+                    <p>
+                        رویدادی که در Domain اتفاق افتاده و برای سایر بخش‌های سیستم مهم است.
+                    </p>
+                    <div class="code-header">
+                        <div class="dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span>Domain Event</span>
+                    </div>
+                    <div class="code-block">
+<span class="keyword">class</span> <span class="class">OrderPlaced</span> <span class="keyword">implements</span> <span class="interface">DomainEvent</span> {
+    <span class="keyword">constructor</span>(
+        <span class="keyword">public readonly</span> orderId: <span class="class">OrderId</span>,
+        <span class="keyword">public readonly</span> customerId: <span class="class">CustomerId</span>,
+        <span class="keyword">public readonly</span> total: <span class="class">Money</span>,
+        <span class="keyword">public readonly</span> occurredAt: <span class="class">Date</span>
+    ) {}
+}
+
+<span class="comment">// در Order Aggregate</span>
+<span class="function">place</span>(): <span class="keyword">void</span> {
+    <span class="keyword">this</span>.status = <span class="class">OrderStatus</span>.PLACED;
+    <span class="keyword">this</span>.<span class="function">addDomainEvent</span>(
+        <span class="keyword">new</span> <span class="class">OrderPlaced</span>(<span class="keyword">this</span>.id, ...)
+    );
+}
+                    </div>
+                </div>
+            </div>
+
+            <h3>🗺️ Context Mapping</h3>
+
+            <p>
+                روابط بین Bounded Context ها را تعریف می‌کند:
+            </p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🤝 Partnership</h4>
+                    <p>دو تیم با هم همکاری نزدیک دارند</p>
+                </div>
+                <div class="card">
+                    <h4>👑 Customer-Supplier</h4>
+                    <p>یک تیم سرویس‌دهنده، دیگری مصرف‌کننده</p>
+                </div>
+                <div class="card">
+                    <h4>🔄 Shared Kernel</h4>
+                    <p>بخشی از مدل مشترک است</p>
+                </div>
+                <div class="card">
+                    <h4>🛡️ Anti-Corruption Layer</h4>
+                    <p>لایه محافظ در برابر مدل‌های خارجی</p>
+                </div>
+                <div class="card">
+                    <h4>📢 Published Language</h4>
+                    <p>زبان مشترک برای تبادل داده</p>
+                </div>
+                <div class="card">
+                    <h4>🔗 Conformist</h4>
+                    <p>پیروی کامل از مدل upstream</p>
+                </div>
+            </div>
+
+            <h3>📝 مثال کامل: سیستم فروشگاه</h3>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>domain/aggregates/Order.ts</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">import</span> { AggregateRoot } <span class="keyword">from</span> <span class="string">'./AggregateRoot'</span>;
+<span class="keyword">import</span> { OrderId, CustomerId } <span class="keyword">from</span> <span class="string">'./value-objects'</span>;
+<span class="keyword">import</span> { OrderItem } <span class="keyword">from</span> <span class="string">'./OrderItem'</span>;
+<span class="keyword">import</span> { Money } <span class="keyword">from</span> <span class="string">'./Money'</span>;
+<span class="keyword">import</span> { OrderPlaced, OrderCancelled } <span class="keyword">from</span> <span class="string">'./events'</span>;
+
+<span class="keyword">export enum</span> <span class="class">OrderStatus</span> {
+    DRAFT = <span class="string">'DRAFT'</span>,
+    PLACED = <span class="string">'PLACED'</span>,
+    PAID = <span class="string">'PAID'</span>,
+    SHIPPED = <span class="string">'SHIPPED'</span>,
+    DELIVERED = <span class="string">'DELIVERED'</span>,
+    CANCELLED = <span class="string">'CANCELLED'</span>
+}
+
+<span class="keyword">export class</span> <span class="class">Order</span> <span class="keyword">extends</span> <span class="class">AggregateRoot</span><<span class="class">OrderId</span>> {
+    <span class="keyword">private</span> _items: <span class="class">OrderItem</span>[] = [];
+    <span class="keyword">private</span> _status: <span class="class">OrderStatus</span> = <span class="class">OrderStatus</span>.DRAFT;
+    <span class="keyword">private</span> _total: <span class="class">Money</span> = <span class="class">Money</span>.<span class="function">zero</span>(<span class="string">'IRR'</span>);
+
+    <span class="keyword">private constructor</span>(
+        id: <span class="class">OrderId</span>,
+        <span class="keyword">private readonly</span> _customerId: <span class="class">CustomerId</span>,
+        <span class="keyword">private readonly</span> _createdAt: <span class="class">Date</span>
+    ) {
+        <span class="keyword">super</span>(id);
+    }
+
+    <span class="comment">// Factory Method</span>
+    <span class="keyword">static</span> <span class="function">create</span>(customerId: <span class="class">CustomerId</span>): <span class="class">Order</span> {
+        <span class="keyword">return new</span> <span class="class">Order</span>(
+            <span class="class">OrderId</span>.<span class="function">generate</span>(),
+            customerId,
+            <span class="keyword">new</span> <span class="class">Date</span>()
+        );
+    }
+
+    <span class="comment">// Business Methods</span>
+    <span class="function">addItem</span>(productId: <span class="class">ProductId</span>, quantity: <span class="class">number</span>, price: <span class="class">Money</span>): <span class="keyword">void</span> {
+        <span class="keyword">this</span>.<span class="function">ensureNotPlaced</span>();
+        
+        <span class="keyword">const</span> existingItem = <span class="keyword">this</span>._items.<span class="function">find</span>(i => i.productId.<span class="function">equals</span>(productId));
+        
+        <span class="keyword">if</span> (existingItem) {
+            existingItem.<span class="function">increaseQuantity</span>(quantity);
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>._items.<span class="function">push</span>(<span class="keyword">new</span> <span class="class">OrderItem</span>(productId, quantity, price));
+        }
+        
+        <span class="keyword">this</span>.<span class="function">recalculateTotal</span>();
+    }
+
+    <span class="function">removeItem</span>(productId: <span class="class">ProductId</span>): <span class="keyword">void</span> {
+        <span class="keyword">this</span>.<span class="function">ensureNotPlaced</span>();
+        <span class="keyword">this</span>._items = <span class="keyword">this</span>._items.<span class="function">filter</span>(i => !i.productId.<span class="function">equals</span>(productId));
+        <span class="keyword">this</span>.<span class="function">recalculateTotal</span>();
+    }
+
+    <span class="function">place</span>(): <span class="keyword">void</span> {
+        <span class="keyword">if</span> (<span class="keyword">this</span>._items.length === <span class="number">0</span>) {
+            <span class="keyword">throw new</span> <span class="class">EmptyOrderError</span>();
+        }
+        
+        <span class="keyword">this</span>._status = <span class="class">OrderStatus</span>.PLACED;
+        
+        <span class="comment">// Raise Domain Event</span>
+        <span class="keyword">this</span>.<span class="function">addDomainEvent</span>(<span class="keyword">new</span> <span class="class">OrderPlaced</span>({
+            orderId: <span class="keyword">this</span>.id,
+            customerId: <span class="keyword">this</span>._customerId,
+            total: <span class="keyword">this</span>._total,
+            itemCount: <span class="keyword">this</span>._items.length
+        }));
+    }
+
+    <span class="function">cancel</span>(reason: <span class="class">string</span>): <span class="keyword">void</span> {
+        <span class="keyword">if</span> (<span class="keyword">this</span>._status === <span class="class">OrderStatus</span>.SHIPPED) {
+            <span class="keyword">throw new</span> <span class="class">CannotCancelShippedOrderError</span>();
+        }
+        
+        <span class="keyword">this</span>._status = <span class="class">OrderStatus</span>.CANCELLED;
+        <span class="keyword">this</span>.<span class="function">addDomainEvent</span>(<span class="keyword">new</span> <span class="class">OrderCancelled</span>(<span class="keyword">this</span>.id, reason));
+    }
+
+    <span class="comment">// Private Methods</span>
+    <span class="keyword">private</span> <span class="function">ensureNotPlaced</span>(): <span class="keyword">void</span> {
+        <span class="keyword">if</span> (<span class="keyword">this</span>._status !== <span class="class">OrderStatus</span>.DRAFT) {
+            <span class="keyword">throw new</span> <span class="class">OrderAlreadyPlacedError</span>();
+        }
+    }
+
+    <span class="keyword">private</span> <span class="function">recalculateTotal</span>(): <span class="keyword">void</span> {
+        <span class="keyword">this</span>._total = <span class="keyword">this</span>._items.<span class="function">reduce</span>(
+            (sum, item) => sum.<span class="function">add</span>(item.<span class="function">subtotal</span>()),
+            <span class="class">Money</span>.<span class="function">zero</span>(<span class="string">'IRR'</span>)
+        );
+    }
+
+    <span class="comment">// Getters</span>
+    <span class="keyword">get</span> <span class="function">items</span>(): <span class="keyword">readonly</span> <span class="class">OrderItem</span>[] { <span class="keyword">return</span> [...<span class="keyword">this</span>._items]; }
+    <span class="keyword">get</span> <span class="function">status</span>(): <span class="class">OrderStatus</span> { <span class="keyword">return this</span>._status; }
+    <span class="keyword">get</span> <span class="function">total</span>(): <span class="class">Money</span> { <span class="keyword">return this</span>._total; }
+    <span class="keyword">get</span> <span class="function">customerId</span>(): <span class="class">CustomerId</span> { <span class="keyword">return this</span>._customerId; }
+}
+            </div>
+
+            <div class="tip-box">
+                <h4>💡 نکات کلیدی DDD</h4>
+                <ul>
+                    <li>با متخصصین دامنه صحبت کنید و زبان آن‌ها را یاد بگیرید</li>
+                    <li>Bounded Context ها را به درستی شناسایی کنید</li>
+                    <li>Aggregate ها را کوچک نگه دارید</li>
+                    <li>از Domain Event ها برای ارتباط بین Aggregate ها استفاده کنید</li>
+                    <li>منطق کسب‌وکار را در Domain Layer نگه دارید، نه در Service ها</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- اسلاید 8: ویژگی‌های کیفی -->
+        <div class="slide" id="quality">
+            <div class="slide-number">8</div>
+            <h2>📊 ویژگی‌های کیفی (Quality Attributes)</h2>
+
+            <p>
+                ویژگی‌های کیفی (که به آن‌ها Non-Functional Requirements هم می‌گویند) 
+                معیارهایی هستند که کیفیت سیستم را تعیین می‌کنند.
+            </p>
+
+            <h3>⚡ Performance (کارایی)</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📈 معیارها</h4>
+                    <ul>
+                        <li><strong>Latency:</strong> زمان پاسخ‌دهی</li>
+                        <li><strong>Throughput:</strong> تعداد درخواست در ثانیه</li>
+                        <li><strong>Response Time:</strong> زمان کل پردازش</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🛠️ تکنیک‌های بهبود</h4>
+                    <ul>
+                        <li>Caching (Redis, Memcached)</li>
+                        <li>Database Indexing</li>
+                        <li>Connection Pooling</li>
+                        <li>Async Processing</li>
+                        <li>CDN برای محتوای استاتیک</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Caching Example</span>
+            </div>
+            <div class="code-block">
+<span class="keyword">class</span> <span class="class">CachedUserRepository</span> <span class="keyword">implements</span> <span class="interface">IUserRepository</span> {
+    <span class="function">constructor</span>(
+        <span class="keyword">private</span> repository: <span class="interface">IUserRepository</span>,
+        <span class="keyword">private</span> cache: <span class="class">CacheService</span>
+    ) {}
+
+    <span class="keyword">async</span> <span class="function">findById</span>(id: <span class="class">string</span>): <span class="class">Promise</span><<span class="class">User</span> | <span class="keyword">null</span>> {
+        <span class="keyword">const</span> cacheKey = <span class="string">`user:</span>${id}<span class="string">`</span>;
+        
+        <span class="comment">// Try cache first</span>
+        <span class="keyword">const</span> cached = <span class="keyword">await</span> <span class="keyword">this</span>.cache.<span class="function">get</span>(cacheKey);
+        <span class="keyword">if</span> (cached) <span class="keyword">return</span> cached;
+        
+        <span class="comment">// Fetch from DB</span>
+        <span class="keyword">const</span> user = <span class="keyword">await</span> <span class="keyword">this</span>.repository.<span class="function">findById</span>(id);
+        
+        <span class="comment">// Store in cache</span>
+        <span class="keyword">if</span> (user) {
+            <span class="keyword">await</span> <span class="keyword">this</span>.cache.<span class="function">set</span>(cacheKey, user, <span class="number">3600</span>); <span class="comment">// 1 hour</span>
+        }
+        
+        <span class="keyword">return</span> user;
+    }
+}
+            </div>
+
+            <h3>📈 Scalability (مقیاس‌پذیری)</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">⬆️</div>
+                    <h4>Vertical Scaling (Scale Up)</h4>
+                    <p>افزایش منابع سرور (CPU, RAM, Storage)</p>
+                    <ul>
+                        <li>✅ ساده</li>
+                        <li>❌ محدودیت سخت‌افزاری</li>
+                        <li>❌ Single Point of Failure</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="icon">➡️</div>
+                    <h4>Horizontal Scaling (Scale Out)</h4>
+                    <p>افزایش تعداد سرورها</p>
+                    <ul>
+                        <li>✅ مقیاس‌پذیری نامحدود</li>
+                        <li>✅ High Availability</li>
+                        <li>❌ پیچیدگی بیشتر</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🔒 Security (امنیت)</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🔐 Authentication</h4>
+                    <p>تأیید هویت کاربر</p>
+                    <ul>
+                        <li>JWT Tokens</li>
+                        <li>OAuth 2.0</li>
+                        <li>Multi-Factor Auth</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🛡️ Authorization</h4>
+                    <p>کنترل دسترسی</p>
+                    <ul>
+                        <li>RBAC</li>
+                        <li>ABAC</li>
+                        <li>Policy-based</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🔏 Data Protection</h4>
+                    <p>محافظت از داده</p>
+                    <ul>
+                        <li>Encryption at Rest</li>
+                        <li>Encryption in Transit</li>
+                        <li>Data Masking</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ OWASP Top 10</h4>
+                <ul>
+                    <li>Injection (SQL, NoSQL, OS)</li>
+                    <li>Broken Authentication</li>
+                    <li>Sensitive Data Exposure</li>
+                    <li>XML External Entities (XXE)</li>
+                    <li>Broken Access Control</li>
+                    <li>Security Misconfiguration</li>
+                    <li>Cross-Site Scripting (XSS)</li>
+                    <li>Insecure Deserialization</li>
+                    <li>Using Components with Known Vulnerabilities</li>
+                    <li>Insufficient Logging & Monitoring</li>
+                </ul>
+            </div>
+
+            <h3>🔄 Availability & Reliability</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Availability</th>
+                        <th>Downtime/Year</th>
+                        <th>Downtime/Month</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>99% (Two Nines)</td>
+                        <td>3.65 days</td>
+                        <td>7.31 hours</td>
+                    </tr>
+                    <tr>
+                        <td>99.9% (Three Nines)</td>
+                        <td>8.77 hours</td>
+                        <td>43.83 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>99.99% (Four Nines)</td>
+                        <td>52.60 minutes</td>
+                        <td>4.38 minutes</td>
+                    </tr>
+                    <tr>
+                        <td>99.999% (Five Nines)</td>
+                        <td>5.26 minutes</td>
+                        <td>26.30 seconds</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="grid-2">
+                <div class="tip-box">
+                    <h4>💡 تکنیک‌های High Availability</h4>
+                    <ul>
+                        <li>Load Balancing</li>
+                        <li>Database Replication</li>
+                        <li>Failover Mechanisms</li>
+                        <li>Health Checks</li>
+                        <li>Auto-scaling</li>
+                        <li>Multi-region Deployment</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h4>📊 Reliability Patterns</h4>
+                    <ul>
+                        <li><strong>Retry:</strong> تلاش مجدد با backoff</li>
+                        <li><strong>Circuit Breaker:</strong> قطع ارتباط با سرویس خراب</li>
+                        <li><strong>Bulkhead:</strong> ایزوله کردن خرابی‌ها</li>
+                        <li><strong>Timeout:</strong> محدود کردن زمان انتظار</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🧪 Testability (قابلیت تست)</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🔬 Unit Tests</h4>
+                    <p>تست واحدهای کوچک کد</p>
+                    <div class="code-block" style="font-size: 0.85em;">
+<span class="function">describe</span>(<span class="string">'Order'</span>, () => {
+  <span class="function">it</span>(<span class="string">'should add item'</span>, () => {
+    <span class="keyword">const</span> order = <span class="class">Order</span>.<span class="function">create</span>();
+    order.<span class="function">addItem</span>(product, <span class="number">2</span>);
+    <span class="function">expect</span>(order.items.length)
+      .<span class="function">toBe</span>(<span class="number">1</span>);
+  });
+});
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>🔗 Integration Tests</h4>
+                    <p>تست تعامل بین اجزا</p>
+                    <div class="code-block" style="font-size: 0.85em;">
+<span class="function">describe</span>(<span class="string">'OrderAPI'</span>, () => {
+  <span class="function">it</span>(<span class="string">'should create order'</span>, 
+  <span class="keyword">async</span> () => {
+    <span class="keyword">const</span> res = <span class="keyword">await</span> request(app)
+      .<span class="function">post</span>(<span class="string">'/orders'</span>)
+      .<span class="function">send</span>({ items: [...] });
+    <span class="function">expect</span>(res.status).<span class="function">toBe</span>(<span class="number">201</span>);
+  });
+});
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>🌐 E2E Tests</h4>
+                    <p>تست کل سیستم</p>
+                    <div class="code-block" style="font-size: 0.85em;">
+<span class="function">test</span>(<span class="string">'checkout flow'</span>, 
+<span class="keyword">async</span> ({ page }) => {
+  <span class="keyword">await</span> page.<span class="function">goto</span>(<span class="string">'/shop'</span>);
+  <span class="keyword">await</span> page.<span class="function">click</span>(<span class="string">'[data-add]'</span>);
+  <span class="keyword">await</span> page.<span class="function">click</span>(<span class="string">'[data-checkout]'</span>);
+  <span class="keyword">await</span> <span class="function">expect</span>(page)
+    .<span class="function">toHaveURL</span>(<span class="string">'/success'</span>);
+});
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔧 Maintainability (قابلیت نگهداری)</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📖 Code Quality</h4>
+                    <ul>
+                        <li>Clean Code Principles</li>
+                        <li>Consistent Naming</li>
+                        <li>Small Functions/Classes</li>
+                        <li>Documentation</li>
+                        <li>Code Reviews</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📊 Metrics</h4>
+                    <ul>
+                        <li><strong>Cyclomatic Complexity:</strong> پیچیدگی کد</li>
+                        <li><strong>Code Coverage:</strong> پوشش تست</li>
+                        <li><strong>Technical Debt:</strong> بدهی فنی</li>
+                        <li><strong>Coupling:</strong> وابستگی بین ماژول‌ها</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 9: ابزارها و مستندسازی -->
+        <div class="slide" id="tools">
+            <div class="slide-number">9</div>
+            <h2>🛠️ ابزارها و مستندسازی</h2>
+
+            <h3>📐 ابزارهای مدل‌سازی و طراحی</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">📊</div>
+                    <h4>Draw.io / Diagrams.net</h4>
+                    <p>رایگان، آنلاین، انواع دیاگرام</p>
+                    <div class="tags">
+                        <span class="tag">Free</span>
+                        <span class="tag">Online</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon">🏗️</div>
+                    <h4>Lucidchart</h4>
+                    <p>حرفه‌ای، همکاری تیمی</p>
+                    <div class="tags">
+                        <span class="tag">Paid</span>
+                        <span class="tag">Collaboration</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon">📝</div>
+                    <h4>PlantUML</h4>
+                    <p>دیاگرام با کد، Version Control</p>
+                    <div class="tags">
+                        <span class="tag">Free</span>
+                        <span class="tag">Code-based</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon">🎨</div>
+                    <h4>Mermaid</h4>
+                    <p>Markdown-based، GitHub integration</p>
+                    <div class="tags">
+                        <span class="tag">Free</span>
+                        <span class="tag">Markdown</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon">🔷</div>
+                    <h4>Enterprise Architect</h4>
+                    <p>UML کامل، مدل‌سازی حرفه‌ای</p>
+                    <div class="tags">
+                        <span class="tag">Paid</span>
+                        <span class="tag">Enterprise</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="icon">🏛️</div>
+                    <h4>Structurizr</h4>
+                    <p>C4 Model، Architecture as Code</p>
+                    <div class="tags">
+                        <span class="tag">C4</span>
+                        <span class="tag">Code-based</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>📋 C4 Model</h3>
+
+            <p>
+                <strong>C4 Model</strong> توسط Simon Brown ایجاد شده و یک روش ساده برای 
+                مستندسازی معماری نرم‌افزار در ۴ سطح است:
+            </p>
+
+            <div class="grid-4">
+                <div class="card">
+                    <h4>1️⃣ Context</h4>
+                    <p>سیستم و ارتباط با کاربران و سیستم‌های خارجی</p>
+                </div>
+                <div class="card">
+                    <h4>2️⃣ Container</h4>
+                    <p>اپلیکیشن‌ها، دیتابیس‌ها، سرویس‌ها</p>
+                </div>
+                <div class="card">
+                    <h4>3️⃣ Component</h4>
+                    <p>اجزای داخلی هر Container</p>
+                </div>
+                <div class="card">
+                    <h4>4️⃣ Code</h4>
+                    <p>کلاس‌ها و اینترفیس‌ها (UML)</p>
+                </div>
+            </div>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>Structurizr DSL Example</span>
+            </div>
+            <div class="code-block">
+workspace {
+    model {
+        user = person <span class="string">"Customer"</span> <span class="string">"A user of the system"</span>
+        
+        softwareSystem = softwareSystem <span class="string">"E-Commerce"</span> {
+            webapp = container <span class="string">"Web Application"</span> <span class="string">"React SPA"</span>
+            api = container <span class="string">"API"</span> <span class="string">"NestJS REST API"</span>
+            database = container <span class="string">"Database"</span> <span class="string">"PostgreSQL"</span>
+        }
+        
+        user -> webapp <span class="string">"Uses"</span>
+        webapp -> api <span class="string">"Makes API calls"</span>
+        api -> database <span class="string">"Reads/Writes"</span>
+    }
+    
+    views {
+        systemContext softwareSystem {
+            include *
+            autolayout lr
+        }
+        
+        container softwareSystem {
+            include *
+            autolayout lr
+        }
+    }
+}
+            </div>
+
+            <h3>📝 Architecture Decision Records (ADR)</h3>
+
+            <p>
+                ADR ها مستنداتی هستند که تصمیمات معماری مهم، دلایل آن‌ها و 
+                پیامدهایشان را ثبت می‌کنند.
+            </p>
+
+            <div class="code-header">
+                <div class="dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span>docs/adr/001-use-postgresql.md</span>
+            </div>
+            <div class="code-block">
+# ADR 001: استفاده از PostgreSQL به عنوان دیتابیس اصلی
+
+## وضعیت
+پذیرفته شده - ۱۴۰۴/۰۹/۱۵
+
+## زمینه
+نیاز به یک دیتابیس رابطه‌ای برای ذخیره داده‌های اصلی سیستم داریم.
+گزینه‌های بررسی شده: PostgreSQL, MySQL, SQL Server
+
+## تصمیم
+PostgreSQL را به عنوان دیتابیس اصلی انتخاب می‌کنیم.
+
+## دلایل
+- پشتیبانی عالی از JSON و داده‌های مکانی (PostGIS)
+- عملکرد بالا در Query های پیچیده
+- Open Source و رایگان
+- Community فعال و مستندات خوب
+- پشتیبانی از Full-Text Search
+
+## پیامدها
+### مثبت
+- انعطاف در ذخیره داده‌های نیمه‌ساختاریافته
+- امکان استفاده از PostGIS برای داده‌های مکانی
+
+### منفی
+- نیاز به آموزش تیم (اکثراً با MySQL کار کرده‌اند)
+- پیچیدگی بیشتر در تنظیمات اولیه
+
+## جایگزین‌های بررسی شده
+- MySQL: ساده‌تر اما امکانات کمتر
+- SQL Server: هزینه لایسنس بالا
+            </div>
+
+            <h3>📚 مستندسازی API</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📖 OpenAPI / Swagger</h4>
+                    <p>استاندارد مستندسازی REST API</p>
+                    <div class="code-block" style="font-size: 0.85em;">
+openapi: <span class="string">"3.0.0"</span>
+info:
+  title: <span class="string">"E-Commerce API"</span>
+  version: <span class="string">"1.0.0"</span>
+paths:
+  /orders:
+    post:
+      summary: <span class="string">"Create order"</span>
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: <span class="string">'#/components/...'</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>📊 AsyncAPI</h4>
+                    <p>مستندسازی Event-Driven APIs</p>
+                    <div class="code-block" style="font-size: 0.85em;">
+asyncapi: <span class="string">"2.0.0"</span>
+info:
+  title: <span class="string">"Order Events"</span>
+  version: <span class="string">"1.0.0"</span>
+channels:
+  order/placed:
+    publish:
+      message:
+        payload:
+          type: object
+          properties:
+            orderId:
+              type: string
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔍 ابزارهای تحلیل کد</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">🔬</div>
+                    <h4>SonarQube</h4>
+                    <p>تحلیل کیفیت کد، باگ‌ها، آسیب‌پذیری‌ها</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📏</div>
+                    <h4>ESLint / Prettier</h4>
+                    <p>Linting و Formatting برای JavaScript/TypeScript</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🧪</div>
+                    <h4>Jest / Vitest</h4>
+                    <p>Testing Framework با Coverage</p>
+                </div>
+            </div>
+
+            <h3>📖 منابع یادگیری</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📚 کتاب‌های پیشنهادی</h4>
+                    <ul>
+                        <li><strong>Clean Architecture</strong> - Robert C. Martin</li>
+                        <li><strong>Domain-Driven Design</strong> - Eric Evans</li>
+                        <li><strong>Patterns of Enterprise Application Architecture</strong> - Martin Fowler</li>
+                        <li><strong>Building Microservices</strong> - Sam Newman</li>
+                        <li><strong>Designing Data-Intensive Applications</strong> - Martin Kleppmann</li>
+                        <li><strong>Software Architecture in Practice</strong> - Bass, Clements, Kazman</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>🌐 منابع آنلاین</h4>
+                    <ul>
+                        <li><a href="https://martinfowler.com/" target="_blank">Martin Fowler's Blog</a></li>
+                        <li><a href="https://www.infoq.com/architecture-design/" target="_blank">InfoQ Architecture</a></li>
+                        <li><a href="https://microservices.io/" target="_blank">Microservices.io</a></li>
+                        <li><a href="https://refactoring.guru/" target="_blank">Refactoring Guru</a></li>
+                        <li><a href="https://c4model.com/" target="_blank">C4 Model</a></li>
+                        <li><a href="https://12factor.net/" target="_blank">12-Factor App</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- اسلاید 10: خلاصه و نتیجه‌گیری -->
+        <div class="slide" id="summary">
+            <div class="slide-number">10</div>
+            <h2>📝 خلاصه و نتیجه‌گیری</h2>
+
+            <h3>🎯 نکات کلیدی</h3>
+
+            <div class="grid-2">
+                <div class="tip-box">
+                    <h4>✅ اصول مهم</h4>
+                    <ul>
+                        <li><strong>SOLID:</strong> پایه طراحی شیءگرا</li>
+                        <li><strong>Separation of Concerns:</strong> جداسازی مسئولیت‌ها</li>
+                        <li><strong>DRY, KISS, YAGNI:</strong> سادگی و عدم تکرار</li>
+                        <li><strong>Dependency Inversion:</strong> وابستگی به انتزاع</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h4>🏗️ معماری‌های کلیدی</h4>
+                    <ul>
+                        <li><strong>Layered:</strong> ساده و رایج</li>
+                        <li><strong>Clean/Hexagonal:</strong> مستقل از فریمورک</li>
+                        <li><strong>Microservices:</strong> مقیاس‌پذیر و توزیع‌شده</li>
+                        <li><strong>Event-Driven:</strong> واکنش‌گرا و async</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🛤️ مسیر یادگیری پیشنهادی</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>📌 سطح ۱: مبانی</h4>
+                    <ul>
+                        <li>اصول SOLID</li>
+                        <li>Design Patterns (GoF)</li>
+                        <li>Clean Code</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>📌 سطح ۲: معماری اپلیکیشن</h4>
+                    <ul>
+                        <li>Layered Architecture</li>
+                        <li>Clean Architecture</li>
+                        <li>Hexagonal Architecture</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>📌 سطح ۳: Domain-Driven Design</h4>
+                    <ul>
+                        <li>Strategic Patterns</li>
+                        <li>Tactical Patterns</li>
+                        <li>Event Sourcing & CQRS</li>
+                    </ul>
+                </div>
+                <div class="timeline-item">
+                    <h4>📌 سطح ۴: سیستم‌های توزیع‌شده</h4>
+                    <ul>
+                        <li>Microservices</li>
+                        <li>Event-Driven Architecture</li>
+                        <li>Cloud Patterns</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>⚖️ تعادل در تصمیم‌گیری</h3>
+
+            <div class="warning-box">
+                <h4>⚠️ هیچ راه‌حل جهان‌شمولی وجود ندارد!</h4>
+                <p>
+                    انتخاب معماری مناسب به عوامل زیادی بستگی دارد:
+                </p>
+                <ul>
+                    <li><strong>اندازه تیم:</strong> تیم کوچک → معماری ساده‌تر</li>
+                    <li><strong>پیچیدگی دامنه:</strong> دامنه پیچیده → DDD</li>
+                    <li><strong>نیاز به مقیاس‌پذیری:</strong> ترافیک بالا → Microservices</li>
+                    <li><strong>محدودیت زمانی:</strong> MVP → Monolith</li>
+                    <li><strong>تجربه تیم:</strong> تکنولوژی‌های آشنا</li>
+                </ul>
+            </div>
+
+            <h3>💡 توصیه‌های نهایی</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">🚀</div>
+                    <h4>شروع ساده</h4>
+                    <p>
+                        با Monolith شروع کنید و در صورت نیاز به Microservices مهاجرت کنید.
+                        پیچیدگی زودهنگام دشمن است.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">📝</div>
+                    <h4>مستندسازی</h4>
+                    <p>
+                        تصمیمات معماری را مستند کنید (ADR).
+                        دیاگرام‌های C4 را به‌روز نگه دارید.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">🧪</div>
+                    <h4>تست‌پذیری</h4>
+                    <p>
+                        معماری خوب = کد قابل تست.
+                        اگر تست نوشتن سخت است، احتمالاً طراحی مشکل دارد.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔄</div>
+                    <h4>تکامل تدریجی</h4>
+                    <p>
+                        معماری باید با نیازها تکامل یابد.
+                        Refactoring مداوم ضروری است.
+                    </p>
+                </div>
+            </div>
+
+            <div class="principle-box" style="margin-top: 30px; text-align: center;">
+                <h4 style="font-size: 1.3em;">🎯 قانون طلایی معماری</h4>
+                <p style="font-size: 1.2em; margin-top: 15px;">
+                    <em>«ساده‌ترین معماری که نیازهای فعلی و آینده نزدیک را برآورده می‌کند، 
+                    بهترین معماری است.»</em>
+                </p>
+            </div>
+
+            <h3>🎓 چک‌لیست معمار نرم‌افزار</h3>
+
+            <div class="grid-2">
+                <div class="card" style="background: #ecfdf5;">
+                    <h4>✅ مهارت‌های فنی</h4>
+                    <ul>
+                        <li>☐ تسلط بر اصول SOLID</li>
+                        <li>☐ آشنایی با Design Patterns</li>
+                        <li>☐ درک معماری‌های مختلف</li>
+                        <li>☐ تجربه با سیستم‌های توزیع‌شده</li>
+                        <li>☐ آشنایی با Cloud Services</li>
+                        <li>☐ درک Security Principles</li>
+                    </ul>
+                </div>
+                <div class="card" style="background: #eff6ff;">
+                    <h4>✅ مهارت‌های نرم</h4>
+                    <ul>
+                        <li>☐ ارتباط مؤثر با ذینفعان</li>
+                        <li>☐ مستندسازی واضح</li>
+                        <li>☐ تصمیم‌گیری با trade-off</li>
+                        <li>☐ هدایت و آموزش تیم</li>
+                        <li>☐ درک نیازهای کسب‌وکار</li>
+                        <li>☐ یادگیری مداوم</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <h3>🏗️ معماری نرم‌افزار</h3>
+        <p style="margin: 20px 0;">
+            راهنمای جامع طراحی و پیاده‌سازی سیستم‌های نرم‌افزاری
+        </p>
+        <div style="margin-top: 20px;">
+            <a href="https://martinfowler.com/" target="_blank">📖 Martin Fowler</a>
+            <a href="https://c4model.com/" target="_blank">📐 C4 Model</a>
+            <a href="https://microservices.io/" target="_blank">☁️ Microservices.io</a>
+            <a href="https://refactoring.guru/" target="_blank">🎨 Refactoring Guru</a>
+        </div>
+        <p style="margin-top: 30px; opacity: 0.8;">
+            ساخته شده با ❤️ برای معماران و توسعه‌دهندگان نرم‌افزار | آذر ۱۴۰۴
+        </p>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in navigation
+        const observerOptions = {
+            root: null,
+            rootMargin: '-20% 0px -80% 0px',
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('nav a').forEach(link => {
+                        link.style.background = link.getAttribute('href') === `#${id}` 
+                            ? 'var(--primary-light)' 
+                            : 'transparent';
+                    });
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.slide[id]').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Add reading progress bar
+        const progressBar = document.createElement('div');
+        progressBar.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--gradient-1);
+            z-index: 9999;
+            transition: width 0.1s;
+        `;
+        document.body.appendChild(progressBar);
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / docHeight) * 100;
+            progressBar.style.width = progress + '%';
+        });
+
+        // Add copy button to code blocks
+        document.querySelectorAll('.code-block').forEach(block => {
+            const button = document.createElement('button');
+            button.textContent = '📋 Copy';
+            button.style.cssText = `
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                background: rgba(255,255,255,0.1);
+                border: none;
+                color: #a5b4fc;
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 12px;
+                opacity: 0;
+                transition: opacity 0.3s;
+            `;
+            
+            block.style.position = 'relative';
+            block.appendChild(button);
+            
+            block.addEventListener('mouseenter', () => button.style.opacity = '1');
+            block.addEventListener('mouseleave', () => button.style.opacity = '0');
+            
+            button.addEventListener('click', () => {
+                const code = block.textContent.replace('📋 Copy', '').trim();
+                navigator.clipboard.writeText(code).then(() => {
+                    button.textContent = '✅ Copied!';
+                    setTimeout(() => button.textContent = '📋 Copy', 2000);
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
