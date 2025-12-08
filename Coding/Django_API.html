@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش کامل Django REST API - سیستم HR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            border-right: 4px solid #667eea;
+        }
+
+        .toc h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .toc ol {
+            margin-right: 20px;
+        }
+
+        .toc li {
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .toc a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-right: 4px solid #667eea;
+        }
+
+        section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            display: flex;
+            align-items: center;
+        }
+
+        section h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        section h4 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        p {
+            margin: 15px 0;
+            text-align: justify;
+            line-height: 1.8;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border-left: 4px solid #667eea;
+            direction: ltr;
+        }
+
+        .code-block code {
+            color: #f8f8f2;
+        }
+
+        .keyword { color: #ff79c6; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; }
+        .function { color: #50fa7b; }
+        .number { color: #bd93f9; }
+
+        .info-box {
+            background: #e3f2fd;
+            border-right: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            direction: rtl;
+        }
+
+        .info-box strong {
+            color: #1976d2;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-right: 4px solid #ff9800;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .warning-box strong {
+            color: #e65100;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-right: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success-box strong {
+            color: #2e7d32;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        table tr:hover {
+            background: #f5f5f5;
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            margin-right: 30px;
+        }
+
+        li {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            margin-left: 5px;
+        }
+
+        .file-structure {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            direction: ltr;
+            font-size: 0.9em;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .api-endpoint {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+        }
+
+        .api-endpoint .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-left: 10px;
+            color: white;
+        }
+
+        .method.get {
+            background: #61affe;
+        }
+
+        .method.post {
+            background: #49cc90;
+        }
+
+        .method.put {
+            background: #fca130;
+        }
+
+        .method.delete {
+            background: #f93e3e;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+            border-right: 4px solid #667eea;
+        }
+
+        .card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+
+        .feature-list li {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border-right: 3px solid #667eea;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        footer {
+            background: #2d2d2d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #667eea;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.5em;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .back-to-top:hover {
+            background: #764ba2;
+            transform: translateY(-5px);
+        }
+
+        .back-to-top.hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+
+            section {
+                padding: 20px;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .code-block {
+                font-size: 0.8em;
+                padding: 10px;
+            }
+        }
+
+        .highlight {
+            background: #fffacd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .command {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            direction: ltr;
+            border-left: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🚀 آموزش کامل Django REST API</h1>
+            <p>ساخت سیستم مدیریت منابع انسانی (HR) قدم به قدم</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h2>📑 فهرست مطالب</h2>
+                <ol>
+                    <li><a href="#step1">مرحله 1: آماده‌سازی محیط</a></li>
+                    <li><a href="#step2">مرحله 2: ایجاد پروژه Django</a></li>
+                    <li><a href="#step3">مرحله 3: تنظیم Settings</a></li>
+                    <li><a href="#step4">مرحله 4: ایجاد مدل کاربر</a></li>
+                    <li><a href="#step5">مرحله 5: ایجاد مدل کارمند</a></li>
+                    <li><a href="#step6">مرحله 6: تنظیم URLs</a></li>
+                    <li><a href="#step7">مرحله 7: مهاجرت پایگاه داده</a></li>
+                    <li><a href="#step8">مرحله 8: Docker</a></li>
+                    <li><a href="#step9">مرحله 9: تست API</a></li>
+                    <li><a href="#step10">مرحله 10: خلاصه و نکات</a></li>
+                </ol>
+            </div>
+
+            <!-- Step 1 -->
+            <section id="step1">
+                <h2><span class="emoji">🔧</span> مرحله 1: آماده‌سازی محیط</h2>
+
+                <h3>1.1 ایجاد پوشه پروژه</h3>
+                <p>ابتدا یک پوشه جدید برای پروژه ایجاد کنید:</p>
+                
+                <div class="command">
+mkdir hr-api
+cd hr-api
+                </div>
+
+                <h3>1.2 ایجاد محیط مجازی</h3>
+                <p>محیط مجازی باعث می‌شود بسته‌های پروژه شما جدا از سیستم نگه داشته شوند:</p>
+
+                <div class="command">
+python -m venv venv
+                </div>
+
+                <h3>1.3 فعال‌سازی محیط مجازی</h3>
+                
+                <div class="info-box">
+                    <strong>⚠️ توجه:</strong> دستورات زیر بر اساس سیستم‌عامل متفاوت است
+                </div>
+
+                <p><strong>در Windows:</strong></p>
+                <div class="command">
+venv\Scripts\activate
+                </div>
+
+                <p><strong>در macOS/Linux:</strong></p>
+                <div class="command">
+source venv/bin/activate
+                </div>
+
+                <h3>1.4 نصب بسته‌های مورد نیاز</h3>
+                <p>ابتدا فایل requirements.txt را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="string">Django==4.2.0</span>
+<span class="string">djangorestframework==3.14.0</span>
+<span class="string">django-cors-headers==4.0.0</span>
+<span class="string">djangorestframework-simplejwt==5.2.2</span>
+<span class="string">drf-spectacular==0.26.2</span>
+<span class="string">python-decouple==3.8</span>
+<span class="string">psycopg2-binary==2.9.6</span>
+<span class="string">gunicorn==20.1.0</span>
+                </div>
+
+                <p>سپس بسته‌ها را نصب کنید:</p>
+                <div class="command">
+pip install -r requirements.txt
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ موفق:</strong> محیط شما آماده است
+                </div>
+            </section>
+
+            <!-- Step 2 -->
+            <section id="step2">
+                <h2><span class="emoji">📁</span> مرحله 2: ایجاد پروژه Django</h2>
+
+                <h3>2.1 ایجاد پروژه</h3>
+                <div class="command">
+django-admin startproject hr_api .
+                </div>
+
+                <h3>2.2 ایجاد اپ‌های مختلف</h3>
+                <p>دو اپ اصلی برای سیستم HR ایجاد کنید:</p>
+
+                <div class="command">
+python manage.py startapp users
+python manage.py startapp employees
+                </div>
+
+                <h3>2.3 ساختار پوشه‌ها</h3>
+                <p>ساختار پروژه شما باید به صورت زیر باشد:</p>
+
+                <div class="file-structure">
+hr-api/
+├── venv/                    # محیط مجازی
+├── hr_api/                  # تنظیمات پروژه
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── users/                   # اپ کاربران
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── urls.py
+│   └── permissions.py
+├── employees/              # اپ کارمندان
+│   ├── models.py
+│   ├── views.py
+│   ├── serializers.py
+│   ├── urls.py
+│   ├── pagination.py
+│   ├── filters.py
+│   └── permissions.py
+├── manage.py
+└── requirements.txt
+                </div>
+            </section>
+
+            <!-- Step 3 -->
+            <section id="step3">
+                <h2><span class="emoji">⚙️</span> مرحله 3: تنظیم Settings</h2>
+
+                <h3>3.1 باز کردن hr_api/settings.py</h3>
+                <p>تنظیمات اصلی پروژه در این فایل قرار دارد. بخش‌های مهم:</p>
+
+                <h4>الف) اضافه کردن اپ‌ها به INSTALLED_APPS</h4>
+                <div class="code-block">
+<span class="keyword">INSTALLED_APPS</span> = [
+    <span class="string">'django.contrib.admin'</span>,
+    <span class="string">'django.contrib.auth'</span>,
+    <span class="string">'django.contrib.contenttypes'</span>,
+    <span class="string">'django.contrib.sessions'</span>,
+    <span class="string">'django.contrib.messages'</span>,
+    <span class="string">'django.contrib.staticfiles'</span>,
+    
+    <span class="comment"># اپ‌های شخص ثالث</span>
+    <span class="string">'rest_framework'</span>,
+    <span class="string">'corsheaders'</span>,
+    <span class="string">'drf_spectacular'</span>,
+    
+    <span class="comment"># اپ‌های محلی</span>
+    <span class="string">'users.apps.UsersConfig'</span>,
+    <span class="string">'employees.apps.EmployeesConfig'</span>,
+]
+                </div>
+
+                <h4>ب) تنظیمات REST Framework</h4>
+                <div class="code-block">
+<span class="keyword">REST_FRAMEWORK</span> = {
+    <span class="string">'DEFAULT_AUTHENTICATION_CLASSES'</span>: (
+        <span class="string">'rest_framework_simplejwt.authentication.JWTAuthentication'</span>,
+    ),
+    <span class="string">'DEFAULT_PERMISSION_CLASSES'</span>: (
+        <span class="string">'rest_framework.permissions.IsAuthenticated'</span>,
+    ),
+    <span class="string">'DEFAULT_PAGINATION_CLASS'</span>: <span class="string">'employees.pagination.CustomPagination'</span>,
+    <span class="string">'PAGE_SIZE'</span>: 10,
+}
+                </div>
+
+                <h4>ج) تنظیمات JWT</h4>
+                <div class="code-block">
+<span class="keyword">SIMPLE_JWT</span> = {
+    <span class="string">'ACCESS_TOKEN_LIFETIME'</span>: timedelta(hours=1),
+    <span class="string">'REFRESH_TOKEN_LIFETIME'</span>: timedelta(days=1),
+    <span class="string">'ALGORITHM'</span>: <span class="string">'HS256'</span>,
+}
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 توضیح:</strong> JWT (JSON Web Token) برای احراز هویت کاربران استفاده می‌شود
+                </div>
+
+                <h4>د) تنظیمات پایگاه داده</h4>
+                <div class="code-block">
+<span class="keyword">DATABASES</span> = {
+    <span class="string">'default'</span>: {
+        <span class="string">'ENGINE'</span>: <span class="string">'django.db.backends.postgresql'</span>,
+        <span class="string">'NAME'</span>: <span class="string">'hr_db'</span>,
+        <span class="string">'USER'</span>: <span class="string">'postgres'</span>,
+        <span class="string">'PASSWORD'</span>: <span class="string">'postgres'</span>,
+        <span class="string">'HOST'</span>: <span class="string">'localhost'</span>,
+        <span class="string">'PORT'</span>: <span class="string">'5432'</span>,
+    }
+}
+                </div>
+            </section>
+
+            <!-- Step 4 -->
+            <section id="step4">
+                <h2><span class="emoji">👤</span> مرحله 4: ایجاد مدل کاربر</h2>
+
+                <h3>4.1 ایجاد مدل User</h3>
+                <p>فایل users/models.py را ویرایش کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> django.db <span class="keyword">import</span> models
+<span class="keyword">from</span> django.contrib.auth.models <span class="keyword">import</span> AbstractUser
+
+<span class="keyword">class</span> <span class="function">User</span>(AbstractUser):
+    <span class="string">"""مدل کاربر سفارشی"""</span>
+    
+    ROLE_CHOICES = [
+        (<span class="string">'admin'</span>, <span class="string">'مدیر'</span>),
+        (<span class="string">'hr'</span>, <span class="string">'منابع انسانی'</span>),
+        (<span class="string">'user'</span>, <span class="string">'کارمند'</span>),
+    ]
+    
+    email = models.EmailField(unique=<span class="keyword">True</span>)
+    role = models.CharField(
+        max_length=<span class="number">20</span>,
+        choices=ROLE_CHOICES,
+        default=<span class="string">'user'</span>
+    )
+    phone = models.CharField(max_length=<span class="number">20</span>, blank=<span class="keyword">True</span>)
+    created_at = models.DateTimeField(auto_now_add=<span class="keyword">True</span>)
+    
+    <span class="keyword">def</span> <span class="function">is_admin</span>(<span class="keyword">self</span>):
+        <span class="keyword">return</span> <span class="keyword">self</span>.role == <span class="string">'admin'</span>
+    
+    <span class="keyword">def</span> <span class="function">is_hr</span>(<span class="keyword">self</span>):
+        <span class="keyword">return</span> <span class="keyword">self</span>.role == <span class="string">'hr'</span>
+                </div>
+
+                <h3>4.2 ایجاد Serializers</h3>
+                <p>فایل users/serializers.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> rest_framework <span class="keyword">import</span> serializers
+<span class="keyword">from</span> .models <span class="keyword">import</span> User
+
+<span class="keyword">class</span> <span class="function">UserRegisterSerializer</span>(serializers.ModelSerializer):
+    <span class="string">"""Serializer برای ثبت‌نام"""</span>
+    
+    password = serializers.CharField(write_only=<span class="keyword">True</span>)
+    password2 = serializers.CharField(write_only=<span class="keyword">True</span>)
+    
+    <span class="keyword">class</span> <span class="function">Meta</span>:
+        model = User
+        fields = (<span class="string">'username'</span>, <span class="string">'email'</span>, <span class="string">'password'</span>, 
+                  <span class="string">'password2'</span>, <span class="string">'first_name'</span>, <span class="string">'last_name'</span>)
+    
+    <span class="keyword">def</span> <span class="function">create</span>(<span class="keyword">self</span>, validated_data):
+        validated_data.pop(<span class="string">'password2'</span>)
+        user = User.objects.create_user(**validated_data)
+        <span class="keyword">return</span> user
+                </div>
+
+                <h3>4.3 ایجاد Views</h3>
+                <p>فایل users/views.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> rest_framework <span class="keyword">import</span> viewsets, status
+<span class="keyword">from</span> rest_framework.decorators <span class="keyword">import</span> action
+<span class="keyword">from</span> rest_framework.response <span class="keyword">import</span> Response
+<span class="keyword">from</span> rest_framework.permissions <span class="keyword">import</span> AllowAny, IsAuthenticated
+<span class="keyword">from</span> .models <span class="keyword">import</span> User
+<span class="keyword">from</span> .serializers <span class="keyword">import</span> UserRegisterSerializer, UserSerializer
+
+<span class="keyword">class</span> <span class="function">UserRegisterView</span>(viewsets.ViewSet):
+    <span class="string">"""نقطه پایانی ثبت‌نام"""</span>
+    permission_classes = [AllowAny]
+    
+    @action(detail=<span class="keyword">False</span>, methods=[<span class="string">'post'</span>])
+    <span class="keyword">def</span> <span class="function">register</span>(<span class="keyword">self</span>, request):
+        serializer = UserRegisterSerializer(data=request.data)
+        <span class="keyword">if</span> serializer.is_valid():
+            user = serializer.save()
+            <span class="keyword">return</span> Response(
+                {<span class="string">'message'</span>: <span class="string">'کاربر ثبت‌نام شد'</span>, <span class="string">'user'</span>: UserSerializer(user).data},
+                status=status.HTTP_201_CREATED
+            )
+        <span class="keyword">return</span> Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                </div>
+
+                <h3>4.4 ایجاد URLs</h3>
+                <p>فایل users/urls.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> django.urls <span class="keyword">import</span> path, include
+<span class="keyword">from</span> rest_framework.routers <span class="keyword">import</span> DefaultRouter
+<span class="keyword">from</span> .views <span class="keyword">import</span> UserRegisterView
+
+router = DefaultRouter()
+router.register(<span class="string">r'auth'</span>, UserRegisterView, basename=<span class="string">'auth'</span>)
+
+urlpatterns = [
+    path(<span class="string">''</span>, include(router.urls)),
+]
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 توضیح:</strong> DefaultRouter خودکار URLs را برای عملیات CRUD ایجاد می‌کند
+                </div>
+            </section>
+
+            <!-- Step 5 -->
+            <section id="step5">
+                <h2><span class="emoji">👨‍💼</span> مرحله 5: ایجاد مدل کارمند</h2>
+
+                <h3>5.1 ایجاد مدل‌های Department و Employee</h3>
+                <p>فایل employees/models.py را ویرایش کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> django.db <span class="keyword">import</span> models
+<span class="keyword">from</span> users.models <span class="keyword">import</span> User
+
+<span class="keyword">class</span> <span class="function">Department</span>(models.Model):
+    <span class="string">"""مدل بخش‌ها"""</span>
+    name = models.CharField(max_length=<span class="number">100</span>, unique=<span class="keyword">True</span>)
+    description = models.TextField(blank=<span class="keyword">True</span>)
+    created_at = models.DateTimeField(auto_now_add=<span class="keyword">True</span>)
+    
+    <span class="keyword">def</span> <span class="function">__str__</span>(<span class="keyword">self</span>):
+        <span class="keyword">return</span> <span class="keyword">self</span>.name
+
+<span class="keyword">class</span> <span class="function">Employee</span>(models.Model):
+    <span class="string">"""مدل کارمندان"""</span>
+    
+    STATUS_CHOICES = [
+        (<span class="string">'active'</span>, <span class="string">'فعال'</span>),
+        (<span class="string">'inactive'</span>, <span class="string">'غیرفعال'</span>),
+        (<span class="string">'on_leave'</span>, <span class="string">'مرخصی'</span>),
+    ]
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    employee_id = models.CharField(max_length=<span class="number">20</span>, unique=<span class="keyword">True</span>)
+    department = models.ForeignKey(Department, on_delete=models.SET_NULL, null=<span class="keyword">True</span>)
+    position = models.CharField(max_length=<span class="number">100</span>)
+    salary = models.DecimalField(max_digits=<span class="number">10</span>, decimal_places=<span class="number">2</span>)
+    joining_date = models.DateField()
+    status = models.CharField(max_length=<span class="number">20</span>, choices=STATUS_CHOICES, default=<span class="string">'active'</span>)
+    created_at = models.DateTimeField(auto_now_add=<span class="keyword">True</span>)
+    
+    <span class="keyword">def</span> <span class="function">__str__</span>(<span class="keyword">self</span>):
+        <span class="keyword">return</span> <span class="keyword">self</span>.user.get_full_name()
+                </div>
+
+                <h3>5.2 ایجاد Pagination</h3>
+                <p>فایل employees/pagination.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> rest_framework.pagination <span class="keyword">import</span> PageNumberPagination
+<span class="keyword">from</span> rest_framework.response <span class="keyword">import</span> Response
+
+<span class="keyword">class</span> <span class="function">CustomPagination</span>(PageNumberPagination):
+    <span class="string">"""صفحه‌بندی سفارشی"""</span>
+    page_size = <span class="number">10</span>
+    page_size_query_param = <span class="string">'page_size'</span>
+    
+    <span class="keyword">def</span> <span class="function">get_paginated_response</span>(<span class="keyword">self</span>, data):
+        <span class="keyword">return</span> Response({
+            <span class="string">'count'</span>: <span class="keyword">self</span>.page.paginator.count,
+            <span class="string">'next'</span>: <span class="keyword">self</span>.get_next_link(),
+            <span class="string">'previous'</span>: <span class="keyword">self</span>.get_previous_link(),
+            <span class="string">'total_pages'</span>: <span class="keyword">self</span>.page.paginator.num_pages,
+            <span class="string">'current_page'</span>: <span class="keyword">self</span>.page.number,
+            <span class="string">'results'</span>: data
+        })
+                </div>
+
+                <h3>5.3 ایجاد Permissions</h3>
+                <p>فایل employees/permissions.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> rest_framework <span class="keyword">import</span> permissions
+
+<span class="keyword">class</span> <span class="function">IsAdminOrHR</span>(permissions.BasePermission):
+    <span class="string">"""اجازه فقط برای مدیران و منابع انسانی"""</span>
+    
+    <span class="keyword">def</span> <span class="function">has_permission</span>(<span class="keyword">self</span>, request, view):
+        <span class="keyword">return</span> (request.user <span class="keyword">and</span> 
+                request.user.is_authenticated <span class="keyword">and</span> 
+                (request.user.is_admin() <span class="keyword">or</span> request.user.is_hr()))
+                </div>
+
+                <h3>5.4 ایجاد Serializers برای کارمندان</h3>
+                <p>فایل employees/serializers.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> rest_framework <span class="keyword">import</span> serializers
+<span class="keyword">from</span> .models <span class="keyword">import</span> Employee, Department
+
+<span class="keyword">class</span> <span class="function">EmployeeSerializer</span>(serializers.ModelSerializer):
+    <span class="string">"""Serializer برای کارمندان"""</span>
+    
+    user_info = serializers.StringRelatedField(source=<span class="string">'user'</span>, read_only=<span class="keyword">True</span>)
+    department_name = serializers.CharField(source=<span class="string">'department.name'</span>, read_only=<span class="keyword">True</span>)
+    
+    <span class="keyword">class</span> <span class="function">Meta</span>:
+        model = Employee
+        fields = (<span class="string">'id'</span>, <span class="string">'employee_id'</span>, <span class="string">'user_info'</span>, <span class="string">'position'</span>,
+                  <span class="string">'department_name'</span>, <span class="string">'salary'</span>, <span class="string">'status'</span>, <span class="string">'joining_date'</span>)
+                </div>
+
+                <h3>5.5 ایجاد Views برای کارمندان</h3>
+                <p>فایل employees/views.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> rest_framework <span class="keyword">import</span> viewsets, status, filters
+<span class="keyword">from</span> rest_framework.decorators <span class="keyword">import</span> action
+<span class="keyword">from</span> rest_framework.response <span class="keyword">import</span> Response
+<span class="keyword">from</span> rest_framework.permissions <span class="keyword">import</span> IsAuthenticated
+<span class="keyword">from</span> .models <span class="keyword">import</span> Employee
+<span class="keyword">from</span> .serializers <span class="keyword">import</span> EmployeeSerializer
+<span class="keyword">from</span> .permissions <span class="keyword">import</span> IsAdminOrHR
+<span class="keyword">from</span> .pagination <span class="keyword">import</span> CustomPagination
+
+<span class="keyword">class</span> <span class="function">EmployeeViewSet</span>(viewsets.ModelViewSet):
+    <span class="string">"""ViewSet برای عملیات CRUD کارمندان"""</span>
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrHR]
+    pagination_class = CustomPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = [<span class="string">'employee_id'</span>, <span class="string">'user__first_name'</span>]
+    ordering_fields = [<span class="string">'salary'</span>, <span class="string">'joining_date'</span>]
+    
+    @action(detail=<span class="keyword">False</span>, methods=[<span class="string">'get'</span>])
+    <span class="keyword">def</span> <span class="function">me</span>(<span class="keyword">self</span>, request):
+        <span class="string">"""دریافت پروفایل کارمند فعلی"""</span>
+        <span class="keyword">try</span>:
+            employee = Employee.objects.get(user=request.user)
+            serializer = <span class="keyword">self</span>.get_serializer(employee)
+            <span class="keyword">return</span> Response(serializer.data)
+        <span class="keyword">except</span> Employee.DoesNotExist:
+            <span class="keyword">return</span> Response(
+                {<span class="string">'error'</span>: <span class="string">'پروفایل یافت نشد'</span>},
+                status=status.HTTP_404_NOT_FOUND
+            )
+                </div>
+
+                <h3>5.6 ایجاد URLs برای کارمندان</h3>
+                <p>فایل employees/urls.py را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">from</span> django.urls <span class="keyword">import</span> path, include
+<span class="keyword">from</span> rest_framework.routers <span class="keyword">import</span> DefaultRouter
+<span class="keyword">from</span> .views <span class="keyword">import</span> EmployeeViewSet
+
+router = DefaultRouter()
+router.register(<span class="string">r'employees'</span>, EmployeeViewSet, basename=<span class="string">'employee'</span>)
+
+urlpatterns = [
+    path(<span class="string">''</span>, include(router.urls)),
+]
+                </div>
+            </section>
+
+            <!-- Step 6 -->
+            <section id="step6">
+                <h2><span class="emoji">🔗</span> مرحله 6: تنظیم URLs اصلی</h2>
+
+                <h3>6.1 ویرایش hr_api/urls.py</h3>
+                <div class="code-block">
+<span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin
+<span class="keyword">from</span> django.urls <span class="keyword">import</span> path, include
+<span class="keyword">from</span> drf_spectacular.views <span class="keyword">import</span> (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView
+)
+
+urlpatterns = [
+    path(<span class="string">'admin/'</span>, admin.site.urls),
+    
+    <span class="comment"># نقاط پایانی API</span>
+    path(<span class="string">'api/v1/'</span>, include(<span class="string">'users.urls'</span>)),
+    path(<span class="string">'api/v1/'</span>, include(<span class="string">'employees.urls'</span>)),
+    
+    <span class="comment"># Swagger Documentation</span>
+    path(<span class="string">'api/schema/'</span>, SpectacularAPIView.as_view(), name=<span class="string">'schema'</span>),
+    path(<span class="string">'api/docs/'</span>, SpectacularSwaggerView.as_view(url_name=<span class="string">'schema'</span>), name=<span class="string">'swagger-ui'</span>),
+]
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 توضیح:</strong> Swagger یک ابزار تعاملی برای آزمایش API است
+                </div>
+            </section>
+
+            <!-- Step 7 -->
+            <section id="step7">
+                <h2><span class="emoji">💾</span> مرحله 7: مهاجرت پایگاه داده</h2>
+
+                <h3>7.1 ایجاد فایل‌های مهاجرت</h3>
+                <div class="command">
+python manage.py makemigrations
+                </div>
+
+                <p>این دستور فایل‌های مهاجرت را برای تغییرات مدل ایجاد می‌کند.</p>
+
+                <h3>7.2 اعمال مهاجرت‌ها</h3>
+                <div class="command">
+python manage.py migrate
+                </div>
+
+                <p>این دستور تغییرات را به پایگاه داده اعمال می‌کند.</p>
+
+                <h3>7.3 ایجاد superuser</h3>
+                <div class="command">
+python manage.py createsuperuser
+                </div>
+
+                <p>سپس اطلاعات زیر را وارد کنید:</p>
+                <ul>
+                    <li>نام کاربری: admin</li>
+                    <li>ایمیل: admin@example.com</li>
+                    <li>رمز عبور: admin123</li>
+                </ul>
+
+                <h3>7.4 اجرای سرور</h3>
+                <div class="command">
+python manage.py runserver
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ موفق:</strong> سرور در http://localhost:8000 اجرا می‌شود
+                </div>
+            </section>
+
+            <!-- Step 8 -->
+            <section id="step8">
+                <h2><span class="emoji">🐳</span> مرحله 8: Docker</h2>
+
+                <h3>8.1 ایجاد Dockerfile</h3>
+                <p>فایل Dockerfile را در ریشه پروژه ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">FROM</span> python:<span class="number">3.11</span>-slim
+
+<span class="keyword">ENV</span> PYTHONDONTWRITEBYTECODE=<span class="number">1</span>
+<span class="keyword">ENV</span> PYTHONUNBUFFERED=<span class="number">1</span>
+
+<span class="keyword">WORKDIR</span> /app
+
+<span class="keyword">RUN</span> apt-get update && apt-get install -y postgresql-client
+
+<span class="keyword">COPY</span> requirements.txt /app/
+<span class="keyword">RUN</span> pip install -r requirements.txt
+
+<span class="keyword">COPY</span> . /app/
+
+<span class="keyword">EXPOSE</span> <span class="number">8000</span>
+
+<span class="keyword">CMD</span> [<span class="string">"gunicorn"</span>, <span class="string">"--bind"</span>, <span class="string">"0.0.0.0:8000"</span>, <span class="string">"hr_api.wsgi:application"</span>]
+                </div>
+
+                <h3>8.2 ایجاد docker-compose.yml</h3>
+                <p>فایل docker-compose.yml را ایجاد کنید:</p>
+
+                <div class="code-block">
+<span class="keyword">version:</span> <span class="string">'3.9'</span>
+
+<span class="keyword">services:</span>
+  <span class="keyword">db:</span>
+    <span class="keyword">image:</span> postgres:<span class="number">15</span>
+    <span class="keyword">environment:</span>
+      <span class="keyword">POSTGRES_DB:</span> hr_db
+      <span class="keyword">POSTGRES_USER:</span> postgres
+      <span class="keyword">POSTGRES_PASSWORD:</span> postgres
+    <span class="keyword">ports:</span>
+      - <span class="string">"5432:5432"</span>
+
+  <span class="keyword">web:</span>
+    <span class="keyword">build:</span> .
+    <span class="keyword">command:</span> gunicorn --bind 0.0.0.0:8000 hr_api.wsgi:application
+    <span class="keyword">ports:</span>
+      - <span class="string">"8000:8000"</span>
+    <span class="keyword">depends_on:</span>
+      - db
+                </div>
+
+                <h3>8.3 اجرای با Docker</h3>
+                <div class="command">
+docker-compose up --build
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ موفق:</strong> سرور در Docker اجرا می‌شود
+                </div>
+            </section>
+
+            <!-- Step 9 -->
+            <section id="step9">
+                <h2><span class="emoji">🧪</span> مرحله 9: تست API</h2>
+
+                <h3>9.1 ثبت‌نام کاربر</h3>
+                <div class="api-endpoint">
+                    <span class="method post">POST</span> /api/v1/auth/register/
+                </div>
+
+                <div class="code-block">
+curl -X POST http://localhost:8000/api/v1/auth/register/ \
+  -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{
+    "username": "john_doe",
+    "email": "john@example.com",
+    "password": "SecurePass123!",
+    "password2": "SecurePass123!",
+    "first_name": "جان",
+    "last_name": "دو"
+  }'</span>
+                </div>
+
+                <h3>9.2 ورود و دریافت توکن</h3>
+                <div class="api-endpoint">
+                    <span class="method post">POST</span> /api/v1/auth/login/
+                </div>
+
+                <div class="code-block">
+curl -X POST http://localhost:8000/api/v1/auth/login/ \
+  -H <span class="string">"Content-Type: application/json"</span> \
+  -d <span class="string">'{
+    "username": "john_doe",
+    "password": "SecurePass123!"
+  }'</span>
+                </div>
+
+                <div class="info-box">
+                    <strong>💡 توضیح:</strong> پاسخ شامل access و refresh token است
+                </div>
+
+                <h3>9.3 دریافت لیست کارمندان (صفحه‌بندی)</h3>
+                <div class="api-endpoint">
+                    <span class="method get">GET</span> /api/v1/employees/?page=1&page_size=10
+                </div>
+
+                <div class="code-block">
+curl -X GET <span class="string">"http://localhost:8000/api/v1/employees/?page=1&page_size=10"</span> \
+  -H <span class="string">"Authorization: Bearer YOUR_ACCESS_TOKEN"</span>
+                </div>
+
+                <h3>9.4 فیلتر و جستجو</h3>
+                <div class="api-endpoint">
+                    <span class="method get">GET</span> /api/v1/employees/?search=john&status=active
+                </div>
+
+                <h3>9.5 مشاهده Swagger</h3>
+                <p>مرورگر خود را باز کنید و به آدرس زیر بروید:</p>
+                <div class="command">
+http://localhost:8000/api/docs/
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ موفق:</strong> می‌توانید تمام endpoints را در Swagger ببینید
+                </div>
+            </section>
+
+            <!-- Step 10 -->
+            <section id="step10">
+                <h2><span class="emoji">📋</span> مرحله 10: خلاصه و نکات</h2>
+
+                <h3>10.1 تمام نقاط پایانی API</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>روش</th>
+                            <th>مسیر</th>
+                            <th>توضیح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="method post">POST</span></td>
+                            <td>/api/v1/auth/register/</td>
+                            <td>ثبت‌نام کاربر جدید</td>
+                        </tr>
+                        <tr>
+                            <td><span class="method post">POST</span></td>
+                            <td>/api/v1/auth/login/</td>
+                            <td>ورود و دریافت توکن</td>
+                        </tr>
+                        <tr>
+                            <td><span class="method get">GET</span></td>
+                            <td>/api/v1/users/</td>
+                            <td>لیست تمام کاربران</td>
+                        </tr>
+                        <tr>
+                            <td><span class="method get">GET</span></td>
+                            <td>/api/v1/employees/</td>
+                            <td>لیست کارمندان (صفحه‌بندی)</td>
+                        </tr>
+                        <tr>
+                            <td><span class="method post">POST</span></td>
+                            <td>/api/v1/employees/</td>
+                            <td>ایجاد کارمند جدید</td>
+                        </tr>
+                        <tr>
+                            <td><span class="method put">PUT</span></td>
+                            <td>/api/v1/employees/{id}/</td>
+                            <td>ویرایش کارمند</td>
+                        </tr>
+                        <tr>
+                            <td><span class="method delete">DELETE</span></td>
+                            <td>/api/v1/employees/{id}/</td>
+                            <td>حذف کارمند</td>
+                        </tr>
+                        <tr>
+                            <td><span class="method get">GET</span></td>
+                            <td>/api/docs/</td>
+                            <td>مستندات Swagger</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>10.2 سیستم نقش‌ها</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h3>👑 مدیر (Admin)</h3>
+                        <ul class="feature-list">
+                            <li>مشاهده تمام کاربران</li>
+                            <li>تغییر نقش کاربران</li>
+                            <li>مشاهده تمام کارمندان</li>
+                            <li>مدیریت بخش‌ها</li>
+                            <li>مشاهده آمار</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>📋 منابع انسانی (HR)</h3>
+                        <ul class="feature-list">
+                            <li>مشاهده تمام کارمندان</li>
+                            <li>ایجاد/ویرایش کارمندان</li>
+                            <li>تغییر وضعیت کارمند</li>
+                            <li>مدیریت بخش‌ها</li>
+                            <li>مشاهده آمار</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>👨‍💻 کارمند (User)</h3>
+                        <ul class="feature-list">
+                            <li>مشاهده پروفایل خود</li>
+                            <li>ویرایش پروفایل خود</li>
+                            <li>مشاهده کارمندان بخش</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>10.3 نکات مهم</h3>
+                <div class="info-box">
+                    <strong>🔐 JWT Token:</strong> هر درخواست باید توکن را در Header ارسال کند:
+                    <div class="command" style="margin-top: 10px;">
+Authorization: Bearer YOUR_ACCESS_TOKEN
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Pagination:</strong> صفحات از 1 شروع می‌شوند
+                    <div class="command" style="margin-top: 10px;">
+?page=1&page_size=10
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>🔍 Search:</strong> جستجو در فیلدهای مشخص شده
+                    <div class="command" style="margin-top: 10px;">
+?search=john
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>🎯 Filtering:</strong> فیلتر کردن بر اساس فیلدها
+                    <div class="command" style="margin-top: 10px;">
+?department=1&status=active
+                    </div>
+                </div>
+
+                <h3>10.4 چک‌لیست نهایی</h3>
+                <ul class="feature-list">
+                    <li>✓ محیط مجازی ایجاد شد</li>
+                    <li>✓ بسته‌ها نصب شدند</li>
+                    <li>✓ پروژه Django ایجاد شد</li>
+                    <li>✓ مدل‌ها ایجاد شدند</li>
+                    <li>✓ Serializers ایجاد شدند</li>
+                    <li>✓ Views ایجاد شدند</li>
+                    <li>✓ URLs تنظیم شدند</li>
+                    <li>✓ مهاجرت‌ها اعمال شدند</li>
+                    <li>✓ Swagger فعال است</li>
+                    <li>✓ Docker آماده است</li>
+                </ul>
+
+                <h3>10.5 مراجع و منابع</h3>
+                <ul>
+                    <li>📚 <a href="https://www.djangoproject.com/" style="color: #667eea;">Django Official Documentation</a></li>
+                    <li>📚 <a href="https://www.django-rest-framework.org/" style="color: #667eea;">Django REST Framework</a></li>
+                    <li>📚 <a href="https://django-rest-framework-simplejwt.readthedocs.io/" style="color: #667eea;">JWT Documentation</a></li>
+                    <li>📚 <a href="https://drf-spectacular.readthedocs.io/" style="color: #667eea;">drf-spectacular</a></li>
+                </ul>
+            </section>
+
+            <!-- Conclusion -->
+            <section>
+                <h2><span class="emoji">🎉</span> تبریک!</h2>
+                <p>شما با موفقیت یک REST API کامل برای سیستم مدیریت منابع انسانی ساختید که شامل:</p>
+                
+                <div class="feature-list">
+                    <li>✓ احراز هویت با JWT</li>
+                    <li>✓ عملیات CRUD کامل</li>
+                    <li>✓ صفحه‌بندی و فیلتر‌کردن</li>
+                    <li>✓ سیستم نقش‌های مختلف</li>
+                    <li>✓ مستندات Swagger تعاملی</li>
+                    <li>✓ پایگاه داده PostgreSQL</li>
+                    <li>✓ کانتینرایزاسیون Docker</li>
+                </div>
+
+                <h3>مراحل بعدی:</h3>
+                <ul>
+                    <li>🚀 استقرار در سرور production</li>
+                    <li>🔒 پیاده‌سازی HTTPS</li>
+                    <li>📊 اضافه کردن logging و monitoring</li>
+                    <li>⚡ بهینه‌سازی کارایی</li>
+                    <li>🧪 نوشتن unit tests</li>
+                    <li>📱 ساخت frontend app</li>
+                </ul>
+            </section>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>📝 آموزش تهیه شده توسط تیم توسعه | تمام حقوق محفوظ است</p>
+            <p>آخرین به‌روزرسانی: دسامبر 2024</p>
+        </footer>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <script>
+        // Back to Top Functionality
+        const backToTopButton = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('hidden');
+            } else {
+                backToTopButton.classList.add('hidden');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Smooth Scrolling for TOC Links
+        document.querySelectorAll('.toc a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add copy button to code blocks
+        document.querySelectorAll('.code-block, .command').forEach(block => {
+            const copyButton = document.createElement('button');
+            copyButton.textContent = 'کپی';
+            copyButton.style.cssText = `
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                padding: 5px 10px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.8em;
+            `;
+            
+            block.style.position = 'relative';
+            block.appendChild(copyButton);
+            
+            copyButton.addEventListener('click', () => {
+                const text = block.innerText.replace('کپی', '').trim();
+                navigator.clipboard.writeText(text);
+                copyButton.textContent = '✓ کپی شد';
+                setTimeout(() => {
+                    copyButton.textContent = 'کپی';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
