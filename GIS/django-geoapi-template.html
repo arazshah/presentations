@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>django-geoapi-template | مستندات کامل</title>
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #6c757d;
+            --success: #198754;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: var(--dark);
+            background: var(--light);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 100%);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #ffc107;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 60px;
+            width: 280px;
+            height: calc(100vh - 60px);
+            background: white;
+            border-left: 1px solid #dee2e6;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            color: var(--secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            color: var(--dark);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .sidebar a:hover {
+            background: var(--light);
+            color: var(--primary);
+            padding-right: 1.5rem;
+        }
+
+        .sidebar .active {
+            background: #e7f1ff;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-right: 280px;
+            margin-top: 60px;
+            padding: 2rem 3rem;
+            max-width: 1100px;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1a5f2a 0%, #2d8a3e 50%, #1a5f2a 100%);
+            color: white;
+            padding: 4rem 3rem;
+            border-radius: 15px;
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h3 {
+            color: var(--dark);
+            margin: 1.5rem 0 1rem;
+        }
+
+        .section h4 {
+            color: var(--secondary);
+            margin: 1rem 0 0.5rem;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            direction: ltr;
+            text-align: left;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        :not(pre) > code {
+            background: #e9ecef;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: #d63384;
+            font-size: 0.9em;
+        }
+
+        /* Syntax Highlighting */
+        .keyword { color: #569cd6; }
+        .string { color: #ce9178; }
+        .comment { color: #6a9955; }
+        .function { color: #dcdcaa; }
+        .class { color: #4ec9b0; }
+        .number { color: #b5cea8; }
+        .decorator { color: #d7ba7d; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: var(--light);
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid #dee2e6;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h4 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+
+        .card p {
+            color: var(--secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert-info {
+            background: #cff4fc;
+            border: 1px solid #9eeaf9;
+            color: #055160;
+        }
+
+        .alert-success {
+            background: #d1e7dd;
+            border: 1px solid #badbcc;
+            color: #0f5132;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffecb5;
+            color: #664d03;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c2c7;
+            color: #842029;
+        }
+
+        /* Steps */
+        .steps {
+            counter-reset: step;
+        }
+
+        .step {
+            position: relative;
+            padding-right: 3.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .step::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .flow-box {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            min-width: 150px;
+        }
+
+        .flow-arrow {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        /* File Tree */
+        .file-tree {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .file-tree .folder {
+            color: #569cd6;
+        }
+
+        .file-tree .file {
+            color: #d4d4d4;
+        }
+
+        .file-tree .file-py { color: #4ec9b0; }
+        .file-tree .file-json { color: #ce9178; }
+        .file-tree .file-md { color: #6a9955; }
+        .file-tree .file-yml { color: #d7ba7d; }
+
+        /* API Endpoint */
+        .endpoint {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-right: 4px solid var(--primary);
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+
+        .method-get { background: #198754; color: white; }
+        .method-post { background: #0d6efd; color: white; }
+        .method-put { background: #ffc107; color: black; }
+        .method-delete { background: #dc3545; color: white; }
+
+        .endpoint-path {
+            font-family: monospace;
+            color: var(--dark);
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 0.5rem 0;
+            padding-right: 2rem;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            right: 0;
+            color: var(--secondary);
+        }
+
+        .checklist li.done::before {
+            content: "✅";
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-right: 280px;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: #ffc107;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-right: 0;
+            }
+
+            footer {
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .navbar, .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin: 0;
+                padding: 0;
+            }
+
+            .section {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="#" class="logo">🌍 django-<span>geoapi</span>-template</a>
+            <ul class="nav-links">
+                <li><a href="#overview">معرفی</a></li>
+                <li><a href="#installation">نصب</a></li>
+                <li><a href="#structure">ساختار</a></li>
+                <li><a href="#api">API</a></li>
+                <li><a href="https://github.com" target="_blank">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <h3>📚 فهرست مطالب</h3>
+        <ul>
+            <li><a href="#overview" class="active">معرفی پروژه</a></li>
+            <li><a href="#features">ویژگی‌ها</a></li>
+            <li><a href="#architecture">معماری</a></li>
+            <li><a href="#installation">نصب و راه‌اندازی</a></li>
+            <li><a href="#structure">ساختار فایل‌ها</a></li>
+            <li><a href="#models">مدل‌ها</a></li>
+            <li><a href="#serializers">سریالایزرها</a></li>
+            <li><a href="#views">ویوها</a></li>
+            <li><a href="#filters">فیلترها</a></li>
+            <li><a href="#api">مرجع API</a></li>
+            <li><a href="#docker">Docker</a></li>
+            <li><a href="#examples">مثال‌ها</a></li>
+            <li><a href="#workflow">فرایند کار</a></li>
+            <li><a href="#deployment">استقرار</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>🌍 django-geoapi-template</h1>
+            <p>
+                یک قالب آماده و ساده برای ساخت سریع API های مکانی 
+                با Django REST Framework و PostGIS
+            </p>
+            <div class="hero-badges">
+                <span class="badge">🐍 Python 3.11+</span>
+                <span class="badge">🎯 Django 4.2+</span>
+                <span class="badge">🗺️ PostGIS</span>
+                <span class="badge">📝 MIT License</span>
+                <span class="badge">🇮🇷 مستندات فارسی</span>
+            </div>
+        </section>
+
+        <!-- Overview Section -->
+        <section id="overview" class="section">
+            <h2>📖 معرفی پروژه</h2>
+            
+            <p>
+                <strong>django-geoapi-template</strong> یک قالب Cookiecutter برای ایجاد سریع 
+                پروژه‌های Django با قابلیت‌های مکانی (Geospatial) است. این قالب شامل تمام 
+                تنظیمات و کدهای پایه برای کار با داده‌های جغرافیایی می‌باشد.
+            </p>
+
+            <h3>🎯 هدف پروژه</h3>
+            <p>
+                کاهش زمان راه‌اندازی پروژه‌های GIS از چند روز به چند دقیقه! 
+                با استفاده از این قالب، شما یک API مکانی کاملاً آماده با قابلیت‌های 
+                جستجوی مکانی، خروجی GeoJSON و فیلترهای پیشرفته خواهید داشت.
+            </p>
+
+            <div class="alert alert-info">
+                <span>💡</span>
+                <div>
+                    این پروژه <strong>رایگان و منبع‌باز</strong> است و تحت لایسنس MIT منتشر شده. 
+                    می‌توانید برای هر پروژه شخصی یا تجاری از آن استفاده کنید.
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="section">
+            <h2>✨ ویژگی‌ها</h2>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">📍</div>
+                    <h4>مدل‌های مکانی</h4>
+                    <p>مدل‌های Abstract آماده برای نقاط و چندضلعی‌ها با متدهای کمکی</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔍</div>
+                    <h4>جستجوی مکانی</h4>
+                    <p>جستجو در شعاع، محدوده مستطیلی و یافتن نزدیک‌ترین مکان‌ها</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🗺️</div>
+                    <h4>خروجی GeoJSON</h4>
+                    <p>خروجی استاندارد GeoJSON برای استفاده در نقشه‌ها</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐳</div>
+                    <h4>Docker Ready</h4>
+                    <p>فایل‌های Docker و docker-compose آماده برای اجرای سریع</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h4>محاسبه فاصله</h4>
+                    <p>محاسبه خودکار فاصله بین نقاط در نتایج جستجو</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h4>API آماده</h4>
+                    <p>ViewSet های کامل با endpoint های مکانی از پیش تعریف شده</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="architecture" class="section">
+            <h2>🏗️ معماری سیستم</h2>
+            
+            <div class="flow-diagram">
+                <div class="flow-row">
+                    <div class="flow-box">
+                        <strong>Client</strong><br>
+                        <small>Web / Mobile / GIS App</small>
+                    </div>
+                    <span class="flow-arrow">←</span>
+                    <div class="flow-box">
+                        <strong>Django REST API</strong><br>
+                        <small>ViewSets + Serializers</small>
+                    </div>
+                    <span class="flow-arrow">←</span>
+                    <div class="flow-box">
+                        <strong>GeoDjango ORM</strong><br>
+                        <small>Spatial Queries</small>
+                    </div>
+                    <span class="flow-arrow">←</span>
+                    <div class="flow-box">
+                        <strong>PostGIS</strong><br>
+                        <small>PostgreSQL + GIS</small>
+                    </div>
+                </div>
+            </div>
+
+            <h3>اجزای اصلی</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>جزء</th>
+                        <th>تکنولوژی</th>
+                        <th>نقش</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Framework</td>
+                        <td>Django 4.2+</td>
+                        <td>فریم‌ورک اصلی وب</td>
+                    </tr>
+                    <tr>
+                        <td>API</td>
+                        <td>Django REST Framework</td>
+                        <td>ساخت REST API</td>
+                    </tr>
+                    <tr>
+                        <td>GIS Extension</td>
+                        <td>GeoDjango + DRF-GIS</td>
+                        <td>قابلیت‌های مکانی</td>
+                    </tr>
+                    <tr>
+                        <td>Database</td>
+                        <td>PostgreSQL + PostGIS</td>
+                        <td>ذخیره‌سازی داده‌های مکانی</td>
+                    </tr>
+                    <tr>
+                        <td>Filtering</td>
+                        <td>django-filter</td>
+                        <td>فیلترهای پیشرفته</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Installation Section -->
+        <section id="installation" class="section">
+            <h2>🔧 نصب و راه‌اندازی</h2>
+
+            <h3>پیش‌نیازها</h3>
+            <ul>
+                <li>Python 3.10 یا بالاتر</li>
+                <li>PostgreSQL با PostGIS</li>
+                <li>کتابخانه‌های GDAL, GEOS, PROJ</li>
+            </ul>
+
+            <div class="steps">
+                <div class="step">
+                    <h4>نصب Cookiecutter</h4>
+                    <pre><code>pip install cookiecutter</code></pre>
+                </div>
+
+                <div class="step">
+                    <h4>ساخت پروژه جدید</h4>
+                    <pre><code>cookiecutter gh:your-username/django-geoapi-template
+
+<span class="comment"># پاسخ به سوالات:</span>
+project_name [My Geo API]: <span class="string">Store Finder API</span>
+project_slug [store_finder_api]: <span class="string">store_finder</span>
+use_docker [yes]: <span class="string">yes</span></code></pre>
+                </div>
+
+                <div class="step">
+                    <h4>راه‌اندازی با Docker</h4>
+                    <pre><code><span class="comment"># ورود به پوشه پروژه</span>
+cd store_finder
+
+<span class="comment"># اجرای سرویس‌ها</span>
+docker-compose up -d
+
+<span class="comment"># اجرای migrations</span>
+docker-compose exec web python manage.py migrate
+
+<span class="comment"># ساخت کاربر ادمین</span>
+docker-compose exec web python manage.py createsuperuser</code></pre>
+                </div>
+
+                <div class="step">
+                    <h4>تست API</h4>
+                    <pre><code><span class="comment"># بررسی سلامت سرور</span>
+curl http://localhost:8000/
+
+<span class="comment"># لیست مکان‌ها</span>
+curl http://localhost:8000/api/locations/</code></pre>
+                </div>
+            </div>
+
+            <div class="alert alert-success">
+                <span>✅</span>
+                <div>
+                    تبریک! API شما آماده است. به آدرس 
+                    <code>http://localhost:8000/api/locations/</code> 
+                    مراجعه کنید.
+                </div>
+            </div>
+        </section>
+        <!-- Usage Section -->
+        <section id="usage" class="section">
+            <h2 class="section-title">
+                <span class="icon">📖</span>
+                نحوه استفاده
+            </h2>
+            
+            <h3 style="color: var(--accent); margin-bottom: 20px;">➕ ایجاد مکان جدید</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>ایجاد مکان با API</span>
+                    <span class="file-type">bash</span>
+                </div>
+                <pre><code>curl -X POST http://localhost:8000/api/locations/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "برج آزادی",
+    "description": "نماد شهر تهران",
+    "category": "landmark",
+    "location": {
+      "longitude": 51.3380,
+      "latitude": 35.6997
+    }
+  }'</code></pre>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>ایجاد مکان با Django Shell</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">from</span> core.models <span class="code-keyword">import</span> Location
+
+<span class="code-comment"># روش ۱: استفاده از متد set_location</span>
+location = Location(
+    name=<span class="code-string">"برج میلاد"</span>,
+    category=<span class="code-string">"landmark"</span>
+)
+location.<span class="code-function">set_location</span>(longitude=<span class="code-number">51.3752</span>, latitude=<span class="code-number">35.7448</span>)
+location.<span class="code-function">save</span>()
+
+<span class="code-comment"># روش ۲: استفاده مستقیم از Point</span>
+<span class="code-keyword">from</span> django.contrib.gis.geos <span class="code-keyword">import</span> Point
+
+location = Location.<span class="code-function">objects.create</span>(
+    name=<span class="code-string">"پل طبیعت"</span>,
+    category=<span class="code-string">"landmark"</span>,
+    location=<span class="code-function">Point</span>(<span class="code-number">51.4194</span>, <span class="code-number">35.7622</span>, srid=<span class="code-number">4326</span>)
+)</code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">🔍 جستجوی مکانی</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>جستجو در شعاع ۵ کیلومتری</span>
+                    <span class="file-type">bash</span>
+                </div>
+                <pre><code>curl "http://localhost:8000/api/locations/?lat=35.70&lng=51.35&radius=5"</code></pre>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>جستجو در محدوده مستطیلی</span>
+                    <span class="file-type">bash</span>
+                </div>
+                <pre><code>curl "http://localhost:8000/api/locations/?bbox=51.2,35.5,51.6,35.9"</code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">🏗️ افزودن مدل جدید</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>models.py - تعریف مدل رستوران</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">from</span> core.models <span class="code-keyword">import</span> GeoPointModel
+
+<span class="code-keyword">class</span> <span class="code-class">Restaurant</span>(GeoPointModel):
+    <span class="code-string">"""مدل رستوران با قابلیت‌های مکانی"""</span>
+    
+    name = models.<span class="code-function">CharField</span>(max_length=<span class="code-number">200</span>)
+    cuisine = models.<span class="code-function">CharField</span>(max_length=<span class="code-number">50</span>)  <span class="code-comment"># نوع غذا</span>
+    rating = models.<span class="code-function">FloatField</span>(default=<span class="code-number">0</span>)
+    price_range = models.<span class="code-function">IntegerField</span>(
+        choices=[(<span class="code-number">1</span>, <span class="code-string">'$'</span>), (<span class="code-number">2</span>, <span class="code-string">'$$'</span>), (<span class="code-number">3</span>, <span class="code-string">'$$$'</span>)]
+    )
+    
+    <span class="code-keyword">class</span> <span class="code-class">Meta</span>:
+        verbose_name = <span class="code-string">"رستوران"</span>
+        verbose_name_plural = <span class="code-string">"رستوران‌ها"</span></code></pre>
+            </div>
+            
+            <div class="info-box note">
+                <span class="icon">📝</span>
+                <div>
+                    با ارث‌بری از <code>GeoPointModel</code> تمام قابلیت‌های مکانی 
+                    (فیلد location، متد set_location و properties) به صورت خودکار اضافه می‌شوند.
+                </div>
+            </div>
+        </section>
+        
+        <!-- API Reference Section -->
+        <section id="api" class="section">
+            <h2 class="section-title">
+                <span class="icon">🔌</span>
+                مرجع API
+            </h2>
+            
+            <h3 style="color: var(--accent); margin-bottom: 20px;">📍 Endpoints مکان‌ها</h3>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/locations/</span>
+                </div>
+                <p>دریافت لیست تمام مکان‌ها با قابلیت فیلتر</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>پارامتر</th>
+                                <th>نوع</th>
+                                <th>توضیح</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>lat</code></td>
+                                <td>float</td>
+                                <td>عرض جغرافیایی مرکز جستجو</td>
+                            </tr>
+                            <tr>
+                                <td><code>lng</code></td>
+                                <td>float</td>
+                                <td>طول جغرافیایی مرکز جستجو</td>
+                            </tr>
+                            <tr>
+                                <td><code>radius</code></td>
+                                <td>float</td>
+                                <td>شعاع جستجو به کیلومتر (پیش‌فرض: ۱۰)</td>
+                            </tr>
+                            <tr>
+                                <td><code>bbox</code></td>
+                                <td>string</td>
+                                <td>محدوده: min_lng,min_lat,max_lng,max_lat</td>
+                            </tr>
+                            <tr>
+                                <td><code>category</code></td>
+                                <td>string</td>
+                                <td>فیلتر بر اساس دسته‌بندی</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="endpoint-path">/api/locations/</span>
+                </div>
+                <p>ایجاد مکان جدید</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Request Body</span>
+                        <span class="file-type">json</span>
+                    </div>
+                    <pre><code>{
+    "name": "نام مکان",
+    "description": "توضیحات",
+    "category": "دسته‌بندی",
+    "location": {
+        "longitude": 51.38,
+        "latitude": 35.68
+    }
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/locations/nearby/</span>
+                </div>
+                <p>دریافت مکان‌های نزدیک به یک نقطه (مرتب شده بر اساس فاصله)</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>مثال</span>
+                        <span class="file-type">bash</span>
+                    </div>
+                    <pre><code>GET /api/locations/nearby/?lat=35.6892&lng=51.3890&radius=5&limit=10</code></pre>
+                </div>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Response</span>
+                        <span class="file-type">json</span>
+                    </div>
+                    <pre><code>{
+    "count": 3,
+    "reference_point": {"lat": 35.6892, "lng": 51.3890},
+    "radius_km": 5.0,
+    "results": [
+        {
+            "id": 1,
+            "name": "برج آزادی",
+            "distance": 245.5,
+            "location": {"longitude": 51.338, "latitude": 35.6997}
+        }
+    ]
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/locations/geojson/</span>
+                </div>
+                <p>دریافت مکان‌ها به فرمت استاندارد GeoJSON</p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Response</span>
+                        <span class="file-type">json</span>
+                    </div>
+                    <pre><code>{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [51.338, 35.6997]
+            },
+            "properties": {
+                "id": 1,
+                "name": "برج آزادی",
+                "category": "landmark"
+            }
+        }
+    ]
+}</code></pre>
+                </div>
+            </div>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-path">/api/locations/{id}/find_nearby/</span>
+                </div>
+                <p>یافتن مکان‌های نزدیک به یک مکان خاص</p>
+            </div>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method put">PUT</span>
+                    <span class="endpoint-path">/api/locations/{id}/</span>
+                </div>
+                <p>بروزرسانی کامل یک مکان</p>
+            </div>
+            
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method delete">DELETE</span>
+                    <span class="endpoint-path">/api/locations/{id}/</span>
+                </div>
+                <p>حذف یک مکان</p>
+            </div>
+        </section>
+        
+        <!-- Code Section -->
+        <section id="code" class="section">
+            <h2 class="section-title">
+                <span class="icon">💻</span>
+                کدهای اصلی
+            </h2>
+            
+            <h3 style="color: var(--accent); margin-bottom: 20px;">📊 مدل پایه مکانی</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>core/models.py</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">from</span> django.contrib.gis.db <span class="code-keyword">import</span> models
+<span class="code-keyword">from</span> django.contrib.gis.geos <span class="code-keyword">import</span> Point
+
+
+<span class="code-keyword">class</span> <span class="code-class">GeoPointModel</span>(models.Model):
+    <span class="code-string">"""
+    مدل پایه برای موجودیت‌های نقطه‌ای
+    
+    این مدل شامل:
+    - فیلد location برای ذخیره موقعیت
+    - متد set_location برای تنظیم آسان مختصات
+    - property های longitude, latitude, coordinates
+    """</span>
+    
+    location = models.<span class="code-function">PointField</span>(
+        verbose_name=<span class="code-string">"موقعیت"</span>,
+        geography=<span class="code-keyword">True</span>,
+        srid=<span class="code-number">4326</span>,
+        null=<span class="code-keyword">True</span>,
+        blank=<span class="code-keyword">True</span>
+    )
+    
+    created_at = models.<span class="code-function">DateTimeField</span>(auto_now_add=<span class="code-keyword">True</span>)
+    updated_at = models.<span class="code-function">DateTimeField</span>(auto_now=<span class="code-keyword">True</span>)
+    
+    <span class="code-keyword">class</span> <span class="code-class">Meta</span>:
+        abstract = <span class="code-keyword">True</span>
+    
+    <span class="code-keyword">def</span> <span class="code-function">set_location</span>(self, longitude: <span class="code-class">float</span>, latitude: <span class="code-class">float</span>) -> <span class="code-keyword">None</span>:
+        <span class="code-string">"""تنظیم موقعیت با مختصات"""</span>
+        self.location = <span class="code-function">Point</span>(longitude, latitude, srid=<span class="code-number">4326</span>)
+    
+    <span class="code-decorator">@property</span>
+    <span class="code-keyword">def</span> <span class="code-function">longitude</span>(self) -> <span class="code-class">float</span> | <span class="code-keyword">None</span>:
+        <span class="code-keyword">return</span> self.location.x <span class="code-keyword">if</span> self.location <span class="code-keyword">else</span> <span class="code-keyword">None</span>
+    
+    <span class="code-decorator">@property</span>
+    <span class="code-keyword">def</span> <span class="code-function">latitude</span>(self) -> <span class="code-class">float</span> | <span class="code-keyword">None</span>:
+        <span class="code-keyword">return</span> self.location.y <span class="code-keyword">if</span> self.location <span class="code-keyword">else</span> <span class="code-keyword">None</span>
+    
+    <span class="code-decorator">@property</span>
+    <span class="code-keyword">def</span> <span class="code-function">coordinates</span>(self) -> <span class="code-class">dict</span> | <span class="code-keyword">None</span>:
+        <span class="code-keyword">if</span> self.location:
+            <span class="code-keyword">return</span> {
+                <span class="code-string">"longitude"</span>: self.location.x,
+                <span class="code-string">"latitude"</span>: self.location.y
+            }
+        <span class="code-keyword">return</span> <span class="code-keyword">None</span></code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">🔍 فیلتر مکانی</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>core/filters.py</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">from</span> django_filters <span class="code-keyword">import</span> rest_framework <span class="code-keyword">as</span> filters
+<span class="code-keyword">from</span> django.contrib.gis.geos <span class="code-keyword">import</span> Point, Polygon
+<span class="code-keyword">from</span> django.contrib.gis.measure <span class="code-keyword">import</span> D
+<span class="code-keyword">from</span> django.contrib.gis.db.models.functions <span class="code-keyword">import</span> Distance
+
+
+<span class="code-keyword">class</span> <span class="code-class">LocationFilter</span>(filters.FilterSet):
+    <span class="code-string">"""فیلتر مکان‌ها با قابلیت‌های مکانی"""</span>
+    
+    <span class="code-comment"># فیلترهای مکانی</span>
+    lat = filters.<span class="code-function">NumberFilter</span>(method=<span class="code-string">'filter_by_distance'</span>)
+    lng = filters.<span class="code-function">NumberFilter</span>(method=<span class="code-string">'filter_by_distance'</span>)
+    radius = filters.<span class="code-function">NumberFilter</span>(method=<span class="code-string">'filter_by_distance'</span>)
+    bbox = filters.<span class="code-function">CharFilter</span>(method=<span class="code-string">'filter_by_bbox'</span>)
+    
+    <span class="code-keyword">def</span> <span class="code-function">filter_by_distance</span>(self, queryset, name, value):
+        <span class="code-string">"""فیلتر براساس فاصله از یک نقطه"""</span>
+        
+        lat = self.data.get(<span class="code-string">'lat'</span>)
+        lng = self.data.get(<span class="code-string">'lng'</span>)
+        radius = self.data.get(<span class="code-string">'radius'</span>, <span class="code-number">10</span>)
+        
+        <span class="code-keyword">if</span> lat <span class="code-keyword">and</span> lng:
+            point = <span class="code-function">Point</span>(<span class="code-function">float</span>(lng), <span class="code-function">float</span>(lat), srid=<span class="code-number">4326</span>)
+            
+            queryset = queryset.<span class="code-function">filter</span>(
+                location__isnull=<span class="code-keyword">False</span>,
+                location__distance_lte=(point, <span class="code-function">D</span>(km=<span class="code-function">float</span>(radius)))
+            ).<span class="code-function">annotate</span>(
+                distance=<span class="code-function">Distance</span>(<span class="code-string">'location'</span>, point)
+            ).<span class="code-function">order_by</span>(<span class="code-string">'distance'</span>)
+        
+        <span class="code-keyword">return</span> queryset
+    
+    <span class="code-keyword">def</span> <span class="code-function">filter_by_bbox</span>(self, queryset, name, value):
+        <span class="code-string">"""فیلتر براساس محدوده مستطیلی"""</span>
+        
+        coords = [<span class="code-function">float</span>(x) <span class="code-keyword">for</span> x <span class="code-keyword">in</span> value.<span class="code-function">split</span>(<span class="code-string">','</span>)]
+        bbox = Polygon.<span class="code-function">from_bbox</span>(coords)
+        
+        <span class="code-keyword">return</span> queryset.<span class="code-function">filter</span>(location__within=bbox)</code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">👁️ ViewSet مکانی</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>core/views.py</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">from</span> rest_framework <span class="code-keyword">import</span> viewsets, status
+<span class="code-keyword">from</span> rest_framework.decorators <span class="code-keyword">import</span> action
+<span class="code-keyword">from</span> rest_framework.response <span class="code-keyword">import</span> Response
+
+
+<span class="code-keyword">class</span> <span class="code-class">LocationViewSet</span>(viewsets.ModelViewSet):
+    <span class="code-string">"""API برای مدیریت مکان‌ها"""</span>
+    
+    queryset = Location.objects.<span class="code-function">filter</span>(is_active=<span class="code-keyword">True</span>)
+    serializer_class = LocationSerializer
+    filterset_class = LocationFilter
+    
+    <span class="code-decorator">@action</span>(detail=<span class="code-keyword">False</span>, methods=[<span class="code-string">'get'</span>])
+    <span class="code-keyword">def</span> <span class="code-function">nearby</span>(self, request):
+        <span class="code-string">"""دریافت مکان‌های نزدیک به یک نقطه"""</span>
+        
+        lat = request.query_params.get(<span class="code-string">'lat'</span>)
+        lng = request.query_params.get(<span class="code-string">'lng'</span>)
+        radius = request.query_params.get(<span class="code-string">'radius'</span>, <span class="code-number">10</span>)
+        
+        <span class="code-keyword"><span class="code-keyword">if</span> <span class="code-keyword">not</span> lat <span class="code-keyword">or</span> <span class="code-keyword">not</span> lng:
+            <span class="code-keyword">return</span> <span class="code-function">Response</span>(
+                {<span class="code-string">"error"</span>: <span class="code-string">"پارامترهای lat و lng الزامی هستند"</span>},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        point = <span class="code-function">Point</span>(<span class="code-function">float</span>(lng), <span class="code-function">float</span>(lat), srid=<span class="code-number">4326</span>)
+        
+        queryset = self.<span class="code-function">get_queryset</span>().<span class="code-function">filter</span>(
+            location__isnull=<span class="code-keyword">False</span>,
+            location__distance_lte=(point, <span class="code-function">D</span>(km=<span class="code-function">float</span>(radius)))
+        ).<span class="code-function">annotate</span>(
+            distance=<span class="code-function">Distance</span>(<span class="code-string">'location'</span>, point)
+        ).<span class="code-function">order_by</span>(<span class="code-string">'distance'</span>)
+        
+        serializer = self.<span class="code-function">get_serializer</span>(queryset, many=<span class="code-keyword">True</span>)
+        
+        <span class="code-keyword">return</span> <span class="code-function">Response</span>({
+            <span class="code-string">"count"</span>: <span class="code-function">len</span>(serializer.data),
+            <span class="code-string">"reference_point"</span>: {<span class="code-string">"lat"</span>: <span class="code-function">float</span>(lat), <span class="code-string">"lng"</span>: <span class="code-function">float</span>(lng)},
+            <span class="code-string">"radius_km"</span>: <span class="code-function">float</span>(radius),
+            <span class="code-string">"results"</span>: serializer.data
+        })
+    
+    <span class="code-decorator">@action</span>(detail=<span class="code-keyword">False</span>, methods=[<span class="code-string">'get'</span>])
+    <span class="code-keyword">def</span> <span class="code-function">geojson</span>(self, request):
+        <span class="code-string">"""دریافت مکان‌ها به فرمت GeoJSON"""</span>
+        
+        queryset = self.<span class="code-function">filter_queryset</span>(self.<span class="code-function">get_queryset</span>())
+        queryset = queryset.<span class="code-function">filter</span>(location__isnull=<span class="code-keyword">False</span>)
+        
+        serializer = <span class="code-function">LocationGeoSerializer</span>(queryset, many=<span class="code-keyword">True</span>)
+        <span class="code-keyword">return</span> <span class="code-function">Response</span>(serializer.data)</code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">📦 سریالایزر GeoJSON</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>core/serializers.py</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">from</span> rest_framework <span class="code-keyword">import</span> serializers
+<span class="code-keyword">from</span> rest_framework_gis.serializers <span class="code-keyword">import</span> GeoFeatureModelSerializer
+<span class="code-keyword">from</span> django.contrib.gis.geos <span class="code-keyword">import</span> Point
+
+
+<span class="code-keyword">class</span> <span class="code-class">PointFieldSerializer</span>(serializers.Field):
+    <span class="code-string">"""
+    فیلد سفارشی برای مدیریت Point
+    
+    ورودی‌های قابل قبول:
+        - {"longitude": 51.38, "latitude": 35.68}
+        - {"lng": 51.38, "lat": 35.68}
+        - [51.38, 35.68]
+    """</span>
+    
+    <span class="code-keyword">def</span> <span class="code-function">to_representation</span>(self, value):
+        <span class="code-keyword">if</span> value:
+            <span class="code-keyword">return</span> {
+                <span class="code-string">"longitude"</span>: value.x,
+                <span class="code-string">"latitude"</span>: value.y
+            }
+        <span class="code-keyword">return</span> <span class="code-keyword">None</span>
+    
+    <span class="code-keyword">def</span> <span class="code-function">to_internal_value</span>(self, data):
+        <span class="code-keyword">if</span> <span class="code-keyword">not</span> data:
+            <span class="code-keyword">return</span> <span class="code-keyword">None</span>
+        
+        <span class="code-keyword">try</span>:
+            <span class="code-keyword">if</span> <span class="code-function">isinstance</span>(data, <span class="code-class">dict</span>):
+                lng = data.<span class="code-function">get</span>(<span class="code-string">'longitude'</span>) <span class="code-keyword">or</span> data.<span class="code-function">get</span>(<span class="code-string">'lng'</span>)
+                lat = data.<span class="code-function">get</span>(<span class="code-string">'latitude'</span>) <span class="code-keyword">or</span> data.<span class="code-function">get</span>(<span class="code-string">'lat'</span>)
+            <span class="code-keyword">elif</span> <span class="code-function">isinstance</span>(data, (<span class="code-class">list</span>, <span class="code-class">tuple</span>)):
+                lng, lat = data[<span class="code-number">0</span>], data[<span class="code-number">1</span>]
+            
+            <span class="code-keyword">return</span> <span class="code-function">Point</span>(<span class="code-function">float</span>(lng), <span class="code-function">float</span>(lat), srid=<span class="code-number">4326</span>)
+        
+        <span class="code-keyword">except</span> (<span class="code-class">TypeError</span>, <span class="code-class">ValueError</span>, <span class="code-class">IndexError</span>):
+            <span class="code-keyword">raise</span> serializers.<span class="code-function">ValidationError</span>(<span class="code-string">"فرمت مختصات نامعتبر"</span>)
+
+
+<span class="code-keyword">class</span> <span class="code-class">LocationSerializer</span>(serializers.ModelSerializer):
+    <span class="code-string">"""سریالایزر ساده برای مکان"""</span>
+    
+    location = <span class="code-function">PointFieldSerializer</span>(required=<span class="code-keyword">False</span>)
+    distance = serializers.<span class="code-function">SerializerMethodField</span>()
+    
+    <span class="code-keyword">class</span> <span class="code-class">Meta</span>:
+        model = Location
+        fields = [<span class="code-string">'id'</span>, <span class="code-string">'name'</span>, <span class="code-string">'description'</span>, <span class="code-string">'category'</span>, 
+                  <span class="code-string">'location'</span>, <span class="code-string">'distance'</span>, <span class="code-string">'is_active'</span>, <span class="code-string">'created_at'</span>]
+    
+    <span class="code-keyword">def</span> <span class="code-function">get_distance</span>(self, obj):
+        <span class="code-keyword">if</span> <span class="code-function">hasattr</span>(obj, <span class="code-string">'distance'</span>) <span class="code-keyword">and</span> obj.distance:
+            <span class="code-keyword">return</span> <span class="code-function">round</span>(obj.distance.m, <span class="code-number">2</span>)
+        <span class="code-keyword">return</span> <span class="code-keyword">None</span>
+
+
+<span class="code-keyword">class</span> <span class="code-class">LocationGeoSerializer</span>(GeoFeatureModelSerializer):
+    <span class="code-string">"""سریالایزر GeoJSON استاندارد"""</span>
+    
+    <span class="code-keyword">class</span> <span class="code-class">Meta</span>:
+        model = Location
+        geo_field = <span class="code-string">'location'</span>
+        fields = [<span class="code-string">'id'</span>, <span class="code-string">'name'</span>, <span class="code-string">'category'</span>, <span class="code-string">'is_active'</span>]</code></pre>
+            </div>
+        </section>
+        
+        <!-- Deployment Section -->
+        <section id="deployment" class="section">
+            <h2 class="section-title">
+                <span class="icon">🚀</span>
+                استقرار (Deployment)
+            </h2>
+            
+            <h3 style="color: var(--accent); margin-bottom: 20px;">🐳 Docker Compose</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>docker-compose.yml</span>
+                    <span class="file-type">yaml</span>
+                </div>
+                <pre><code><span class="code-keyword">version</span>: <span class="code-string">'3.8'</span>
+
+<span class="code-keyword">services</span>:
+  <span class="code-function">web</span>:
+    <span class="code-keyword">build</span>: .
+    <span class="code-keyword">ports</span>:
+      - <span class="code-string">"8000:8000"</span>
+    <span class="code-keyword">environment</span>:
+      - DEBUG=True
+      - DB_HOST=db
+      - DB_NAME=geoapi_db
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    <span class="code-keyword">depends_on</span>:
+      - db
+    <span class="code-keyword">volumes</span>:
+      - .:/app
+    <span class="code-keyword">command</span>: python manage.py runserver 0.0.0.0:8000
+
+  <span class="code-function">db</span>:
+    <span class="code-keyword">image</span>: postgis/postgis:15-3.4
+    <span class="code-keyword">environment</span>:
+      - POSTGRES_DB=geoapi_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    <span class="code-keyword">volumes</span>:
+      - pgdata:/var/lib/postgresql/data
+    <span class="code-keyword">ports</span>:
+      - <span class="code-string">"5432:5432"</span>
+
+<span class="code-keyword">volumes</span>:
+  pgdata:</code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">📋 چک‌لیست Production</h3>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>مورد</th>
+                            <th>وضعیت</th>
+                            <th>توضیح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🔐 SECRET_KEY</td>
+                            <td>⚠️ تغییر دهید</td>
+                            <td>یک کلید امن و تصادفی تنظیم کنید</td>
+                        </tr>
+                        <tr>
+                            <td>🐛 DEBUG</td>
+                            <td>⚠️ غیرفعال کنید</td>
+                            <td><code>DEBUG=False</code> در Production</td>
+                        </tr>
+                        <tr>
+                            <td>🌐 ALLOWED_HOSTS</td>
+                            <td>⚠️ تنظیم کنید</td>
+                            <td>دامنه‌های مجاز را اضافه کنید</td>
+                        </tr>
+                        <tr>
+                            <td>🗄️ Database</td>
+                            <td>⚠️ رمز قوی</td>
+                            <td>رمز عبور امن برای PostgreSQL</td>
+                        </tr>
+                        <tr>
+                            <td>📁 Static Files</td>
+                            <td>⚠️ collectstatic</td>
+                            <td><code>python manage.py collectstatic</code></td>
+                        </tr>
+                        <tr>
+                            <td>🔒 HTTPS</td>
+                            <td>⚠️ فعال کنید</td>
+                            <td>SSL/TLS با nginx یا Cloudflare</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">⚙️ تنظیمات Production</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>config/settings.py - تنظیمات Production</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">import</span> os
+
+<span class="code-comment"># امنیت</span>
+DEBUG = <span class="code-keyword">False</span>
+SECRET_KEY = os.environ.<span class="code-function">get</span>(<span class="code-string">'SECRET_KEY'</span>)
+ALLOWED_HOSTS = os.environ.<span class="code-function">get</span>(<span class="code-string">'ALLOWED_HOSTS'</span>, <span class="code-string">''</span>).<span class="code-function">split</span>(<span class="code-string">','</span>)
+
+<span class="code-comment"># HTTPS</span>
+SECURE_SSL_REDIRECT = <span class="code-keyword">True</span>
+SESSION_COOKIE_SECURE = <span class="code-keyword">True</span>
+CSRF_COOKIE_SECURE = <span class="code-keyword">True</span>
+SECURE_BROWSER_XSS_FILTER = <span class="code-keyword">True</span>
+
+<span class="code-comment"># دیتابیس Production</span>
+DATABASES = {
+    <span class="code-string">'default'</span>: {
+        <span class="code-string">'ENGINE'</span>: <span class="code-string">'django.contrib.gis.db.backends.postgis'</span>,
+        <span class="code-string">'NAME'</span>: os.environ.<span class="code-function">get</span>(<span class="code-string">'DB_NAME'</span>),
+        <span class="code-string">'USER'</span>: os.environ.<span class="code-function">get</span>(<span class="code-string">'DB_USER'</span>),
+        <span class="code-string">'PASSWORD'</span>: os.environ.<span class="code-function">get</span>(<span class="code-string">'DB_PASSWORD'</span>),
+        <span class="code-string">'HOST'</span>: os.environ.<span class="code-function">get</span>(<span class="code-string">'DB_HOST'</span>),
+        <span class="code-string">'PORT'</span>: os.environ.<span class="code-function">get</span>(<span class="code-string">'DB_PORT'</span>, <span class="code-string">'5432'</span>),
+    }
+}</code></pre>
+            </div>
+        </section>
+        
+        <!-- Workflow Section -->
+        <section id="workflow" class="section">
+            <h2 class="section-title">
+                <span class="icon">🔄</span>
+                فرایند کامل کار
+            </h2>
+            
+            <h3 style="color: var(--accent); margin-bottom: 20px;">📊 نمودار جریان کار</h3>
+            
+            <div class="flow-container">
+                <div class="flow-step">
+                    <div class="flow-number">1</div>
+                    <div class="flow-content">
+                        <h3>🎯 تعریف نیازمندی‌ها</h3>
+                        <p>مشخص کنید چه نوع داده‌های مکانی نیاز دارید:</p>
+                        <ul style="margin-top: 10px; padding-right: 20px;">
+                            <li>نقاط (Points): رستوران‌ها، فروشگاه‌ها، ATM ها</li>
+                            <li>خطوط (Lines): مسیرها، جاده‌ها</li>
+                            <li>چندضلعی‌ها (Polygons): مناطق، محله‌ها</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step">
+                    <div class="flow-number">2</div>
+                    <div class="flow-content">
+                        <h3>🏗️ ساخت پروژه</h3>
+                        <p>با استفاده از Cookiecutter پروژه را بسازید:</p>
+                        <div class="code-block" style="margin-top: 15px;">
+                            <pre><code>cookiecutter gh:your-username/django-geoapi-template</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step">
+                    <div class="flow-number">3</div>
+                    <div class="flow-content">
+                        <h3>📊 طراحی مدل‌ها</h3>
+                        <p>مدل‌های خود را با ارث‌بری از <code>GeoPointModel</code> بسازید:</p>
+                        <div class="code-block" style="margin-top: 15px;">
+                            <pre><code><span class="code-keyword">class</span> <span class="code-class">Store</span>(GeoPointModel):
+    name = models.<span class="code-function">CharField</span>(max_length=<span class="code-number">200</span>)
+    store_type = models.<span class="code-function">CharField</span>(max_length=<span class="code-number">50</span>)</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step">
+                    <div class="flow-number">4</div>
+                    <div class="flow-content">
+                        <h3>📦 ساخت Serializer</h3>
+                        <p>از <code>PointFieldSerializer</code> برای مدیریت مختصات استفاده کنید:</p>
+                        <div class="code-block" style="margin-top: 15px;">
+                            <pre><code><span class="code-keyword">class</span> <span class="code-class">StoreSerializer</span>(serializers.ModelSerializer):
+    location = <span class="code-function">PointFieldSerializer</span>(required=<span class="code-keyword">False</span>)
+    
+    <span class="code-keyword">class</span> <span class="code-class">Meta</span>:
+        model = Store
+        fields = [<span class="code-string">'id'</span>, <span class="code-string">'name'</span>, <span class="code-string">'store_type'</span>, <span class="code-string">'location'</span>]</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step">
+                    <div class="flow-number">5</div>
+                    <div class="flow-content">
+                        <h3>👁️ ساخت ViewSet</h3>
+                        <p>ViewSet را با فیلتر مکانی تنظیم کنید:</p>
+                        <div class="code-block" style="margin-top: 15px;">
+                            <pre><code><span class="code-keyword">class</span> <span class="code-class">StoreViewSet</span>(viewsets.ModelViewSet):
+    queryset = Store.objects.<span class="code-function">all</span>()
+    serializer_class = StoreSerializer
+    filterset_class = LocationFilter  <span class="code-comment"># فیلتر آماده</span></code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step">
+                    <div class="flow-number">6</div>
+                    <div class="flow-content">
+                        <h3>🔗 ثبت URL</h3>
+                        <p>ViewSet را در Router ثبت کنید:</p>
+                        <div class="code-block" style="margin-top: 15px;">
+                            <pre><code>router.<span class="code-function">register</span>(<span class="code-string">'stores'</span>, StoreViewSet, basename=<span class="code-string">'store'</span>)</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step">
+                    <div class="flow-number">7</div>
+                    <div class="flow-content">
+                        <h3>🗄️ Migration</h3>
+                        <p>تغییرات را به دیتابیس اعمال کنید:</p>
+                        <div class="code-block" style="margin-top: 15px;">
+                            <pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step">
+                    <div class="flow-number">8</div>
+                    <div class="flow-content">
+                        <h3>✅ تست API</h3>
+                        <p>API را تست کنید:</p>
+                        <div class="code-block" style="margin-top: 15px;">
+                            <pre><code><span class="code-comment"># لیست فروشگاه‌ها</span>
+curl http://localhost:8000/api/stores/
+
+<span class="code-comment"># فروشگاه‌های نزدیک</span>
+curl "http://localhost:8000/api/stores/?lat=35.70&lng=51.40&radius=2"</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Examples Section -->
+        <section id="examples" class="section">
+            <h2 class="section-title">
+                <span class="icon">💡</span>
+                مثال‌های کاربردی
+            </h2>
+            
+            <h3 style="color: var(--accent); margin-bottom: 20px;">🍕 مثال ۱: سیستم سفارش غذا</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>models.py</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">from</span> core.models <span class="code-keyword">import</span> GeoPointModel
+
+<span class="code-keyword">class</span> <span class="code-class">Restaurant</span>(GeoPointModel):
+    <span class="code-string">"""رستوران با قابلیت تحویل"""</span>
+    
+    name = models.<span class="code-function">CharField</span>(max_length=<span class="code-number">200</span>)
+    cuisine_type = models.<span class="code-function">CharField</span>(max_length=<span class="code-number">50</span>)
+    rating = models.<span class="code-function">FloatField</span>(default=<span class="code-number">0</span>)
+    delivery_radius_km = models.<span class="code-function">FloatField</span>(default=<span class="code-number">5</span>)
+    is_open = models.<span class="code-function">BooleanField</span>(default=<span class="code-keyword">True</span>)
+    min_order = models.<span class="code-function">IntegerField</span>(default=<span class="code-number">50000</span>)  <span class="code-comment"># تومان</span>
+    
+    <span class="code-keyword">def</span> <span class="code-function">can_deliver_to</span>(self, user_location):
+        <span class="code-string">"""آیا می‌تواند به این موقعیت تحویل دهد؟"""</span>
+        <span class="code-keyword">if</span> <span class="code-keyword">not</span> self.location <span class="code-keyword">or</span> <span class="code-keyword">not</span> user_location:
+            <span class="code-keyword">return</span> <span class="code-keyword">False</span>
+        
+        distance_km = self.location.<span class="code-function">distance</span>(user_location) * <span class="code-number">100</span>
+        <span class="code-keyword">return</span> distance_km <= self.delivery_radius_km</code></pre>
+            </div>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>views.py - اکشن سفارشی</span>
+                    <span class="file-type">python</span>
+                </div>
+                <pre><code><span class="code-keyword">class</span> <span class="code-class">RestaurantViewSet</span>(viewsets.ModelViewSet):
+    queryset = Restaurant.objects.<span class="code-function">filter</span>(is_open=<span class="code-keyword">True</span>)
+    serializer_class = RestaurantSerializer
+    filterset_class = LocationFilter
+    
+    <span class="code-decorator">@action</span>(detail=<span class="code-keyword">False</span>, methods=[<span class="code-string">'get'</span>])
+    <span class="code-keyword">def</span> <span class="code-function">delivering_to_me</span>(self, request):
+        <span class="code-string">"""رستوران‌هایی که به موقعیت من تحویل می‌دهند"""</span>
+        
+        lat = request.query_params.<span class="code-function">get</span>(<span class="code-string">'lat'</span>)
+        lng = request.query_params.<span class="code-function">get</span>(<span class="code-string">'lng'</span>)
+        
+        <span class="code-keyword">if</span> <span class="code-keyword">not</span> lat <span class="code-keyword">or</span> <span class="code-keyword">not</span> lng:
+            <span class="code-keyword">return</span> <span class="code-function">Response</span>({<span class="code-string">"error"</span>: <span class="code-string">"موقعیت الزامی است"</span>}, status=<span class="code-number">400</span>)
+        
+        user_point = <span class="code-function">Point</span>(<span class="code-function">float</span>(lng), <span class="code-function">float</span>(lat), srid=<span class="code-number">4326</span>)
+        
+        <span class="code-comment"># رستوران‌هایی که در شعاع تحویل هستند</span>
+        restaurants = []
+        <span class="code-keyword">for</span> r <span class="code-keyword">in</span> self.<span class="code-function">get_queryset</span>():
+            <span class="code-keyword">if</span> r.<span class="code-function">can_deliver_to</span>(user_point):
+                restaurants.<span class="code-function">append</span>(r)
+        
+        serializer = self.<span class="code-function">get_serializer</span>(restaurants, many=<span class="code-keyword">True</span>)
+        <span class="code-keyword">return</span> <span class="code-function">Response</span>(serializer.data)</code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">🏪 مثال ۲: فروشگاه‌یاب</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>استفاده در Frontend (JavaScript)</span>
+                    <span class="file-type">javascript</span>
+                </div>
+                <pre><code><span class="code-comment">// دریافت موقعیت کاربر و نمایش فروشگاه‌های نزدیک</span>
+
+<span class="code-keyword">async function</span> <span class="code-function">showNearbyStores</span>() {
+    <span class="code-comment">// دریافت موقعیت کاربر</span>
+    <span class="code-keyword">const</span> position = <span class="code-keyword">await</span> <span class="code-keyword">new</span> <span class="code-class">Promise</span>((resolve, reject) => {
+        navigator.geolocation.<span class="code-function">getCurrentPosition</span>(resolve, reject);
+    });
+    
+    <span class="code-keyword">const</span> { latitude, longitude } = position.coords;
+    
+    <span class="code-comment">// درخواست به API</span>
+    <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(
+        <span class="code-string">`/api/locations/nearby/?lat=</span>${latitude}<span class="code-string">&lng=</span>${longitude}<span class="code-string">&radius=5`</span>
+    );
+    <span class="code-keyword">const</span> data = <span class="code-keyword">await</span> response.<span class="code-function">json</span>();
+    
+    <span class="code-comment">// نمایش نتایج</span>
+    console.<span class="code-function">log</span>(<span class="code-string">`</span>${data.count}<span class="code-string"> فروشگاه در شعاع </span>${data.radius_km}<span class="code-string"> کیلومتری یافت شد`</span>);
+    
+    data.results.<span class="code-function">forEach</span>(store => {
+        console.<span class="code-function">log</span>(<span class="code-string">`- </span>${store.name}<span class="code-string">: </span>${store.distance}<span class="code-string"> متر`</span>);
+    });
+}
+
+<span class="code-comment">// نمایش روی نقشه Leaflet</span>
+<span class="code-keyword">async function</span> <span class="code-function">showOnMap</span>() {
+    <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> <span class="code-function">fetch</span>(<span class="code-string">'/api/locations/geojson/'</span>);
+    <span class="code-keyword">const</span> geojson = <span class="code-keyword">await</span> response.<span class="code-function">json</span>();
+    
+    <span class="code-comment">// اضافه کردن به نقشه</span>
+    L.<span class="code-function">geoJSON</span>(geojson).<span class="code-function">addTo</span>(map);
+}</code></pre>
+            </div>
+            
+            <h3 style="color: var(--accent); margin: 30px 0 20px;">🗺️ مثال ۳: استفاده با Leaflet</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>index.html</span>
+                    <span class="file-type">html</span>
+                </div>
+                <pre><code><span class="code-keyword">&lt;!DOCTYPE html&gt;</span>
+<span class="code-keyword">&lt;html&gt;</span>
+<span class="code-keyword">&lt;head&gt;</span>
+    <span class="code-keyword">&lt;link</span> rel=<span class="code-string">"stylesheet"</span> href=<span class="code-string">"https://unpkg.com/leaflet/dist/leaflet.css"</span><span class="code-keyword">/&gt;</span>
+    <span class="code-keyword">&lt;script</span> src=<span class="code-string">"https://unpkg.com/leaflet/dist/leaflet.js"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+<span class="code-keyword">&lt;/head&gt;</span>
+<span class="code-keyword">&lt;body&gt;</span>
+    <span class="code-keyword">&lt;div</span> id=<span class="code-string">"map"</span> style=<span class="code-string">"height: 500px;"</span><span class="code-keyword">&gt;&lt;/div&gt;</span>
+    
+    <span class="code-keyword">&lt;script&gt;</span>
+        <span class="code-comment">// ایجاد نقشه</span>
+        <span class="code-keyword">const</span> map = L.<span class="code-function">map</span>(<span class="code-string">'map'</span>).<span class="code-function">setView</span>([<span class="code-number">35.6892</span>, <span class="code-number">51.3890</span>], <span class="code-number">12</span>);
+        
+        L.<span class="code-function">tileLayer</span>(<span class="code-string">'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'</span>).<span class="code-function">addTo</span>(map);
+        
+        <span class="code-comment">// بارگذاری داده‌ها از API</span>
+        <span class="code-function">fetch</span>(<span class="code-string">'/api/locations/geojson/'</span>)
+            .<span class="code-function">then</span>(r => r.<span class="code-function">json</span>())
+            .<span class="code-function">then</span>(data => {
+                L.<span class="code-function">geoJSON</span>(data, {
+                    <span class="code-function">onEachFeature</span>: (feature, layer) => {
+                        layer.<span class="code-function">bindPopup</span>(
+                            <span class="code-string">`&lt;b&gt;</span>${feature.properties.name}<span class="code-string">&lt;/b&gt;&lt;br&gt;</span>${feature.properties.category}<span class="code-string">`</span>
+                        );
+                    }
+                }).<span class="code-function">addTo</span>(map);
+            });
+    <span class="code-keyword">&lt;/script&gt;</span>
+<span class="code-keyword">&lt;/body&gt;</span>
+<span class="code-keyword">&lt;/html&gt;</span></code></pre>
+            </div>
+        </section>
+        
+        <!-- FAQ Section -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">❓</span>
+                سوالات متداول
+            </h2>
+            
+            <div class="info-box note" style="margin-bottom: 20px;">
+                <span class="icon">❓</span>
+                <div>
+                    <strong>چرا از PostGIS استفاده می‌کنیم؟</strong><br>
+                    PostGIS یک افزونه قدرتمند برای PostgreSQL است که امکان ذخیره و کوئری 
+                    داده‌های مکانی را فراهم می‌کند. سرعت بالا، پشتیبانی از ایندکس‌های مکانی 
+                    و توابع تحلیلی پیشرفته از مزایای آن است.
+                </div>
+            </div>
+            
+            <div class="info-box note" style="margin-bottom: 20px;">
+                <span class="icon">❓</span>
+                <div>
+                    <strong>SRID 4326 چیست؟</strong><br>
+                    SRID 4326 (WGS84) یک سیستم مختصات جهانی است که GPS از آن استفاده می‌کند. 
+                    مختصات به صورت درجه (طول و عرض جغرافیایی) بیان می‌شود.
+                </div>
+            </div>
+            
+            <div class="info-box note" style="margin-bottom: 20px;">
+                <span class="icon">❓</span>
+                <div>
+                    <strong>تفاوت geography و geometry چیست؟</strong><br>
+                    <code>geography=True</code> محاسبات را روی کره زمین انجام می‌دهد (دقیق‌تر برای فواصل بزرگ)، 
+                    در حالی که <code>geometry</code> روی صفحه مسطح کار می‌کند (سریع‌تر برای مناطق کوچک).
+                </div>
+            </div>
+            
+            <div class="info-box note" style="margin-bottom: 20px;">
+                <span class="icon">❓</span>
+                <div>
+                    <strong>چگونه Performance را بهبود دهم؟</strong><br>
+                    <ul style="margin-top: 10px; padding-right: 20px;">
+                        <li>ایندکس مکانی روی فیلد location ایجاد کنید</li>
+                        <li>از <code>select_related</code> و <code>prefetch_related</code> استفاده کنید</li>
+                        <li>نتایج را با Redis کش کنید</li>
+                        <li>برای داده‌های زیاد از pagination استفاده کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Resources Section -->
+        <section class="section">
+            <h2 class="section-title">
+                <span class="icon">📚</span>
+                منابع بیشتر
+            </h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">📖</div>
+                    <h3>مستندات Django</h3>
+                    <p>مستندات رسمی GeoDjango</p>
+                    <a href="https://docs.djangoproject.com/en/4.2/ref/contrib/gis/" target="_blank" style="color: var(--secondary);">docs.djangoproject.com</a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">🗺️</div>
+                    <h3>PostGIS</h3>
+                    <p>مستندات PostGIS</p>
+                    <a href="https://postgis.net/documentation/" target="_blank" style="color: var(--secondary);">postgis.net</a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">🔧</div>
+                    <h3>DRF-GIS</h3>
+                    <p>Django REST Framework GIS</p>
+                    <a href="https://github.com/openwisp/django-rest-framework-gis" target="_blank" style="color: var(--secondary);">github.com/openwisp</a>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="icon">🍪</div>
+                    <h3>Cookiecutter</h3>
+                    <p>مستندات Cookiecutter</p>
+                    <a href="https://cookiecutter.readthedocs.io/" target="_blank" style="color: var(--secondary);">cookiecutter.readthedocs.io</a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Summary Section -->
+        <section class="section" style="background: linear-gradient(135deg, rgba(68, 183, 139, 0.2), rgba(9, 46, 32, 0.3));">
+            <h2 class="section-title">
+                <span class="icon">✅</span>
+                خلاصه
+            </h2>
+            
+            <p style="font-size: 1.1rem; margin-bottom: 30px;">
+                <strong>django-geoapi-template</strong> یک راه‌حل سریع و آماده برای ساخت API های مکانی است. 
+                با این قالب می‌توانید در کمتر از ۵ دقیقه یک API کامل با قابلیت‌های زیر داشته باشید:
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature-card" style="text-align: center;">
+                    <div class="icon">📍</div>
+                    <h3>ذخیره موقعیت</h3>
+                    <p>Point, Polygon</p>
+                </div>
+                
+                <div class="feature-card" style="text-align: center;">
+                    <div class="icon">🔍</div>
+                    <h3>جستجوی مکانی</h3>
+                    <p>شعاع، BBox</p>
+                </div>
+                
+                <div class="feature-card" style="text-align: center;">
+                    <div class="icon">📏</div>
+                    <h3>محاسبه فاصله</h3>
+                    <p>خودکار</p>
+                </div>
+                
+                <div class="feature-card" style="text-align: center;">
+                    <div class="icon">🗺️</div>
+                    <h3>GeoJSON</h3>
+                    <p>استاندارد</p>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px;">
+                <p style="font-size: 1.2rem; color: var(--accent);">
+                    🚀 همین الان شروع کنید!
+                </p>
+                <div class="code-block" style="display: inline-block; margin-top: 15px;">
+                    <pre><code>pip install cookiecutter
+cookiecutter gh:your-username/django-geoapi-template</code></pre>
+                </div>
+            </div>
+        </section>
+        
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>
+            🌍 <strong>django-geoapi-template</strong> - ساخته شده با ❤️ برای جامعه توسعه‌دهندگان ایران
+        </p>
+        <p style="margin-bottom: 20px;">
+            📝 لایسنس MIT - استفاده آزاد برای پروژه‌های شخصی و تجاری
+        </p>
+        <div class="footer-links">
+            <a href="https://github.com" target="_blank">📦 GitHub</a>
+            <a href="#installation">🔧 نصب</a>
+            <a href="#api">📡 API</a>
+            <a href="#examples">💡 مثال‌ها</a>
+        </div>
+        <p style="margin-top: 30px; color: var(--text-muted); font-size: 0.9rem;">
+            © 2025 - تمامی حقوق محفوظ است
+        </p>
+    </footer>
+    
+    <!-- Back to Top Button -->
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Highlight active section in navigation
+        const sections = document.querySelectorAll('.section[id]');
+        const navLinks = document.querySelectorAll('.nav a');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.style.background = '';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.background = 'rgba(68, 183, 139, 0.3)';
+                }
+            });
+        });
+    </script>
+    
+</body>
+</html>

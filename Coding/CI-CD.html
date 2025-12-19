@@ -1,0 +1,4162 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 آموزش کامل CI/CD با GitHub Actions</title>
+    
+    <!-- Vazirmatn Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dockerfile.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-card: #1c2128;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-purple: #a371f7;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --accent-pink: #db61a2;
+            --border-color: #30363d;
+            --code-bg: #0d1117;
+            --github-green: #238636;
+            --github-blue: #1f6feb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            padding: 12px 0;
+        }
+
+        nav .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        nav .logo {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        nav .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--text-primary);
+        }
+
+        nav .links {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        nav a:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 20px 60px;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(88, 166, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(163, 113, 247, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3em;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .hero-stat .label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .cta-button.primary {
+            background: var(--github-green);
+            color: white;
+        }
+
+        .cta-button.primary:hover {
+            background: #2ea043;
+            transform: translateY(-2px);
+        }
+
+        .cta-button.secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .cta-button.secondary:hover {
+            background: var(--bg-card);
+            border-color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Slides */
+        .slide {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 50px;
+            margin: 40px 0;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: -15px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .slide h2 {
+            color: var(--text-primary);
+            font-size: 1.9em;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slide h3 {
+            color: var(--accent-blue);
+            font-size: 1.35em;
+            margin: 35px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide h4 {
+            color: var(--text-primary);
+            font-size: 1.1em;
+            margin: 25px 0 15px;
+        }
+
+        .slide p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.9;
+        }
+
+        .slide ul, .slide ol {
+            color: var(--text-secondary);
+            margin: 15px 0;
+            padding-right: 25px;
+        }
+
+        .slide li {
+            margin: 10px 0;
+            line-height: 1.8;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .code-file {
+            color: var(--accent-blue);
+            font-size: 0.85em;
+            font-family: monospace;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-block code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        /* Inline Code */
+        code:not(pre code) {
+            background: var(--bg-tertiary);
+            color: var(--accent-blue);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.88em;
+            direction: ltr;
+            display: inline-block;
+        }
+
+        /* Boxes */
+        .info-box {
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .info-box h4 {
+            color: var(--accent-blue);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .success-box {
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .success-box h4 {
+            color: var(--accent-green);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .warning-box {
+            background: rgba(210, 153, 34, 0.1);
+            border: 1px solid rgba(210, 153, 34, 0.3);
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .warning-box h4 {
+            color: var(--accent-orange);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .error-box {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .error-box h4 {
+            color: var(--accent-red);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .tip-box {
+            background: rgba(163, 113, 247, 0.1);
+            border: 1px solid rgba(163, 113, 247, 0.3);
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .tip-box h4 {
+            color: var(--accent-purple);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        /* Grids */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-3px);
+        }
+
+        .card .icon {
+            font-size: 2.2em;
+            margin-bottom: 15px;
+        }
+
+        .card h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            margin: 0;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        th, td {
+            padding: 14px 18px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        td code {
+            font-size: 0.85em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(88, 166, 255, 0.05);
+        }
+
+        /* File Tree */
+        .file-tree {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px 25px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            direction: ltr;
+            text-align: left;
+            border: 1px solid var(--border-color);
+            margin: 25px 0;
+            line-height: 1.8;
+        }
+
+        .file-tree .folder {
+            color: var(--accent-blue);
+        }
+
+        .file-tree .file {
+            color: var(--text-secondary);
+        }
+
+        .file-tree .yaml {
+            color: var(--accent-green);
+        }
+
+        .file-tree .special {
+            color: var(--accent-purple);
+        }
+
+        /* Workflow Diagram */
+        .workflow-diagram {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .workflow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .workflow-step {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+        }
+
+        .workflow-step .step-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5em;
+            transition: all 0.3s ease;
+        }
+
+        .workflow-step:hover .step-icon {
+            border-color: var(--accent-blue);
+            background: rgba(88, 166, 255, 0.1);
+        }
+
+        .workflow-step .step-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .workflow-step .step-desc {
+            color: var(--text-secondary);
+            font-size: 0.85em;
+        }
+
+        .workflow-arrow {
+            color: var(--text-muted);
+            font-size: 1.5em;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--accent-green);
+        }
+
+        .status-badge.failure {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--accent-red);
+        }
+
+        .status-badge.pending {
+            background: rgba(210, 153, 34, 0.2);
+            color: var(--accent-orange);
+        }
+
+        .status-badge.running {
+            background: rgba(88, 166, 255, 0.2);
+            color: var(--accent-blue);
+        }
+
+        /* Quote */
+        .quote-box {
+            background: var(--bg-tertiary);
+            border-right: 4px solid var(--accent-purple);
+            padding: 25px 30px;
+            margin: 30px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .quote-box p {
+            color: var(--text-primary);
+            font-size: 1.1em;
+            font-style: italic;
+            margin: 0;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-right: 30px;
+            margin: 30px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: -26px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            border: 3px solid var(--bg-card);
+        }
+
+        .timeline-item h4 {
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .timeline-item p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 50px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        footer h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        footer p {
+            color: var(--text-secondary);
+            margin: 10px 0;
+        }
+
+        footer .links {
+            margin-top: 20px;
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            margin: 0 12px;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent-purple);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2em;
+            }
+
+            .hero-stats {
+                gap: 30px;
+            }
+
+            .slide {
+                padding: 30px 20px;
+            }
+
+            .slide h2 {
+                font-size: 1.5em;
+            }
+
+            nav .links {
+                display: none;
+            }
+
+            .workflow-steps {
+                flex-direction: column;
+            }
+
+            .workflow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">
+                <svg viewBox="0 0 16 16">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                <span>GitHub Actions</span>
+            </a>
+            <div class="links">
+                <a href="#intro">معرفی</a>
+                <a href="#concepts">مفاهیم</a>
+                <a href="#syntax">سینتکس</a>
+                <a href="#triggers">تریگرها</a>
+                <a href="#jobs">Jobs</a>
+                <a href="#examples">مثال‌ها</a>
+                <a href="#secrets">Secrets</a>
+                <a href="#advanced">پیشرفته</a>
+                <a href="#best-practices">بهترین روش‌ها</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <div class="dot"></div>
+                <span>آموزش کامل و جامع</span>
+            </div>
+            
+            <h1>
+                CI/CD با<br>
+                <span>GitHub Actions</span>
+            </h1>
+            
+            <p class="subtitle">
+                یادگیری کامل اتوماسیون، تست، بیلد و دیپلوی پروژه‌ها 
+                با قدرتمندترین ابزار CI/CD رایگان
+            </p>
+            
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="number">12</div>
+                    <div class="label">فصل آموزشی</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="number">50+</div>
+                    <div class="label">مثال کاربردی</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="number">∞</div>
+                    <div class="label">رایگان</div>
+                </div>
+            </div>
+            
+            <div class="cta-buttons">
+                <a href="#intro" class="cta-button primary">
+                    <span>🚀</span>
+                    <span>شروع یادگیری</span>
+                </a>
+                <a href="#examples" class="cta-button secondary">
+                    <span>📝</span>
+                    <span>مثال‌های عملی</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+
+        <!-- Slide 1: معرفی -->
+        <div class="slide" id="intro">
+            <div class="slide-number">فصل ۱</div>
+            <h2>🚀 CI/CD و GitHub Actions چیست؟</h2>
+
+            <p>
+                <strong>CI/CD</strong> مخفف <strong>Continuous Integration</strong> (یکپارچه‌سازی مداوم) و 
+                <strong>Continuous Deployment/Delivery</strong> (استقرار/تحویل مداوم) است. 
+                این روش‌ها به تیم‌های توسعه کمک می‌کنند تا کد را سریع‌تر، امن‌تر و با کیفیت بالاتر تحویل دهند.
+            </p>
+
+            <div class="workflow-diagram">
+                <div class="workflow-steps">
+                    <div class="workflow-step">
+                        <div class="step-icon">💻</div>
+                        <div class="step-title">Code</div>
+                        <div class="step-desc">نوشتن کد</div>
+                    </div>
+                    <div class="workflow-arrow">←</div>
+                    <div class="workflow-step">
+                        <div class="step-icon">📤</div>
+                        <div class="step-title">Push</div>
+                        <div class="step-desc">ارسال به Git</div>
+                    </div>
+                    <div class="workflow-arrow">←</div>
+                    <div class="workflow-step">
+                        <div class="step-icon">🔨</div>
+                        <div class="step-title">Build</div>
+                        <div class="step-desc">ساخت پروژه</div>
+                    </div>
+                    <div class="workflow-arrow">←</div>
+                    <div class="workflow-step">
+                        <div class="step-icon">🧪</div>
+                        <div class="step-title">Test</div>
+                        <div class="step-desc">اجرای تست‌ها</div>
+                    </div>
+                    <div class="workflow-arrow">←</div>
+                    <div class="workflow-step">
+                        <div class="step-icon">🚀</div>
+                        <div class="step-title">Deploy</div>
+                        <div class="step-desc">استقرار</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>📦 GitHub Actions چیست؟</h3>
+
+            <p>
+                <strong>GitHub Actions</strong> پلتفرم CI/CD داخلی GitHub است که به شما امکان می‌دهد 
+                workflow های خودکار برای ساخت، تست و استقرار کد خود ایجاد کنید. 
+                این سرویس مستقیماً در مخزن GitHub شما یکپارچه شده و کاملاً رایگان برای مخازن عمومی است.
+            </p>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">🆓</div>
+                    <h4>رایگان</h4>
+                    <p>برای مخازن عمومی کاملاً رایگان و برای خصوصی ۲۰۰۰ دقیقه/ماه</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔗</div>
+                    <h4>یکپارچه</h4>
+                    <p>بدون نیاز به سرویس خارجی، مستقیم در GitHub</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📦</div>
+                    <h4>Marketplace</h4>
+                    <p>هزاران Action آماده برای استفاده</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🐧</div>
+                    <h4>چند پلتفرمی</h4>
+                    <p>Linux، macOS و Windows</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔒</div>
+                    <h4>امن</h4>
+                    <p>مدیریت Secrets و محیط‌های ایزوله</p>
+                </div>
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h4>سریع</h4>
+                    <p>اجرای موازی و کش هوشمند</p>
+                </div>
+            </div>
+
+            <h3>🆚 مقایسه با سایر ابزارها</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>GitHub Actions</th>
+                        <th>GitLab CI</th>
+                        <th>Jenkins</th>
+                        <th>CircleCI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>هزینه (عمومی)</td>
+                        <td><span class="status-badge success">رایگان</span></td>
+                        <td><span class="status-badge success">رایگان</span></td>
+                        <td><span class="status-badge success">رایگان</span></td>
+                        <td><span class="status-badge pending">محدود</span></td>
+                    </tr>
+                    <tr>
+                        <td>یکپارچگی با GitHub</td>
+                        <td><span class="status-badge success">عالی</span></td>
+                        <td><span class="status-badge pending">متوسط</span></td>
+                        <td><span class="status-badge pending">پلاگین</span></td>
+                        <td><span class="status-badge success">خوب</span></td>
+                    </tr>
+                    <tr>
+                        <td>سهولت راه‌اندازی</td>
+                        <td><span class="status-badge success">آسان</span></td>
+                        <td><span class="status-badge success">آسان</span></td>
+                        <td><span class="status-badge failure">پیچیده</span></td>
+                        <td><span class="status-badge success">آسان</span></td>
+                    </tr>
+                    <tr>
+                        <td>Self-hosted</td>
+                        <td><span class="status-badge success">بله</span></td>
+                        <td><span class="status-badge success">بله</span></td>
+                        <td><span class="status-badge success">بله</span></td>
+                        <td><span class="status-badge pending">محدود</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <h4>💡 چرا GitHub Actions؟</h4>
+                <p>
+                    اگر پروژه شما در GitHub است، GitHub Actions بهترین انتخاب است چون:
+                    نیاز به پیکربندی سرویس خارجی ندارید، رایگان است، و به تمام امکانات GitHub دسترسی دارد.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 2: مفاهیم پایه -->
+        <div class="slide" id="concepts">
+            <div class="slide-number">فصل ۲</div>
+            <h2>📚 مفاهیم پایه</h2>
+
+            <p>
+                قبل از شروع کار با GitHub Actions، باید با مفاهیم اصلی آن آشنا شوید.
+            </p>
+
+            <h3>🔑 اصطلاحات کلیدی</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">📋</div>
+                    <h4>Workflow</h4>
+                    <p>
+                        یک فرآیند خودکار که در فایل YAML تعریف می‌شود. 
+                        هر مخزن می‌تواند چندین workflow داشته باشد.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h4>Event (رویداد)</h4>
+                    <p>
+                        اتفاقی که باعث اجرای workflow می‌شود: 
+                        push، pull request، زمان‌بندی و...
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">💼</div>
+                    <h4>Job</h4>
+                    <p>
+                        مجموعه‌ای از step ها که روی یک runner اجرا می‌شوند. 
+                        Job ها می‌توانند موازی یا متوالی باشند.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">👣</div>
+                    <h4>Step</h4>
+                    <p>
+                        یک دستور یا action که در job اجرا می‌شود. 
+                        Step ها به ترتیب اجرا می‌شوند.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">🎬</div>
+                    <h4>Action</h4>
+                    <p>
+                        یک واحد قابل استفاده مجدد که کار خاصی انجام می‌دهد. 
+                        می‌تواند از Marketplace یا سفارشی باشد.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="icon">🖥️</div>
+                    <h4>Runner</h4>
+                    <p>
+                        سروری که workflow روی آن اجرا می‌شود. 
+                        GitHub-hosted یا self-hosted.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🏗️ ساختار سلسله‌مراتبی</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">ساختار</span>
+                </div>
+<pre><code class="language-yaml">Workflow (فایل YAML)
+│
+├── Event (تریگر)
+│
+├── Job 1
+│   ├── Step 1 (Action یا دستور)
+│   ├── Step 2
+│   └── Step 3
+│
+├── Job 2
+│   ├── Step 1
+│   └── Step 2
+│
+└── Job 3 (وابسته به Job 1 و 2)
+    └── Step 1</code></pre>
+            </div>
+
+            <h3>📁 ساختار پوشه‌ها</h3>
+
+            <div class="file-tree">
+<pre>
+<span class="folder">my-project/</span>
+├── <span class="folder">.github/</span>
+│   └── <span class="folder">workflows/</span>
+│       ├── <span class="yaml">ci.yml</span>           ← workflow تست و بیلد
+│       ├── <span class="yaml">cd.yml</span>           ← workflow استقرار
+│       ├── <span class="yaml">release.yml</span>      ← workflow انتشار
+│       └── <span class="yaml">scheduled.yml</span>    ← workflow زمان‌بندی شده
+├── <span class="folder">src/</span>
+├── <span class="folder">tests/</span>
+├── <span class="file">README.md</span>
+└── <span class="file">package.json</span>
+</pre>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ نکته مهم</h4>
+                <p>
+                    فایل‌های workflow <strong>باید</strong> در مسیر <code>.github/workflows/</code> 
+                    قرار بگیرند و پسوند <code>.yml</code> یا <code>.yaml</code> داشته باشند.
+                </p>
+            </div>
+
+            <h3>🖥️ انواع Runner</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Runner</th>
+                        <th>سیستم‌عامل</th>
+                        <th>مشخصات</th>
+                        <th>Label</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Ubuntu</strong></td>
+                        <td>Linux</td>
+                        <td>2-core CPU, 7GB RAM, 14GB SSD</td>
+                        <td><code>ubuntu-latest</code>, <code>ubuntu-22.04</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Windows</strong></td>
+                        <td>Windows Server</td>
+                        <td>2-core CPU, 7GB RAM, 14GB SSD</td>
+                        <td><code>windows-latest</code>, <code>windows-2022</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>macOS</strong></td>
+                        <td>macOS</td>
+                        <td>3-core CPU, 14GB RAM, 14GB SSD</td>
+                        <td><code>macos-latest</code>, <code>macos-14</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Self-hosted</strong></td>
+                        <td>سفارشی</td>
+                        <td>بر اساس سرور شما</td>
+                        <td><code>self-hosted</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="tip-box">
+                <h4>💡 نکته</h4>
+                <p>
+                    <code>ubuntu-latest</code> سریع‌ترین و ارزان‌ترین گزینه است. 
+                    از macOS فقط برای پروژه‌های iOS/macOS استفاده کنید چون ۱۰ برابر گران‌تر است.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: سینتکس YAML -->
+        <div class="slide" id="syntax">
+            <div class="slide-number">فصل ۳</div>
+            <h2>📝 سینتکس Workflow</h2>
+
+            <p>
+                فایل‌های workflow با فرمت YAML نوشته می‌شوند. بیایید ساختار کامل را یاد بگیریم.
+            </p>
+
+            <h3>🎯 ساختار پایه</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/basic.yml</span>
+                </div>
+<pre><code class="language-yaml"># نام workflow (نمایش در GitHub)
+name: My First Workflow
+
+# رویدادهایی که workflow را اجرا می‌کنند
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# تعریف job ها
+jobs:
+  # نام job (می‌تواند هر چیزی باشد)
+  build:
+    # سیستم‌عامل runner
+    runs-on: ubuntu-latest
+    
+    # مراحل اجرا
+    steps:
+      # استفاده از action آماده
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # اجرای دستور shell
+      - name: Run a script
+        run: echo "Hello, GitHub Actions!"
+      
+      # اجرای چند دستور
+      - name: Run multiple commands
+        run: |
+          echo "First command"
+          echo "Second command"
+          ls -la</code></pre>
+            </div>
+
+            <h3>🔤 کلیدواژه‌های اصلی</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>کلیدواژه</th>
+                        <th>توضیح</th>
+                        <th>اجباری</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>name</code></td>
+                        <td>نام workflow برای نمایش</td>
+                        <td>خیر</td>
+                    </tr>
+                    <tr>
+                        <td><code>on</code></td>
+                        <td>رویدادهای تریگر</td>
+                        <td>بله</td>
+                    </tr>
+                    <tr>
+                        <td><code>jobs</code></td>
+                        <td>تعریف job ها</td>
+                        <td>بله</td>
+                    </tr>
+                    <tr>
+                        <td><code>runs-on</code></td>
+                        <td>نوع runner</td>
+                        <td>بله</td>
+                    </tr>
+                    <tr>
+                        <td><code>steps</code></td>
+                        <td>مراحل اجرا</td>
+                        <td>بله</td>
+                    </tr>
+                    <tr>
+                        <td><code>uses</code></td>
+                        <td>استفاده از action</td>
+                        <td>خیر</td>
+                    </tr>
+                    <tr>
+                        <td><code>run</code></td>
+                        <td>اجرای دستور shell</td>
+                        <td>خیر</td>
+                    </tr>
+                    <tr>
+                        <td><code>with</code></td>
+                        <td>پارامترهای action</td>
+                        <td>خیر</td>
+                    </tr>
+                    <tr>
+                        <td><code>env</code></td>
+                        <td>متغیرهای محیطی</td>
+                        <td>خیر</td>
+                    </tr>
+                    <tr>
+                        <td><code>if</code></td>
+                        <td>شرط اجرا</td>
+                        <td>خیر</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📋 مثال کامل‌تر</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/complete.yml</span>
+                </div>
+<pre><code class="language-yaml">name: Complete CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  # اجرای دستی
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+# متغیرهای محیطی سطح workflow
+env:
+  NODE_VERSION: '20'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # Job اول: لینت و بررسی کد
+  lint:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint
+        run: npm run lint
+
+  # Job دوم: تست
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint  # وابسته به lint
+    
+    # ماتریس برای تست روی چند نسخه
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: npm test
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Job سوم: بیلد
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build
+        run: npm run build
+      
+      # ذخیره artifact برای job های بعدی
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+          retention-days: 7
+
+  # Job چهارم: استقرار
+  deploy:
+    name: Deploy to ${{ github.event.inputs.environment || 'staging' }}
+    runs-on: ubuntu-latest
+    needs: build
+    # فقط روی main branch و push
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+      url: https://${{ github.event.inputs.environment || 'staging' }}.example.com
+    
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+      
+      - name: Deploy to server
+        run: |
+          echo "Deploying to ${{ github.event.inputs.environment || 'staging' }}..."
+          # دستورات استقرار واقعی</code></pre>
+            </div>
+
+            <div class="success-box">
+                <h4>✅ نکات مهم</h4>
+                <ul>
+                    <li><code>needs</code> برای تعریف وابستگی بین job ها</li>
+                    <li><code>strategy.matrix</code> برای اجرای موازی با تنظیمات مختلف</li>
+                    <li><code>if</code> برای اجرای شرطی</li>
+                    <li><code>environment</code> برای تعریف محیط استقرار</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: تریگرها -->
+        <div class="slide" id="triggers">
+            <div class="slide-number">فصل ۴</div>
+            <h2>⚡ Events و Triggers</h2>
+
+            <p>
+                رویدادها (Events) تعیین می‌کنند که workflow چه زمانی اجرا شود. 
+                GitHub بیش از ۳۵ نوع رویداد پشتیبانی می‌کند.
+            </p>
+
+            <h3>📌 رویدادهای رایج</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">رویدادهای Push و PR</span>
+                </div>
+<pre><code class="language-yaml">on:
+  # هر push به هر branch
+  push:
+  
+  # push به branch های خاص
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/**'    # همه branch های release/*
+      - '!release/old'  # به جز release/old
+  
+  # push با فیلتر مسیر
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'package.json'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  
+  # push تگ
+  push:
+    tags:
+      - 'v*'           # تگ‌های شروع شده با v
+      - 'v[0-9]+.[0-9]+.[0-9]+'  # semantic versioning
+
+  # Pull Request
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">زمان‌بندی (Cron)</span>
+                </div>
+<pre><code class="language-yaml">on:
+  schedule:
+    # هر روز ساعت 2 صبح UTC
+    - cron: '0 2 * * *'
+    
+    # هر دوشنبه ساعت 9 صبح
+    - cron: '0 9 * * 1'
+    
+    # هر 6 ساعت
+    - cron: '0 */6 * * *'
+    
+    # اول هر ماه
+    - cron: '0 0 1 * *'
+
+# فرمت Cron:
+# ┌───────────── minute (0 - 59)
+# │ ┌───────────── hour (0 - 23)
+# │ │ ┌───────────── day of month (1 - 31)
+# │ │ │ ┌───────────── month (1 - 12)
+# │ │ │ │ ┌───────────── day of week (0 - 6)
+# │ │ │ │ │
+# * * * * *</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">اجرای دستی و سایر رویدادها</span>
+                </div>
+<pre><code class="language-yaml">on:
+  # اجرای دستی با ورودی
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      debug:
+        description: 'Enable debug mode'
+        required: false
+        type: boolean
+        default: false
+      version:
+        description: 'Version to deploy'
+        required: false
+        type: string
+
+  # فراخوانی از workflow دیگر
+  workflow_call:
+    inputs:
+      config:
+        required: true
+        type: string
+    secrets:
+      token:
+        required: true
+
+  # رویدادهای Release
+  release:
+    types: [published, created, released]
+
+  # رویدادهای Issue
+  issues:
+    types: [opened, labeled]
+
+  # رویدادهای Issue Comment
+  issue_comment:
+    types: [created]
+
+  # Webhook خارجی
+  repository_dispatch:
+    types: [deploy-event]</code></pre>
+            </div>
+
+            <h3>📊 جدول رویدادهای پرکاربرد</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>رویداد</th>
+                        <th>توضیح</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>push</code></td>
+                        <td>Push به مخزن</td>
+                        <td>CI، تست خودکار</td>
+                    </tr>
+                    <tr>
+                        <td><code>pull_request</code></td>
+                        <td>ایجاد/آپدیت PR</td>
+                        <td>بررسی کد، تست</td>
+                    </tr>
+                    <tr>
+                        <td><code>schedule</code></td>
+                        <td>زمان‌بندی cron</td>
+                        <td>بکاپ، گزارش‌گیری</td>
+                    </tr>
+                    <tr>
+                        <td><code>workflow_dispatch</code></td>
+                        <td>اجرای دستی</td>
+                        <td>استقرار دستی</td>
+                    </tr>
+                    <tr>
+                        <td><code>release</code></td>
+                        <td>انتشار نسخه</td>
+                        <td>CD، انتشار پکیج</td>
+                    </tr>
+                    <tr>
+                        <td><code>workflow_call</code></td>
+                        <td>فراخوانی از workflow دیگر</td>
+                        <td>workflow های قابل استفاده مجدد</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="tip-box">
+                <h4>💡 نکته حرفه‌ای</h4>
+                <p>
+                    از <code>paths</code> و <code>paths-ignore</code> استفاده کنید تا workflow 
+                    فقط زمانی اجرا شود که فایل‌های مرتبط تغییر کرده باشند. 
+                    این کار زمان و منابع را ذخیره می‌کند.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Jobs و Steps -->
+        <div class="slide" id="jobs">
+            <div class="slide-number">فصل ۵</div>
+            <h2>💼 Jobs و Steps</h2>
+
+            <p>
+                Job ها واحدهای اصلی اجرا هستند. هر job روی یک runner مجزا اجرا می‌شود 
+                و شامل چندین step است.
+            </p>
+
+            <h3>🔗 وابستگی بین Jobs</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Job Dependencies</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  # Job های موازی (بدون needs)
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm test
+
+  # Job متوالی (با needs)
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint, test]  # منتظر هر دو
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # فقط بعد از build
+    steps:
+      - run: echo "Deploying..."
+
+# ترتیب اجرا:
+# lint ─┬─→ build → deploy
+# test ─┘</code></pre>
+            </div>
+
+            <h3>🔄 Matrix Strategy</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Matrix برای تست چند محیطی</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      # ادامه حتی اگر یکی fail شود
+      fail-fast: false
+      
+      # حداکثر job های موازی
+      max-parallel: 4
+      
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [18, 20, 22]
+        # ترکیب‌های خاص
+        include:
+          - os: ubuntu-latest
+            node-version: 20
+            experimental: true
+        
+        # حذف ترکیب‌های خاص
+        exclude:
+          - os: macos-latest
+            node-version: 18
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Install & Test
+        run: |
+          npm ci
+          npm test
+      
+      - name: Experimental features
+        if: matrix.experimental == true
+        run: npm run test:experimental
+
+# این matrix ایجاد می‌کند:
+# ubuntu-latest + Node 18, 20, 22
+# windows-latest + Node 18, 20, 22
+# macos-latest + Node 20, 22 (18 exclude شده)
+# + یک job با experimental: true</code></pre>
+            </div>
+
+            <h3>📤 انتقال داده بین Jobs</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Artifacts و Outputs</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  build:
+    runs-on: ubuntu-latest
+    # تعریف خروجی‌های job
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+      artifact-name: ${{ steps.artifact.outputs.name }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "value=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Build
+        run: npm run build
+      
+      - name: Set artifact name
+        id: artifact
+        run: echo "name=build-${{ github.sha }}" >> $GITHUB_OUTPUT
+      
+      # آپلود artifact
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: |
+            dist/
+            !dist/**/*.map
+          retention-days: 5
+          compression-level: 9
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      # دانلود artifact
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: dist/
+      
+      - name: Deploy version
+        run: |
+          echo "Deploying version: ${{ needs.build.outputs.version }}"
+          ls -la dist/</code></pre>
+            </div>
+
+            <h3>🔀 اجرای شرطی</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Conditional Execution</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # همیشه اجرا شود (حتی اگر step قبلی fail شود)
+      - name: Always run
+        if: always()
+        run: echo "This always runs"
+      
+      # فقط اگر موفق بود
+      - name: On success
+        if: success()
+        run: echo "Previous steps succeeded"
+      
+      # فقط اگر fail شد
+      - name: On failure
+        if: failure()
+        run: echo "Something failed"
+      
+      # فقط اگر کنسل شد
+      - name: On cancel
+        if: cancelled()
+        run: echo "Workflow was cancelled"
+      
+      # شرط‌های سفارشی
+      - name: Only on main branch
+        if: github.ref == 'refs/heads/main'
+        run: echo "On main branch"
+      
+      - name: Only on PR
+        if: github.event_name == 'pull_request'
+        run: echo "This is a PR"
+      
+      - name: Only on tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: echo "This is a tag"
+      
+      - name: Check commit message
+        if: contains(github.event.head_commit.message, '[skip ci]')
+        run: echo "Skipping CI"
+      
+      # ترکیب شرط‌ها
+      - name: Complex condition
+        if: |
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' &&
+          !contains(github.event.head_commit.message, '[skip]')
+        run: echo "Deploy to production"</code></pre>
+            </div>
+
+            <h3>⏱️ Timeout و Continue on Error</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Timeouts</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  long-running:
+    runs-on: ubuntu-latest
+    # timeout کل job (پیش‌فرض: 360 دقیقه)
+    timeout-minutes: 30
+    
+    steps:
+      - name: Quick step
+        timeout-minutes: 5
+        run: npm test
+      
+      # ادامه حتی اگر fail شود
+      - name: Non-critical step
+        continue-on-error: true
+        run: npm run optional-check
+      
+      - name: This runs even if previous failed
+        run: echo "Still running"
+
+  # Job که می‌تواند fail شود
+  optional-job:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - run: exit 1  # این fail می‌شود اما workflow ادامه می‌یابد</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>📊 خلاصه Job Options</h4>
+                <table>
+                    <tr>
+                        <td><code>needs</code></td>
+                        <td>وابستگی به job های دیگر</td>
+                    </tr>
+                    <tr>
+                        <td><code>runs-on</code></td>
+                        <td>نوع runner</td>
+                    </tr>
+                    <tr>
+                        <td><code>strategy.matrix</code></td>
+                        <td>اجرای موازی با تنظیمات مختلف</td>
+                    </tr>
+                    <tr>
+                        <td><code>outputs</code></td>
+                        <td>خروجی برای job های بعدی</td>
+                    </tr>
+                    <tr>
+                        <td><code>if</code></td>
+                        <td>شرط اجرا</td>
+                    </tr>
+                    <tr>
+                        <td><code>timeout-minutes</code></td>
+                        <td>حداکثر زمان اجرا</td>
+                    </tr>
+                    <tr>
+                        <td><code>continue-on-error</code></td>
+                        <td>ادامه در صورت خطا</td>
+                    </tr>
+                    <tr>
+                        <td><code>environment</code></td>
+                        <td>محیط استقرار</td>
+                    </tr>
+                    <tr>
+                        <td><code>concurrency</code></td>
+                        <td>کنترل اجرای همزمان</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 6: مثال‌های عملی -->
+        <div class="slide" id="examples">
+            <div class="slide-number">فصل ۶</div>
+            <h2>📝 مثال‌های عملی</h2>
+
+            <p>
+                در این بخش workflow های کاربردی برای پروژه‌های واقعی را بررسی می‌کنیم.
+            </p>
+
+            <h3>🐍 Python Project CI</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/python-ci.yml</span>
+                </div>
+<pre><code class="language-yaml">name: Python CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black mypy
+      
+      - name: Check formatting with Black
+        run: black --check .
+      
+      - name: Lint with Ruff
+        run: ruff check .
+      
+      - name: Type check with mypy
+        run: mypy src/
+
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      
+      - name: Run tests with pytest
+        run: |
+          pytest --cov=src --cov-report=xml --cov-report=html
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: true
+
+  build:
+    name: Build Package
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install build tools
+        run: pip install build twine
+      
+      - name: Build package
+        run: python -m build
+      
+      - name: Check package
+        run: twine check dist/*
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    environment:
+      name: pypi
+      url: https://pypi.org/project/your-package
+    
+    permissions:
+      id-token: write  # برای trusted publishing
+    
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package
+          path: dist/
+      
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1</code></pre>
+            </div>
+
+            <h3>⚛️ Node.js / React Project CI/CD</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/node-ci.yml</span>
+                </div>
+<pre><code class="language-yaml">name: Node.js CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  install:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      # کش node_modules برای job های بعدی
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: install
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+      
+      - name: Run ESLint
+        run: npm run lint
+      
+      - name: Run Prettier check
+        run: npm run format:check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: install
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+      
+      - name: Run tests
+        run: npm test -- --coverage
+      
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Restore node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+      
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ vars.API_URL }}
+      
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: dist/
+
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist/
+      
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: dist/
+
+  deploy-production:
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    environment:
+      name: production
+      url: https://your-app.com
+    
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: dist/
+      
+      - name: Deploy to Vercel Production
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: dist/</code></pre>
+            </div>
+
+            <h3>🐳 Docker Build & Push</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/docker.yml</span>
+                </div>
+<pre><code class="language-yaml">name: Docker Build & Push
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      # QEMU برای multi-platform builds
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      # Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      # لاگین به GitHub Container Registry
+      - name: Login to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      # استخراج metadata برای تگ‌ها
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+      
+      # بیلد و پوش
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ github.ref_name }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    
+    environment:
+      name: production
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+          export KUBECONFIG=kubeconfig
+      
+      - name: Deploy to cluster
+        run: |
+          kubectl set image deployment/myapp \
+            myapp=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --record
+          kubectl rollout status deployment/myapp</code></pre>
+            </div>
+
+            <h3>🗺️ Django GIS Project</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/django-gis.yml</span>
+                </div>
+<pre><code class="language-yaml">name: Django GIS CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test Django GIS
+    runs-on: ubuntu-latest
+    
+    services:
+      # سرویس PostGIS
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      # سرویس Redis (اختیاری)
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      # نصب GDAL و وابستگی‌های GIS
+      - name: Install GDAL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdal-bin libgdal-dev
+          export CPLUS_INCLUDE_PATH=/usr/include/gdal
+          export C_INCLUDE_PATH=/usr/include/gdal
+      
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-django pytest-cov
+      
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgis://postgres:postgres@localhost:5432/test_db
+        run: python manage.py migrate
+      
+      - name: Run tests
+        env:
+          DATABASE_URL: postgis://postgres:postgres@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+        run: |
+          pytest --cov=. --cov-report=xml
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml</code></pre>
+            </div>
+
+            <div class="success-box">
+                <h4>✅ نکات مهم مثال‌ها</h4>
+                <ul>
+                    <li><strong>Services:</strong> برای اجرای دیتابیس و سرویس‌های جانبی</li>
+                    <li><strong>Cache:</strong> برای سرعت بخشیدن به نصب وابستگی‌ها</li>
+                    <li><strong>Artifacts:</strong> برای انتقال فایل بین job ها</li>
+                    <li><strong>Environment:</strong> برای محیط‌های مختلف استقرار</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 7: Secrets و Variables -->
+        <div class="slide" id="secrets">
+            <div class="slide-number">فصل ۷</div>
+            <h2>🔒 Secrets و Variables</h2>
+
+            <p>
+                مدیریت امن اطلاعات حساس مثل API keys، توکن‌ها و رمزهای عبور.
+            </p>
+
+            <h3>🔐 انواع Secrets</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">🏢</div>
+                    <h4>Organization Secrets</h4>
+                    <p>مشترک بین تمام مخازن سازمان</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📁</div>
+                    <h4>Repository Secrets</h4>
+                    <p>مختص یک مخزن</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🌍</div>
+                    <h4>Environment Secrets</h4>
+                    <p>مختص یک محیط (staging, production)</p>
+                </div>
+            </div>
+
+            <h3>⚙️ تنظیم Secrets</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">مسیر</span>
+                </div>
+<pre><code class="language-text">Repository → Settings → Secrets and variables → Actions
+
+برای افزودن Secret:
+1. کلیک روی "New repository secret"
+2. نام Secret را وارد کنید (مثلاً: AWS_ACCESS_KEY_ID)
+3. مقدار را وارد کنید
+4. کلیک روی "Add secret"
+
+⚠️ نکته: پس از ذخیره، مقدار Secret قابل مشاهده نیست!</code></pre>
+            </div>
+
+            <h3>📝 استفاده از Secrets</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">استفاده از Secrets</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # استفاده در env
+      - name: Configure AWS
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
+        run: |
+          aws s3 ls
+      
+      # استفاده در with
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      # استفاده مستقیم (⚠️ هرگز در log چاپ نشود!)
+      - name: Deploy
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.DEPLOY_TOKEN }}" \
+            https://api.example.com/deploy
+
+      # GITHUB_TOKEN خودکار
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0</code></pre>
+            </div>
+
+            <h3>📊 Variables (غیرحساس)</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Configuration Variables</span>
+                </div>
+<pre><code class="language-yaml"># Variables برای مقادیر غیرحساس
+# تنظیم: Settings → Secrets and variables → Actions → Variables
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Use repository variable
+        run: echo "API URL: ${{ vars.API_URL }}"
+      
+      - name: Build with config
+        env:
+          APP_NAME: ${{ vars.APP_NAME }}
+          APP_ENV: ${{ vars.APP_ENV }}
+        run: npm run build</code></pre>
+            </div>
+
+            <h3>🌍 Environment Secrets</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Environment-specific Secrets</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.example.com
+    
+    steps:
+      - name: Deploy to staging
+        env:
+          # این secret از محیط staging می‌آید
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: ./deploy.sh
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment:
+      name: production
+      url: https://example.com
+    
+    # نیاز به تأیید دستی
+    # تنظیم در: Settings → Environments → production → Required reviewers
+    
+    steps:
+      - name: Deploy to production
+        env:
+          # این secret از محیط production می‌آید
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          API_KEY: ${{ secrets.API_KEY }}
+        run: ./deploy.sh</code></pre>
+            </div>
+
+            <h3>🔑 GITHUB_TOKEN</h3>
+
+            <div class="info-box">
+                <h4>💡 GITHUB_TOKEN</h4>
+                <p>
+                    GitHub به صورت خودکار یک توکن موقت (<code>GITHUB_TOKEN</code>) برای هر workflow ایجاد می‌کند.
+                    این توکن برای عملیات روی همان مخزن کافی است.
+                </p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">GITHUB_TOKEN Permissions</span>
+                </div>
+<pre><code class="language-yaml"># تنظیم دسترسی‌های GITHUB_TOKEN
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    # دسترسی‌های مورد نیاز
+    permissions:
+      contents: write      # برای ایجاد release
+      packages: write      # برای push به GHCR
+      issues: write        # برای کامنت روی issue
+      pull-requests: write # برای کامنت روی PR
+      id-token: write      # برای OIDC
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.zip
+            dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}</code></pre>
+            </div>
+
+            <div class="warning-box">
+                <h4>⚠️ نکات امنیتی</h4>
+                <ul>
+                    <li>هرگز Secrets را در log چاپ نکنید</li>
+                    <li>از <code>mask</code> برای مخفی کردن مقادیر حساس استفاده کنید</li>
+                    <li>Secrets را در کد commit نکنید</li>
+                    <li>برای PR های fork شده، secrets در دسترس نیستند</li>
+                    <li>از Environment protection rules استفاده کنید</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: موضوعات پیشرفته -->
+        <div class="slide" id="advanced">
+            <div class="slide-number">فصل ۸</div>
+            <h2>🚀 موضوعات پیشرفته</h2>
+
+            <p>
+                در این بخش به قابلیت‌های پیشرفته GitHub Actions می‌پردازیم.
+            </p>
+
+            <h3>♻️ Reusable Workflows</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/reusable-build.yml</span>
+                </div>
+<pre><code class="language-yaml"># Workflow قابل استفاده مجدد
+name: Reusable Build Workflow
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version'
+        required: false
+        type: string
+        default: '20'
+      build-command:
+        description: 'Build command to run'
+        required: false
+        type: string
+        default: 'npm run build'
+    secrets:
+      NPM_TOKEN:
+        required: false
+    outputs:
+      artifact-name:
+        description: 'Name of the build artifact'
+        value: ${{ jobs.build.outputs.artifact-name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.artifact.outputs.name }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Build
+        run: ${{ inputs.build-command }}
+      
+      - name: Set artifact name
+        id: artifact
+        run: echo "name=build-${{ github.sha }}" >> $GITHUB_OUTPUT
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: dist/</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/ci.yml (استفاده‌کننده)</span>
+                </div>
+<pre><code class="language-yaml"># استفاده از workflow قابل استفاده مجدد
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      node-version: '20'
+      build-command: 'npm run build:prod'
+    secrets:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  
+  # استفاده از workflow مخزن دیگر
+  deploy:
+    needs: build
+    uses: my-org/shared-workflows/.github/workflows/deploy.yml@main
+    with:
+      environment: production
+      artifact-name: ${{ needs.build.outputs.artifact-name }}
+    secrets: inherit  # انتقال همه secrets</code></pre>
+            </div>
+
+            <h3>🎭 Composite Actions</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/actions/setup-project/action.yml</span>
+                </div>
+<pre><code class="language-yaml"># Composite Action سفارشی
+name: 'Setup Project'
+description: 'Setup Node.js project with caching'
+
+inputs:
+  node-version:
+    description: 'Node.js version'
+    required: false
+    default: '20'
+  install-command:
+    description: 'Install command'
+    required: false
+    default: 'npm ci'
+
+outputs:
+  cache-hit:
+    description: 'Whether cache was hit'
+    value: ${{ steps.cache.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    
+    - name: Get npm cache directory
+      id: npm-cache-dir
+      shell: bash
+      run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
+    
+    - name: Cache npm
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ${{ steps.npm-cache-dir.outputs.dir }}
+          node_modules
+        key: ${{ runner.os }}-node-${{ inputs.node-version }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ inputs.node-version }}-
+    
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: ${{ inputs.install-command }}</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">استفاده از Composite Action</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # استفاده از action محلی
+      - name: Setup project
+        uses: ./.github/actions/setup-project
+        with:
+          node-version: '20'
+      
+      - name: Build
+        run: npm run build</code></pre>
+            </div>
+
+            <h3>🔄 Concurrency Control</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">کنترل اجرای همزمان</span>
+                </div>
+<pre><code class="language-yaml">name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+# کنترل همزمانی در سطح workflow
+concurrency:
+  # گروه‌بندی بر اساس branch
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # لغو اجرای قبلی در صورت push جدید
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # یا در سطح job
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false  # صبر کن تا قبلی تمام شود
+    
+    steps:
+      - run: echo "Deploying..."</code></pre>
+            </div>
+
+            <h3>📦 Caching Strategies</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">استراتژی‌های کش</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      # کش npm (روش ساده)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      # کش pip
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      # کش سفارشی
+      - name: Cache custom directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/custom
+            .build-cache
+          key: custom-${{ runner.os }}-${{ hashFiles('config.json') }}
+          restore-keys: |
+            custom-${{ runner.os }}-
+      
+      # کش Docker layers
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Build with cache
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max</code></pre>
+            </div>
+
+            <h3>🔔 Notifications</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">اعلان‌ها</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy
+        run: ./deploy.sh
+      
+      # اعلان Slack در صورت موفقیت
+      - name: Notify Slack (Success)
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "✅ Deploy successful!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Successful* 🎉\n*Repo:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n*Commit:* ${{ github.sha }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      
+      # اعلان در صورت خطا
+      - name: Notify Slack (Failure)
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "❌ Deploy failed!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Failed* 💥\n*Repo:* ${{ github.repository }}\n*Branch:* ${{ github.ref_name }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Logs>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      
+      # اعلان Discord
+      - name: Notify Discord
+        if: always()
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "Deployment"
+          description: "Build and deploy workflow"</code></pre>
+            </div>
+
+            <h3>🧪 Self-hosted Runners</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">استفاده از Self-hosted Runner</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  build:
+    # استفاده از runner خودتان
+    runs-on: self-hosted
+    
+    # یا با label های خاص
+    runs-on: [self-hosted, linux, x64, gpu]
+    
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./build.sh
+
+# نصب Self-hosted Runner:
+# 1. Settings → Actions → Runners → New self-hosted runner
+# 2. دستورات نمایش داده شده را اجرا کنید
+# 3. Runner به صورت سرویس اجرا شود</code></pre>
+            </div>
+
+            <div class="tip-box">
+                <h4>💡 چه زمانی از Self-hosted استفاده کنیم؟</h4>
+                <ul>
+                    <li>نیاز به سخت‌افزار خاص (GPU، RAM بالا)</li>
+                    <li>دسترسی به شبکه داخلی</li>
+                    <li>کاهش هزینه برای پروژه‌های بزرگ</li>
+                    <li>نیاز به نرم‌افزار خاص که در runner های GitHub نیست</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9: بهترین روش‌ها -->
+        <div class="slide" id="best-practices">
+            <div class="slide-number">فصل ۹</div>
+            <h2>✨ بهترین روش‌ها</h2>
+
+            <p>
+                رعایت این اصول به شما کمک می‌کند workflow های کارآمد، امن و قابل نگهداری بسازید.
+            </p>
+
+            <h3>🎯 اصول کلی</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h4>سرعت</h4>
+                    <ul>
+                        <li>از کش استفاده کنید</li>
+                        <li>Job های موازی تعریف کنید</li>
+                        <li>فقط فایل‌های لازم را checkout کنید</li>
+                        <li>از <code>paths</code> filter استفاده کنید</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="icon">🔒</div>
+                    <h4>امنیت</h4>
+                    <ul>
+                        <li>Secrets را مدیریت کنید</li>
+                        <li>Action ها را pin کنید</li>
+                        <li>حداقل دسترسی بدهید</li>
+                        <li>ورودی‌ها را validate کنید</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="icon">📖</div>
+                    <h4>خوانایی</h4>
+                    <ul>
+                        <li>نام‌های معنادار انتخاب کنید</li>
+                        <li>کامنت بنویسید</li>
+                        <li>workflow ها را تفکیک کنید</li>
+                        <li>از reusable workflows استفاده کنید</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="icon">🔄</div>
+                    <h4>قابلیت نگهداری</h4>
+                    <ul>
+                        <li>نسخه‌ها را مشخص کنید</li>
+                        <li>تکرار را حذف کنید</li>
+                        <li>تست‌های workflow بنویسید</li>
+                        <li>مستندسازی کنید</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>✅ Do's and Don'ts</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">✅ روش‌های صحیح</span>
+                </div>
+<pre><code class="language-yaml"># ✅ Pin actions به commit SHA (امن‌تر)
+- uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+# ✅ یا حداقل به major version
+- uses: actions/checkout@v4
+
+# ✅ استفاده از environment variables
+env:
+  NODE_VERSION: '20'
+jobs:
+  build:
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+# ✅ تعریف timeout
+jobs:
+  build:
+    timeout-minutes: 15
+    steps:
+      - name: Long running task
+        timeout-minutes: 10
+        run: ./build.sh
+
+# ✅ استفاده از paths filter
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'package.json'
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+# ✅ Shallow clone برای سرعت
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 1
+
+# ✅ کش وابستگی‌ها
+- uses: actions/setup-node@v4
+  with:
+    node-version: '20'
+    cache: 'npm'
+
+# ✅ استفاده از concurrency
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true</code></pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">❌ روش‌های اشتباه</span>
+                </div>
+<pre><code class="language-yaml"># ❌ استفاده از latest (ناپایدار)
+- uses: actions/checkout@latest
+
+# ❌ Hardcode کردن مقادیر
+- uses: actions/setup-node@v4
+  with:
+    node-version: '20'  # تکرار در چند جا
+
+# ❌ بدون timeout (ممکن است ساعت‌ها اجرا شود)
+jobs:
+  build:
+    steps:
+      - run: ./potentially-hanging-script.sh
+
+# ❌ اجرا روی همه تغییرات
+on:
+  push:  # حتی برای تغییر README
+
+# ❌ Clone کامل تاریخچه
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0  # همه تاریخچه
+
+# ❌ چاپ secrets در log
+- run: echo "Token is: ${{ secrets.API_TOKEN }}"
+
+# ❌ استفاده از shell injection
+- run: echo ${{ github.event.issue.title }}  # خطرناک!</code></pre>
+            </div>
+
+            <h3>🔐 امنیت پیشرفته</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">تنظیمات امنیتی</span>
+                </div>
+<pre><code class="language-yaml"># تنظیم حداقل دسترسی
+permissions:
+  contents: read
+  # فقط دسترسی‌های لازم را اضافه کنید
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    # محدود کردن دسترسی در سطح job
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      # جلوگیری از shell injection
+      - name: Safe usage of user input
+        env:
+          TITLE: ${{ github.event.issue.title }}
+        run: echo "Title is: $TITLE"  # امن
+      
+      # Validate ورودی‌ها
+      - name: Validate input
+        run: |
+          if [[ ! "${{ inputs.environment }}" =~ ^(staging|production)$ ]]; then
+            echo "Invalid environment"
+            exit 1
+          fi
+      
+      # استفاده از OIDC به جای long-lived credentials
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::123456789:role/GitHubActions
+          aws-region: us-east-1</code></pre>
+            </div>
+
+            <h3>📊 مانیتورینگ و Debug</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Debug و Logging</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # فعال کردن debug logging
+      # یا: Settings → Secrets → ACTIONS_STEP_DEBUG = true
+      - name: Debug info
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+      
+      # گروه‌بندی log ها
+      - name: Grouped logs
+        run: |
+          echo "::group::Installing dependencies"
+          npm ci
+          echo "::endgroup::"
+          
+          echo "::group::Running tests"
+          npm test
+          echo "::endgroup::"
+      
+      # نمایش warning و error
+      - name: Annotations
+        run: |
+          echo "::warning file=app.js,line=1::Deprecated function used"
+          echo "::error file=app.js,line=10::Syntax error"
+      
+      # ذخیره log برای بررسی
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: |
+            *.log
+            npm-debug.log*</code></pre>
+            </div>
+
+            <div class="success-box">
+                <h4>📋 چک‌لیست قبل از Merge</h4>
+                <ul>
+                    <li>☑️ Action ها به نسخه خاص pin شده‌اند</li>
+                    <li>☑️ Secrets در کد نیستند</li>
+                    <li>☑️ Timeout تنظیم شده</li>
+                    <li>☑️ paths filter استفاده شده</li>
+                    <li>☑️ کش فعال است</li>
+                    <li>☑️ Concurrency تنظیم شده</li>
+                    <li>☑️ Permissions حداقلی است</li>
+                    <li>☑️ نام‌ها معنادار هستند</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 10: Actions Marketplace -->
+        <div class="slide" id="marketplace">
+            <div class="slide-number">فصل ۱۰</div>
+            <h2>🏪 Actions Marketplace</h2>
+
+            <p>
+                GitHub Marketplace هزاران Action آماده دارد که می‌توانید در workflow های خود استفاده کنید.
+            </p>
+
+            <h3>⭐ Action های پرکاربرد</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>دسته</th>
+                        <th>Action</th>
+                        <th>کاربرد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td rowspan="3"><strong>Core</strong></td>
+                        <td><code>actions/checkout</code></td>
+                        <td>Clone مخزن</td>
+                    </tr>
+                    <tr>
+                        <td><code>actions/cache</code></td>
+                        <td>کش فایل‌ها</td>
+                    </tr>
+                    <tr>
+                        <td><code>actions/upload-artifact</code></td>
+                        <td>آپلود artifact</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><strong>Setup</strong></td>
+                        <td><code>actions/setup-node</code></td>
+                        <td>نصب Node.js</td>
+                    </tr>
+                    <tr>
+                        <td><code>actions/setup-python</code></td>
+                        <td>نصب Python</td>
+                    </tr>
+                    <tr>
+                        <td><code>actions/setup-go</code></td>
+                        <td>نصب Go</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="3"><strong>Docker</strong></td>
+                        <td><code>docker/build-push-action</code></td>
+                        <td>بیلد و پوش image</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker/login-action</code></td>
+                        <td>لاگین به registry</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker/metadata-action</code></td>
+                        <td>تولید تگ‌ها</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>Cloud</strong></td>
+                        <td><code>aws-actions/configure-aws-credentials</code></td>
+                        <td>تنظیم AWS</td>
+                    </tr>
+                    <tr>
+                        <td><code>azure/login</code></td>
+                        <td>لاگین Azure</td>
+                    </tr>
+                    <tr>
+                        <td rowspan="2"><strong>Release</strong></td>
+                        <td><code>softprops/action-gh-release</code></td>
+                        <td>ایجاد Release</td>
+                    </tr>
+                    <tr>
+                        <td><code>changesets/action</code></td>
+                        <td>مدیریت نسخه</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🔍 نحوه یافتن Action</h3>
+
+            <div class="info-box">
+                <h4>📍 آدرس Marketplace</h4>
+                <p>
+                    <a href="https://github.com/marketplace?type=actions" style="color: var(--accent-blue);">
+                        github.com/marketplace?type=actions
+                    </a>
+                </p>
+                <p>
+                    می‌توانید بر اساس دسته‌بندی، محبوبیت یا جستجوی کلمه کلیدی Action مورد نظر را پیدا کنید.
+                </p>
+            </div>
+
+            <h3>🛡️ ارزیابی امنیت Action</h3>
+
+            <div class="warning-box">
+                <h4>⚠️ قبل از استفاده بررسی کنید</h4>
+                <ul>
+                    <li><strong>Verified Creator:</strong> آیا سازنده تأیید شده است؟</li>
+                    <li><strong>Stars:</strong> تعداد ستاره‌ها چقدر است؟</li>
+                    <li><strong>Source Code:</strong> کد منبع را بررسی کنید</li>
+                    <li><strong>Last Update:</strong> آخرین به‌روزرسانی کی بوده؟</li>
+                    <li><strong>Issues:</strong> مشکلات گزارش شده را ببینید</li>
+                    <li><strong>Permissions:</strong> چه دسترسی‌هایی نیاز دارد؟</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">Pin کردن امن Action ها</span>
+                </div>
+<pre><code class="language-yaml"># ❌ ناامن - می‌تواند تغییر کند
+- uses: some-action@v1
+
+# ✅ امن‌تر - major version
+- uses: actions/checkout@v4
+
+# ✅✅ امن‌ترین - commit SHA
+- uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+# پیدا کردن SHA:
+# 1. به صفحه releases برو
+# 2. روی commit کلیک کن
+# 3. SHA کامل را کپی کن</code></pre>
+            </div>
+        </div>
+
+        <!-- Slide 11: عیب‌یابی -->
+        <div class="slide" id="troubleshooting">
+            <div class="slide-number">فصل ۱۱</div>
+            <h2>🔧 عیب‌یابی</h2>
+
+            <p>
+                مشکلات رایج و راه‌حل‌های آن‌ها در GitHub Actions.
+            </p>
+
+            <h3>❌ خطاهای رایج</h3>
+
+            <div class="error-box">
+                <h4>Error: Process completed with exit code1</h4>
+                <p>
+                    <strong>علت:</strong> دستور با خطا مواجه شده<br>
+                    <strong>راه‌حل:</strong> log را بررسی کنید و دستور را به صورت محلی تست کنید
+                </p>
+            </div>
+
+            <div class="error-box">
+                <h4>Error: Resource not accessible by integration</h4>
+                <p>
+                    <strong>علت:</strong> GITHUB_TOKEN دسترسی کافی ندارد<br>
+                    <strong>راه‌حل:</strong> permissions را در workflow تنظیم کنید
+                </p>
+            </div>
+
+            <div class="error-box">
+                <h4>Error: No space left on device</h4>
+                <p>
+                    <strong>علت:</strong> فضای دیسک runner پر شده<br>
+                    <strong>راه‌حل:</strong> فایل‌های غیرضروری را پاک کنید یا artifact ها را کوچک کنید
+                </p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">آزادسازی فضای دیسک</span>
+                </div>
+<pre><code class="language-yaml">jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # آزادسازی فضا قبل از بیلد
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          docker system prune -af
+          df -h</code></pre>
+            </div>
+
+            <h3>🐛 Debug Mode</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">فعال‌سازی Debug</span>
+                </div>
+<pre><code class="language-yaml"># روش ۱: از طریق Secrets
+# Settings → Secrets → New secret
+# Name: ACTIONS_STEP_DEBUG
+# Value: true
+
+# روش ۲: Re-run با debug
+# در صفحه workflow run → Re-run jobs → Enable debug logging
+
+# روش ۳: در workflow
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      
+      - name: List environment variables
+        run: env | sort
+      
+      - name: Show disk usage
+        run: df -h
+      
+      - name: Show memory
+        run: free -m</code></pre>
+            </div>
+
+            <h3>🔄 راه‌حل مشکلات رایج</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>مشکل</th>
+                        <th>علت احتمالی</th>
+                        <th>راه‌حل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Workflow اجرا نمی‌شود</td>
+                        <td>فایل YAML اشتباه است</td>
+                        <td>syntax را با <code>actionlint</code> بررسی کنید</td>
+                    </tr>
+                    <tr>
+                        <td>Cache کار نمی‌کند</td>
+                        <td>Key اشتباه است</td>
+                        <td>Key را با hashFiles بسازید</td>
+                    </tr>
+                    <tr>
+                        <td>Secret خالی است</td>
+                        <td>نام اشتباه یا PR از fork</td>
+                        <td>نام را بررسی کنید</td>
+                    </tr>
+                    <tr>
+                        <td>Timeout شده</td>
+                        <td>فرآیند hang کرده</td>
+                        <td>timeout-minutes تنظیم کنید</td>
+                    </tr>
+                    <tr>
+                        <td>Artifact یافت نشد</td>
+                        <td>نام یا مسیر اشتباه</td>
+                        <td>نام و path را بررسی کنید</td>
+                    </tr>
+                    <tr>
+                        <td>Permission denied</td>
+                        <td>دسترسی ناکافی</td>
+                        <td>permissions را اضافه کنید</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🛠️ ابزارهای کمکی</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">BASH</span>
+                    <span class="code-file">ابزارهای بررسی Workflow</span>
+                </div>
+<pre><code class="language-bash"># نصب actionlint برای بررسی syntax
+brew install actionlint  # macOS
+# یا
+go install github.com/rhysd/actionlint/cmd/actionlint@latest
+
+# بررسی فایل‌های workflow
+actionlint
+
+# بررسی با جزئیات
+actionlint -verbose
+
+# نصب act برای اجرای محلی workflows
+brew install act  # macOS
+# یا
+curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# اجرای workflow به صورت محلی
+act push
+act pull_request
+act -j build  # فقط job خاص
+act -l  # لیست jobs
+
+# با secrets
+act -s GITHUB_TOKEN=xxx -s MY_SECRET=yyy</code></pre>
+            </div>
+
+            <div class="tip-box">
+                <h4>💡 نکته: استفاده از act</h4>
+                <p>
+                    <code>act</code> ابزاری است که به شما امکان می‌دهد workflow ها را به صورت محلی 
+                    (با Docker) اجرا کنید. این کار برای debug سریع‌تر بسیار مفید است.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 12: جمع‌بندی -->
+        <div class="slide" id="summary">
+            <div class="slide-number">فصل ۱۲</div>
+            <h2>📚 جمع‌بندی</h2>
+
+            <p>
+                در این آموزش جامع، با تمام جنبه‌های GitHub Actions برای CI/CD آشنا شدید.
+            </p>
+
+            <h3>📋 آنچه آموختیم</h3>
+
+            <div class="grid-4">
+                <div class="card">
+                    <div class="icon">🚀</div>
+                    <h4>مبانی</h4>
+                    <p>CI/CD، مفاهیم پایه، ساختار workflow</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📝</div>
+                    <h4>سینتکس</h4>
+                    <p>YAML، کلیدواژه‌ها، تنظیمات</p>
+                </div>
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h4>تریگرها</h4>
+                    <p>Events، Filters، Schedule</p>
+                </div>
+                <div class="card">
+                    <div class="icon">💼</div>
+                    <h4>Jobs</h4>
+                    <p>Matrix، Dependencies، Outputs</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔒</div>
+                    <h4>امنیت</h4>
+                    <p>Secrets، Permissions، OIDC</p>
+                </div>
+                <div class="card">
+                    <div class="icon">♻️</div>
+                    <h4>پیشرفته</h4>
+                    <p>Reusable، Composite، Caching</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📝</div>
+                    <h4>مثال‌ها</h4>
+                    <p>Python، Node.js، Docker، GIS</p>
+                </div>
+                <div class="card">
+                    <div class="icon">✨</div>
+                    <h4>بهترین روش‌ها</h4>
+                    <p>سرعت، امنیت، نگهداری</p>
+                </div>
+            </div>
+
+            <h3>🎯 Workflow نمونه کامل</h3>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-lang">YAML</span>
+                    <span class="code-file">.github/workflows/complete-ci-cd.yml</span>
+                </div>
+<pre><code class="language-yaml">name: Complete CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options: [staging, production]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ═══════════════════════════════════════
+  # Quality Checks
+  # ═══════════════════════════════════════
+  lint:
+    name: 🔍 Lint & Format
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install linters
+        run: pip install ruff black mypy
+      
+      - name: Run Ruff
+        run: ruff check .
+      
+      - name: Check Black formatting
+        run: black --check .
+      
+      - name: Run MyPy
+        run: mypy src/
+
+  # ═══════════════════════════════════════
+  # Tests
+  # ═══════════════════════════════════════
+  test:
+    name: 🧪 Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 15
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev]"
+      
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test
+        run: pytest --cov=src --cov-report=xml -v
+      
+      - name: Upload coverage
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+
+  # ═══════════════════════════════════════
+  # Build
+  # ═══════════════════════════════════════
+  build:
+    name: 🔨 Build
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 20
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      version: ${{ steps.version.outputs.value }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            echo "value=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "value=${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha,prefix=
+      
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            VERSION=${{ steps.version.outputs.value }}
+
+  # ═══════════════════════════════════════
+  # Deploy Staging
+  # ═══════════════════════════════════════
+  deploy-staging:
+    name: 🚀 Deploy Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 15
+    
+    environment:
+      name: staging
+      url: https://staging.example.com
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to staging
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          IMAGE_TAG: ${{ needs.build.outputs.image-tag }}
+        run: |
+          echo "🚀 Deploying to staging..."
+          echo "Image: $IMAGE_TAG"
+          # اینجا دستورات واقعی استقرار
+      
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f https://staging.example.com/health || exit 1
+      
+      - name: Notify success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {"text": "✅ Staging deploy successful!"}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # ═══════════════════════════════════════
+  # Deploy Production
+  # ═══════════════════════════════════════
+  deploy-production:
+    name: 🌟 Deploy Production
+    runs-on: ubuntu-latest
+    needs: [build, deploy-staging]
+    if: |
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' && inputs.environment == 'production')
+    timeout-minutes: 20
+    
+    environment:
+      name: production
+      url: https://example.com
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to production
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          IMAGE_TAG: ${{ needs.build.outputs.image-tag }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          echo "🌟 Deploying to production..."
+          echo "Version: $VERSION"
+          # اینجا دستورات واقعی استقرار
+      
+      - name: Health check
+        run: |
+          sleep 30
+          curl -f https://example.com/health || exit 1
+      
+      - name: Notify success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {"text": "🎉 Production deploy successful! Version: ${{ needs.build.outputs.version }}"}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+      
+      - name: Notify failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {"text": "❌ Production deploy FAILED! Check logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}</code></pre>
+            </div>
+
+            <h3>🔗 منابع بیشتر</h3>
+
+            <div class="grid-2">
+                <div class="info-box">
+                    <h4>📖 مستندات رسمی</h4>
+                    <ul>
+                        <li><a href="https://docs.github.com/en/actions" style="color: var(--accent-blue);">GitHub Actions Documentation</a></li>
+                        <li><a href="https://docs.github.com/en/actions/learn-github-actions" style="color: var(--accent-blue);">Learn GitHub Actions</a></li>
+                        <li><a href="https://github.com/marketplace?type=actions" style="color: var(--accent-blue);">Actions Marketplace</a></li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h4>🛠️ ابزارها</h4>
+                    <ul>
+                        <li><a href="https://github.com/nektos/act" style="color: var(--accent-blue);">act - Run locally</a></li>
+                        <li><a href="https://github.com/rhysd/actionlint" style="color: var(--accent-blue);">actionlint - Linter</a></li>
+                        <li><a href="https://github.com/actions/toolkit" style="color: var(--accent-blue);">Actions Toolkit</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🎯 قدم‌های بعدی</h3>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>۱. شروع ساده</h4>
+                    <p>یک workflow ساده برای تست و لینت بسازید</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>۲. افزودن CD</h4>
+                    <p>استقرار خودکار به staging اضافه کنید</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>۳. بهینه‌سازی</h4>
+                    <p>کش، matrix و اجرای موازی را پیاده کنید</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>۴. امنیت</h4>
+                    <p>Secrets، environments و OIDC را تنظیم کنید</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>۵. پیشرفته</h4>
+                    <p>Reusable workflows و composite actions بسازید</p>
+                </div>
+            </div>
+
+            <div class="quote-box">
+                <p>
+                    «اتوماسیون خوب یک بار نوشته می‌شود و هزاران بار اجرا. 
+                    وقت بگذارید و CI/CD درست بسازید.»
+                </p>
+            </div>
+
+            <div class="success-box" style="text-align: center; margin-top: 40px;">
+                <h4>🎉 تبریک!</h4>
+                <p style="font-size: 1.1em; margin-bottom: 20px;">
+                    شما اکنون دانش کاملی از GitHub Actions دارید و می‌توانید 
+                    pipeline های حرفه‌ای CI/CD بسازید!
+                </p>
+                <a href="#intro" class="cta-button primary" style="display: inline-flex;">
+                    <span>🔝</span>
+                    <span>بازگشت به ابتدا</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <h3>🚀 آموزش کامل CI/CD با GitHub Actions</h3>
+        <p>از مبتدی تا پیشرفته</p>
+        
+        <div class="links">
+            <a href="#intro">معرفی</a>
+            <a href="#concepts">مفاهیم</a>
+            <a href="#syntax">سینتکس</a>
+            <a href="#triggers">تریگرها</a>
+            <a href="#jobs">Jobs</a>
+            <a href="#examples">مثال‌ها</a>
+            <a href="#secrets">Secrets</a>
+            <a href="#advanced">پیشرفته</a>
+            <a href="#best-practices">بهترین روش‌ها</a>
+            <a href="#marketplace">Marketplace</a>
+            <a href="#troubleshooting">عیب‌یابی</a>
+            <a href="#summary">جمع‌بندی</a>
+        </div>
+        
+        <p style="margin-top: 30px; color: var(--accent-blue);">
+            ساخته شده با ❤️ برای توسعه‌دهندگان ایران
+        </p>
+        <p style="margin-top: 10px; font-size: 0.9em; color: var(--text-muted);">
+            آذر ۱۴۰۴ | December 2025
+        </p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Highlight.js initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('pre code').forEach(function(block) {
+                hljs.highlightElement(block);
+            });
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && href.startsWith('#') && href.length > 1) {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Active navigation highlight
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.slide');
+            const navLinks = document.querySelectorAll('nav a');
+            
+            let current = '';
+            
+            sections.forEach(function(section) {
+                const sectionTop = section.offsetTop;
+                if (window.pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(function(link) {
+                link.style.color = '';
+                link.style.background = '';
+                
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.color = 'var(--text-primary)';
+                    link.style.background = 'var(--bg-tertiary)';
+                }
+            });
+        });
+
+        // Copy code functionality
+        document.querySelectorAll('.code-block').forEach(function(block) {
+            // Add copy button
+            const header = block.querySelector('.code-header');
+            if (header) {
+                const copyBtn = document.createElement('button');
+                copyBtn.innerHTML = '📋 کپی';
+                copyBtn.style.cssText = `
+                    background: var(--bg-secondary);
+                    border: 1px solid var(--border-color);
+                    color: var(--text-secondary);
+                    padding: 4px 10px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                    font-family: inherit;
+                    transition: all 0.2s ease;
+                `;
+                copyBtn.addEventListener('mouseenter', function() {
+                    this.style.borderColor = 'var(--accent-blue)';
+                    this.style.color = 'var(--accent-blue)';
+                });
+                copyBtn.addEventListener('mouseleave', function() {
+                    this.style.borderColor = 'var(--border-color)';
+                    this.style.color = 'var(--text-secondary)';
+                });
+                copyBtn.addEventListener('click', function() {
+                    const code = block.querySelector('code').textContent;
+                    navigator.clipboard.writeText(code).then(function() {
+                        copyBtn.innerHTML = '✅ کپی شد!';
+                        setTimeout(function() {
+                            copyBtn.innerHTML = '📋 کپی';
+                        }, 2000);
+                    });
+                });
+                header.appendChild(copyBtn);
+            }
+        });
+
+        // Progress indicator
+        window.addEventListener('scroll', function() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            
+            let progressBar = document.getElementById('progress-bar');
+            if (!progressBar) {
+                progressBar = document.createElement('div');
+                progressBar.id = 'progress-bar';
+                progressBar.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+                    z-index: 10001;
+                    transition: width 0.1s ease;
+                `;
+                document.body.appendChild(progressBar);
+            }
+            progressBar.style.width = scrolled + '%';
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const slides = document.querySelectorAll('.slide');
+            const currentSlide = Array.from(slides).find(function(slide) {
+                const rect = slide.getBoundingClientRect();
+                return rect.top >= -100 && rect.top <= 300;
+            });
+            
+            if (!currentSlide) return;
+            
+            const currentIndex = Array.from(slides).indexOf(currentSlide);
+            
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'j') {
+                if (currentIndex < slides.length - 1) {
+                    slides[currentIndex + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'k') {
+                if (currentIndex > 0) {
+                    slides[currentIndex - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'Home') {
+                document.querySelector('.hero').scrollIntoView({ behavior: 'smooth' });
+            } else if (e.key === 'End') {
+                slides[slides.length - 1].scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+        // Print info
+        console.log('%c🚀 GitHub Actions Tutorial', 'font-size: 20px; font-weight: bold; color: #58a6ff;');
+        console.log('%c📚 12 Chapters | 50+ Examples', 'font-size: 14px; color: #8b949e;');
+        console.log('%c⌨️ Use arrow keys to navigate', 'font-size: 12px; color: #6e7681;');
+    </script>
+
+</body>
+</html>
