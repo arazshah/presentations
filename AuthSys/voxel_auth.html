@@ -1,0 +1,2902 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <title>Voxel Auth - ارائه فنی ماژول احراز هویت</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --code-bg: #1e1e1e;
+        }
+
+        body {
+               font-family: Vazirmatn, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            padding: 50px 70px;
+            display: none;
+            flex-direction: column;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 30px;
+            color: var(--light);
+            border-bottom: 4px solid var(--primary);
+            padding-bottom: 15px;
+            display: inline-block;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+        }
+
+        .title-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+        }
+
+        .title-slide h1 {
+            font-size: 3.5rem;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .title-slide .subtitle {
+            font-size: 1.6rem;
+            color: var(--secondary);
+            margin-bottom: 30px;
+        }
+
+        .title-slide .version {
+            font-size: 1.1rem;
+            color: var(--gray);
+            padding: 10px 25px;
+            border: 2px solid var(--gray);
+            border-radius: 25px;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .code-block pre {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #e2e8f0;
+            white-space: pre;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .class { color: #4ec9b0; }
+        .code-block .decorator { color: #c586c0; }
+        .code-block .number { color: #b5cea8; }
+
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 25px 0;
+        }
+
+        .arch-layer {
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.2) 0%, rgba(37, 99, 235, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .arch-layer:hover {
+            transform: translateX(-8px);
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.3) 0%, rgba(37, 99, 235, 0.1) 100%);
+        }
+
+        .arch-layer .layer-icon {
+            font-size: 1.8rem;
+            width: 55px;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .arch-layer .layer-content h3 {
+            margin-bottom: 3px;
+            color: var(--light);
+        }
+
+        .arch-layer .layer-content p {
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 10px;
+            padding: 15px 20px;
+            text-align: center;
+            min-width: 130px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .flow-step .step-number {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 3px;
+        }
+
+        .flow-step .step-title {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .flow-arrow {
+            font-size: 1.8rem;
+            color: var(--secondary);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .feature-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            padding-right: 8px;
+        }
+
+        .feature-card li {
+            padding: 6px 0;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .feature-card li::before {
+            content: "✓";
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background: var(--primary);
+            padding: 12px 18px;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .data-table tr:hover td {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .hierarchy-tree {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 25px;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+            text-align: left;
+            line-height: 1.7;
+        }
+
+        .hierarchy-tree .folder { color: var(--accent); }
+        .hierarchy-tree .file { color: var(--secondary); }
+        .hierarchy-tree .new { color: #ef4444; }
+
+        .security-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 25px 0;
+        }
+
+        .security-layer {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 18px;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, transparent 100%);
+            border-right: 4px solid var(--secondary);
+            border-radius: 8px;
+        }
+
+        .security-layer .layer-num {
+            width: 38px;
+            height: 38px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .nav-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 18px;
+            border-radius: 18px;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 15px 0;
+        }
+
+        .endpoint-list {
+            background: var(--code-bg);
+            border-radius: 10px;
+            padding: 18px;
+            margin: 12px 0;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #333;
+            font-family: 'Consolas', monospace;
+            direction: ltr;
+        }
+
+        .endpoint:last-child {
+            border-bottom: none;
+        }
+
+        .endpoint .method {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            min-width: 65px;
+            text-align: center;
+        }
+
+        .method.get { background: #22c55e; color: white; }
+        .method.post { background: #3b82f6; color: white; }
+        .method.put { background: #f59e0b; color: white; }
+        .method.patch { background: #8b5cf6; color: white; }
+        .method.delete { background: #ef4444; color: white; }
+
+        .endpoint .path {
+            color: #e2e8f0;
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .endpoint .desc {
+            color: #6b7280;
+            font-size: 0.8rem;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .three-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card h3 {
+            color: var(--light);
+            margin-bottom: 8px;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide.active > * {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .slide.active > *:nth-child(1) { animation-delay: 0.05s; }
+        .slide.active > *:nth-child(2) { animation-delay: 0.1s; }
+        .slide.active > *:nth-child(3) { animation-delay: 0.15s; }
+        .slide.active > *:nth-child(4) { animation-delay: 0.2s; }
+        .slide.active > *:nth-child(5) { animation-delay: 0.25s; }
+
+        @media (max-width: 1024px) {
+            .slide { padding: 30px; }
+            h1 { font-size: 2.2rem; }
+            .two-columns, .three-columns { grid-template-columns: 1fr; }
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="presentation" id="presentation">
+        
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide active">
+            <h1>🔐 Voxel Auth</h1>
+            <p class="subtitle">ماژول احراز هویت و مدیریت دسترسی سازمانی</p>
+            <p class="version">ارائه فنی معماری و پیاده‌سازی</p>
+            <br><br>
+            <p style="color: var(--gray); font-size: 1rem;">برای حرکت بین اسلایدها از کلیدهای ← ← یا دکمه‌های زیر استفاده کنید</p>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide">
+            <h1>📋 نمای کلی سیستم</h1>
+            
+            <div class="three-columns">
+                <div class="info-card">
+                    <div class="icon">🏗️</div>
+                    <h3>Clean Architecture</h3>
+                    <p>معماری لایه‌ای با جداسازی کامل مسئولیت‌ها</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🔌</div>
+                    <h3>Pluggable</h3>
+                    <p>ماژول مستقل قابل نصب در هر پروژه Django</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">⚙️</div>
+                    <h3>Configurable</h3>
+                    <p>تمام تنظیمات از طریق Settings قابل تغییر</p>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔐 احراز هویت</h3>
+                    <ul>
+                        <li>JWT Token با Refresh</li>
+                        <li>احراز هویت دو مرحله‌ای (2FA)</li>
+                        <li>OTP پیامکی/ایمیلی</li>
+                        <li>بازیابی رمز عبور</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>👥 مدیریت کاربران</h3>
+                    <ul>
+                        <li>CRUD کامل کاربران</li>
+                        <li>فیلدهای قابل تنظیم</li>
+                        <li>عملیات دسته‌جمعی</li>
+                        <li>جستجو و فیلتر پیشرفته</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>👨‍👩‍👧‍👦 مدیریت گروه‌ها</h3>
+                    <ul>
+                        <li>ساختار سلسله‌مراتبی</li>
+                        <li>ارث‌بری دسترسی</li>
+                        <li>گروه‌های سیستمی</li>
+                        <li>گروه‌های پیش‌فرض</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>🔑 مدیریت دسترسی</h3>
+                    <ul>
+                        <li>دسترسی‌های Django</li>
+                        <li>دسترسی‌های سفارشی</li>
+                        <li>دسته‌بندی دسترسی‌ها</li>
+                        <li>Override در سطح فرزند</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Architecture -->
+        <div class="slide">
+            <h1>🏗️ معماری Clean Architecture</h1>
+            <p>ساختار لایه‌ای با جداسازی کامل - وابستگی‌ها فقط به سمت داخل</p>
+            
+            <div class="architecture">
+                <div class="arch-layer">
+                    <div class="layer-icon">🌐</div>
+                    <div class="layer-content">
+                        <h3>API Layer (Outer)</h3>
+                        <p>Views, Serializers, URLs - ارتباط با دنیای خارج و تبدیل داده‌ها</p>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="layer-icon">⚙️</div>
+                    <div class="layer-content">
+                        <h3>Application Layer</h3>
+                        <p>Use Cases, DTOs, Services - اجرای منطق اپلیکیشن و هماهنگی بین لایه‌ها</p>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="layer-icon">💎</div>
+                    <div class="layer-content">
+                        <h3>Domain Layer (Core)</h3>
+                        <p>Entities, Value Objects, Ports - قوانین کسب‌وکار خالص بدون وابستگی</p>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <div class="layer-icon">🗄️</div>
+                    <div class="layer-content">
+                        <h3>Infrastructure Layer (Outer)</h3>
+                        <p>Models, Repositories, External Services - پیاده‌سازی فنی و ارتباط با دیتابیس</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🎯 اصل وابستگی معکوس (Dependency Inversion)</h3>
+                <p>لایه‌های داخلی (Domain) هیچ وابستگی به لایه‌های خارجی ندارند. ارتباط از طریق Interface (Ports) انجام می‌شود.</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Project Structure -->
+        <div class="slide">
+            <h1>📁 ساختار فایل‌های پروژه</h1>
+            
+            <div class="hierarchy-tree">
+<pre><span class="folder">voxel_auth/</span>
+├── <span class="file">__init__.py</span>
+├── <span class="file">container.py</span>                     <span class="comment"># Dependency Injection Container</span>
+├── <span class="folder">config/</span>
+│   └── <span class="file">settings.py</span>                  <span class="comment"># تنظیمات متمرکز پکیج</span>
+│
+├── <span class="folder">domain/</span>                            <span class="comment"># 💎 لایه دامنه (هسته)</span>
+│   ├── <span class="folder">entities/</span>
+│   │   ├── <span class="file">user.py</span>                  <span class="comment"># UserEntity</span>
+│   │   └── <span class="file">group.py</span>                 <span class="comment"># GroupEntity, PermissionEntity</span>
+│   ├── <span class="folder">value_objects/</span>
+│   │   └── <span class="file">configs.py</span>               <span class="comment"># AuthConfig, GroupConfig</span>
+│   ├── <span class="folder">ports/</span>                        <span class="comment"># اینترفیس‌ها (ABC)</span>
+│   │   ├── <span class="file">user_ports.py</span>
+│   │   └── <span class="file">group_ports.py</span>
+│   └── <span class="file">exceptions.py</span>                <span class="comment"># Custom Exceptions</span>
+│
+├── <span class="folder">application/</span>                       <span class="comment"># ⚙️ لایه اپلیکیشن</span>
+│   ├── <span class="folder">dtos/</span>                         <span class="comment"># Data Transfer Objects</span>
+│   ├── <span class="folder">use_cases/</span>                    <span class="comment"># Business Logic</span>
+│   │   ├── <span class="file">auth_use_cases.py</span>
+│   │   ├── <span class="file">user_use_cases.py</span>
+│   │   └── <span class="file">group_use_cases.py</span>
+│   └── <span class="folder">services/</span>                     <span class="comment"># Managers (Facades)</span>
+│       ├── <span class="file">auth_manager.py</span>
+│       └── <span class="file">group_manager.py</span>
+│
+├── <span class="folder">infrastructure/</span>                   <span class="comment"># 🗄️ لایه زیرساخت</span>
+│   ├── <span class="folder">django/</span>
+│   │   ├── <span class="folder">models/</span>                  <span class="comment"># Django Models</span>
+│   │   └── <span class="folder">repositories/</span>            <span class="comment"># Repository Implementations</span>
+│   └── <span class="folder">adapters/</span>                     <span class="comment"># External Services</span>
+│       ├── <span class="file">sms_adapter.py</span>
+│       └── <span class="file">email_adapter.py</span>
+│
+└── <span class="folder">api/</span>                               <span class="comment"># 🌐 لایه API</span>
+    └── <span class="folder">v1/</span>
+        ├── <span class="folder">auth/</span>
+        ├── <span class="folder">users/</span>
+        └── <span class="folder">groups/</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 5: Data Flow -->
+        <div class="slide">
+            <h1>🔄 جریان داده در سیستم</h1>
+            <p>مسیر یک درخواست از ورود تا پاسخ</p>
+            
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="step-number">۱</div>
+                    <div class="step-title">HTTP Request</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۲</div>
+                    <div class="step-title">API View</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۳</div>
+                    <div class="step-title">Serializer</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۴</div>
+                    <div class="step-title">Manager</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۵</div>
+                    <div class="step-title">Use Case</div>
+                </div>
+            </div>
+
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="step-number">۶</div>
+                    <div class="step-title">Repository</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۷</div>
+                    <div class="step-title">Database</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۸</div>
+                    <div class="step-title">Entity</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۹</div>
+                    <div class="step-title">Response DTO</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step">
+                    <div class="step-number">۱۰</div>
+                    <div class="step-title">JSON Response</div>
+                </div>
+            </div>
+
+            <div class="code-block">
+<pre><span class="comment"># مثال: فرایند Login</span>
+
+<span class="comment"># 1. HTTP Request ← API View</span>
+POST /api/v1/auth/login/  {<span class="string">"username"</span>: <span class="string">"ali"</span>, <span class="string">"password"</span>: <span class="string">"***"</span>}
+
+<span class="comment"># 2. View ← Serializer (Validation)</span>
+serializer = LoginSerializer(data=request.data)
+serializer.is_valid(raise_exception=<span class="keyword">True</span>)
+
+<span class="comment"># 3. View ← Manager ← Use Case</span>
+result = auth_manager.login(LoginRequest(username=<span class="string">"ali"</span>, password=<span class="string">"***"</span>))
+
+<span class="comment"># 4. Use Case ← Repository</span>
+user = user_repository.get_by_username(<span class="string">"ali"</span>)  <span class="comment"># Returns UserEntity</span>
+
+<span class="comment"># 5. Use Case ← Token Service</span>
+tokens = token_service.generate_pair(user.id)  <span class="comment"># Returns TokenPair</span>
+
+<span class="comment"># 6. Response DTO ← JSON</span>
+<span class="keyword">return</span> Response({<span class="string">"access"</span>: <span class="string">"eyJ..."</span>, <span class="string">"refresh"</span>: <span class="string">"eyJ..."</span>})</pre>
+            </div>
+        </div>
+
+        <!-- Slide 6: Dependency Injection -->
+        <div class="slide">
+            <h1>💉 Dependency Injection Container</h1>
+            <p>مدیریت متمرکز وابستگی‌ها - تزریق وابستگی برای تست‌پذیری</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># container.py</span>
+
+<span class="keyword">class</span> <span class="class">Container</span>:
+    <span class="string">"""
+    Dependency Injection Container
+    مدیریت ایجاد و تزریق وابستگی‌ها به صورت متمرکز
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">self</span>._instances = {}
+        <span class="keyword">self</span>._config = VoxelAuthConfig.from_django_settings()
+    
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># Repositories (Singleton)</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    
+    <span class="decorator">@singleton</span>
+    <span class="keyword">def</span> <span class="function">user_repository</span>(<span class="keyword">self</span>) -> <span class="class">UserRepositoryPort</span>:
+        <span class="keyword">return</span> <span class="class">DjangoUserRepository</span>()
+    
+    <span class="decorator">@singleton</span>
+    <span class="keyword">def</span> <span class="function">group_repository</span>(<span class="keyword">self</span>) -> <span class="class">GroupRepositoryPort</span>:
+        <span class="keyword">return</span> <span class="class">DjangoGroupRepository</span>()
+    
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># Services (Can be swapped)</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    
+    <span class="decorator">@singleton</span>
+    <span class="keyword">def</span> <span class="function">otp_service</span>(<span class="keyword">self</span>) -> <span class="class">OTPServicePort</span>:
+        provider = <span class="keyword">self</span>._config.otp.provider
+        <span class="keyword">if</span> provider == <span class="string">'sms'</span>:
+            <span class="keyword">return</span> <span class="class">SMSOTPService</span>(<span class="keyword">self</span>._config.otp)
+        <span class="keyword">elif</span> provider == <span class="string">'email'</span>:
+            <span class="keyword">return</span> <span class="class">EmailOTPService</span>(<span class="keyword">self</span>._config.otp)
+        <span class="keyword">raise</span> <span class="class">ValueError</span>(f<span class="string">"Unknown OTP provider: {provider}"</span>)
+    
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># Managers (Facades)</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    
+    <span class="keyword">def</span> <span class="function">auth_manager</span>(<span class="keyword">self</span>) -> <span class="class">AuthManager</span>:
+        <span class="keyword">return</span> <span class="class">AuthManager</span>(
+            user_repo=<span class="keyword">self</span>.user_repository(),
+            token_service=<span class="keyword">self</span>.token_service(),
+            otp_service=<span class="keyword">self</span>.otp_service(),
+            config=<span class="keyword">self</span>._config.auth,
+        )
+
+<span class="comment"># Global instance</span>
+container = <span class="class">Container</span>()</pre>
+            </div>
+        </div>
+
+        <!-- Slide 7: Domain Entities -->
+        <div class="slide">
+            <h1>💎 Domain Entities</h1>
+            <p>موجودیت‌های خالص - بدون وابستگی به فریم‌ورک</p>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># domain/entities/user.py</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">UserEntity</span>:
+    <span class="string">"""User domain entity - Pure Python"""</span>
+    
+    id: <span class="class">str</span>
+    username: <span class="class">str</span>
+    email: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    phone: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    first_name: <span class="class">str</span> = <span class="string">''</span>
+    last_name: <span class="class">str</span> = <span class="string">''</span>
+    is_active: <span class="class">bool</span> = <span class="keyword">True</span>
+    is_staff: <span class="class">bool</span> = <span class="keyword">False</span>
+    is_superuser: <span class="class">bool</span> = <span class="keyword">False</span>
+    created_at: <span class="class">Optional</span>[<span class="class">datetime</span>] = <span class="keyword">None</span>
+    
+    <span class="comment"># Business Logic در Entity</span>
+    <span class="decorator">@property</span>
+    <span class="keyword">def</span> <span class="function">full_name</span>(<span class="keyword">self</span>) -> <span class="class">str</span>:
+        <span class="keyword">return</span> f<span class="string">"{self.first_name} {self.last_name}"</span>.strip()
+    
+    <span class="keyword">def</span> <span class="function">can_login</span>(<span class="keyword">self</span>) -> <span class="class">bool</span>:
+        <span class="keyword">return</span> <span class="keyword">self</span>.is_active
+    
+    <span class="keyword">def</span> <span class="function">requires_2fa</span>(<span class="keyword">self</span>) -> <span class="class">bool</span>:
+        <span class="keyword">return</span> <span class="class">bool</span>(<span class="keyword">self</span>.phone)</pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># domain/entities/group.py</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">GroupEntity</span>:
+    <span class="string">"""Group domain entity"""</span>
+    
+    id: <span class="class">str</span>
+    name: <span class="class">str</span>
+    display_name: <span class="class">str</span>
+    description: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    
+    <span class="comment"># Hierarchy</span>
+    parent_id: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    parent_name: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    depth: <span class="class">int</span> = <span class="number">0</span>
+    
+    <span class="comment"># Status</span>
+    is_active: <span class="class">bool</span> = <span class="keyword">True</span>
+    is_system: <span class="class">bool</span> = <span class="keyword">False</span>
+    
+    <span class="comment"># Counts</span>
+    members_count: <span class="class">int</span> = <span class="number">0</span>
+    permissions_count: <span class="class">int</span> = <span class="number">0</span>
+    
+    <span class="comment"># Relations (lazy loaded)</span>
+    permissions: <span class="class">Optional</span>[<span class="class">List</span>] = <span class="keyword">None</span>
+    members: <span class="class">Optional</span>[<span class="class">List</span>] = <span class="keyword">None</span>
+    children: <span class="class">Optional</span>[<span class="class">List</span>] = <span class="keyword">None</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Ports (Interfaces) -->
+        <div class="slide">
+            <h1>🔌 Ports - اینترفیس‌ها</h1>
+            <p>قراردادهای بین لایه‌ها - اصل Dependency Inversion</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># domain/ports/user_ports.py</span>
+
+<span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod
+
+<span class="keyword">class</span> <span class="class">UserRepositoryPort</span>(<span class="class">ABC</span>):
+    <span class="string">"""
+    Interface for user repository
+    هر پیاده‌سازی باید این متدها را داشته باشد
+    """</span>
+    
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">create</span>(<span class="keyword">self</span>, username: <span class="class">str</span>, password: <span class="class">str</span>, **kwargs) -> <span class="class">UserEntity</span>:
+        <span class="string">"""Create new user and return entity"""</span>
+        <span class="keyword">pass</span>
+    
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">get_by_id</span>(<span class="keyword">self</span>, user_id: <span class="class">str</span>) -> <span class="class">Optional</span>[<span class="class">UserEntity</span>]:
+        <span class="string">"""Get user by ID"""</span>
+        <span class="keyword">pass</span>
+    
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">get_by_username</span>(<span class="keyword">self</span>, username: <span class="class">str</span>) -> <span class="class">Optional</span>[<span class="class">UserEntity</span>]:
+        <span class="string">"""Get user by username"""</span>
+        <span class="keyword">pass</span>
+    
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">verify_password</span>(<span class="keyword">self</span>, user_id: <span class="class">str</span>, password: <span class="class">str</span>) -> <span class="class">bool</span>:
+        <span class="string">"""Verify user password"""</span>
+        <span class="keyword">pass</span>
+    
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">list</span>(<span class="keyword">self</span>, page: <span class="class">int</span>, page_size: <span class="class">int</span>, **filters) -> <span class="class">Tuple</span>[<span class="class">List</span>[<span class="class">UserEntity</span>], <span class="class">int</span>]:
+        <span class="string">"""List users with pagination"""</span>
+        <span class="keyword">pass</span>
+
+
+<span class="keyword">class</span> <span class="class">OTPServicePort</span>(<span class="class">ABC</span>):
+    <span class="string">"""Interface for OTP service"""</span>
+    
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">generate</span>(<span class="keyword">self</span>, recipient: <span class="class">str</span>) -> <span class="class">str</span>:
+        <span class="string">"""Generate and send OTP, return reference"""</span>
+        <span class="keyword">pass</span>
+    
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">verify</span>(<span class="keyword">self</span>, recipient: <span class="class">str</span>, code: <span class="class">str</span>) -> <span class="class">bool</span>:
+        <span class="string">"""Verify OTP code"""</span>
+        <span class="keyword">pass</span></pre>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🎯 مزیت استفاده از Port</h3>
+                <p>لایه Domain فقط Port را می‌شناسد، نه پیاده‌سازی را. می‌توان Repository را با Mock جایگزین کرد برای تست.</p>
+            </div>
+        </div>
+
+        <!-- Slide 9: Use Cases -->
+        <div class="slide">
+            <h1>⚙️ Use Cases</h1>
+            <p>منطق اپلیکیشن - هر Use Case یک کار مشخص</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># application/use_cases/auth_use_cases.py</span>
+
+<span class="keyword">class</span> <span class="class">LoginUseCase</span>:
+    <span class="string">"""
+    Handle user login with optional 2FA
+    Single Responsibility: فقط منطق ورود
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(
+        <span class="keyword">self</span>,
+        user_repo: <span class="class">UserRepositoryPort</span>,
+        token_service: <span class="class">TokenServicePort</span>,
+        otp_service: <span class="class">OTPServicePort</span>,
+        config: <span class="class">AuthConfig</span>,
+    ):
+        <span class="keyword">self</span>._user_repo = user_repo
+        <span class="keyword">self</span>._token_service = token_service
+        <span class="keyword">self</span>._otp_service = otp_service
+        <span class="keyword">self</span>._config = config
+    
+    <span class="keyword">def</span> <span class="function">execute</span>(<span class="keyword">self</span>, request: <span class="class">LoginRequest</span>) -> <span class="class">LoginResponse</span>:
+        <span class="comment"># Step 1: Find user</span>
+        user = <span class="keyword">self</span>._user_repo.get_by_username(request.username)
+        <span class="keyword">if not</span> user:
+            <span class="keyword">raise</span> <span class="class">InvalidCredentialsError</span>(<span class="string">"Invalid username or password"</span>)
+        
+        <span class="comment"># Step 2: Check if user can login</span>
+        <span class="keyword">if not</span> user.can_login():
+            <span class="keyword">raise</span> <span class="class">UserInactiveError</span>(<span class="string">"User account is disabled"</span>)
+        
+        <span class="comment"># Step 3: Verify password</span>
+        <span class="keyword">if not</span> <span class="keyword">self</span>._user_repo.verify_password(user.id, request.password):
+            <span class="keyword">raise</span> <span class="class">InvalidCredentialsError</span>(<span class="string">"Invalid username or password"</span>)
+        
+        <span class="comment"># Step 4: Check 2FA requirement</span>
+        <span class="keyword">if</span> <span class="keyword">self</span>._config.require_2fa <span class="keyword">and</span> user.requires_2fa():
+            otp_ref = <span class="keyword">self</span>._otp_service.generate(user.phone)
+            <span class="keyword">return</span> <span class="class">LoginResponse</span>(
+                requires_2fa=<span class="keyword">True</span>,
+                otp_sent=<span class="keyword">True</span>,
+                user_id=user.id,
+            )
+        
+        <span class="comment"># Step 5: Generate tokens</span>
+        tokens = <span class="keyword">self</span>._token_service.generate_pair(user.id)
+        
+        <span class="keyword">return</span> <span class="class">LoginResponse</span>(
+            tokens=tokens,
+            user=user,
+            requires_2fa=<span class="keyword">False</span>,
+        )</pre>
+            </div>
+        </div>
+
+        <!-- Slide 10: DTOs -->
+        <div class="slide">
+            <h1>📦 DTOs - Data Transfer Objects</h1>
+            <p>ساختارهای داده برای انتقال بین لایه‌ها</p>
+            
+            <div class="two-columns">
+                <div>
+                    <h3>Request DTOs</h3>
+                    <div class="code-block">
+<pre><span class="comment"># application/dtos/auth_dtos.py</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">LoginRequest</span>:
+    username: <span class="class">str</span>
+    password: <span class="class">str</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">VerifyOTPRequest</span>:
+    user_id: <span class="class">str</span>
+    otp_code: <span class="class">str</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">CreateUserRequest</span>:
+    username: <span class="class">str</span>
+    password: <span class="class">str</span>
+    email: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    phone: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    first_name: <span class="class">str</span> = <span class="string">''</span>
+    last_name: <span class="class">str</span> = <span class="string">''</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">ListUsersRequest</span>:
+    page: <span class="class">int</span> = <span class="number">1</span>
+    page_size: <span class="class">int</span> = <span class="number">20</span>
+    search: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+    is_active: <span class="class">Optional</span>[<span class="class">bool</span>] = <span class="keyword">None</span>
+    ordering: <span class="class">str</span> = <span class="string">'-created_at'</span></pre>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>Response DTOs</h3>
+                    <div class="code-block">
+<pre><span class="comment"># application/dtos/auth_dtos.py</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">LoginResponse</span>:
+    tokens: <span class="class">Optional</span>[<span class="class">TokenPair</span>] = <span class="keyword">None</span>
+    user: <span class="class">Optional</span>[<span class="class">UserEntity</span>] = <span class="keyword">None</span>
+    requires_2fa: <span class="class">bool</span> = <span class="keyword">False</span>
+    otp_sent: <span class="class">bool</span> = <span class="keyword">False</span>
+    user_id: <span class="class">Optional</span>[<span class="class">str</span>] = <span class="keyword">None</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">TokenPair</span>:
+    access: <span class="class">str</span>
+    refresh: <span class="class">str</span>
+    access_expires_at: <span class="class">datetime</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">UserListResponse</span>:
+    users: <span class="class">List</span>[<span class="class">UserEntity</span>]
+    total: <span class="class">int</span>
+    page: <span class="class">int</span>
+    page_size: <span class="class">int</span>
+    total_pages: <span class="class">int</span>
+
+<span class="decorator">@dataclass</span>
+<span class="keyword">class</span> <span class="class">BulkOperationResult</span>:
+    total: <span class="class">int</span>
+    successful: <span class="class">int</span>
+    failed: <span class="class">int</span>
+    errors: <span class="class">Dict</span>[<span class="class">str</span>, <span class="class">str</span>]</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Repository Implementation -->
+        <div class="slide">
+            <h1>🗄️ Repository Implementation</h1>
+            <p>پیاده‌سازی Repository با Django ORM</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># infrastructure/django/repositories/user_repository.py</span>
+
+<span class="keyword">class</span> <span class="class">DjangoUserRepository</span>(<span class="class">UserRepositoryPort</span>):
+    <span class="string">"""
+    Django implementation of UserRepositoryPort
+    تبدیل بین Django Model و Domain Entity
+    """</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">self</span>._model = get_user_model()
+    
+    <span class="keyword">def</span> <span class="function">create</span>(<span class="keyword">self</span>, username: <span class="class">str</span>, password: <span class="class">str</span>, **kwargs) -> <span class="class">UserEntity</span>:
+        user = <span class="keyword">self</span>._model.objects.create_user(
+            username=username,
+            password=password,
+            **kwargs
+        )
+        <span class="keyword">return</span> <span class="keyword">self</span>._to_entity(user)
+    
+    <span class="keyword">def</span> <span class="function">get_by_id</span>(<span class="keyword">self</span>, user_id: <span class="class">str</span>) -> <span class="class">Optional</span>[<span class="class">UserEntity</span>]:
+        <span class="keyword">try</span>:
+            user = <span class="keyword">self</span>._model.objects.get(id=user_id)
+            <span class="keyword">return</span> <span class="keyword">self</span>._to_entity(user)
+        <span class="keyword">except</span> <span class="keyword">self</span>._model.DoesNotExist:
+            <span class="keyword">return</span> <span class="keyword">None</span>
+    
+    <span class="keyword">def</span> <span class="function">verify_password</span>(<span class="keyword">self</span>, user_id: <span class="class">str</span>, password: <span class="class">str</span>) -> <span class="class">bool</span>:
+        <span class="keyword">try</span>:
+            user = <span class="keyword">self</span>._model.objects.get(id=user_id)
+            <span class="keyword">return</span> user.check_password(password)
+        <span class="keyword">except</span> <span class="keyword">self</span>._model.DoesNotExist:
+            <span class="keyword">return</span> <span class="keyword">False</span>
+    
+    <span class="keyword">def</span> <span class="function">_to_entity</span>(<span class="keyword">self</span>, model) -> <span class="class">UserEntity</span>:
+        <span class="string">"""Convert Django model to domain entity"""</span>
+        <span class="keyword">return</span> <span class="class">UserEntity</span>(
+            id=<span class="class">str</span>(model.id),
+            username=model.username,
+            email=model.email,
+            phone=<span class="function">getattr</span>(model, <span class="string">'phone'</span>, <span class="keyword">None</span>),
+            first_name=model.first_name,
+            last_name=model.last_name,
+            is_active=model.is_active,
+            is_staff=model.is_staff,
+            created_at=model.date_joined,
+        )</pre>
+            </div>
+        </div>
+
+        <!-- Slide 12: API Views -->
+        <div class="slide">
+            <h1>🌐 API Layer - Views</h1>
+            <p>REST API با Django REST Framework</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># api/v1/auth/views.py</span>
+
+<span class="keyword">class</span> <span class="class">LoginView</span>(<span class="class">APIView</span>):
+    <span class="string">"""
+    POST /api/v1/auth/login/
+    User login with optional 2FA
+    """</span>
+    permission_classes = [<span class="class">AllowAny</span>]
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, **kwargs):
+        <span class="keyword">super</span>().__init__(**kwargs)
+        <span class="keyword">self</span>._auth_manager = container.auth_manager()
+    
+    <span class="keyword">def</span> <span class="function">post</span>(<span class="keyword">self</span>, request):
+        <span class="comment"># 1. Validate input</span>
+        serializer = <span class="class">LoginSerializer</span>(data=request.data)
+        serializer.is_valid(raise_exception=<span class="keyword">True</span>)
+        
+        <span class="keyword">try</span>:
+            <span class="comment"># 2. Create request DTO</span>
+            login_request = <span class="class">LoginRequest</span>(
+                username=serializer.validated_data[<span class="string">'username'</span>],
+                password=serializer.validated_data[<span class="string">'password'</span>],
+            )
+            
+            <span class="comment"># 3. Execute use case via manager</span>
+            result = <span class="keyword">self</span>._auth_manager.login(login_request)
+            
+            <span class="comment"># 4. Serialize and return response</span>
+            response_serializer = <span class="class">LoginResponseSerializer</span>(result)
+            <span class="keyword">return</span> <span class="class">Response</span>(response_serializer.data, status=status.HTTP_200_OK)
+            
+        <span class="keyword">except</span> <span class="class">InvalidCredentialsError</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> <span class="class">Response</span>(
+                {<span class="string">'error'</span>: <span class="class">str</span>(e), <span class="string">'code'</span>: <span class="string">'invalid_credentials'</span>},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        <span class="keyword">except</span> <span class="class">UserInactiveError</span> <span class="keyword">as</span> e:
+            <span class="keyword">return</span> <span class="class">Response</span>(
+                {<span class="string">'error'</span>: <span class="class">str</span>(e), <span class="string">'code'</span>: <span class="string">'user_inactive'</span>},
+                status=status.HTTP_403_FORBIDDEN
+            )</pre>
+            </div>
+        </div>
+
+        <!-- Slide 13: API Endpoints - Auth -->
+        <div class="slide">
+            <h1>🔗 API Endpoints - Authentication</h1>
+            
+            <div class="endpoint-list">
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/register/</span>
+                    <span class="desc">ثبت‌نام کاربر جدید</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/login/</span>
+                    <span class="desc">ورود کاربر</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/verify-otp/</span>
+                    <span class="desc">تایید کد OTP</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/refresh/</span>
+                    <span class="desc">تمدید توکن</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/logout/</span>
+                    <span class="desc">خروج و باطل کردن توکن</span>
+                </div>
+              <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/password/forgot/</span>
+                    <span class="desc">درخواست بازیابی رمز</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/password/verify-otp/</span>
+                    <span class="desc">تایید OTP بازیابی</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/password/reset/</span>
+                    <span class="desc">تنظیم رمز جدید</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/auth/password/change/</span>
+                    <span class="desc">تغییر رمز عبور</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: API Endpoints - Users -->
+        <div class="slide">
+            <h1>🔗 API Endpoints - Users</h1>
+            
+            <div class="endpoint-list">
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/users/</span>
+                    <span class="desc">لیست کاربران با صفحه‌بندی</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/users/</span>
+                    <span class="desc">ایجاد کاربر جدید</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/users/{id}/</span>
+                    <span class="desc">جزئیات کاربر</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="path">/api/v1/users/{id}/</span>
+                    <span class="desc">بروزرسانی کامل</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/api/v1/users/{id}/</span>
+                    <span class="desc">بروزرسانی جزئی</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="path">/api/v1/users/{id}/</span>
+                    <span class="desc">حذف کاربر</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="path">/api/v1/users/me/</span>
+                    <span class="desc">پروفایل کاربر جاری</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method patch">PATCH</span>
+                    <span class="path">/api/v1/users/me/</span>
+                    <span class="desc">ویرایش پروفایل</span>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="path">/api/v1/users/bulk/</span>
+                    <span class="desc">عملیات دسته‌جمعی</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: API Endpoints - Groups -->
+        <div class="slide">
+            <h1>🔗 API Endpoints - Groups</h1>
+            
+            <div class="two-columns">
+                <div class="endpoint-list">
+                    <h3 style="color: var(--secondary); margin-bottom: 15px;">CRUD گروه‌ها</h3>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/v1/groups/</span>
+                        <span class="desc">لیست</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="path">/api/v1/groups/</span>
+                        <span class="desc">ایجاد</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/api/v1/groups/{id}/</span>
+                        <span class="desc">جزئیات</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method put">PUT</span>
+                        <span class="path">/api/v1/groups/{id}/</span>
+                        <span class="desc">ویرایش</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method delete">DELETE</span>
+                        <span class="path">/api/v1/groups/{id}/</span>
+                        <span class="desc">حذف</span>
+                    </div>
+                </div>
+                
+                <div class="endpoint-list">
+                    <h3 style="color: var(--secondary); margin-bottom: 15px;">اعضا و دسترسی‌ها</h3>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/groups/{id}/members/</span>
+                        <span class="desc">اعضا</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method post">POST</span>
+                        <span class="path">/groups/{id}/members/</span>
+                        <span class="desc">افزودن</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/groups/{id}/permissions/</span>
+                        <span class="desc">دسترسی‌ها</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/groups/{id}/children/</span>
+                        <span class="desc">زیرگروه‌ها</span>
+                    </div>
+                    <div class="endpoint">
+                        <span class="method get">GET</span>
+                        <span class="path">/groups/me/</span>
+                        <span class="desc">گروه‌های من</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Authentication Flow -->
+        <div class="slide">
+            <h1>🔄 فرایند احراز هویت - Login Flow</h1>
+            
+            <div class="code-block">
+<pre><span class="comment">┌──────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│                         Login Flow with 2FA                                  │</span>
+<span class="comment">└──────────────────────────────────────────────────────────────────────────────┘</span>
+
+  <span class="class">Client</span>                <span class="class">API</span>                 <span class="class">UseCase</span>              <span class="class">Repository</span>           <span class="class">SMS</span>
+    │                    │                     │                      │                   │
+    │  POST /login       │                     │                      │                   │
+    │  {user, pass}      │                     │                      │                   │
+    │───────────────────>│                     │                      │                   │
+    │                    │                     │                      │                   │
+    │                    │  LoginRequest       │                      │                   │
+    │                    │────────────────────>│                      │                   │
+    │                    │                     │                      │                   │
+    │                    │                     │  get_by_username()   │                   │
+    │                    │                     │─────────────────────>│                   │
+    │                    │                     │                      │                   │
+    │                    │                     │  <span class="class">UserEntity</span>          │                   │
+    │                    │                     │<─────────────────────│                   │
+    │                    │                     │                      │                   │
+    │                    │                     │  verify_password()   │                   │
+    │                    │                     │─────────────────────>│                   │
+    │                    │                     │                      │                   │
+    │                    │                     │  <span class="keyword">True</span>                │                   │
+    │                    │                     │<─────────────────────│                   │
+    │                    │                     │                      │                   │
+    │                    │                     │  <span class="comment">// Check 2FA</span>        │                   │
+    │                    │                     │  generate_otp()      │                   │
+    │                    │                     │──────────────────────────────────────────>│
+    │                    │                     │                      │                   │
+    │  {requires_2fa:    │  <span class="class">LoginResponse</span>     │                      │                   │
+    │   true, otp_sent}  │<────────────────────│                      │                   │
+    │<───────────────────│                     │                      │                   │
+    │                    │                     │                      │                   │
+    │  POST /verify-otp  │                     │                      │                   │
+    │  {user_id, code}   │                     │                      │                   │
+    │───────────────────>│                     │                      │                   │
+    │                    │                     │                      │                   │
+    │                    │  verify_otp()       │                      │                   │
+    │                    │────────────────────>│                      │                   │
+    │                    │                     │                      │                   │
+    │  {access, refresh} │  <span class="class">TokenPair</span>         │                      │                   │
+    │<───────────────────│<────────────────────│                      │                   │
+    │                    │                     │                      │                   │</pre>
+            </div>
+        </div>
+
+        <!-- Slide 17: Password Recovery Flow -->
+        <div class="slide">
+            <h1>🔄 فرایند بازیابی رمز عبور</h1>
+            
+            <div class="flow-diagram">
+                <div class="flow-step" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+                    <div class="step-number">۱</div>
+                    <div class="step-title">فراموشی رمز</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <div class="step-number">۲</div>
+                    <div class="step-title">ارسال OTP</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <div class="step-number">۳</div>
+                    <div class="step-title">تایید OTP</div>
+                </div>
+                <div class="flow-arrow">←</div>
+                <div class="flow-step" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                    <div class="step-number">۴</div>
+                    <div class="step-title">رمز جدید</div>
+                </div>
+            </div>
+
+            <div class="code-block">
+<pre><span class="comment"># Step 1: Request password reset (No token needed)</span>
+POST /api/v1/auth/password/forgot/
+{
+    <span class="string">"username"</span>: <span class="string">"ali"</span>
+}
+<span class="comment"># Response: {"message": "OTP sent", "otp_sent": true}</span>
+
+<span class="comment"># Step 2: Verify OTP</span>
+POST /api/v1/auth/password/verify-otp/
+{
+    <span class="string">"username"</span>: <span class="string">"ali"</span>,
+    <span class="string">"otp_code"</span>: <span class="string">"123456"</span>
+}
+<span class="comment"># Response: {"reset_token": "eyJ...", "valid": true}</span>
+
+<span class="comment"># Step 3: Set new password</span>
+POST /api/v1/auth/password/reset/
+{
+    <span class="string">"reset_token"</span>: <span class="string">"eyJ..."</span>,
+    <span class="string">"new_password"</span>: <span class="string">"NewSecurePass123!"</span>,
+    <span class="string">"confirm_password"</span>: <span class="string">"NewSecurePass123!"</span>
+}
+<span class="comment"># Response: {"message": "Password reset successful"}</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 18: Group Hierarchy -->
+        <div class="slide">
+            <h1>👥 سلسله‌مراتب گروه‌ها</h1>
+            <p>ساختار درختی با ارث‌بری دسترسی</p>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># ساختار سلسله‌مراتبی گروه‌ها</span>
+
+<span class="folder">🏢 Organization</span> (depth: 0)
+│
+├── <span class="folder">👑 Admins</span> (depth: 1)
+│   │   <span class="comment">permissions: [manage_users, manage_groups, view_reports]</span>
+│   │
+│   ├── <span class="file">⭐ Super Admins</span> (depth: 2)
+│   │       <span class="comment">inherits: [manage_users, manage_groups, view_reports]</span>
+│   │       <span class="comment">direct: [delete_users, system_settings]</span>
+│   │
+│   └── <span class="file">🔧 Tech Admins</span> (depth: 2)
+│           <span class="comment">inherits: [manage_users, manage_groups, view_reports]</span>
+│           <span class="comment">direct: [server_access, deploy]</span>
+│
+├── <span class="folder">👨‍💼 Staff</span> (depth: 1)
+│   │   <span class="comment">permissions: [view_dashboard, create_content]</span>
+│   │
+│   ├── <span class="file">💻 Developers</span> (depth: 2)
+│   │       <span class="comment">inherits: [view_dashboard, create_content]</span>
+│   │       <span class="comment">direct: [code_review, git_access]</span>
+│   │
+│   └── <span class="file">🎨 Designers</span> (depth: 2)
+│           <span class="comment">inherits: [view_dashboard, create_content]</span>
+│           <span class="comment">direct: [design_tools, assets_upload]</span>
+│
+└── <span class="folder">👤 Users</span> (depth: 1)
+        <span class="comment">permissions: [view_profile, basic_access]</span></pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># کد محاسبه دسترسی‌های موثر</span>
+
+<span class="keyword">def</span> <span class="function">get_effective_permissions</span>(
+    group_id: <span class="class">str</span>
+) -> <span class="class">List</span>[<span class="class">GroupPermissionEntity</span>]:
+    <span class="string">"""
+    Get all permissions including inherited
+    """</span>
+    permissions = []
+    seen = <span class="class">set</span>()
+    
+    <span class="comment"># 1. Get direct permissions</span>
+    direct = <span class="keyword">self</span>.get_direct_permissions(group_id)
+    <span class="keyword">for</span> perm <span class="keyword">in</span> direct:
+        permissions.append(<span class="class">GroupPermissionEntity</span>(
+            permission=perm,
+            inherited=<span class="keyword">False</span>,
+            inherited_from=<span class="keyword">None</span>,
+        ))
+        seen.add(perm.codename)
+    
+    <span class="comment"># 2. Get inherited from ancestors</span>
+    ancestors = <span class="keyword">self</span>.get_ancestors(group_id)
+    <span class="keyword">for</span> ancestor <span class="keyword">in</span> ancestors:
+        <span class="keyword">for</span> perm <span class="keyword">in</span> ancestor.permissions:
+            <span class="keyword">if</span> perm.codename <span class="keyword">not in</span> seen:
+                permissions.append(<span class="class">GroupPermissionEntity</span>(
+                    permission=perm,
+                    inherited=<span class="keyword">True</span>,
+                    inherited_from=ancestor.name,
+                ))
+                seen.add(perm.codename)
+    
+    <span class="keyword">return</span> permissions</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Settings Configuration -->
+        <div class="slide">
+            <h1>⚙️ تنظیمات متمرکز</h1>
+            <p>همه تنظیمات در settings.py قابل تغییر</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># settings.py - Django Project Settings</span>
+
+VOXEL_AUTH = {
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># Authentication Settings</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="string">'AUTH'</span>: {
+        <span class="string">'TOKEN_LIFETIME_MINUTES'</span>: <span class="number">15</span>,           <span class="comment"># Access token expiry</span>
+        <span class="string">'REFRESH_TOKEN_LIFETIME_DAYS'</span>: <span class="number">7</span>,       <span class="comment"># Refresh token expiry</span>
+        <span class="string">'MAX_LOGIN_ATTEMPTS'</span>: <span class="number">5</span>,                <span class="comment"># Before lockout</span>
+        <span class="string">'LOCKOUT_DURATION_MINUTES'</span>: <span class="number">30</span>,         <span class="comment"># Lockout period</span>
+        <span class="string">'REQUIRE_2FA'</span>: <span class="keyword">True</span>,                    <span class="comment"># Force 2FA if phone exists</span>
+    },
+    
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># OTP Settings</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="string">'OTP'</span>: {
+        <span class="string">'ENABLED'</span>: <span class="keyword">True</span>,
+        <span class="string">'LENGTH'</span>: <span class="number">6</span>,                            <span class="comment"># OTP code length</span>
+        <span class="string">'EXPIRY_SECONDS'</span>: <span class="number">120</span>,                   <span class="comment"># 2 minutes</span>
+        <span class="string">'MAX_ATTEMPTS'</span>: <span class="number">3</span>,                       <span class="comment"># Max verify attempts</span>
+        <span class="string">'RESEND_DELAY_SECONDS'</span>: <span class="number">60</span>,              <span class="comment"># Wait before resend</span>
+        <span class="string">'PROVIDER'</span>: <span class="string">'sms'</span>,                      <span class="comment"># 'sms' or 'email'</span>
+    },
+    
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># User Settings</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="string">'USER'</span>: {
+        <span class="string">'MODEL'</span>: <span class="string">'auth.User'</span>,                   <span class="comment"># Or custom user model</span>
+        <span class="string">'REGISTRATION_FIELDS'</span>: [<span class="string">'username'</span>, <span class="string">'email'</span>, <span class="string">'phone'</span>, <span class="string">'password'</span>],
+        <span class="string">'REQUIRED_FIELDS'</span>: [<span class="string">'username'</span>, <span class="string">'password'</span>],
+        <span class="string">'EDITABLE_FIELDS'</span>: [<span class="string">'first_name'</span>, <span class="string">'last_name'</span>, <span class="string">'email'</span>],
+        <span class="string">'PASSWORD_MIN_LENGTH'</span>: <span class="number">8</span>,
+        <span class="string">'PASSWORD_REQUIRE_UPPERCASE'</span>: <span class="keyword">True</span>,
+        <span class="string">'PASSWORD_REQUIRE_DIGIT'</span>: <span class="keyword">True</span>,
+    },
+    
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># Group Settings</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="string">'GROUP'</span>: {
+        <span class="string">'ENABLED'</span>: <span class="keyword">True</span>,
+        <span class="string">'MAX_HIERARCHY_DEPTH'</span>: <span class="number">5</span>,
+        <span class="string">'DEFAULT_GROUPS'</span>: [<span class="string">'users'</span>],             <span class="comment"># Auto-assign on register</span>
+        <span class="string">'SYSTEM_GROUPS'</span>: [<span class="string">'admins'</span>, <span class="string">'users'</span>],   <span class="comment"># Cannot be deleted</span>
+        <span class="string">'INHERIT_PERMISSIONS'</span>: <span class="keyword">True</span>,
+    },
+    
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="comment"># Pagination</span>
+    <span class="comment"># ═══════════════════════════════════════════════════════════</span>
+    <span class="string">'PAGINATION'</span>: {
+        <span class="string">'DEFAULT_PAGE_SIZE'</span>: <span class="number">20</span>,
+        <span class="string">'MAX_PAGE_SIZE'</span>: <span class="number">100</span>,
+    },
+}</pre>
+            </div>
+        </div>
+
+        <!-- Slide 20: Security Layers -->
+        <div class="slide">
+            <h1>🛡️ لایه‌های امنیتی</h1>
+            
+            <div class="security-stack">
+                <div class="security-layer">
+                    <div class="layer-num">1</div>
+                    <div>
+                        <strong>Transport Security</strong>
+                        <p style="color: var(--gray); font-size: 0.9rem;">HTTPS اجباری، TLS 1.3، HSTS Headers</p>
+                    </div>
+                </div>
+                <div class="security-layer">
+                    <div class="layer-num">2</div>
+                    <div>
+                        <strong>Rate Limiting</strong>
+                        <p style="color: var(--gray); font-size: 0.9rem;">محدودیت درخواست برای جلوگیری از Brute Force</p>
+                    </div>
+                </div>
+                <div class="security-layer">
+                    <div class="layer-num">3</div>
+                    <div>
+                        <strong>Authentication</strong>
+                        <p style="color: var(--gray); font-size: 0.9rem;">JWT Token، Refresh Token، 2FA/OTP، Token Blacklist</p>
+                    </div>
+                </div>
+                <div class="security-layer">
+                    <div class="layer-num">4</div>
+                    <div>
+                        <strong>Authorization</strong>
+                        <p style="color: var(--gray); font-size: 0.9rem;">Permission Check، Role-Based Access Control، Group Permissions</p>
+                    </div>
+                </div>
+                <div class="security-layer">
+                    <div class="layer-num">5</div>
+                    <div>
+                        <strong>Input Validation</strong>
+                        <p style="color: var(--gray); font-size: 0.9rem;">Serializer Validation، SQL Injection Prevention، XSS Protection</p>
+                    </div>
+                </div>
+                <div class="security-layer">
+                    <div class="layer-num">6</div>
+                    <div>
+                        <strong>Audit & Logging</strong>
+                        <p style="color: var(--gray); font-size: 0.9rem;">Activity Logging، IP Tracking، Failed Attempts Monitoring</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Password Security -->
+        <div class="slide">
+            <h1>🔐 امنیت رمز عبور</h1>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># Password Validation</span>
+
+<span class="keyword">class</span> <span class="class">PasswordValidator</span>:
+    <span class="string">"""Validate password strength"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, config: <span class="class">PasswordConfig</span>):
+        <span class="keyword">self</span>.config = config
+    
+    <span class="keyword">def</span> <span class="function">validate</span>(<span class="keyword">self</span>, password: <span class="class">str</span>) -> <span class="class">List</span>[<span class="class">str</span>]:
+        errors = []
+        
+        <span class="keyword">if</span> <span class="class">len</span>(password) < <span class="keyword">self</span>.config.min_length:
+            errors.append(
+                f<span class="string">"حداقل {self.config.min_length} کاراکتر"</span>
+            )
+        
+        <span class="keyword">if</span> <span class="keyword">self</span>.config.require_uppercase:
+            <span class="keyword">if not</span> re.search(r<span class="string">'[A-Z]'</span>, password):
+                errors.append(<span class="string">"حداقل یک حرف بزرگ"</span>)
+        
+        <span class="keyword">if</span> <span class="keyword">self</span>.config.require_lowercase:
+            <span class="keyword">if not</span> re.search(r<span class="string">'[a-z]'</span>, password):
+                errors.append(<span class="string">"حداقل یک حرف کوچک"</span>)
+        
+        <span class="keyword">if</span> <span class="keyword">self</span>.config.require_digit:
+            <span class="keyword">if not</span> re.search(r<span class="string">'[0-9]'</span>, password):
+                errors.append(<span class="string">"حداقل یک عدد"</span>)
+        
+        <span class="keyword">if</span> <span class="keyword">self</span>.config.require_special:
+            <span class="keyword">if not</span> re.search(r<span class="string">'[!@#$%^&*]'</span>, password):
+                errors.append(<span class="string">"حداقل یک کاراکتر خاص"</span>)
+        
+        <span class="keyword">return</span> errors</pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># Password Hashing (Django Default)</span>
+
+<span class="comment"># Django uses PBKDF2 by default</span>
+<span class="comment"># Can be configured in settings:</span>
+
+PASSWORD_HASHERS = [
+    <span class="comment"># Argon2 (recommended)</span>
+    <span class="string">'django.contrib.auth.hashers.Argon2PasswordHasher'</span>,
+    
+    <span class="comment"># PBKDF2 (default)</span>
+    <span class="string">'django.contrib.auth.hashers.PBKDF2PasswordHasher'</span>,
+    
+    <span class="comment"># BCrypt</span>
+    <span class="string">'django.contrib.auth.hashers.BCryptSHA256PasswordHasher'</span>,
+]
+
+<span class="comment"># Password storage format:</span>
+<span class="comment"># algorithm$iterations$salt$hash</span>
+<span class="comment"># Example:</span>
+<span class="comment"># pbkdf2_sha256$390000$salt123$hash456...</span>
+
+<span class="comment"># Features:</span>
+<span class="comment"># ✓ Automatic salting</span>
+<span class="comment"># ✓ Configurable iterations</span>
+<span class="comment"># ✓ Upgrade on login</span>
+<span class="comment"># ✓ Timing attack resistant</span></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: JWT Token Structure -->
+        <div class="slide">
+            <h1>🎫 ساختار JWT Token</h1>
+            
+            <div class="code-block">
+<pre><span class="comment"># JWT Token Structure</span>
+
+<span class="comment">┌─────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│                              JWT Token                                       │</span>
+<span class="comment">├─────────────────────────────────────────────────────────────────────────────┤</span>
+<span class="comment">│                                                                             │</span>
+<span class="comment">│   Header (Base64)          Payload (Base64)           Signature            │</span>
+<span class="comment">│   ┌─────────────┐         ┌─────────────────┐        ┌─────────────┐       │</span>
+<span class="comment">│   │ {           │         │ {               │        │             │       │</span>
+<span class="comment">│   │   "alg":    │         │   "user_id":    │        │  HMACSHA256 │       │</span>
+<span class="comment">│   │   "HS256",  │    .    │   "abc123",     │   .    │  (header +  │       │</span>
+<span class="comment">│   │   "typ":    │         │   "exp": 1234,  │        │   payload,  │       │</span>
+<span class="comment">│   │   "JWT"     │         │   "iat": 1230   │        │   secret)   │       │</span>
+<span class="comment">│   │ }           │         │ }               │        │             │       │</span>
+<span class="comment">│   └─────────────┘         └─────────────────┘        └─────────────┘       │</span>
+<span class="comment">│                                                                             │</span>
+<span class="comment">└─────────────────────────────────────────────────────────────────────────────┘</span>
+
+<span class="comment"># Access Token Payload</span>
+{
+    <span class="string">"token_type"</span>: <span class="string">"access"</span>,
+    <span class="string">"user_id"</span>: <span class="string">"550e8400-e29b-41d4-a716-446655440000"</span>,
+    <span class="string">"username"</span>: <span class="string">"ali"</span>,
+    <span class="string">"exp"</span>: <span class="number">1703001600</span>,      <span class="comment"># Expiration (15 min)</span>
+    <span class="string">"iat"</span>: <span class="number">1703000700</span>,      <span class="comment"># Issued at</span>
+    <span class="string">"jti"</span>: <span class="string">"unique-token-id"</span> <span class="comment"># For blacklisting</span>
+}
+
+<span class="comment"># Refresh Token Payload</span>
+{
+    <span class="string">"token_type"</span>: <span class="string">"refresh"</span>,
+    <span class="string">"user_id"</span>: <span class="string">"550e8400-e29b-41d4-a716-446655440000"</span>,
+    <span class="string">"exp"</span>: <span class="number">1703606400</span>,      <span class="comment"># Expiration (7 days)</span>
+    <span class="string">"iat"</span>: <span class="number">1703000700</span>,
+    <span class="string">"jti"</span>: <span class="string">"refresh-token-id"</span>
+}</pre>
+            </div>
+        </div>
+
+        <!-- Slide 23: Token Blacklist -->
+        <div class="slide">
+            <h1>🚫 Token Blacklist</h1>
+            <p>باطل کردن توکن‌ها قبل از انقضا</p>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># Token Blacklist Model</span>
+
+<span class="keyword">class</span> <span class="class">BlacklistedToken</span>(models.<span class="class">Model</span>):
+    <span class="string">"""Store invalidated tokens"""</span>
+    
+    jti = models.<span class="class">CharField</span>(
+        max_length=<span class="number">255</span>,
+        unique=<span class="keyword">True</span>,
+        db_index=<span class="keyword">True</span>
+    )
+    token_type = models.<span class="class">CharField</span>(
+        max_length=<span class="number">10</span>
+    )  <span class="comment"># 'access' or 'refresh'</span>
+    
+    user_id = models.<span class="class">CharField</span>(
+        max_length=<span class="number">255</span>
+    )
+    
+    blacklisted_at = models.<span class="class">DateTimeField</span>(
+        auto_now_add=<span class="keyword">True</span>
+    )
+    
+    expires_at = models.<span class="class">DateTimeField</span>()
+    
+    <span class="keyword">class</span> <span class="class">Meta</span>:
+        db_table = <span class="string">'voxel_auth_blacklisted_token'</span></pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># Blacklist Service</span>
+
+<span class="keyword">class</span> <span class="class">TokenBlacklistService</span>:
+    
+    <span class="keyword">def</span> <span class="function">blacklist</span>(<span class="keyword">self</span>, token: <span class="class">str</span>) -> <span class="class">bool</span>:
+        <span class="string">"""Add token to blacklist"""</span>
+        payload = jwt.decode(token, verify=<span class="keyword">False</span>)
+        
+        <span class="class">BlacklistedToken</span>.objects.create(
+            jti=payload[<span class="string">'jti'</span>],
+            token_type=payload[<span class="string">'token_type'</span>],
+            user_id=payload[<span class="string">'user_id'</span>],
+            expires_at=datetime.fromtimestamp(
+                payload[<span class="string">'exp'</span>]
+            ),
+        )
+        <span class="keyword">return</span> <span class="keyword">True</span>
+    
+    <span class="keyword">def</span> <span class="function">is_blacklisted</span>(<span class="keyword">self</span>, jti: <span class="class">str</span>) -> <span class="class">bool</span>:
+        <span class="string">"""Check if token is blacklisted"""</span>
+        <span class="keyword">return</span> <span class="class">BlacklistedToken</span>.objects.filter(
+            jti=jti
+        ).exists()
+    
+    <span class="keyword">def</span> <span class="function">cleanup_expired</span>(<span class="keyword">self</span>) -> <span class="class">int</span>:
+        <span class="string">"""Remove expired entries"""</span>
+        deleted, _ = <span class="class">BlacklistedToken</span>.objects.filter(
+            expires_at__lt=timezone.now()
+        ).delete()
+        <span class="keyword">return</span> deleted</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 24: OTP Service -->
+        <div class="slide">
+            <h1>📱 OTP Service</h1>
+            <p>سرویس تولید و ارسال کد یکبار مصرف</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># infrastructure/adapters/otp_service.py</span>
+
+<span class="keyword">class</span> <span class="class">SMSOTPService</span>(<span class="class">OTPServicePort</span>):
+    <span class="string">"""SMS-based OTP implementation"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, config: <span class="class">OTPConfig</span>):
+        <span class="keyword">self</span>.config = config
+        <span class="keyword">self</span>.cache = caches[<span class="string">'default'</span>]
+    
+    <span class="keyword">def</span> <span class="function">generate</span>(<span class="keyword">self</span>, phone: <span class="class">str</span>) -> <span class="class">str</span>:
+        <span class="string">"""Generate OTP and send via SMS"""</span>
+        
+        <span class="comment"># 1. Check rate limit</span>
+        rate_key = f<span class="string">"otp_rate:{phone}"</span>
+        <span class="keyword">if</span> <span class="keyword">self</span>.cache.get(rate_key):
+            <span class="keyword">raise</span> <span class="class">OTPRateLimitError</span>(
+                f<span class="string">"Please wait {self.config.resend_delay} seconds"</span>
+            )
+        
+        <span class="comment"># 2. Generate random code</span>
+        code = <span class="string">''</span>.join(
+            random.choices(string.digits, k=<span class="keyword">self</span>.config.length)
+        )
+        
+        <span class="comment"># 3. Store in cache</span>
+        cache_key = f<span class="string">"otp:{phone}"</span>
+        <span class="keyword">self</span>.cache.<span class="function">set</span>(
+            cache_key,
+            {<span class="string">'code'</span>: code, <span class="string">'attempts'</span>: <span class="number">0</span>},
+            timeout=<span class="keyword">self</span>.config.expiry_seconds
+        )
+        
+        <span class="comment"># 4. Set rate limit</span>
+        <span class="keyword">self</span>.cache.<span class="function">set</span>(
+            rate_key, <span class="keyword">True</span>,
+            timeout=<span class="keyword">self</span>.config.resend_delay
+        )
+        
+        <span class="comment"># 5. Send SMS</span>
+        <span class="keyword">self</span>._send_sms(phone, f<span class="string">"کد تایید شما: {code}"</span>)
+        
+        <span class="keyword">return</span> <span class="string">"OTP sent successfully"</span>
+    
+    <span class="keyword">def</span> <span class="function">verify</span>(<span class="keyword">self</span>, phone: <span class="class">str</span>, code: <span class="class">str</span>) -> <span class="class">bool</span>:
+        <span class="string">"""Verify OTP code"""</span>
+        
+        cache_key = f<span class="string">"otp:{phone}"</span>
+        data = <span class="keyword">self</span>.cache.get(cache_key)
+        
+        <span class="keyword">if not</span> data:
+            <span class="keyword">raise</span> <span class="class">OTPExpiredError</span>(<span class="string">"OTP expired or not found"</span>)
+        
+        <span class="comment"># Check attempts</span>
+        <span class="keyword">if</span> data[<span class="string">'attempts'</span>] >= <span class="keyword">self</span>.config.max_attempts:
+            <span class="keyword">self</span>.cache.delete(cache_key)
+            <span class="keyword">raise</span> <span class="class">OTPMaxAttemptsError</span>(<span class="string">"Max attempts exceeded"</span>)
+        
+        <span class="comment"># Verify code</span>
+        <span class="keyword">if</span> data[<span class="string">'code'</span>] == code:
+            <span class="keyword">self</span>.cache.delete(cache_key)
+            <span class="keyword">return</span> <span class="keyword">True</span>
+        
+        <span class="comment"># Increment attempts</span>
+        data[<span class="string">'attempts'</span>] += <span class="number">1</span>
+        <span class="keyword">self</span>.cache.<span class="function">set</span>(cache_key, data, timeout=<span class="keyword">self</span>.config.expiry_seconds)
+        
+        <span class="keyword">return</span> <span class="keyword">False</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 25: Custom Exceptions -->
+        <div class="slide">
+            <h1>⚠️ Custom Exceptions</h1>
+            <p>خطاهای سفارشی برای مدیریت بهتر</p>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># domain/exceptions.py</span>
+
+<span class="keyword">class</span> <span class="class">VoxelAuthError</span>(<span class="class">Exception</span>):
+    <span class="string">"""Base exception for all auth errors"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, message: <span class="class">str</span>, code: <span class="class">str</span> = <span class="keyword">None</span>):
+        <span class="keyword">self</span>.message = message
+        <span class="keyword">self</span>.code = code <span class="keyword">or</span> <span class="string">'error'</span>
+        <span class="keyword">super</span>().__init__(message)
+
+
+<span class="comment"># Authentication Errors</span>
+<span class="keyword">class</span> <span class="class">InvalidCredentialsError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="string">"""Invalid username or password"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, message=<span class="string">"Invalid credentials"</span>):
+        <span class="keyword">super</span>().__init__(message, <span class="string">'invalid_credentials'</span>)
+
+
+<span class="keyword">class</span> <span class="class">UserInactiveError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="string">"""User account is disabled"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, message=<span class="string">"Account disabled"</span>):
+        <span class="keyword">super</span>().__init__(message, <span class="string">'user_inactive'</span>)
+
+
+<span class="keyword">class</span> <span class="class">AccountLockedError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="string">"""Account locked due to failed attempts"""</span>
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, minutes: <span class="class">int</span>):
+        <span class="keyword">super</span>().__init__(
+            f<span class="string">"Account locked for {minutes} minutes"</span>,
+            <span class="string">'account_locked'</span>
+        )
+        <span class="keyword">self</span>.minutes = minutes</pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># OTP Errors</span>
+<span class="keyword">class</span> <span class="class">OTPExpiredError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">super</span>().__init__(<span class="string">"OTP expired"</span>, <span class="string">'otp_expired'</span>)
+
+
+<span class="keyword">class</span> <span class="class">OTPInvalidError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">super</span>().__init__(<span class="string">"Invalid OTP"</span>, <span class="string">'otp_invalid'</span>)
+
+
+<span class="keyword">class</span> <span class="class">OTPRateLimitError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, wait_seconds: <span class="class">int</span>):
+        <span class="keyword">super</span>().__init__(
+            f<span class="string">"Wait {wait_seconds}s"</span>,
+            <span class="string">'otp_rate_limit'</span>
+        )
+
+
+<span class="comment"># Group Errors</span>
+<span class="keyword">class</span> <span class="class">GroupNotFoundError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, group_id: <span class="class">str</span>):
+        <span class="keyword">super</span>().__init__(
+            f<span class="string">"Group not found: {group_id}"</span>,
+            <span class="string">'group_not_found'</span>
+        )
+
+
+<span class="keyword">class</span> <span class="class">GroupSystemProtectedError</span>(<span class="class">VoxelAuthError</span>):
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, name: <span class="class">str</span>):
+        <span class="keyword">super</span>().__init__(
+            f<span class="string">"Cannot modify system group: {name}"</span>,
+            <span class="string">'group_protected'</span>
+        )</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 26: Testing -->
+        <div class="slide">
+            <h1>🧪 تست‌پذیری</h1>
+            <p>معماری تمیز = تست آسان</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># tests/test_login_use_case.py</span>
+
+<span class="keyword">class</span> <span class="class">TestLoginUseCase</span>:
+    <span class="string">"""Unit tests for LoginUseCase"""</span>
+    
+    <span class="keyword">def</span> <span class="function">setup_method</span>(<span class="keyword">self</span>):
+        <span class="comment"># Create mock repositories</span>
+        <span class="keyword">self</span>.user_repo = <span class="class">Mock</span>(spec=<span class="class">UserRepositoryPort</span>)
+        <span class="keyword">self</span>.token_service = <span class="class">Mock</span>(spec=<span class="class">TokenServicePort</span>)
+        <span class="keyword">self</span>.otp_service = <span class="class">Mock</span>(spec=<span class="class">OTPServicePort</span>)
+        <span class="keyword">self</span>.config = <span class="class">AuthConfig</span>(require_2fa=<span class="keyword">False</span>)
+        
+        <span class="comment"># Create use case with mocks</span>
+        <span class="keyword">self</span>.use_case = <span class="class">LoginUseCase</span>(
+            user_repo=<span class="keyword">self</span>.user_repo,
+            token_service=<span class="keyword">self</span>.token_service,
+            otp_service=<span class="keyword">self</span>.otp_service,
+            config=<span class="keyword">self</span>.config,
+        )
+    
+    <span class="keyword">def</span> <span class="function">test_successful_login</span>(<span class="keyword">self</span>):
+        <span class="comment"># Arrange</span>
+        user = <span class="class">UserEntity</span>(id=<span class="string">"1"</span>, username=<span class="string">"ali"</span>, is_active=<span class="keyword">True</span>)
+        <span class="keyword">self</span>.user_repo.get_by_username.return_value = user
+        <span class="keyword">self</span>.user_repo.verify_password.return_value = <span class="keyword">True</span>
+        <span class="keyword">self</span>.token_service.generate_pair.return_value = <span class="class">TokenPair</span>(
+            access=<span class="string">"access_token"</span>,
+            refresh=<span class="string">"refresh_token"</span>
+        )
+        
+        <span class="comment"># Act</span>
+        request = <span class="class">LoginRequest</span>(username=<span class="string">"ali"</span>, password=<span class="string">"pass123"</span>)
+        result = <span class="keyword">self</span>.use_case.execute(request)
+        
+        <span class="comment"># Assert</span>
+        <span class="keyword">assert</span> result.tokens <span class="keyword">is not</span> <span class="keyword">None</span>
+        <span class="keyword">assert</span> result.tokens.access == <span class="string">"access_token"</span>
+        <span class="keyword">assert</span> result.requires_2fa == <span class="keyword">False</span>
+    
+    <span class="keyword">def</span> <span class="function">test_invalid_credentials</span>(<span class="keyword">self</span>):
+        <span class="comment"># Arrange</span>
+        <span class="keyword">self</span>.user_repo.get_by_username.return_value = <span class="keyword">None</span>
+        
+        <span class="comment"># Act & Assert</span>
+        request = <span class="class">LoginRequest</span>(username=<span class="string">"wrong"</span>, password=<span class="string">"wrong"</span>)
+        <span class="keyword">with</span> pytest.raises(<span class="class">InvalidCredentialsError</span>):
+            <span class="keyword">self</span>.use_case.execute(request)
+    
+    <span class="keyword">def</span> <span class="function">test_2fa_required</span>(<span class="keyword">self</span>):
+        <span class="comment"># Arrange</span>
+        <span class="keyword">self</span>.config.require_2fa = <span class="keyword">True</span>
+        user = <span class="class">UserEntity</span>(id=<span class="string">"1"</span>, username=<span class="string">"ali"</span>, phone=<span class="string">"09123456789"</span>, is_active=<span class="keyword">True</span>)
+        <span class="keyword">self</span>.user_repo.get_by_username.return_value = user
+        <span class="keyword">self</span>.user_repo.verify_password.return_value = <span class="keyword">True</span>
+        
+        <span class="comment"># Act</span>
+        request = <span class="class">LoginRequest</span>(username=<span class="string">"ali"</span>, password=<span class="string">"pass123"</span>)
+        result = <span class="keyword">self</span>.use_case.execute(request)
+        
+        <span class="comment"># Assert</span>
+        <span class="keyword">assert</span> result.requires_2fa == <span class="keyword">True</span>
+        <span class="keyword">assert</span> result.otp_sent == <span class="keyword">True</span>
+        <span class="keyword">self</span>.otp_service.generate.assert_called_once_with(<span class="string">"09123456789"</span>)</pre>
+            </div>
+        </div>
+
+        <!-- Slide 27: Integration -->
+        <div class="slide">
+            <h1>🔧 یکپارچه‌سازی با پروژه</h1>
+            <p>نصب و راه‌اندازی ساده</p>
+            
+            <div class="code-block">
+<pre><span class="comment"># Step 1: Install package</span>
+$ pip install voxel-auth
+
+<span class="comment"># Step 2: Add to INSTALLED_APPS (settings.py)</span>
+INSTALLED_APPS = [
+    ...
+    <span class="string">'rest_framework'</span>,
+    <span class="string">'voxel_auth'</span>,
+]
+
+<span class="comment"># Step 3: Configure settings (settings.py)</span>
+VOXEL_AUTH = {
+    <span class="string">'AUTH'</span>: {
+        <span class="string">'TOKEN_LIFETIME_MINUTES'</span>: <span class="number">15</span>,
+        <span class="string">'REQUIRE_2FA'</span>: <span class="keyword">True</span>,
+    },
+    <span class="string">'OTP'</span>: {
+        <span class="string">'PROVIDER'</span>: <span class="string">'sms'</span>,
+        <span class="string">'LENGTH'</span>: <span class="number">6</span>,
+    },
+    <span class="string">'GROUP'</span>: {
+        <span class="string">'DEFAULT_GROUPS'</span>: [<span class="string">'users'</span>],
+    },
+}
+
+<span class="comment"># Step 4: Include URLs (urls.py)</span>
+<span class="keyword">from</span> django.urls <span class="keyword">import</span> path, include
+
+urlpatterns = [
+    ...
+    path(<span class="string">'api/'</span>, include(<span class="string">'voxel_auth.api.urls'</span>)),
+]
+
+<span class="comment"># Step 5: Run migrations</span>
+$ python manage.py migrate voxel_auth
+
+<span class="comment"># Step 6: Create system groups (optional)</span>
+$ python manage.py voxel_auth_setup
+
+<span class="comment"># ✅ Done! API is ready at /api/v1/auth/, /api/v1/users/, /api/v1/groups/</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 28: Extensibility -->
+        <div class="slide">
+            <h1>🔌 قابلیت توسعه</h1>
+            <p>افزودن ویژگی جدید بدون تغییر کدهای موجود</p>
+            
+            <div class="two-columns">
+                <div>
+                    <h3 style="color: var(--secondary);">مثال: افزودن Login با Google</h3>
+                    <div class="code-block">
+<pre><span class="comment"># 1. Define Port (Interface)</span>
+<span class="keyword">class</span> <span class="class">SocialAuthPort</span>(<span class="class">ABC</span>):
+    <span class="decorator">@abstractmethod</span>
+    <span class="keyword">def</span> <span class="function">authenticate</span>(
+        <span class="keyword">self</span>, 
+        provider: <span class="class">str</span>, 
+        token: <span class="class">str</span>
+    ) -> <span class="class">UserEntity</span>:
+        <span class="keyword">pass</span>
+
+<span class="comment"># 2. Create Use Case</span>
+<span class="keyword">class</span> <span class="class">SocialLoginUseCase</span>:
+    <span class="keyword">def</span> <span class="function">__init__</span>(
+        <span class="keyword">self</span>,
+        social_auth: <span class="class">SocialAuthPort</span>,
+        token_service: <span class="class">TokenServicePort</span>,
+    ):
+        <span class="keyword">self</span>.social_auth = social_auth
+        <span class="keyword">self</span>.token_service = token_service
+    
+    <span class="keyword">def</span> <span class="function">execute</span>(<span class="keyword">self</span>, request):
+        user = <span class="keyword">self</span>.social_auth.authenticate(
+            request.provider,
+            request.token
+        )
+        tokens = <span class="keyword">self</span>.token_service.generate_pair(
+            user.id
+        )
+        <span class="keyword">return</span> <span class="class">LoginResponse</span>(tokens=tokens)</pre>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 style="color: var(--secondary);">مثال: سرویس SMS سفارشی</h3>
+                    <div class="code-block">
+<pre><span class="comment"># 1. Implement OTPServicePort</span>
+<span class="keyword">class</span> <span class="class">KavenegarOTPService</span>(<span class="class">OTPServicePort</span>):
+    <span class="string">"""Kavenegar SMS implementation"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>, api_key: <span class="class">str</span>):
+        <span class="keyword">self</span>.api_key = api_key
+        <span class="keyword">self</span>.client = <span class="class">KavenegarAPI</span>(api_key)
+    
+    <span class="keyword">def</span> <span class="function">_send_sms</span>(<span class="keyword">self</span>, phone: <span class="class">str</span>, message: <span class="class">str</span>):
+        <span class="keyword">self</span>.client.sms_send({
+            <span class="string">'receptor'</span>: phone,
+            <span class="string">'message'</span>: message,
+        })
+
+<span class="comment"># 2. Register in Container</span>
+<span class="keyword">class</span> <span class="class">Container</span>:
+<span class="keyword">def</span> <span class="function">otp_service</span>(<span class="keyword">self</span>) -> <span class="class">OTPServicePort</span>:
+        provider = <span class="keyword">self</span>._config.otp.provider
+        <span class="keyword">if</span> provider == <span class="string">'kavenegar'</span>:
+            <span class="keyword">return</span> <span class="class">KavenegarOTPService</span>(
+                api_key=settings.KAVENEGAR_API_KEY
+            )
+        <span class="keyword">elif</span> provider == <span class="string">'sms_ir'</span>:
+            <span class="keyword">return</span> <span class="class">SMSIrOTPService</span>(...)
+        <span class="keyword">return</span> <span class="class">DefaultSMSOTPService</span>()</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🎯 اصل Open/Closed</h3>
+                <p>سیستم برای توسعه باز است (افزودن Provider جدید) اما برای تغییر بسته است (کدهای موجود تغییر نمی‌کنند)</p>
+            </div>
+        </div>
+
+        <!-- Slide 29: Audit Logging -->
+        <div class="slide">
+            <h1>📝 Audit Logging</h1>
+            <p>ثبت تمام فعالیت‌های مهم برای پیگیری و امنیت</p>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># Audit Log Model</span>
+
+<span class="keyword">class</span> <span class="class">AuditLog</span>(models.<span class="class">Model</span>):
+    <span class="string">"""Track all important activities"""</span>
+    
+    <span class="keyword">class</span> <span class="class">Action</span>(models.<span class="class">TextChoices</span>):
+        LOGIN = <span class="string">'login'</span>
+        LOGOUT = <span class="string">'logout'</span>
+        LOGIN_FAILED = <span class="string">'login_failed'</span>
+        PASSWORD_CHANGE = <span class="string">'password_change'</span>
+        PASSWORD_RESET = <span class="string">'password_reset'</span>
+        USER_CREATE = <span class="string">'user_create'</span>
+        USER_UPDATE = <span class="string">'user_update'</span>
+        USER_DELETE = <span class="string">'user_delete'</span>
+        GROUP_CREATE = <span class="string">'group_create'</span>
+        GROUP_UPDATE = <span class="string">'group_update'</span>
+        PERMISSION_CHANGE = <span class="string">'permission_change'</span>
+    
+    id = models.<span class="class">UUIDField</span>(primary_key=<span class="keyword">True</span>)
+    action = models.<span class="class">CharField</span>(max_length=<span class="number">50</span>)
+    
+    <span class="comment"># Who</span>
+    actor_id = models.<span class="class">CharField</span>(max_length=<span class="number">255</span>)
+    actor_username = models.<span class="class">CharField</span>(max_length=<span class="number">150</span>)
+    
+    <span class="comment"># What</span>
+    target_type = models.<span class="class">CharField</span>(max_length=<span class="number">50</span>)
+    target_id = models.<span class="class">CharField</span>(max_length=<span class="number">255</span>)
+    changes = models.<span class="class">JSONField</span>(default=<span class="class">dict</span>)
+    
+    <span class="comment"># Where</span>
+    ip_address = models.<span class="class">GenericIPAddressField</span>()
+    user_agent = models.<span class="class">TextField</span>()
+    
+    <span class="comment"># When</span>
+    created_at = models.<span class="class">DateTimeField</span>(auto_now_add=<span class="keyword">True</span>)</pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># Audit Logger Service</span>
+
+<span class="keyword">class</span> <span class="class">AuditLogger</span>:
+    <span class="string">"""Log audit events"""</span>
+    
+    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+        <span class="keyword">self</span>._context = {}
+    
+    <span class="keyword">def</span> <span class="function">set_context</span>(<span class="keyword">self</span>, request):
+        <span class="string">"""Set request context for logging"""</span>
+        <span class="keyword">self</span>._context = {
+            <span class="string">'ip_address'</span>: <span class="keyword">self</span>._get_client_ip(request),
+            <span class="string">'user_agent'</span>: request.META.get(
+                <span class="string">'HTTP_USER_AGENT'</span>, <span class="string">''</span>
+            ),
+        }
+    
+    <span class="keyword">def</span> <span class="function">log</span>(
+        <span class="keyword">self</span>,
+        action: <span class="class">str</span>,
+        actor: <span class="class">UserEntity</span>,
+        target_type: <span class="class">str</span> = <span class="keyword">None</span>,
+        target_id: <span class="class">str</span> = <span class="keyword">None</span>,
+        changes: <span class="class">dict</span> = <span class="keyword">None</span>,
+    ):
+        <span class="class">AuditLog</span>.objects.create(
+            action=action,
+            actor_id=actor.id,
+            actor_username=actor.username,
+            target_type=target_type,
+            target_id=target_id,
+            changes=changes <span class="keyword">or</span> {},
+            **<span class="keyword">self</span>._context
+        )
+    
+    <span class="keyword">def</span> <span class="function">log_login</span>(<span class="keyword">self</span>, user: <span class="class">UserEntity</span>):
+        <span class="keyword">self</span>.log(<span class="string">'login'</span>, user, <span class="string">'user'</span>, user.id)
+    
+    <span class="keyword">def</span> <span class="function">log_login_failed</span>(<span class="keyword">self</span>, username: <span class="class">str</span>):
+        <span class="keyword">self</span>.log(<span class="string">'login_failed'</span>, <span class="keyword">None</span>, <span class="string">'user'</span>, <span class="keyword">None</span>, 
+               {<span class="string">'username'</span>: username})</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 30: Database Schema -->
+        <div class="slide">
+            <h1>🗃️ Database Schema</h1>
+            <p>ساختار جداول دیتابیس</p>
+            
+            <div class="code-block">
+<pre><span class="comment">┌─────────────────────────────────────────────────────────────────────────────────────┐</span>
+<span class="comment">│                              Database Schema                                         │</span>
+<span class="comment">└─────────────────────────────────────────────────────────────────────────────────────┘</span>
+
+<span class="class">┌──────────────────────┐</span>         <span class="class">┌──────────────────────┐</span>
+<span class="class">│     auth_user        │</span>         <span class="class">│    voxel_auth_group  │</span>
+<span class="class">├──────────────────────┤</span>         <span class="class">├──────────────────────┤</span>
+│ id (UUID) PK         │         │ id (UUID) PK         │
+│ username             │         │ name                 │
+│ email                │         │ display_name         │
+│ phone                │         │ description          │
+│ password             │         │ parent_id FK ────────┼──┐ <span class="comment">(self reference)</span>
+│ first_name           │         │ is_active            │  │
+│ last_name            │         │ is_system            │  │
+│ is_active            │         │ is_deleted           │  │
+│ is_staff             │         │ priority             │  │
+│ date_joined          │         │ created_at           │◀─┘
+<span class="class">└──────────┬───────────┘</span>         <span class="class">└──────────┬───────────┘</span>
+           │                                │
+           │                                │
+           ▼                                ▼
+<span class="class">┌──────────────────────────────────────────────────────────┐</span>
+<span class="class">│              voxel_auth_group_membership                 │</span>
+<span class="class">├──────────────────────────────────────────────────────────┤</span>
+│ id (UUID) PK                                             │
+│ group_id FK ─────────────────────────────────────────────┼──▶ voxel_auth_group
+│ user_id FK ──────────────────────────────────────────────┼──▶ auth_user
+│ is_active                                                │
+│ joined_at                                                │
+│ added_by_id FK                                           │
+<span class="class">└──────────────────────────────────────────────────────────┘</span>
+
+<span class="class">┌──────────────────────────────────────────────────────────┐</span>
+<span class="class">│              voxel_auth_group_permissions                │</span>
+<span class="class">├──────────────────────────────────────────────────────────┤</span>
+│ id (UUID) PK                                             │
+│ group_id FK ─────────────────────────────────────────────┼──▶ voxel_auth_group
+│ permission_id FK ────────────────────────────────────────┼──▶ auth_permission
+<span class="class">└──────────────────────────────────────────────────────────┘</span>
+
+<span class="class">┌──────────────────────┐</span>         <span class="class">┌──────────────────────┐</span>
+<span class="class">│ voxel_auth_audit_log │</span>         <span class="class">│ voxel_auth_blacklist │</span>
+<span class="class">├──────────────────────┤</span>         <span class="class">├──────────────────────┤</span>
+│ id (UUID) PK         │         │ id (UUID) PK         │
+│ action               │         │ jti                  │
+│ actor_id             │         │ token_type           │
+│ actor_username       │         │ user_id              │
+│ target_type          │         │ blacklisted_at       │
+│ target_id            │         │ expires_at           │
+│ changes (JSON)       │         <span class="class">└──────────────────────┘</span>
+│ ip_address           │
+│ user_agent           │
+│ created_at           │
+<span class="class">└──────────────────────┘</span></pre>
+            </div>
+        </div>
+
+        <!-- Slide 31: Performance Optimizations -->
+        <div class="slide">
+            <h1>⚡ بهینه‌سازی عملکرد</h1>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🗄️ Database</h3>
+                    <ul>
+                        <li>Index روی فیلدهای پرکاربرد</li>
+                        <li>select_related برای FK</li>
+                        <li>prefetch_related برای M2M</li>
+                        <li>Bulk operations</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>💾 Caching</h3>
+                    <ul>
+                        <li>Cache برای OTP codes</li>
+                        <li>Cache برای Token blacklist</li>
+                        <li>Cache برای User permissions</li>
+                        <li>Redis recommended</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>🔄 Async Operations</h3>
+                    <ul>
+                        <li>ارسال SMS غیرهمزمان</li>
+                        <li>ارسال Email غیرهمزمان</li>
+                        <li>Audit logging غیرهمزمان</li>
+                        <li>Celery integration</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 Query Optimization</h3>
+                    <ul>
+                        <li>Pagination همیشه فعال</li>
+                        <li>Lazy loading برای relations</li>
+                        <li>Include parameter برای control</li>
+                        <li>Efficient permission check</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block">
+<pre><span class="comment"># Example: Optimized Group Query with Relations</span>
+
+<span class="keyword">def</span> <span class="function">get_group_with_relations</span>(group_id: <span class="class">str</span>, include: <span class="class">List</span>[<span class="class">str</span>]) -> <span class="class">GroupEntity</span>:
+    queryset = <span class="class">VoxelGroup</span>.objects.filter(id=group_id)
+    
+    <span class="comment"># Optimize based on requested includes</span>
+    <span class="keyword">if</span> <span class="string">'members'</span> <span class="keyword">in</span> include:
+        queryset = queryset.prefetch_related(
+            <span class="class">Prefetch</span>(<span class="string">'memberships'</span>, 
+                queryset=<span class="class">VoxelGroupMembership</span>.objects
+                    .filter(is_active=<span class="keyword">True</span>)
+                    .select_related(<span class="string">'user'</span>)
+            )
+        )
+    
+    <span class="keyword">if</span> <span class="string">'permissions'</span> <span class="keyword">in</span> include:
+        queryset = queryset.prefetch_related(<span class="string">'permissions'</span>)
+    
+    <span class="keyword">if</span> <span class="string">'children'</span> <span class="keyword">in</span> include:
+        queryset = queryset.prefetch_related(<span class="string">'children'</span>)
+    
+    <span class="keyword">return</span> queryset.first()</pre>
+            </div>
+        </div>
+
+        <!-- Slide 32: Error Handling -->
+        <div class="slide">
+            <h1>🚨 مدیریت خطاها</h1>
+            <p>پاسخ‌های خطای استاندارد و یکپارچه</p>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># Exception Handler</span>
+
+<span class="keyword">class</span> <span class="class">VoxelAuthExceptionHandler</span>:
+    <span class="string">"""Convert exceptions to API responses"""</span>
+    
+    ERROR_MAP = {
+        <span class="class">InvalidCredentialsError</span>: (
+            status.HTTP_401_UNAUTHORIZED,
+            <span class="string">'authentication_failed'</span>
+        ),
+        <span class="class">UserInactiveError</span>: (
+            status.HTTP_403_FORBIDDEN,
+            <span class="string">'account_disabled'</span>
+        ),
+        <span class="class">OTPExpiredError</span>: (
+            status.HTTP_400_BAD_REQUEST,
+            <span class="string">'otp_expired'</span>
+        ),
+        <span class="class">GroupNotFoundError</span>: (
+            status.HTTP_404_NOT_FOUND,
+            <span class="string">'not_found'</span>
+        ),
+        <span class="class">PermissionDeniedError</span>: (
+            status.HTTP_403_FORBIDDEN,
+            <span class="string">'permission_denied'</span>
+        ),
+    }
+    
+    <span class="keyword">def</span> <span class="function">handle</span>(<span class="keyword">self</span>, exc: <span class="class">Exception</span>) -> <span class="class">Response</span>:
+        <span class="keyword">if</span> <span class="class">type</span>(exc) <span class="keyword">in</span> <span class="keyword">self</span>.ERROR_MAP:
+            status_code, error_type = <span class="keyword">self</span>.ERROR_MAP[<span class="class">type</span>(exc)]
+            <span class="keyword">return</span> <span class="class">Response</span>({
+                <span class="string">'error'</span>: {
+                    <span class="string">'type'</span>: error_type,
+                    <span class="string">'message'</span>: <span class="class">str</span>(exc),
+                    <span class="string">'code'</span>: exc.code,
+                }
+            }, status=status_code)
+        
+        <span class="comment"># Unknown error</span>
+        <span class="keyword">return</span> <span class="class">Response</span>({
+            <span class="string">'error'</span>: {
+                <span class="string">'type'</span>: <span class="string">'server_error'</span>,
+                <span class="string">'message'</span>: <span class="string">'Internal server error'</span>,
+            }
+        }, status=<span class="number">500</span>)</pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># Standard Error Response Format</span>
+
+<span class="comment"># 401 Unauthorized</span>
+{
+    <span class="string">"error"</span>: {
+        <span class="string">"type"</span>: <span class="string">"authentication_failed"</span>,
+        <span class="string">"message"</span>: <span class="string">"Invalid username or password"</span>,
+        <span class="string">"code"</span>: <span class="string">"invalid_credentials"</span>
+    }
+}
+
+<span class="comment"># 400 Bad Request (Validation)</span>
+{
+    <span class="string">"error"</span>: {
+        <span class="string">"type"</span>: <span class="string">"validation_error"</span>,
+        <span class="string">"message"</span>: <span class="string">"Validation failed"</span>,
+        <span class="string">"code"</span>: <span class="string">"validation_error"</span>,
+        <span class="string">"details"</span>: {
+            <span class="string">"username"</span>: [<span class="string">"This field is required"</span>],
+            <span class="string">"password"</span>: [<span class="string">"Too short"</span>]
+        }
+    }
+}
+
+<span class="comment"># 403 Forbidden</span>
+{
+    <span class="string">"error"</span>: {
+        <span class="string">"type"</span>: <span class="string">"permission_denied"</span>,
+        <span class="string">"message"</span>: <span class="string">"You don't have permission"</span>,
+        <span class="string">"code"</span>: <span class="string">"permission_denied"</span>,
+        <span class="string">"required_permission"</span>: <span class="string">"manage_users"</span>
+    }
+}
+
+<span class="comment"># 404 Not Found</span>
+{
+    <span class="string">"error"</span>: {
+        <span class="string">"type"</span>: <span class="string">"not_found"</span>,
+        <span class="string">"message"</span>: <span class="string">"Group not found: abc123"</span>,
+        <span class="string">"code"</span>: <span class="string">"group_not_found"</span>
+    }
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 33: API Response Format -->
+        <div class="slide">
+            <h1>📤 فرمت پاسخ API</h1>
+            <p>ساختار استاندارد و یکپارچه برای تمام پاسخ‌ها</p>
+            
+            <div class="two-columns">
+                <div class="code-block">
+<pre><span class="comment"># Success Response - Single Object</span>
+{
+    <span class="string">"data"</span>: {
+        <span class="string">"id"</span>: <span class="string">"550e8400-e29b-41d4-a716-446655440000"</span>,
+        <span class="string">"username"</span>: <span class="string">"ali"</span>,
+        <span class="string">"email"</span>: <span class="string">"ali@example.com"</span>,
+        <span class="string">"is_active"</span>: <span class="keyword">true</span>,
+        <span class="string">"created_at"</span>: <span class="string">"2024-01-15T10:30:00Z"</span>
+    }
+}
+
+<span class="comment"># Success Response - List with Pagination</span>
+{
+    <span class="string">"data"</span>: [
+        {<span class="string">"id"</span>: <span class="string">"..."</span>, <span class="string">"username"</span>: <span class="string">"ali"</span>},
+        {<span class="string">"id"</span>: <span class="string">"..."</span>, <span class="string">"username"</span>: <span class="string">"sara"</span>}
+    ],
+    <span class="string">"pagination"</span>: {
+        <span class="string">"total"</span>: <span class="number">150</span>,
+        <span class="string">"page"</span>: <span class="number">1</span>,
+        <span class="string">"page_size"</span>: <span class="number">20</span>,
+        <span class="string">"total_pages"</span>: <span class="number">8</span>
+    }
+}
+
+<span class="comment"># Login Response</span>
+{
+    <span class="string">"data"</span>: {
+        <span class="string">"tokens"</span>: {
+            <span class="string">"access"</span>: <span class="string">"eyJ..."</span>,
+            <span class="string">"refresh"</span>: <span class="string">"eyJ..."</span>,
+            <span class="string">"expires_at"</span>: <span class="string">"2024-01-15T10:45:00Z"</span>
+        },
+        <span class="string">"user"</span>: {
+            <span class="string">"id"</span>: <span class="string">"..."</span>,
+            <span class="string">"username"</span>: <span class="string">"ali"</span>
+        }
+    }
+}</pre>
+                </div>
+                
+                <div class="code-block">
+<pre><span class="comment"># 2FA Required Response</span>
+{
+    <span class="string">"data"</span>: {
+        <span class="string">"requires_2fa"</span>: <span class="keyword">true</span>,
+        <span class="string">"otp_sent"</span>: <span class="keyword">true</span>,
+        <span class="string">"message"</span>: <span class="string">"OTP sent to ***456789"</span>,
+        <span class="string">"expires_in"</span>: <span class="number">120</span>
+    }
+}
+
+<span class="comment"># Bulk Operation Response</span>
+{
+    <span class="string">"data"</span>: {
+        <span class="string">"total"</span>: <span class="number">10</span>,
+        <span class="string">"successful"</span>: <span class="number">8</span>,
+        <span class="string">"failed"</span>: <span class="number">2</span>,
+        <span class="string">"errors"</span>: {
+            <span class="string">"user-id-1"</span>: <span class="string">"User not found"</span>,
+            <span class="string">"user-id-2"</span>: <span class="string">"Already member"</span>
+        }
+    }
+}
+
+<span class="comment"># Group with Includes</span>
+{
+    <span class="string">"data"</span>: {
+        <span class="string">"id"</span>: <span class="string">"..."</span>,
+        <span class="string">"name"</span>: <span class="string">"developers"</span>,
+        <span class="string">"members"</span>: [
+            {<span class="string">"id"</span>: <span class="string">"..."</span>, <span class="string">"username"</span>: <span class="string">"ali"</span>}
+        ],
+        <span class="string">"permissions"</span>: [
+            {
+                <span class="string">"codename"</span>: <span class="string">"view_reports"</span>,
+                <span class="string">"inherited"</span>: <span class="keyword">true</span>,
+                <span class="string">"inherited_from"</span>: <span class="string">"staff"</span>
+            }
+        ]
+    }
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 34: Deployment -->
+        <div class="slide">
+            <h1>🚀 استقرار (Deployment)</h1>
+            
+            <div class="code-block">
+<pre><span class="comment"># docker-compose.yml</span>
+
+<span class="keyword">version</span>: <span class="string">'3.8'</span>
+
+<span class="keyword">services</span>:
+  <span class="function">web</span>:
+    <span class="keyword">build</span>: .
+    <span class="keyword">ports</span>:
+      - <span class="string">"8000:8000"</span>
+    <span class="keyword">environment</span>:
+      - DATABASE_URL=postgres://user:pass@db:5432/voxel
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - KAVENEGAR_API_KEY=${KAVENEGAR_API_KEY}
+    <span class="keyword">depends_on</span>:
+      - db
+      - redis
+  
+  <span class="function">db</span>:
+    <span class="keyword">image</span>: postgres:15
+    <span class="keyword">volumes</span>:
+      - postgres_data:/var/lib/postgresql/data
+    <span class="keyword">environment</span>:
+      - POSTGRES_DB=voxel
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+  
+  <span class="function">redis</span>:
+    <span class="keyword">image</span>: redis:7-alpine
+    <span class="keyword">volumes</span>:
+      - redis_data:/data
+  
+  <span class="function">celery</span>:
+    <span class="keyword">build</span>: .
+    <span class="keyword">command</span>: celery -A config worker -l info
+    <span class="keyword">depends_on</span>:
+      - redis
+      - db
+
+<span class="keyword">volumes</span>:
+  postgres_data:
+  redis_data:</pre>
+            </div>
+
+            <div class="highlight-box">
+                <h3>📋 Checklist استقرار</h3>
+                <p>✓ SECRET_KEY امن  ✓ DEBUG=False  ✓ HTTPS فعال  ✓ CORS تنظیم  ✓ Rate Limiting  ✓ Backup دیتابیس</p>
+            </div>
+        </div>
+
+        <!-- Slide 35: Monitoring -->
+        <div class="slide">
+            <h1>📊 مانیتورینگ و لاگینگ</h1>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>📈 Metrics</h3>
+                    <ul>
+                        <li>تعداد Login موفق/ناموفق</li>
+                        <li>زمان پاسخ API</li>
+                        <li>تعداد OTP ارسالی</li>
+                        <li>کاربران فعال</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>🔔 Alerts</h3>
+                    <ul>
+                        <li>تلاش‌های ورود مشکوک</li>
+                        <li>تغییر دسترسی حساس</li>
+                        <li>خطاهای مکرر</li>
+                        <li>حملات Brute Force</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>📝 Logs</h3>
+                    <ul>
+                        <li>Structured JSON logging</li>
+                        <li>Request/Response logging</li>
+                        <li>Error tracking</li>
+                        <li>Audit trail</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>🔧 Tools</h3>
+                    <ul>
+                        <li>Prometheus + Grafana</li>
+                        <li>ELK Stack</li>
+                        <li>Sentry for errors</li>
+                        <li>Custom dashboard</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block">
+<pre><span class="comment"># Structured Logging Example</span>
+
+<span class="keyword">import</span> structlog
+
+logger = structlog.get_logger()
+
+<span class="keyword">def</span> <span class="function">login</span>(request):
+    logger.info(
+        <span class="string">"login_attempt"</span>,
+        username=request.data[<span class="string">'username'</span>],
+        ip_address=get_client_ip(request),
+        user_agent=request.META.get(<span class="string">'HTTP_USER_AGENT'</span>),
+    )
+    
+    <span class="comment"># ... login logic ...</span>
+    
+    logger.info(
+        <span class="string">"login_success"</span>,
+        user_id=user.id,
+        has_2fa=user.requires_2fa(),
+    )</pre>
+            </div>
+        </div>
+
+        <!-- Slide 36: Summary -->
+        <div class="slide">
+            <h1>📋 خلاصه ویژگی‌های فنی</h1>
+            
+            <div class="three-columns">
+                <div class="info-card">
+                    <div class="icon">🏗️</div>
+                    <h3>معماری</h3>
+                    <p>Clean Architecture با ۴ لایه مجزا و Dependency Injection</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">🔐</div>
+                    <h3>امنیت</h3>
+                    <p>JWT + 2FA + Password Hashing + Rate Limiting + Audit Log</p>
+                </div>
+                <div class="info-card">
+                    <div class="icon">⚡</div>
+                    <h3>عملکرد</h3>
+                    <p>Caching + Optimized Queries + Async Operations</p>
+                </div>
+            </div>
+
+            <div class="feature-grid" style="margin-top: 30px;">
+                <div class="feature-card">
+                    <h3>✅ قابلیت‌های اصلی</h3>
+                    <ul>
+                        <li>ثبت‌نام و ورود با JWT</li>
+                        <li>احراز هویت دو مرحله‌ای (2FA)</li>
+                        <li>مدیریت کاربران (CRUD + Bulk)</li>
+                        <li>مدیریت گروه‌ها با سلسله‌مراتب</li>
+                        <li>سیستم دسترسی با ارث‌بری</li>
+                        <li>بازیابی و تغییر رمز عبور</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h3>✅ مزایای فنی</h3>
+                    <ul>
+                        <li>ماژول مستقل و Pluggable</li>
+                        <li>تنظیمات متمرکز در Settings</li>
+                        <li>قابل توسعه بدون تغییر کد</li>
+                        <li>تست‌پذیری بالا (Unit + Integration)</li>
+                        <li>مستندات کامل API</li>
+                        <li>پشتیبانی از Custom User Model</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 37: End -->
+        <div class="slide title-slide">
+            <h1>🙏 پایان ارائه</h1>
+            <p class="subtitle">Voxel Auth - ماژول احراز هویت سازمانی</p>
+            <br>
+            <div style="display: flex; gap: 30px; justify-content: center; margin-top: 40px;">
+                <div class="info-card" style="min-width: 200px;">
+                    <div class="icon">📚</div>
+                    <h3>مستندات</h3>
+                    <p style="font-size: 0.9rem;">docs.voxel-auth.ir</p>
+                </div>
+                <div class="info-card" style="min-width: 200px;">
+                    <div class="icon">💻</div>
+                    <h3>سورس کد</h3>
+                    <p style="font-size: 0.9rem;">github.com/voxel-auth</p>
+                </div>
+              
+            </div>
+            <br><br>
+            <p style="color: var(--gray);">سوالی دارید؟</p>
+        </div>
+
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()">◀ قبلی</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">بعدی ▶</button>
+    </div>
+
+    <!-- Slide Counter -->
+    <div class="slide-counter" id="slideCounter">1 / 37</div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progressBar');
+        const slideCounter = document.getElementById('slideCounter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            updateUI();
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function updateUI() {
+            // Update progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+            
+            // Update counter
+            slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+            
+            // Update buttons
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                showSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                showSlide(totalSlides - 1);
+            }
+        });
+
+        // Touch support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) {
+                    nextSlide(); // Swipe left = next
+                } else {
+                    prevSlide(); // Swipe right = prev
+                }
+            }
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
