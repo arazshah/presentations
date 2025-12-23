@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reset.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/white.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- فونت وزیرمتن -->
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
@@ -15,168 +16,247 @@
         :root {
             --r-main-font: 'Vazirmatn', sans-serif;
             --r-heading-font: 'Vazirmatn', sans-serif;
-            --r-main-color: #333;
-            --r-heading-color: #2c3e50;
-            --r-link-color: #e74c3c;
-            --r-selection-background-color: #e74c3c;
+            --main-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --hex-bg: #ecf0f1;
+            --hex-border: #34495e;
         }
         
-        body {
-            background-color: #f4f6f7;
-        }
-
-        .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
-            font-weight: 800;
-        }
-
-        .reveal .slide-number {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .highlight-box {
-            background: #fff;
-            border-right: 5px solid #e74c3c;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            margin: 20px 0;
-            text-align: right;
-        }
-
-        .hex-container {
+        body { background-color: #f8f9fa; }
+        .reveal { color: #333; }
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4 { font-weight: 800; letter-spacing: -1px; }
+        .text-accent { color: var(--accent-color); }
+        .text-muted { color: #7f8c8d; font-size: 0.6em; }
+        
+        /* استایل خاص برای دیاگرام هگزاگونال */
+        .diagram-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: 0 auto;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-top: 30px;
         }
-
-        .author-card {
+        
+        .hex-core {
+            width: 200px;
+            height: 115px; /* height = width * 0.577 */
+            background-color: #f1c40f;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .hex-core:before, .hex-core:after {
+            content: "";
+            position: absolute;
+            width: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+        }
+        .hex-core:before { bottom: 100%; border-bottom: 57.7px solid #f1c40f; }
+        .hex-core:after { top: 100%; border-top: 57.7px solid #f1c40f; }
+        
+        .adapter-circle {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 3px solid var(--accent-color);
+            border-radius: 50%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .qr-code {
-            margin: 20px 0;
-            border: 2px solid #eee;
-            padding: 10px;
-            border-radius: 10px;
+            justify-content: center;
+            font-size: 0.6em;
+            font-weight: bold;
+            z-index: 5;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
-        ul {
-            list-style-type: none;
+        .arrow-line {
+            position: absolute;
+            height: 4px;
+            background: #bdc3c7;
+            z-index: 1;
         }
-        ul li::before {
-            content: "⬡"; 
-            color: #e74c3c;
-            font-weight: bold; 
-            display: inline-block; 
-            width: 1em; 
-            margin-left: 0.5em;
+
+        /* کارت پروفایل */
+        .profile-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            text-align: right;
+            border: 1px solid #eee;
         }
+        .profile-info h3 { margin: 0; color: var(--main-color); }
+        .profile-info p { margin: 10px 0; color: #7f8c8d; }
+        .qr-box img { border: 4px solid var(--main-color); border-radius: 10px; }
+
+        /* لیست‌های زیبا */
+        ul.check-list { list-style: none; padding: 0; text-align: right; }
+        ul.check-list li { 
+            padding: 15px 20px; 
+            margin-bottom: 10px; 
+            background: white; 
+            border-right: 5px solid var(--accent-color);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+        }
+        ul.check-list li i { margin-left: 15px; color: var(--accent-color); font-size: 1.2em; }
+
+        /* هرج و مرج */
+        .chaos-container { position: relative; height: 300px; }
+        .chaos-item { position: absolute; font-size: 3em; opacity: 0.7; }
     </style>
 </head>
 <body>
     <div class="reveal">
         <div class="slides">
             
-            <!-- اسلاید عنوان -->
-            <section>
-                <h1 style="font-size: 2.5em; color: #c0392b;">از هرج‌ومرج تا هماهنگی</h1>
-                <h3 style="color: #7f8c8d;">معماری Hexagonal (Ports & Adapters)</h3>
-                <div style="margin-top: 50px; font-size: 0.8em;">
-                    <p>ارائه در اروم‌لاگ</p>
-                    <p><strong>آراز شاه‌کرمی</strong></p>
-                    <p>توسعه‌دهنده نرم‌افزارهای آزاد و متن‌باز مکانی</p>
+            <!-- اسلاید 1: عنوان -->
+            <section data-background-gradient="linear-gradient(to bottom right, #ffffff, #f0f2f5)">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <i class="fas fa-cubes fa-4x text-accent" style="margin-bottom: 20px;"></i>
+                    <h1 style="font-size: 2.2em;">از هرج‌ومرج تا هماهنگی</h1>
+                    <h3 class="text-muted">معماری Hexagonal | Ports & Adapters</h3>
+                    <div style="margin-top: 40px; border-top: 2px solid #ddd; padding-top: 20px; width: 60%;">
+                        <p style="font-size: 1.2em; font-weight: bold;">ارائه در اروم‌لاگ</p>
+                        <p>آراز شاه‌کرمی</p>
+                    </div>
                 </div>
             </section>
 
-            <!-- مشکل چیست؟ -->
+            <!-- اسلاید 2: مشکل چیست (هرج و مرج) -->
             <section>
-                <h2>هرج‌ومرج کجاست؟</h2>
-                <div class="highlight-box">
-                    <p>مشکل سنتی: وابستگی درهم‌تنیده!</p>
+                <h2>تصویر فعلی: اسپاگتی کد!</h2>
+                <div class="chaos-container">
+                    <div class="chaos-item fragment" style="top: 20%; left: 10%; color: red;"><i class="fas fa-database"></i> DB</div>
+                    <div class="chaos-item fragment" style="top: 50%; right: 20%; color: blue;"><i class="fas fa-globe"></i> Web</div>
+                    <div class="chaos-item fragment" style="top: 10%; right: 10%; color: green;"><i class="fas fa-cogs"></i> Logic</div>
+                    <div class="chaos-item fragment" style="top: 60%; left: 30%; color: orange;"><i class="fas fa-envelope"></i> API</div>
+                    
+                    <!-- خطوط اتصال درهم (SVG) -->
+                    <svg class="fragment" width="100%" height="100%" style="position: absolute; top:0; left:0;">
+                        <line x1="15%" y1="25%" x2="70%" y2="55%" stroke="#333" stroke-width="3" />
+                        <line x1="80%" y1="15%" x2="35%" y2="65%" stroke="#333" stroke-width="3" />
+                        <line x1="15%" y1="25%" x2="80%" y2="15%" stroke="#333" stroke-width="3" />
+                    </svg>
                 </div>
-                <ul>
-                    <li>منطق بیزینس (Domain) آلوده به جزئیات فنی است.</li>
-                    <li>تغییر دیتابیس یا فریم‌ورک مساوی است با بازنویسی کد.</li>
-                    <li>تیم‌ها نمی‌توانند موازی کار کنند چون همه چیز به هم وابسته است.</li>
-                    <li>تست نوشتن سخت و کند است.</li>
-                </ul>
+                <p class="fragment" style="background: #ffebee; padding: 10px; color: #c0392b; border-radius: 8px;">
+                    <i class="fas fa-exclamation-triangle"></i> تغییر دیتابیس = شکستن کل سیستم
+                </p>
             </section>
 
-            <!-- معرفی معماری -->
+            <!-- اسلاید 3: معرفی Hexagonal -->
             <section>
-                <h2>راه‌حل: معماری Hexagonal</h2>
-                <p style="font-size: 0.7em; color: #7f8c8d;">آلیستر کوکبرن (Alistair Cockburn)</p>
+                <h2>راه‌حل: معماری شش‌ضلعی</h2>
+                <div class="diagram-container">
+                    <!-- هسته مرکزی -->
+                    <div class="hex-core">
+                        <div style="text-align: center; color: #333;">
+                            <i class="fas fa-brain fa-2x"></i><br>
+                            <strong>Domain</strong><br>
+                            <span style="font-size:0.6em">قوانین کسب‌وکار</span>
+                        </div>
+                    </div>
+                    
+                    <!-- آداپتورها -->
+                    <div class="adapter-circle fragment fade-up" style="top: 0; left: 40%;">
+                        <i class="fas fa-globe text-accent"></i> Web
+                    </div>
+                    <div class="adapter-circle fragment fade-up" style="bottom: 0; left: 40%;">
+                        <i class="fas fa-database text-accent"></i> DB
+                    </div>
+                    <div class="adapter-circle fragment fade-up" style="top: 40%; left: 0;">
+                        <i class="fas fa-mobile-alt text-accent"></i> UI
+                    </div>
+                    <div class="adapter-circle fragment fade-up" style="top: 40%; right: 0;">
+                        <i class="fas fa-bell text-accent"></i> Notif
+                    </div>
+
+                    <!-- فلش‌های وابستگی به داخل -->
+                    <div class="fragment" style="position: absolute; font-size: 3em; opacity: 0.2; pointer-events: none;">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; font-size: 0.8em; color: #27ae60;">
+                    <strong>قانون اصلی:</strong> وابستگی‌ها همیشه به سمت داخل (هسته) هستند.
+                </div>
+            </section>
+
+            <!-- اسلاید 4: زبان مشترک -->
+            <section>
+                <h2>چگونه تیم شویم؟ (زبان مشترک)</h2>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 30px;">
+                    <div class="fragment fade-right" style="text-align: center;">
+                        <i class="fas fa-user-tie fa-3x" style="color: #34495e;"></i>
+                        <p>مدیر محصول</p>
+                        <div style="background: #e1f5fe; padding: 10px; border-radius: 10px;">"ثبت سفارش"</div>
+                    </div>
+                    
+                    <div class="fragment" style="font-size: 2em; color: #27ae60;">
+                        <i class="fas fa-equals"></i>
+                    </div>
+
+                    <div class="fragment fade-left" style="text-align: center;">
+                        <i class="fas fa-laptop-code fa-3x" style="color: #e74c3c;"></i>
+                        <p>توسعه‌دهنده</p>
+                        <div style="background: #333; color: #fff; padding: 10px; border-radius: 10px; font-family: monospace;">OrderService.submit()</div>
+                    </div>
+                </div>
                 
-                <div style="background: #fff; padding: 20px; border-radius: 10px;">
-                    <p><strong>هسته (Core):</strong> منطق خالص کسب‌وکار</p>
-                    <p><strong>پورت‌ها (Ports):</strong> واسط‌های ورودی و خروجی</p>
-                    <p><strong>آداپتورها (Adapters):</strong> پیاده‌سازی‌های فنی (DB, Web, API)</p>
-                </div>
-                <p style="margin-top: 20px; font-size: 0.8em;">قانون طلایی: وابستگی‌ها همیشه به سمت داخل اشاره می‌کنند.</p>
-            </section>
-
-            <!-- زبان مشترک -->
-            <section>
-                <h2>زبان مشترک در تیم</h2>
-                <h3>(Ubiquitous Language)</h3>
-                <div class="highlight-box">
-                    چگونه Hexagonal باعث ایجاد زبان مشترک می‌شود؟
-                </div>
-                <ul>
-                    <li>هسته نرم‌افزار فقط با زبان بیزینس صحبت می‌کند، نه زبان تکنولوژی.</li>
-                    <li>نام‌گذاری‌ها در کد دقیقاً همان چیزی است که کارفرما می‌گوید.</li>
-                    <li>برنامه‌نویس Back-end و Front-end روی "مفاهیم" توافق دارند، نه روی "JSON".</li>
-                    <li>پورت‌ها قراردادهایی هستند که زبان تیم را تعریف می‌کنند.</li>
+                <ul class="check-list" style="margin-top: 30px; font-size: 0.8em;">
+                    <li class="fragment"><i class="fas fa-check"></i> <strong>هسته تمیز:</strong> کد فقط شامل مفاهیم بیزنس است، نه HTTP و SQL.</li>
+                    <li class="fragment"><i class="fas fa-check"></i> <strong>پورت‌ها (Ports):</strong> قراردادهایی هستند که زبان تیم را مستند می‌کنند.</li>
                 </ul>
             </section>
 
-            <!-- کار تیمی -->
+            <!-- اسلاید 5: متن باز و هماهنگی -->
             <section>
-                <h2>تسهیل کار تیمی</h2>
-                <div style="display: flex; justify-content: space-around; margin-top: 40px;">
-                    <div style="width: 45%;">
-                        <h4 style="color: #e74c3c;">موازی‌کاری</h4>
-                        <p style="font-size: 0.7em;">تیم A روی هسته کار می‌کند، تیم B روی آداپتور دیتابیس، تیم C روی رابط کاربری وب. بدون تداخل!</p>
+                <h2>قدرت در توسعه Open Source</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="fragment zoom-in" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <i class="fas fa-puzzle-piece fa-2x text-accent"></i>
+                        <h4>مشارکت آسان</h4>
+                        <p style="font-size: 0.7em;">کانتریبیوتر می‌تواند یک "آداپتور تلگرام" اضافه کند بدون اینکه لازم باشد هسته پیچیده سیستم را درک کند.</p>
                     </div>
-                    <div style="width: 45%;">
-                        <h4 style="color: #e74c3c;">تست‌پذیری</h4>
-                        <p style="font-size: 0.7em;">می‌توان منطق بیزینس را بدون بالا آوردن دیتابیس یا سرور وب تست کرد. فیدبک سریع‌تر برای تیم.</p>
+                    <div class="fragment zoom-in" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <i class="fas fa-vial fa-2x text-accent"></i>
+                        <h4>تست‌پذیری بالا</h4>
+                        <p style="font-size: 0.7em;">می‌توانیم کل لاجیک GIS را بدون نیاز به نصب PostGIS یا سرورهای سنگین تست کنیم.</p>
+                    </div>
+                    <div class="fragment zoom-in" style="grid-column: span 2; background: #e8f5e9; padding: 15px; border-radius: 10px;">
+                        <strong>نتیجه:</strong> کاهش ترسِ مشارکت‌کنندگان جدید!
                     </div>
                 </div>
             </section>
 
-            <!-- متن باز -->
+            <!-- اسلاید 6: پایان و معرفی -->
             <section>
-                <h2>توسعه نرم‌افزارهای متن‌باز</h2>
-                <p>چرا این معماری برای Open Source عالی است؟</p>
-                <ul>
-                    <li><strong>Pluggable بودن:</strong> کانتریبیوترها می‌توانند آداپتورهای جدید بنویسند بدون دست زدن به هسته اصلی.</li>
-                    <li><strong>شفافیت:</strong> معماری مرزهای مشخصی دارد؛ تازه‌واردها در کد گم نمی‌شوند.</li>
-                    <li><strong>استقلال از تکنولوژی:</strong> هسته پروژه وابسته به فریم‌ورک خاصی نیست که زود منقضی شود.</li>
-                    <li><strong>توسعه پایدار:</strong> تغییرات بیرونی، منطق اصلی پروژه را خراب نمی‌کند.</li>
-                </ul>
-            </section>
-
-            <!-- پایان و تماس -->
-            <section>
-                <div class="author-card">
-                    <h2>سپاس از توجه شما</h2>
-                    <h3 style="color: #c0392b;">آراز شاه‌کرمی</h3>
-                    <p style="color: #7f8c8d;">توسعه‌دهنده نرم‌افزارهای آزاد و متن‌باز مکانی</p>
-                    
-                    <!-- QR Code Generated for https://araz.me -->
-                    <div class="qr-code">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://araz.me" alt="QR Code araz.me">
+                <div class="profile-card">
+                    <div class="profile-info">
+                        <h2 style="color: #2c3e50;">سپاس از شما</h2>
+                        <h3 class="text-accent">آراز شاه‌کرمی</h3>
+                        <p><i class="fas fa-map-marked-alt"></i> توسعه‌دهنده نرم‌افزارهای آزاد و متن‌باز مکانی</p>
+                        <p><i class="fas fa-link"></i> <a href="https://araz.me" style="color: #3498db; text-decoration: none;">araz.me</a></p>
+                        <p style="font-size: 0.8em; margin-top: 20px;">
+                            "ما در معماری هگزاگونال،<br>آزادیِ تغییر را جشن می‌گیریم."
+                        </p>
                     </div>
-                    
-                    <a href="https://araz.me" style="text-decoration: none; color: #2980b9; font-weight: bold; font-size: 1.2em;">araz.me</a>
+                    <div class="qr-box">
+                        <!-- QR Code واقعی -->
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&color=2c3e50&data=https://araz.me" alt="araz.me QR">
+                        <p style="text-align: center; font-size: 0.6em; color: #999;">اسکن کنید</p>
+                    </div>
                 </div>
             </section>
 
@@ -190,9 +270,10 @@
             progress: true,
             center: true,
             hash: true,
-            rtl: true, // فعال سازی حالت راست چین
-            transition: 'convex', // نوع انیمیشن: none/fade/slide/convex/concave/zoom
-            slideNumber: true
+            rtl: true,
+            mouseWheel: true,
+            transition: 'cubic', // انیمیشن نرم‌تر
+            backgroundTransition: 'zoom'
         });
     </script>
 </body>
