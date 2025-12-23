@@ -1492,44 +1492,49 @@
         <span class="code-comment"># وابستگی به Port (اینترفیس)، نه Adapter (پیاده‌سازی)</span>
         self.repo = repo
         self.notifier = notifier
-    <span class="code-keyword">def</span> <span class="code-function">create_order</span>(self, user_id: str, items: list) -> Order:
+   <span class="code-keyword">def</span> <span class="code-function">create_order</span>(self, user_id: str, items: list) -> Order:
         <span class="code-comment"># منطق کسب‌وکار خالص</span>
-        order = Order.create(user_id, items)
+        order = Order(user_id=user_id, items=items)
+        order.calculate_total()
+        order.validate()
         
-        <span class="code-keyword">if</span> order.total > 1000000:
-            order.apply_discount(10)  <span class="code-comment"># ۱۰٪ تخفیف</span>
-        
+        <span class="code-comment"># استفاده از Port - مهم نیست چه Adapter پشتش است</span>
         self.repo.save(order)
-        self.notifier.notify_new_order(order)
+        self.notifier.send(user_id, f<span class="code-string">"سفارش {order.id} ثبت شد"</span>)
         
         <span class="code-keyword">return</span> order
+
+
+<span class="code-comment"># استفاده در Production</span>
+service = OrderService(
+    repo=PostgresOrderRepository(),
+    notifier=SMSNotifier()
+)
+
+<span class="code-comment"># استفاده در Test</span>
+service = OrderService(
+    repo=InMemoryOrderRepository(),
+    notifier=FakeNotifier()
+)
                     </code>
                 </div>
                 
-                <div class="code-block" data-lang="Python" style="margin-top: 20px;">
-                    <code>
-<span class="code-comment"># adapters/inbound/rest_api.py (FastAPI)</span>
-<span class="code-decorator">@router.post</span>(<span class="code-string">"/orders"</span>)
-<span class="code-keyword">def</span> <span class="code-function">create_order</span>(request: OrderRequest):
-    <span class="code-comment"># Adapter: تبدیل HTTP Request به Use Case</span>
-    service = OrderService(
-        repo=PostgresOrderRepository(),
-        notifier=EmailNotifier()
-    )
-    order = service.create_order(request.user_id, request.items)
-    <span class="code-keyword">return</span> OrderResponse.from_entity(order)
-
-
-<span class="code-comment"># tests/test_order_service.py</span>
-<span class="code-keyword">def</span> <span class="code-function">test_discount_applied</span>():
-    <span class="code-comment"># تست با Mock Adapters - بدون دیتابیس واقعی!</span>
-    service = OrderService(
-        repo=InMemoryRepository(),
-        notifier=FakeNotifier()
-    )
-    order = service.create_order(<span class="code-string">"user1"</span>, expensive_items)
-    <span class="code-keyword">assert</span> order.discount == 10
-                    </code>
+                <div class="feature-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 30px;">
+                    <div class="feature-card" style="border-color: var(--color-primary);">
+                        <div class="feature-icon">💎</div>
+                        <div class="feature-title">Domain</div>
+                        <div class="feature-desc">OrderService بدون وابستگی به فناوری</div>
+                    </div>
+                    <div class="feature-card" style="border-color: var(--color-info);">
+                        <div class="feature-icon">🚪</div>
+                        <div class="feature-title">Ports</div>
+                        <div class="feature-desc">OrderRepository و Notifier اینترفیس‌ها</div>
+                    </div>
+                    <div class="feature-card" style="border-color: var(--color-success);">
+                        <div class="feature-icon">🔌</div>
+                        <div class="feature-title">Adapters</div>
+                        <div class="feature-desc">Postgres, InMemory, SMS, Fake</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1541,39 +1546,47 @@
             <div class="slide-content">
                 <span class="slide-number">۱۱</span>
                 
-                <h2><span class="emoji">✨</span> مزایای کلیدی</h2>
+                <h2><span class="emoji">✨</span> خلاصه مزایا</h2>
                 
-                <div class="feature-grid">
+                <div class="feature-grid" style="grid-template-columns: repeat(3, 1fr);">
                     <div class="feature-card">
                         <div class="feature-icon">🗣️</div>
                         <div class="feature-title">زبان مشترک</div>
-                        <div class="feature-desc">همه تیم یک واژگان دارند: Port، Adapter، Domain، Use Case</div>
+                        <div class="feature-desc">همه تیم از واژگان یکسان استفاده می‌کنند</div>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
-                        <div class="feature-title">توسعه موازی</div>
-                        <div class="feature-desc">چند نفر همزمان روی بخش‌های مختلف کار می‌کنند</div>
+                        <div class="feature-icon">👥</div>
+                        <div class="feature-title">کار تیمی</div>
+                        <div class="feature-desc">توسعه موازی و مستقل بخش‌ها</div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🧪</div>
                         <div class="feature-title">تست‌پذیری</div>
-                        <div class="feature-desc">Domain بدون وابستگی به زیرساخت تست می‌شود</div>
+                        <div class="feature-desc">تست بدون وابستگی به زیرساخت</div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🔄</div>
                         <div class="feature-title">انعطاف‌پذیری</div>
-                        <div class="feature-desc">تعویض دیتابیس یا API بدون تغییر منطق</div>
+                        <div class="feature-desc">تعویض آسان فناوری‌ها</div>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">📚</div>
-                        <div class="feature-title">مستندات زنده</div>
-                        <div class="feature-desc">Portها و ساختار پوشه‌ها خودشان مستندات هستند</div>
+                        <div class="feature-icon">📖</div>
+                        <div class="feature-title">خوانایی</div>
+                        <div class="feature-desc">ساختار واضح و قابل فهم</div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🌍</div>
-                        <div class="feature-title">متن‌باز دوست</div>
-                        <div class="feature-desc">مشارکت‌کنندگان راحت‌تر کد را می‌فهمند</div>
+                        <div class="feature-title">متن‌باز</div>
+                        <div class="feature-desc">مشارکت آسان برای همه</div>
                     </div>
+                </div>
+                
+                <div class="quote" style="margin-top: 40px;">
+                    <p class="quote-text">
+                        معماری خوب، ارتباطات تیم را بهبود می‌دهد
+                        <br>
+                        و ارتباطات خوب، نرم‌افزار بهتری می‌سازد
+                    </p>
                 </div>
             </div>
         </section>
@@ -1587,51 +1600,42 @@
                 
                 <h2><span class="emoji">🚀</span> شروع کنید!</h2>
                 
-                <p>برای شروع استفاده از معماری Hexagonal در تیم:</p>
+                <p>چگونه معماری Hexagonal را در تیم پیاده کنیم؟</p>
                 
-                <div class="workflow">
-                    <div class="workflow-step">
-                        <div class="workflow-number">۱</div>
-                        <div class="workflow-title">ساختار پوشه</div>
-                        <div class="workflow-desc">domain, ports, adapters</div>
-                    </div>
-                    <div class="workflow-step">
-                        <div class="workflow-number">۲</div>
-                        <div class="workflow-title">Domain اول</div>
-                        <div class="workflow-desc">منطق کسب‌وکار خالص</div>
-                    </div>
-                    <div class="workflow-step">
-                        <div class="workflow-number">۳</div>
-                        <div class="workflow-title">Portها</div>
-                        <div class="workflow-desc">اینترفیس‌ها را تعریف کنید</div>
-                    </div>
-                    <div class="workflow-step">
-                        <div class="workflow-number">۴</div>
-                        <div class="workflow-title">Adapters</div>
-                        <div class="workflow-desc">پیاده‌سازی‌ها را بنویسید</div>
-                    </div>
-                </div>
-                
-                <div class="quote" style="margin-top: 40px;">
-                    <p class="quote-text">
-                        قانون طلایی: Domain هرگز نباید از Adapter چیزی import کند
-                    </p>
-                    <p class="quote-author">وابستگی‌ها همیشه به سمت مرکز</p>
-                </div>
-                
-                <ul class="benefits-list" style="margin-top: 30px;">
+                <ul class="benefits-list">
                     <li>
-                        <span class="benefit-icon">📖</span>
+                        <span class="benefit-icon">1️⃣</span>
                         <div class="benefit-content">
-                            <strong>مطالعه بیشتر</strong>
-                            <p>کتاب "Clean Architecture" از Uncle Bob و مقالات Alistair Cockburn</p>
+                            <strong>با Domain شروع کنید</strong>
+                            <p>ابتدا منطق کسب‌وکار را بدون فکر به فناوری بنویسید</p>
                         </div>
                     </li>
                     <li>
-                        <span class="benefit-icon">🛠️</span>
+                        <span class="benefit-icon">2️⃣</span>
                         <div class="benefit-content">
-                            <strong>ابزارها</strong>
-                            <p>Python: FastAPI + SQLAlchemy | JS: NestJS | Java: Spring Boot</p>
+                            <strong>Portها را تعریف کنید</strong>
+                            <p>اینترفیس‌هایی که Domain نیاز دارد را مشخص کنید</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="benefit-icon">3️⃣</span>
+                        <div class="benefit-content">
+                            <strong>Adapterها را بسازید</strong>
+                            <p>پیاده‌سازی‌های واقعی را اضافه کنید</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="benefit-icon">4️⃣</span>
+                        <div class="benefit-content">
+                            <strong>تست بنویسید</strong>
+                            <p>با Mock Adapters، Domain را تست کنید</p>
+                        </div>
+                    </li>
+                    <li>
+                        <span class="benefit-icon">5️⃣</span>
+                        <div class="benefit-content">
+                            <strong>مستند کنید</strong>
+                            <p>واژگان و ساختار را برای تیم مستند کنید</p>
                         </div>
                     </li>
                 </ul>
@@ -1639,214 +1643,100 @@
         </section>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             SLIDE 14: COMMON MISTAKES
+             SLIDE 14: RESOURCES
         ═══════════════════════════════════════════════════════════════ -->
         <section class="slide" id="slide-14">
             <div class="slide-content">
                 <span class="slide-number">۱۳</span>
                 
-                <h2><span class="emoji">⚠️</span> اشتباهات رایج</h2>
+                <h2><span class="emoji">📚</span> منابع بیشتر</h2>
                 
-                <div class="comparison">
-                    <div class="comparison-card comparison-bad">
-                        <div class="comparison-icon">❌</div>
-                        <div class="comparison-title">این کار را نکنید</div>
-                        <ul class="comparison-list">
-                            <li><span>🚫</span> Import کردن Adapter در Domain</li>
-                            <li><span>🚫</span> استفاده از ORM در Domain</li>
-                            <li><span>🚫</span> منطق کسب‌وکار در Adapter</li>
-                            <li><span>🚫</span> وابستگی مستقیم به فریم‌ورک</li>
-                            <li><span>🚫</span> نادیده گرفتن Portها</li>
-                        </ul>
+                <div class="opensource-benefits">
+                    <div class="os-card">
+                        <div class="os-icon">📖</div>
+                        <div class="os-title">مقاله اصلی</div>
+                        <div class="os-desc">
+                            Hexagonal Architecture<br>
+                            <small style="color: var(--color-primary);">by Alistair Cockburn</small>
+                        </div>
                     </div>
-                    
-                    <div class="comparison-card comparison-good">
-                        <div class="comparison-icon">✅</div>
-                        <div class="comparison-title">این کار را بکنید</div>
-                        <ul class="comparison-list">
-                            <li><span>✓</span> Domain فقط از Portها استفاده کند</li>
-                            <li><span>✓</span> Entityها ساده و بدون وابستگی</li>
-                            <li><span>✓</span> Adapter فقط تبدیل داده</li>
-                            <li><span>✓</span> Dependency Injection</li>
-                            <li><span>✓</span> Port برای هر ارتباط خارجی</li>
-                        </ul>
+                    <div class="os-card">
+                        <div class="os-icon">📕</div>
+                        <div class="os-title">کتاب</div>
+                        <div class="os-desc">
+                            Clean Architecture<br>
+                            <small style="color: var(--color-primary);">by Robert C. Martin</small>
+                        </div>
+                    </div>
+                    <div class="os-card">
+                        <div class="os-icon">📘</div>
+                        <div class="os-title">کتاب</div>
+                        <div class="os-desc">
+                            Domain-Driven Design<br>
+                            <small style="color: var(--color-primary);">by Eric Evans</small>
+                        </div>
+                    </div>
+                    <div class="os-card">
+                        <div class="os-icon">🎥</div>
+                        <div class="os-title">ویدیو</div>
+                        <div class="os-desc">
+                            Ports and Adapters<br>
+                            <small style="color: var(--color-primary);">YouTube Tutorials</small>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="code-block" data-lang="Python" style="margin-top: 30px;">
+                <div class="code-block" data-lang="Links">
                     <code>
-<span class="code-comment"># ❌ اشتباه: Domain وابسته به فریم‌ورک</span>
-<span class="code-keyword">from</span> sqlalchemy <span class="code-keyword">import</span> Column, Integer  <span class="code-comment"># نه!</span>
-
-<span class="code-keyword">class</span> <span class="code-class">Order</span>(Base):
-    id = Column(Integer, primary_key=True)
-
-
-<span class="code-comment"># ✅ درست: Domain خالص</span>
-<span class="code-keyword">from</span> dataclasses <span class="code-keyword">import</span> dataclass
-
-<span class="code-decorator">@dataclass</span>
-<span class="code-keyword">class</span> <span class="code-class">Order</span>:
-    id: str
-    user_id: str
-    items: list
-    total: int
+<span class="code-comment"># منابع آنلاین</span>
+<span class="code-string">https://alistair.cockburn.us/hexagonal-architecture/</span>
+<span class="code-string">https://netflixtechblog.com/ready-for-changes-with-hexagonal-architecture</span>
+<span class="code-string">https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs/</span>
                     </code>
                 </div>
             </div>
         </section>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             SLIDE 15: TEAM AGREEMENT
+             SLIDE 15: THANK YOU
         ═══════════════════════════════════════════════════════════════ -->
-        <section class="slide" id="slide-15">
-            <div class="slide-content">
-                <span class="slide-number">۱۴</span>
-                
-                <h2><span class="emoji">🤝</span> توافق تیمی</h2>
-                
-                <p>
-                    برای موفقیت، تیم باید روی این موارد توافق داشته باشد:
-                </p>
-                
-                <ul class="benefits-list">
-                    <li>
-                        <span class="benefit-icon">📁</span>
-                        <div class="benefit-content">
-                            <strong>ساختار پوشه‌ها</strong>
-                            <p>همه از یک ساختار استاندارد پیروی کنند</p>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="benefit-icon">📝</span>
-                        <div class="benefit-content">
-                            <strong>نام‌گذاری</strong>
-                            <p>UserRepository نه UserRepo یا UserDB</p>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="benefit-icon">🚪</span>
-                        <div class="benefit-content">
-                            <strong>Port اول</strong>
-                            <p>قبل از پیاده‌سازی، اینترفیس را تعریف کنید</p>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="benefit-icon">🧪</span>
-                        <div class="benefit-content">
-                            <strong>تست Domain</strong>
-                            <p>هر Use Case باید تست داشته باشد</p>
-                        </div>
-                    </li>
-                    <li>
-                        <span class="benefit-icon">📖</span>
-                        <div class="benefit-content">
-                            <strong>مستندسازی Portها</strong>
-                            <p>Docstring برای هر Port اجباری است</p>
-                        </div>
-                    </li>
-                </ul>
-                
-                <div class="quote">
-                    <p class="quote-text">
-                        یک تیم هماهنگ با معماری ساده، از یک تیم پراکنده با معماری پیچیده بهتر است
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             SLIDE 16: FINAL - CTA
-        ═══════════════════════════════════════════════════════════════ -->
-        <section class="slide cta-slide" id="slide-16">
+        <section class="slide cta-slide" id="slide-15">
             <div class="slide-content cta-content">
-                <div class="cta-icon">⬡</div>
+                <div class="cta-icon">🙏</div>
                 
-                <h1>از هرج‌ومرج تا هماهنگی</h1>
+                <h1>ممنون از توجه شما!</h1>
                 
-                <p class="subtitle" style="max-width: 700px; margin: 0 auto;">
-                    با معماری Hexagonal، تیم شما یک <span class="highlight">زبان مشترک</span> پیدا می‌کند 
-                    و می‌تواند <span class="highlight">سریع‌تر</span> و <span class="highlight">هماهنگ‌تر</span> 
-                    نرم‌افزار توسعه دهد.
+                <p class="subtitle" style="margin-bottom: 30px;">
+                    سوالی دارید؟ بیایید گفتگو کنیم!
                 </p>
                 
-                <div class="feature-grid" style="margin-top: 50px; grid-template-columns: repeat(3, 1fr);">
-                    <div class="feature-card" style="background: white;">
-                        <div class="feature-icon">💎</div>
-                        <div class="feature-title">Domain در مرکز</div>
-                        <div class="feature-desc">منطق کسب‌وکار مستقل</div>
-                    </div>
-                    <div class="feature-card" style="background: white;">
-                        <div class="feature-icon">🚪</div>
-                        <div class="feature-title">Ports قراردادها</div>
-                        <div class="feature-desc">توافق تیمی واضح</div>
-                    </div>
-                    <div class="feature-card" style="background: white;">
-                        <div class="feature-icon">🔌</div>
-                        <div class="feature-title">Adapters انعطاف</div>
-                        <div class="feature-desc">تغییر بدون شکستن</div>
+                <div class="team-diagram" style="margin: 40px 0;">
+                    <div class="team-member" style="min-width: 200px;">
+                        <div class="team-avatar">👨‍💻</div>
+                        <div class="team-role">امیرحسین عراقی</div>
+                        <div class="team-focus" style="margin-top: 10px;">
+                            <span style="color: var(--color-primary);">🌐 araz.me</span>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="cta-buttons">
-                    <a href="#slide-5" class="cta-btn cta-btn-primary">
-                        <span>📁</span>
-                        <span>ساختار پروژه</span>
+                    <a href="https://araz.me" class="cta-btn cta-btn-primary" target="_blank">
+                        <span>🌐</span>
+                        <span>وبسایت من</span>
                     </a>
-                    <a href="#slide-11" class="cta-btn cta-btn-secondary">
-                        <span>💡</span>
-                        <span>مثال عملی</span>
+                    <a href="https://github.com" class="cta-btn cta-btn-secondary" target="_blank">
+                        <span>📂</span>
+                        <span>نمونه کد در GitHub</span>
                     </a>
                 </div>
                 
-                <div class="presenter-info" style="margin-top: 60px;">
-                    <p class="presenter-name">امیرحسین عراقی</p>
-                    <p class="presenter-title">
-                        🌐 araz.me
+                <div style="margin-top: 50px; padding-top: 30px; border-top: 2px solid var(--color-border);">
+                    <p style="font-size: 1rem; color: var(--color-text-muted);">
+                        <span class="emoji">🎤</span> ارائه شده در <strong>اروم‌لاگ</strong>
+                        <br>
+                        <span class="emoji">⬡</span> از هرج‌ومرج تا هماهنگی | معماری Hexagonal
                     </p>
-                    <p style="margin-top: 20px; font-size: 1.1rem; color: var(--color-text-muted);">
-                        🙏 با تشکر از توجه شما
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             SLIDE 17: Q&A
-        ═══════════════════════════════════════════════════════════════ -->
-        <section class="slide" id="slide-17">
-            <div class="slide-content" style="text-align: center;">
-                <span class="slide-number">?</span>
-                
-                <div class="cta-icon" style="font-size: 8rem; margin-bottom: 40px;">❓</div>
-                
-                <h1>پرسش و پاسخ</h1>
-                
-                <p class="subtitle">
-                    سوالی دارید؟ خوشحال می‌شوم پاسخ بدهم!
-                </p>
-                
-                <div class="feature-grid" style="margin-top: 50px; grid-template-columns: repeat(2, 1fr); max-width: 600px; margin-left: auto; margin-right: auto;">
-                    <div class="feature-card">
-                        <div class="feature-icon">🏗️</div>
-                        <div class="feature-title">معماری</div>
-                        <div class="feature-desc">سوالات فنی درباره ساختار</div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">👥</div>
-                        <div class="feature-title">تیم</div>
-                        <div class="feature-desc">پیاده‌سازی در تیم واقعی</div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🌍</div>
-                        <div class="feature-title">متن‌باز</div>
-                        <div class="feature-desc">کاربرد در پروژه‌های OSS</div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🛠️</div>
-                        <div class="feature-title">ابزارها</div>
-                        <div class="feature-desc">فریم‌ورک‌ها و کتابخانه‌ها</div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -1870,6 +1760,8 @@
         const navDots = document.querySelectorAll('.nav-dot');
 
         const observerOptions = {
+            root: null,
+            rootMargin: '0px',
             threshold: 0.5
         };
 
@@ -1881,7 +1773,7 @@
                     
                     navDots.forEach((dot, index) => {
                         dot.classList.remove('active');
-                        if (index + 1 === slideNumber) {
+                        if (index === slideNumber - 1) {
                             dot.classList.add('active');
                         }
                     });
@@ -1893,9 +1785,9 @@
 
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
-            const currentSlide = [...slides].findIndex(slide => {
+            const currentSlide = Array.from(slides).findIndex(slide => {
                 const rect = slide.getBoundingClientRect();
-                return rect.top >= 0 && rect.top < window.innerHeight / 2;
+                return rect.top >= -100 && rect.top <= 100;
             });
 
             if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
@@ -1917,7 +1809,7 @@
             }
         });
 
-        // Touch swipe support
+        // Touch navigation for mobile
         let touchStartY = 0;
         let touchEndY = 0;
 
@@ -1936,9 +1828,9 @@
 
             if (Math.abs(diff) < swipeThreshold) return;
 
-            const currentSlide = [...slides].findIndex(slide => {
+            const currentSlide = Array.from(slides).findIndex(slide => {
                 const rect = slide.getBoundingClientRect();
-                return rect.top >= 0 && rect.top < window.innerHeight / 2;
+                return rect.top >= -100 && rect.top <= 100;
             });
 
             if (diff > 0 && currentSlide < slides.length - 1) {
@@ -1950,31 +1842,44 @@
             }
         }
 
-        // Add animation on slide enter
-        const animationObserver = new IntersectionObserver((entries) => {
+        // Animate elements on scroll
+        const animateOnScroll = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
                 }
             });
-        }, { threshold: 0.3 });
+        }, { threshold: 0.1 });
 
-        document.querySelectorAll('.slide-content').forEach(content => {
-            content.style.opacity = '0';
-            content.style.transform = 'translateY(30px)';
-            content.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            animationObserver.observe(content);
+        document.querySelectorAll('.feature-card, .os-card, .team-member, .benefits-list li').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.5s ease';
+            animateOnScroll.observe(el);
         });
 
-        // Make first slide visible immediately
-        const firstSlideContent = document.querySelector('.slide-content');
-        if (firstSlideContent) {
-            firstSlideContent.style.opacity = '1';
-            firstSlideContent.style.transform = 'translateY(0)';
-        }
+        // Progress indicator
+        const progressBar = document.createElement('div');
+        progressBar.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            z-index: 9999;
+            transition: width 0.3s ease;
+        `;
+        document.body.appendChild(progressBar);
 
-        // Fullscreen toggle with F key
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = scrollPercent + '%';
+        });
+
+        // Fullscreen toggle (press F)
         document.addEventListener('keydown', (e) => {
             if (e.key === 'f' || e.key === 'F') {
                 if (!document.fullscreenElement) {
@@ -1985,14 +1890,11 @@
             }
         });
 
-        // Print mode
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'p' && e.ctrlKey) {
-                // Ctrl+P will use browser print
-            }
-        });
+        // Print hint
+        console.log('%c🖨️ برای چاپ از Ctrl+P استفاده کنید', 'font-size: 14px; color: #6366f1;');
+        console.log('%c⌨️ کلیدها: ↑↓ ناوبری | F فول‌اسکرین | Home/End ابتدا/انتها', 'font-size: 12px; color: #64748b;');
     </script>
 
 </body>
 </html>
-  
+                
