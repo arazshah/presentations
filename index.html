@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فهرست ارائه‌ها | آراز شاه کرمی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e4e4e4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #00d9ff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .subtitle a {
+            color: #00d9ff;
+            text-decoration: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #00d9ff;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #333;
+            border-top-color: #00d9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .folder {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .folder:hover {
+            border-color: rgba(0, 217, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .folder-header {
+            background: rgba(0, 217, 255, 0.1);
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .folder-header:hover {
+            background: rgba(0, 217, 255, 0.15);
+        }
+
+        .folder-icon {
+            font-size: 1.8rem;
+        }
+
+        .folder-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fff;
+            flex: 1;
+        }
+
+        .file-count {
+            background: #00d9ff;
+            color: #1a1a2e;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .toggle-icon {
+            color: #00d9ff;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .folder.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .folder-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .folder.open .folder-content {
+            max-height: 2000px;
+        }
+
+        .file-list {
+            padding: 15px 25px 25px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #e4e4e4;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .file-item:hover {
+            background: rgba(0, 217, 255, 0.1);
+            border-color: rgba(0, 217, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .file-icon {
+            font-size: 1.4rem;
+            margin-left: 15px;
+        }
+
+        .file-name {
+            flex: 1;
+            font-size: 1.05rem;
+        }
+
+        .file-arrow {
+            color: #00d9ff;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .file-item:hover .file-arrow {
+            opacity: 1;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666;
+        }
+
+        footer a {
+            color: #00d9ff;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .folder-header {
+                padding: 15px;
+            }
+            
+            .folder-name {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 فهرست ارائه‌ها</h1>
+            <p class="subtitle">
+                آراز شاه کرمی | 
+                <a href="https://araz.me" target="_blank">araz.me</a>
+            </p>
+        </header>
+
+        <main id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>در حال بارگذاری...</p>
+            </div>
+        </main>
+
+        <footer>
+            <p>ساخته شده با ❤️ توسط <a href="https://araz.me" target="_blank">آراز شاه کرمی</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // ⚠️ این مقادیر را تغییر بده
+        const CONFIG = {
+            username: 'arazshah',  // نام کاربری گیت‌هاب
+            repo: 'presentations',             // نام ریپازیتوری
+            branch: 'master',                     // یا 'master'
+            excludeFolders: ['.git', 'node_modules', 'assets', 'css', 'js', 'images'],
+            excludeFiles: ['index.html', 'README.md']
+        };
+
+        const contentEl = document.getElementById('content');
+
+        async function fetchRepoContents(path = '') {
+            const url = `https://api.github.com/repos/${CONFIG.username}/${CONFIG.repo}/contents/${path}?ref=${CONFIG.branch}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error(`خطا در دریافت اطلاعات: ${response.status}`);
+            }
+            
+            return response.json();
+        }
+
+        async function getHtmlFiles(folderPath) {
+            try {
+                const contents = await fetchRepoContents(folderPath);
+                return contents.filter(item => 
+                    item.type === 'file' && 
+                    item.name.endsWith('.html') &&
+                    !CONFIG.excludeFiles.includes(item.name)
+                );
+            } catch (error) {
+                console.error(`خطا در خواندن ${folderPath}:`, error);
+                return [];
+            }
+        }
+
+        function formatFileName(fileName) {
+            // حذف پسوند و تبدیل به عنوان خوانا
+            return fileName
+                .replace('.html', '')
+                .replace(/-/g, ' ')
+                .replace(/_/g, ' ');
+        }
+
+        function getFileUrl(path) {
+            return `https://${CONFIG.username}.github.io/${CONFIG.repo}/${path}`;
+        }
+
+        function createFolderElement(folderName, files) {
+            const folder = document.createElement('div');
+            folder.className = 'folder';
+            
+            folder.innerHTML = `
+                <div class="folder-header">
+                    <span class="folder-icon">📁</span>
+                    <span class="folder-name">${formatFileName(folderName)}</span>
+                    <span class="file-count">${files.length} فایل</span>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="folder-content">
+                    <div class="file-list">
+                        ${files.map(file => `
+                            <a href="${getFileUrl(file.path)}" class="file-item" target="_blank">
+                                <span class="file-icon">📄</span>
+                                <span class="file-name">${formatFileName(file.name)}</span>
+                                <span class="file-arrow">←</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Toggle functionality
+            const header = folder.querySelector('.folder-header');
+            header.addEventListener('click', () => {
+                folder.classList.toggle('open');
+            });
+
+            return folder;
+        }
+
+        async function loadContent() {
+            try {
+                const rootContents = await fetchRepoContents();
+                
+                // فیلتر کردن فولدرها
+                const folders = rootContents.filter(item => 
+                    item.type === 'dir' && 
+                    !CONFIG.excludeFolders.includes(item.name) &&
+                    !item.name.startsWith('.')
+                );
+
+                if (folders.length === 0) {
+                    contentEl.innerHTML = '<div class="empty">هیچ فولدری یافت نشد</div>';
+                    return;
+                }
+
+                contentEl.innerHTML = '';
+
+                // پردازش هر فولدر
+                for (const folder of folders) {
+                    const htmlFiles = await getHtmlFiles(folder.path);
+                  
+                    
+                    if (htmlFiles.length > 0) {
+                        const folderEl = createFolderElement(folder.name, htmlFiles);
+                        contentEl.appendChild(folderEl);
+                    }
+                }
+
+                // اگر هیچ فایل HTML یافت نشد
+                if (contentEl.children.length === 0) {
+                    contentEl.innerHTML = '<div class="empty">هیچ فایل HTML یافت نشد</div>';
+                }
+
+                // باز کردن اولین فولدر
+                const firstFolder = contentEl.querySelector('.folder');
+                if (firstFolder) {
+                    firstFolder.classList.add('open');
+                }
+
+            } catch (error) {
+                console.error('خطا:', error);
+                contentEl.innerHTML = `
+                    <div class="error">
+                        <p>⚠️ خطا در بارگذاری</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">${error.message}</p>
+                        <p style="font-size: 0.85rem; margin-top: 15px; color: #999;">
+                            مطمئن شو که نام کاربری و ریپازیتوری را درست وارد کردی
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        // شروع
+        loadContent();
+    </script>
+</body>
+</html>
