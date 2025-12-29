@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع GeoAI - تحلیل مکانی با هوش مصنوعی</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --secondary-light: #34d399;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 2rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav {
+            background: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 120px;
+            z-index: 999;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1.5rem;
+            background: var(--light);
+            border-radius: 25px;
+            text-decoration: none;
+            color: var(--dark);
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem 4rem;
+        }
+
+        /* Section */
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 3px solid var(--light);
+        }
+
+        .section-icon {
+            font-size: 3rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .section-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Box Styles */
+        .box {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border-right: 4px solid;
+        }
+
+        .box-concept {
+            background: rgba(37, 99, 235, 0.05);
+            border-color: var(--primary);
+        }
+
+        .box-tip {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: var(--secondary);
+        }
+
+        .box-warning {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: var(--accent);
+        }
+
+        .box-danger {
+            background: rgba(239, 68, 68, 0.05);
+            border-color: var(--danger);
+        }
+
+        .box-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.blue { background: rgba(37, 99, 235, 0.1); color: var(--primary); }
+        .card-icon.green { background: rgba(16, 185, 129, 0.1); color: var(--secondary); }
+        .card-icon.purple { background: rgba(139, 92, 246, 0.1); color: var(--purple); }
+        .card-icon.cyan { background: rgba(6, 182, 212, 0.1); color: var(--cyan); }
+        .card-icon.amber { background: rgba(245, 158, 11, 0.1); color: var(--accent); }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Code Blocks */
+        .code-block {
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .code-header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: white;
+        }
+
+        .code-lang-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .code-lang-badge.python { background: rgba(59, 130, 246, 0.3); }
+        .code-lang-badge.json { background: rgba(16, 185, 129, 0.3); }
+        .code-lang-badge.yaml { background: rgba(245, 158, 11, 0.3); }
+        .code-lang-badge.sql { background: rgba(139, 92, 246, 0.3); }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .code-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .code-body {
+            background: #1e293b;
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Syntax Highlighting */
+        .keyword { color: #c678dd; font-weight: 600; }
+        .string { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+        .function { color: #61afef; }
+        .class { color: #e5c07b; }
+        .number { color: #d19a66; }
+        .decorator { color: #e06c75; }
+        .builtin { color: #56b6c2; }
+        .param { color: #e5c07b; }
+
+        /* Image Container */
+        .img-container {
+            margin: 2rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .img-container img {
+            width: 100%;
+            display: block;
+        }
+
+        .img-caption {
+            background: var(--light);
+            padding: 1rem;
+            text-align: center;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .arch-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .arch-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .arch-layer {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .arch-label {
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .arch-boxes {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .arch-box {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            color: white;
+        }
+
+        .arch-box.blue { background: var(--gradient-3); }
+        .arch-box.green { background: var(--gradient-4); }
+        .arch-box.purple { background: var(--gradient-1); }
+        .arch-box.orange { background: var(--gradient-2); }
+
+        .arch-arrow {
+            text-align: center;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: right;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--light);
+        }
+
+        tr:hover {
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        /* Lists */
+        ul, ol {
+            padding-right: 2rem;
+            margin: 1rem 0;
+        }
+
+        li {
+            margin: 0.5rem 0;
+            color: var(--dark);
+        }
+
+        li strong {
+            color: var(--primary);
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            color: var(--gray);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 1.8rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-content {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Tooltip */
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+            border-bottom: 2px dotted var(--primary);
+        }
+
+        /* Map Container */
+        .map-container {
+            background: #e5e7eb;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: var(--gray);
+        }
+
+        .map-placeholder svg {
+            width: 200px;
+            height: 200px;
+            opacity: 0.3;
+        }
+
+        /* Progress Steps */
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: 0;
+            left: 0;
+            height: 2px;
+            background: var(--light);
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         HEADER
+    ═══════════════════════════════════════════════════════════ -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="header-title">🌍 GeoAI - تحلیل مکانی با هوش مصنوعی</h1>
+            <p class="header-subtitle">آموزش جامع مفاهیم پایه جغرافیایی و تحلیل مکانی مبتنی بر AI</p>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         NAVIGATION
+    ═══════════════════════════════════════════════════════════ -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="#intro" class="nav-link active">مقدمه</a>
+            <a href="#fundamentals" class="nav-link">مفاهیم پایه</a>
+            <a href="#data-types" class="nav-link">انواع داده</a>
+            <a href="#crs" class="nav-link">سیستم مختصات</a>
+            <a href="#operations" class="nav-link">عملیات مکانی</a>
+            <a href="#ai-basics" class="nav-link">AI در GIS</a>
+            <a href="#ml-spatial" class="nav-link">یادگیری ماشین</a>
+            <a href="#deep-learning" class="nav-link">یادگیری عمیق</a>
+            <a href="#applications" class="nav-link">کاربردها</a>
+            <a href="#project" class="nav-link">پروژه عملی</a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         MAIN CONTENT
+    ═══════════════════════════════════════════════════════════ -->
+    <main class="main">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             INTRODUCTION SECTION
+        ═══════════════════════════════════════════════════════════ -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <div>
+                    <h2 class="section-title">مقدمه</h2>
+                    <p class="section-subtitle">GeoAI چیست و چرا مهم است؟</p>
+                </div>
+            </div>
+
+            <p>
+                <strong>GeoAI</strong> (Geospatial Artificial Intelligence) یا هوش مصنوعی جغرافیایی، 
+                ترکیبی از علم اطلاعات جغرافیایی (GIS) و هوش مصنوعی (AI) است که به ما امکان می‌دهد 
+                داده‌های مکانی را با استفاده از الگوریتم‌های یادگیری ماشین و یادگیری عمیق تحلیل کنیم.
+            </p>
+
+            <div class="box box-concept">
+                <div class="box-title">
+                    <span>💡</span>
+                    چرا GeoAI؟
+                </div>
+                <p>
+                    بیش از <strong>80%</strong> از داده‌های جهان دارای مؤلفه مکانی هستند. 
+                    از موقعیت GPS گوشی همراه گرفته تا تصاویر ماهواره‌ای، همه چیز به مکان مرتبط است.
+                    ترکیب AI با GIS به ما کمک می‌کند:
+                </p>
+                <ul>
+                    <li>الگوهای پیچیده مکانی را کشف کنیم</li>
+                    <li>پیش‌بینی‌های دقیق‌تر انجام دهیم</li>
+                    <li>تصمیم‌گیری‌های بهتر داشته باشیم</li>
+                    <li>فرآیندهای تحلیلی را خودکار کنیم</li>
+                </ul>
+            </div>
+
+            <h3>مزایای GeoAI</h3>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon blue">⚡</div>
+                        <div class="card-title">سرعت</div>
+                    </div>
+                    <div class="card-content">
+                        <p>تحلیل سریع حجم عظیمی از داده‌های مکانی در زمان کوتاه</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon green">🎯</div>
+                        <div class="card-title">دقت</div>
+                    </div>
+                    <div class="card-content">
+                        <p>شناسایی الگوهای پیچیده‌ای که چشم انسان نمی‌تواند ببیند</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon purple">📈</div>
+                        <div class="card-title">مقیاس‌پذیری</div>
+                    </div>
+                    <div class="card-content">
+                        <p>تحلیل از سطح محلی تا جهانی با یک مدل واحد</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon cyan">🔄</div>
+                        <div class="card-title">خودکار</div>
+                    </div>
+                    <div class="card-content">
+                        <p>اتوماسیون فرآیندهای تکراری و زمان‌بر</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon amber">🔮</div>
+                        <div class="card-title">پیش‌بینی</div>
+                    </div>
+                    <div class="card-content">
+                        <p>مدل‌سازی و پیش‌بینی رویدادهای آینده</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon purple">🧠</div>
+                        <div class="card-title">یادگیری</div>
+                    </div>
+                    <div class="card-content">
+                        <p>بهبود مداوم مدل‌ها با داده‌های جدید</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>کاربردهای GeoAI</h3>
+
+            <div class="grid-2">
+                <div class="box box-tip">
+                    <div class="box-title">
+                        <span>🏙️</span>
+                        شهری و برنامه‌ریزی
+                    </div>
+                    <ul>
+                        <li>مدیریت ترافیک هوشمند</li>
+                        <li>شهرسازی پایدار</li>
+                        <li>تشخیص تغییرات کاربری اراضی</li>
+                        <li>مدل‌سازی رشد شهری</li>
+                    </ul>
+                </div>
+
+                <div class="box box-tip">
+                    <div class="box-title">
+                        <span>🌾</span>
+                        کشاورزی دقیق
+                    </div>
+                    <ul>
+                        <li>پایش سلامت محصولات</li>
+                        <li>پیش‌بینی عملکرد</li>
+                        <li>مدیریت منابع آب</li>
+                        <li>تشخیص بیماری‌ها و آفات</li>
+                    </ul>
+                </div>
+
+                <div class="box box-tip">
+                    <div class="box-title">
+                        <span>🚨</span>
+                        مدیریت بحران
+                    </div>
+                    <ul>
+                        <li>پیش‌بینی سیل و زلزله</li>
+                        <li>مدیریت آتش‌سوزی جنگل</li>
+                        <li>ارزیابی خسارت</li>
+                        <li>بهینه‌سازی مسیر امداد</li>
+                    </ul>
+                </div>
+
+                <div class="box box-tip">
+                    <div class="box-title">
+                        <span>🌍</span>
+                        محیط زیست
+                    </div>
+                    <ul>
+                        <li>پایش جنگل‌زدایی</li>
+                        <li>تشخیص آلودگی</li>
+                        <li>ردیابی تغییرات آب و هوایی</li>
+                        <li>حفاظت از حیات وحش</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="architecture">
+                <div class="arch-title">🏗️ معماری GeoAI</div>
+                <div class="arch-flow">
+                    <div class="arch-layer">
+                        <div class="arch-label">لایه داده</div>
+                        <div class="arch-boxes">
+                            <div class="arch-box blue">تصاویر ماهواره‌ای</div>
+                            <div class="arch-box blue">داده‌های GPS</div>
+                            <div class="arch-box blue">نقشه‌ها</div>
+                            <div class="arch-box blue">سنسورها</div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-layer">
+                        <div class="arch-label">پردازش اولیه</div>
+                        <div class="arch-boxes">
+                            <div class="arch-box green">پاکسازی</div>
+                            <div class="arch-box green">تبدیل مختصات</div>
+                            <div class="arch-box green">نرمال‌سازی</div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-layer">
+                        <div class="arch-label">استخراج ویژگی</div>
+                        <div class="arch-boxes">
+                            <div class="arch-box purple">ویژگی‌های مکانی</div>
+                            <div class="arch-box purple">ویژگی‌های طیفی</div>
+                            <div class="arch-box purple">ویژگی‌های زمانی</div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-layer">
+                        <div class="arch-label">مدل‌های AI</div>
+                        <div class="arch-boxes">
+                            <div class="arch-box orange">یادگیری ماشین</div>
+                            <div class="arch-box orange">یادگیری عمیق</div>
+                            <div class="arch-box orange">پردازش تصویر</div>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-layer">
+                        <div class="arch-label">خروجی</div>
+                        <div class="arch-boxes">
+                            <div class="arch-box green">نقشه‌های تحلیلی</div>
+                            <div class="arch-box green">پیش‌بینی</div>
+                            <div class="arch-box green">تصمیم‌گیری</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             FUNDAMENTALS SECTION
+        ═══════════════════════════════════════════════════════════ -->
+        <section class="section" id="fundamentals">
+            <div class="section-header">
+                <div class="section-icon">📚</div>
+                <div>
+                    <h2 class="section-title">مفاهیم پایه GIS</h2>
+                    <p class="section-subtitle">اصول و مبانی سیستم اطلاعات جغرافیایی</p>
+                </div>
+            </div>
+
+            <h3>سیستم اطلاعات جغرافیایی (GIS) چیست؟</h3>
+
+            <p>
+                <strong>GIS</strong> یک سیستم کامپیوتری است که برای ذخیره، مدیریت، تحلیل 
+                و نمایش داده‌های مکانی طراحی شده است. GIS به ما کمک می‌کند تا:
+            </p>
+
+            <div class="box box-concept">
+                <div class="box-title">
+                    <span>🔑</span>
+                    پنج عملکرد اصلی GIS
+                </div>
+                <ol>
+                    <li><strong>ورود داده (Data Input):</strong> جمع‌آوری و ورود داده‌های مکانی از منابع مختلف</li>
+                    <li><strong>ذخیره‌سازی (Data Storage):</strong> سازماندهی و نگهداری داده‌ها در پایگاه داده مکانی</li>
+                    <li><strong>مدیریت (Data Management):</strong> ویرایش، به‌روزرسانی و نگهداری داده‌ها</li>
+                    <li><strong>تحلیل (Data Analysis):</strong> انجام تحلیل‌های مکانی و استخراج اطلاعات</li>
+                    <li><strong>نمایش (Data Display):</strong> تولید نقشه‌ها و گزارش‌های بصری</li>
+                </ol>
+            </div>
+
+            <h3>مفاهیم کلیدی</h3>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon blue">📍</div>
+                        <div class="card-title">موقعیت (Location)</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>تعریف:</strong> مکان یک شیء در فضا که با مختصات جغرافیایی مشخص می‌شود.</p>
+                        <p><strong>انواع:</strong></p>
+                        <ul>
+                            <li><strong>مطلق:</strong> مختصات دقیق (طول و عرض جغرافیایی)</li>
+                            <li><strong>نسبی:</strong> مکان نسبت به شیء دیگر (شمال تهران)</li>
+                        </ul>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <div class="code-lang">
+                                    <span class="code-lang-badge python">Python</span>
+                                    <span>نمایش موقعیت</span>
+                                </div>
+                            </div>
+                            <div class="code-body">
+<pre><span class="keyword">from</span> shapely.geometry <span class="keyword">import</span> Point
+
+<span class="comment"># ایجاد یک نقطه با مختصات</span>
+tehran = Point(<span class="number">51.4215</span>, <span class="number">35.6892</span>)
+
+<span class="builtin">print</span>(<span class="string">f"طول جغرافیایی: </span><span class="keyword">{</span>tehran.x<span class="keyword">}</span><span class="string">"</span>)
+<span class="builtin">print</span>(<span class="string">f"عرض جغرافیایی: </span><span class="keyword">{</span>tehran.y<span class="keyword">}</span><span class="string">"</span>)</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon green">🗺️</div>
+                        <div class="card-title">ویژگی (Attribute)</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>تعریف:</strong> اطلاعات توصیفی مربوط به یک شیء مکانی.</p>
+                        <p><strong>مثال:</strong> برای یک شهر: نام، جمعیت، مساحت، ...</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <div class="code-lang">
+                                    <span class="code-lang-badge python">Python</span>
+                                    <span>ویژگی‌های مکانی</span>
+                                </div>
+                            </div>
+                            <div class="code-body">
+<pre><span class="keyword">import</span> geopandas <span class="keyword">as</span> gpd
+
+<span class="comment"># ایجاد GeoDataFrame</span>
+data = {
+    <span class="string">'city'</span>: [<span class="string">'تهران'</span>, <span class="string">'مشهد'</span>, <span class="string">'اصفهان'</span>],
+    <span class="string">'population'</span>: [<span class="number">9000000</span>, <span class="number">3000000</span>, <span class="number">2000000</span>],
+    <span class="string">'geometry'</span>: [
+        Point(<span class="number">51.42</span>, <span class="number">35.69</span>),
+        Point(<span class="number">59.57</span>, <span class="number">36.30</span>),
+        Point(<span class="number">51.68</span>, <span class="number">32.65</span>)
+    ]
+}
+
+gdf = gpd.GeoDataFrame(data, crs=<span class="string">"EPSG:4326"</span>)
+<span class="builtin">print</span>(gdf)</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon purple">📐</div>
+                        <div class="card-title">فاصله (Distance)</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>تعریف:</strong> اندازه فضایی بین دو نقطه یا شیء.</p>
+                        <p><strong>انواع:</strong></p>
+                        <ul>
+                            <li><strong>اقلیدسی:</strong> خط مستقیم بین دو نقطه</li>
+                            <li><strong>منهتن:</strong> مجموع اختلاف مختصات</li>
+                            <li><strong>شبکه:</strong> کوتاه‌ترین مسیر در شبکه</li>
+                        </ul>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <div class="code-lang">
+                                    <span class="code-lang-badge python">Python</span>
+                                    <span>محاسبه فاصله</span>
+                                </div>
+                            </div>
+                            <div class="code-body">
+<pre><span class="keyword">from</span> shapely.geometry <span class="keyword">import</span> Point
+<span class="keyword">from</span> geopy.distance <span class="keyword">import</span> geodesic
+
+<span class="comment"># دو نقطه</span>
+p1 = Point(<span class="number">51.42</span>, <span class="number">35.69</span>)  <span class="comment"># تهران</span>
+p2 = Point(<span class="number">59.57</span>, <span class="number">36.30</span>)  <span class="comment"># مشهد</span>
+
+<span class="comment"># فاصله اقلیدسی (درجه)</span>
+euclidean_dist = p1.distance(p2)
+
+<span class="comment"># فاصله واقعی (کیلومتر)</span>
+real_dist = geodesic(
+    (p1.y, p1.x),
+    (p2.y, p2.x)
+).kilometers
+
+<span class="builtin">print</span>(<span class="string">f"فاصله اقلیدسی: </span><span class="keyword">{</span>euclidean_dist:.2f<span class="keyword">}</span><span class="string"> درجه"</span>)
+<span class="builtin">print</span>(<span class="string">f"فاصله واقعی: </span><span class="keyword">{</span>real_dist:.2f<span class="keyword">}</span><span class="string"> کیلومتر"</span>)</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon cyan">🔄</div>
+                        <div class="card-title">همسایگی (Neighborhood)</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>تعریف:</strong> رابطه مکانی بین اشیاء که در نزدیکی هم قرار دارند.</p>
+                        <p><strong>اهمیت:</strong> برای تحلیل‌های خوشه‌ای و الگویابی مکانی</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <div class="code-lang">
+                                    <span class="code-lang-badge python">Python</span>
+                                    <span>تحلیل همسایگی</span>
+                                </div>
+                            </div>
+                            <div class="code-body">
+<pre><span class="keyword">from</span> shapely.geometry <span class="keyword">import</span> Point
+<span class="keyword">import</span> geopandas <span class="keyword">as</span> gpd
+
+<span class="comment"># نقطه مرجع</span>
+center = Point(<span class="number">51.42</span>, <span class="number">35.69</span>)
+
+<span class="comment"># ایجاد بافر (محدوده همسایگی)</span>
+buffer = center.buffer(<span class="number">0.1</span>)  <span class="comment"># شعاع 0.1 درجه</span>
+
+<span class="comment"># یافتن نقاط در محدوده</span>
+neighbors = gdf[gdf.geometry.within(buffer)]
+<span class="builtin">print</span>(<span class="string">f"تعداد همسایه‌ها: </span><span class="keyword">{</span><span class="builtin">len</span>(neighbors)<span class="keyword">}</span><span class="string">"</span>)</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>قانون اول جغرافیا (Tobler's First Law)</h3>
+
+            <div class="box box-warning">
+                <div class="box-title">
+                    <span>⚡</span>
+                    قانون Tobler
+                </div>
+                <p style="font-size: 1.2rem; text-align: center; font-style: italic; margin: 1rem 0;">
+                    "همه چیز با همه چیز مرتبط است، اما چیزهای نزدیک‌تر، بیشتر مرتبط هستند"
+                </p>
+                <p>
+                    این قانون بنیاد بسیاری از تحلیل‌های مکانی است و به ما می‌گوید که:
+                </p>
+                <ul>
+                    <li>وابستگی مکانی (Spatial Autocorrelation) وجود دارد</li>
+                    <li>نقاط نزدیک به هم معمولاً ویژگی‌های مشابه دارند</li>
+                    <li>باید اثرات فاصله را در تحلیل‌ها در نظر بگیریم</li>
+                </ul>
+            </div>
+
+            <h3>مقیاس و تفکیک‌پذیری</h3>
+
+            <div class="grid-2">
+                <div class="box box-concept">
+                    <div class="box-title">
+                        <span>📏</span>
+                        مقیاس (Scale)
+                    </div>
+                    <p>
+                        <strong>تعریف:</strong> نسبت اندازه روی نقشه به اندازه واقعی در زمین
+                    </p>
+                    <ul>
+                        <li><strong>مقیاس بزرگ:</strong> جزئیات بیشتر، محدوده کوچک‌تر (1:1,000)</li>
+                        <li><strong>مقیاس کوچک:</strong> جزئیات کمتر، محدوده بزرگ‌تر (1:1,000,000)</li>
+                    </ul>
+                </div>
+
+                <div class="box box-concept">
+                    <div class="box-title">
+                        <span>🔬</span>
+                        تفکیک‌پذیری (Resolution)
+                    </div>
+                    <p>
+                        <strong>تعریف:</strong> کوچک‌ترین واحد قابل تشخیص در داده
+                    </p>
+                    <ul>
+                        <li><strong>مکانی:</strong> اندازه پیکسل یا سلول</li>
+                        <li><strong>زمانی:</strong> فواصل زمانی نمونه‌برداری</li>
+                        <li><strong>طیفی:</strong> تعداد باندهای طیفی</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             DATA TYPES SECTION
+        ═══════════════════════════════════════════════════════════ -->
+        <section class="section" id="data-types">
+            <div class="section-header">
+                <div class="section-icon">🗄️</div>
+                <div>
+                    <h2 class="section-title">انواع داده‌های مکانی</h2>
+                    <p class="section-subtitle">مدل‌های داده برداری و رستری</p>
+                </div>
+            </div>
+
+            <p>
+                داده‌های مکانی به دو دسته اصلی تقسیم می‌شوند: <strong>برداری (Vector)</strong> 
+                و <strong>رستری (Raster)</strong>. هر کدام کاربردها و ویژگی‌های خاص خود را دارند.
+            </p>
+
+            <h3>۱. داده‌های برداری (Vector Data)</h3>
+
+            <div class="box box-concept">
+                <div class="box-title">
+                    <span>📐</span>
+                    مدل برداری
+                </div>
+                <p>
+                    در مدل برداری، اشیاء جغرافیایی با استفاده از نقاط، خطوط و چندضلعی‌ها نمایش داده می‌شوند.
+                    این مدل برای نمایش پدیده‌های گسسته مناسب است.
+                </p>
+            </div>
+
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon blue">📍</div>
+                        <div class="card-title">نقطه (Point)</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>تعریف:</strong> موقعیت بدون ابعاد (فقط x, y)</p>
+                        <p><strong>مثال‌ها:</strong></p>
+                        <ul>
+                            <li>شهرها</li>
+                            <li>درختان</li>
+                            <li>ایستگاه‌های هواشناسی</li>
+                            <li>مکان رویدادها</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon green">📏</div>
+                        <div class="card-title">خط (Line)</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>تعریف:</strong> مجموعه نقاط متصل (یک بعدی)</p>
+                        <p><strong>مثال‌ها:</strong></p>
+                        <ul>
+                            <li>جاده‌ها</li>
+                            <li>رودخانه‌ها</li>
+                            <li>خطوط انتقال برق</li>
+                            <li>مرزها</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon purple">⬛</div>
+                        <div class="card-title">چندضلعی (Polygon)</div>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>تعریف:</strong> مناطق بسته (دو بعدی)</p>
+                        <p><strong>مثال‌ها:</strong></p>
+                        <ul>
+                            <li>کشورها</li>
+                            <li>دریاچه‌ها</li>
+                            <li>ساختمان‌ها</li>
+                            <li>کاربری اراضی</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span class="code-lang-badge python">Python</span>
+                        <span>کار با داده‌های برداری</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">📋 کپی</button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><span class="keyword">from</span> shapely.geometry <span class="keyword">import</span> Point, LineString, Polygon
+<span class="keyword">import</span> geopandas <span class="keyword">as</span> gpd
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># نقطه (Point)</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="comment"># ایجاد نقطه</span>
+point = Point(<span class="number">51.4215</span>, <span class="number">35.6892</span>)
+<span class="builtin">print</span>(<span class="string">f"نقطه: </span><span class="keyword">{</span>point<span class="keyword">}</span><span class="string">"</span>)
+<span class="builtin">print</span>(<span class="string">f"مختصات: (</span><span class="keyword">{</span>point.x<span class="keyword">}</span><span class="string">, </span><span class="keyword">{</span>point.y<span class="keyword">}</span><span class="string">)"</span>)
+
+<span class="comment"># چند نقطه</span>
+points = [
+    Point(<span class="number">51.42</span>, <span class="number">35.69</span>),
+    Point(<span class="number">59.57</span>, <span class="number">36.30</span>),
+    Point(<span class="number">51.68</span>, <span class="number">32.65</span>)
+]
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># خط (LineString)</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="comment"># ایجاد خط از نقاط</span>
+line = LineString([
+    (<span class="number">51.42</span>, <span class="number">35.69</span>),
+    (<span class="number">51.50</span>, <span class="number">35.70</span>),
+    (<span class="number">51.60</span>, <span class="number">35.75</span>)
+])
+
+<span class="builtin">print</span>(<span class="string">f"\nطول خط: </span><span class="keyword">{</span>line.length:.4f<span class="keyword">}</span><span class="string"> درجه"</span>)
+<span class="builtin">print</span>(<span class="string">f"نقطه شروع: </span><span class="keyword">{</span><span class="builtin">list</span>(line.coords)[<span class="number">0</span>]<span class="keyword">}</span><span class="string">"</span>)
+<span class="builtin">print</span>(<span class="string">f"نقطه پایان: </span><span class="keyword">{</span><span class="builtin">list</span>(line.coords)[<span class="number">-1</span>]<span class="keyword">}</span><span class="string">"</span>)
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># چندضلعی (Polygon)</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="comment"># ایجاد چندضلعی</span>
+polygon = Polygon([
+    (<span class="number">51.40</span>, <span class="number">35.68</span>),
+    (<span class="number">51.45</span>, <span class="number">35.68</span>),
+    (<span class="number">51.45</span>, <span class="number">35.72</span>),
+    (<span class="number">51.40</span>, <span class="number">35.72</span>),
+    (<span class="number">51.40</span>, <span class="number">35.68</span>)
+])
+
+<span class="builtin">print</span>(<span class="string">f"\nمساحت: </span><span class="keyword">{</span>polygon.area:.6f<span class="keyword">}</span><span class="string"> درجه مربع"</span>)
+<span class="builtin">print</span>(<span class="string">f"محیط: </span><span class="keyword">{</span>polygon.length:.4f<span class="keyword">}</span><span class="string"> درجه"</span>)
+<span class="builtin">print</span>(<span class="string">f"مرکز: </span><span class="keyword">{</span>polygon.centroid<span class="keyword">}</span><span class="string">"</span>)
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># GeoDataFrame</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="comment"># ایجاد GeoDataFrame با انواع مختلف</span>
+data = {
+    <span class="string">'name'</span>: [<span class="string">'تهران'</span>, <span class="string">'مشهد'</span>, <span class="string">'اصفهان'</span>],
+    <span class="string">'type'</span>: [<span class="string">'نقطه'</span>, <span class="string">'نقطه'</span>, <span class="string">'نقطه'</span>],
+    <span class="string">'population'</span>: [<span class="number">9000000</span>, <span class="number">3000000</span>, <span class="number">2000000</span>],
+    <span class="string">'geometry'</span>: points
+}
+
+gdf = gpd.GeoDataFrame(data, crs=<span class="string">"EPSG:4326"</span>)
+
+<span class="builtin">print</span>(<span class="string">"\n"</span>, gdf)
+
+<span class="comment"># محاسبات مکانی</span>
+<span class="builtin">print</span>(<span class="string">f"\nفاصله تهران - مشهد: </span><span class="keyword">{</span>points[<span class="number">0</span>].distance(points[<span class="number">1</span>]):.2f<span class="keyword">}</span><span class="string"> درجه"</span>)
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># رسم نقشه</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+fig, axes = plt.subplots(<span class="number">1</span>, <span class="number">3</span>, figsize=(<span class="number">15</span>, <span class="number">5</span>))
+
+<span class="comment"># نقطه</span>
+gpd.GeoSeries([point]).plot(ax=axes[<span class="number">0</span>], color=<span class="string">'red'</span>, markersize=<span class="number">100</span>)
+axes[<span class="number">0</span>].set_title(<span class="string">'نقطه'</span>)
+
+<span class="comment"># خط</span>
+gpd.GeoSeries([line]).plot(ax=axes[<span class="number">1</span>], color=<span class="string">'blue'</span>, linewidth=<span class="number">2</span>)
+axes[<span class="number">1</span>].set_title(<span class="string">'خط'</span>)
+
+<span class="comment"># چندضلعی</span>
+gpd.GeoSeries([polygon]).plot(ax=axes[<span class="number">2</span>], color=<span class="string">'green'</span>, alpha=<span class="number">0.5</span>, edgecolor=<span class="string">'black'</span>)
+axes[<span class="number">2</span>].set_title(<span class="string">'چندضلعی'</span>)
+
+plt.tight_layout()
+<span class="comment"># plt.show()</span></pre>
+                </div>
+            </div>
+
+            <h3>۲. داده‌های رستری (Raster Data)</h3>
+
+            <div class="box box-concept">
+                <div class="box-title">
+                    <span>🔲</span>
+                    مدل رستری
+                </div>
+                <p>
+                    در مدل رستری، فضا به سلول‌های منظم (پیکسل) تقسیم می‌شود و هر سلول یک مقدار دارد.
+                    این مدل برای نمایش پدیده‌های پیوسته مناسب است.
+                </p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon cyan">🌍</div>
+                        <div class="card-title">تصاویر ماهواره‌ای</div>
+                    </div>
+                    <div class="card-content">
+                        <ul>
+                            <li>تصاویر Landsat</li>
+                            <li>تصاویر Sentinel</li>
+                            <li>تصاویر MODIS</li>
+                            <li>تصاویر با تفکیک بالا</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon amber">⛰️</div>
+                        <div class="card-title">مدل‌های ارتفاعی (DEM)</div>
+                    </div>
+                    <div class="card-content">
+                        <ul>
+                            <li>SRTM</li>
+                            <li>ASTER GDEM</li>
+                            <li>LiDAR</li>
+                            <li>ارتفاع سنجی رادار</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon green">🌡️</div>
+                        <div class="card-title">داده‌های اقلیمی</div>
+                    </div>
+                    <div class="card-content">
+                        <ul>
+                            <li>دما</li>
+                            <li>بارش</li>
+                            <li>رطوبت</li>
+                            <li>باد</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon purple">🗺️</div>
+                        <div class="card-title">نقشه‌های تحلیلی</div>
+                    </div>
+                    <div class="card-content">
+                        <ul>
+                            <li>کاربری اراضی</li>
+                            <li>پوشش گیاهی</li>
+                            <li>شیب و جهت</li>
+                            <li>دسترسی</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span class="code-lang-badge python">Python</span>
+                        <span>کار با داده‌های رستری</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">📋 کپی</button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><span class="keyword">import</span> rasterio
+<span class="keyword">import</span> numpy <span class="keyword">as</span> np
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+<span class="keyword">from</span> rasterio.plot <span class="keyword">import</span> show
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># خواندن فایل رستری</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="keyword">def</span> <span class="function">read_raster</span>(file_path: <span class="builtin">str</span>):
+    <span class="string">"""خواندن فایل رستری"""</span>
+    <span class="keyword">with</span> rasterio.<span class="builtin">open</span>(file_path) <span class="keyword">as</span> src:
+        <span class="comment"># اطلاعات متاداده</span>
+        <span class="builtin">print</span>(<span class="string">"اطلاعات رستر:"</span>)
+        <span class="builtin">print</span>(<span class="string">f"  ابعاد: </span><span class="keyword">{</span>src.width<span class="keyword">}</span><span class="string"> x </span><span class="keyword">{</span>src.height<span class="keyword">}</span><span class="string">"</span>)
+        <span class="builtin">print</span>(<span class="string">f"  تعداد باندها: </span><span class="keyword">{</span>src.count<span class="keyword">}</span><span class="string">"</span>)
+        <span class="builtin">print</span>(<span class="string">f"  CRS: </span><span class="keyword">{</span>src.crs<span class="keyword">}</span><span class="string">"</span>)
+        <span class="builtin">print</span>(<span class="string">f"  Transform: </span><span class="keyword">{</span>src.transform<span class="keyword">}</span><span class="string">"</span>)
+        <span class="builtin">print</span>(<span class="string">f"  Bounds: </span><span class="keyword">{</span>src.bounds<span class="keyword">}</span><span class="string">"</span>)
+        
+        <span class="comment"># خواندن داده</span>
+        data = src.read(<span class="number">1</span>)  <span class="comment"># باند اول</span>
+        
+        <span class="keyword">return</span> data, src.meta
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># ایجاد رستر نمونه</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="keyword">def</span> <span class="function">create_sample_raster</span>():
+    <span class="string">"""ایجاد یک رستر نمونه"""</span>
+    
+    <span class="comment"># ابعاد</span>
+    height, width = <span class="number">100</span>, <span class="number">100</span>
+    
+    <span class="comment"># ایجاد داده (مثلاً مدل ارتفاعی ساده)</span>
+    x = np.linspace(<span class="number">0</span>, <span class="number">10</span>, width)
+    y = np.linspace(<span class="number">0</span>, <span class="number">10</span>, height)
+    X, Y = np.meshgrid(x, y)
+    
+    <span class="comment"># الگوی ارتفاع (تپه در مرکز)</span>
+    elevation = <span class="number">100</span> * np.exp(-((X-<span class="number">5</span>)**<span class="number">2</span> + (Y-<span class="number">5</span>)**<span class="number">2</span>) / <span class="number">5</span>)
+    
+    <span class="comment"># تبدیل به درجات</span>
+    <span class="keyword">from</span> rasterio.transform <span class="keyword">import</span> from_bounds
+    bounds = (<span class="number">51.0</span>, <span class="number">35.0</span>, <span class="number">52.0</span>, <span class="number">36.0</span>)
+    transform = from_bounds(*bounds, width, height)
+    
+    <span class="comment"># ذخیره</span>
+    profile = {
+        <span class="string">'driver'</span>: <span class="string">'GTiff'</span>,
+        <span class="string">'height'</span>: height,
+        <span class="string">'width'</span>: width,
+        <span class="string">'count'</span>: <span class="number">1</span>,
+        <span class="string">'dtype'</span>: elevation.dtype,
+        <span class="string">'crs'</span>: <span class="string">'EPSG:4326'</span>,
+        <span class="string">'transform'</span>: transform
+    }
+    
+    <span class="keyword">with</span> rasterio.<span class="builtin">open</span>(<span class="string">'sample_dem.tif'</span>, <span class="string">'w'</span>, **profile) <span class="keyword">as</span> dst:
+        dst.write(elevation, <span class="number">1</span>)
+    
+    <span class="keyword">return</span> elevation, profile
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># تحلیل‌های رستری</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="keyword">def</span> <span class="function">raster_statistics</span>(data: np.ndarray):
+    <span class="string">"""محاسبه آمار پایه رستر"""</span>
+    
+    <span class="comment"># حذف مقادیر NoData</span>
+    valid_data = data[~np.isnan(data)]
+    
+    stats = {
+        <span class="string">'min'</span>: np.min(valid_data),
+        <span class="string">'max'</span>: np.max(valid_data),
+        <span class="string">'mean'</span>: np.mean(valid_data),
+        <span class="string">'std'</span>: np.std(valid_data),
+        <span class="string">'median'</span>: np.median(valid_data)
+    }
+    
+    <span class="builtin">print</span>(<span class="string">"\nآمار رستر:"</span>)
+    <span class="keyword">for</span> key, value <span class="keyword">in</span> stats.items():
+        <span class="builtin">print</span>(<span class="string">f"  </span><span class="keyword">{</span>key<span class="keyword">}</span><span class="string">: </span><span class="keyword">{</span>value:.2f<span class="keyword">}</span><span class="string">"</span>)
+    
+    <span class="keyword">return</span> stats
+
+
+<span class="keyword">def</span> <span class="function">calculate_slope</span>(elevation: np.ndarray, cell_size: <span class="builtin">float</span> = <span class="number">30</span>):
+    <span class="string">"""محاسبه شیب از مدل ارتفاعی"""</span>
+    
+    <span class="comment"># محاسبه گرادیان</span>
+    dy, dx = np.gradient(elevation)
+    
+    <span class="comment"># محاسبه شیب (درجه)</span>
+    slope = np.arctan(np.sqrt(dx**<span class="number">2</span> + dy**<span class="number">2</span>) / cell_size) * <span class="number">180</span> / np.pi
+    
+    <span class="keyword">return</span> slope
+
+
+<span class="keyword">def</span> <span class="function">calculate_aspect</span>(elevation: np.ndarray):
+    <span class="string">"""محاسبه جهت شیب"""</span>
+    
+    <span class="comment"># محاسبه گرادیان</span>
+    dy, dx = np.gradient(elevation)
+    
+    <span class="comment"># محاسبه جهت (درجه)</span>
+    aspect = np.arctan2(dy, dx) * <span class="number">180</span> / np.pi
+    aspect = (<span class="number">360</span> + aspect) % <span class="number">360</span>  <span class="comment"># تبدیل به 0-360</span>
+    
+    <span class="keyword">return</span> aspect
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># تصویرسازی</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="keyword">def</span> <span class="function">visualize_raster</span>(data: np.ndarray, title: <span class="builtin">str</span> = <span class="string">"Raster"</span>, cmap: <span class="builtin">str</span> = <span class="string">"terrain"</span>):
+    <span class="string">"""نمایش رستر"""</span>
+    
+    plt.figure(figsize=(<span class="number">10</span>, <span class="number">8</span>))
+    
+    im = plt.imshow(data, cmap=cmap)
+    plt.colorbar(im, label=<span class="string">'مقدار'</span>)
+    plt.title(title)
+    plt.xlabel(<span class="string">'ستون'</span>)
+    plt.ylabel(<span class="string">'سطر'</span>)
+    
+    <span class="comment"># plt.show()</span>
+
+
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+<span class="comment"># مثال استفاده</span>
+<span class="comment"># ═══════════════════════════════════════════════════════════════</span>
+
+<span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:
+    <span class="comment"># ایجاد رستر نمونه</span>
+    elevation, profile = create_sample_raster()
+    
+    <span class="comment"># آمار</span>
+    stats = raster_statistics(elevation)
+    
+    <span class="comment"># محاسبات</span>
+    slope = calculate_slope(elevation)
+    aspect = calculate_aspect(elevation)
+    
+    <span class="comment"># نمایش</span>
+    fig, axes = plt.subplots(<span class="number">2</span>, <span class="number">2</span>, figsize=(<span class="number">12</span>, <span class="number">12</span>))
+    
+    <span class="comment"># ارتفاع</span>
+    im1 = axes[<span class="number">0</span>, <span class="number">0</span>].imshow(elevation, cmap=<span class="string">'terrain'</span>)
+    axes[<span class="number">0</span>, <span class="number">0</span>].set_title(<span class="string">'ارتفاع (متر)'</span>)
+    plt.colorbar(im1, ax=axes[<span class="number">0</span>, <span class="number">0</span>])
+    
+    <span class="comment"># شیب</span>
+    im2 = axes[<span class="number">0</span>, <span class="number">1</span>].imshow(slope, cmap=<span class="string">'YlOrRd'</span>)
+    axes[<span class="number">0</span>, <span class="number">1</span>].set_title(<span class="string">'شیب (درجه)'</span>)
+    plt.colorbar(im2, ax=axes[<span class="number">0</span>, <span class="number">1</span>])
+    
+    <span class="comment"># جهت</span>
+    im3 = axes[<span class="number">1</span>, <span class="number">0</span>].imshow(aspect, cmap=<span class="string">'hsv'</span>)
+    axes[<span class="number">1</span>, <span class="number">0</span>].set_title(<span class="string">'جهت (درجه)'</span>)
+    plt.colorbar(im3, ax=axes[<span class="number">1</span>, <span class="number">0</span>])
+    
+    <span class="comment"># هیستوگرام ارتفاع</span>
+    axes[<span class="number">1</span>, <span class="number">1</span>].hist(elevation.flatten(), bins=<span class="number">50</span>, color=<span class="string">'skyblue'</span>, edgecolor=<span class="string">'black'</span>)
+    axes[<span class="number">1</span>, <span class="number">1</span>].set_title(<span class="string">'توزیع ارتفاع'</span>)
+    axes[<span class="number">1</span>, <span class="number">1</span>].set_xlabel(<span class="string">'ارتفاع'</span>)
+    axes[<span class="number">1</span>, <span class="number">1</span>].set_ylabel(<span class="string">'فراوانی'</span>)
+    
+    plt.tight_layout()
+    <span class="comment"># plt.show()</span></pre>
+                </div>
+            </div>
+
+            <h3>مقایسه برداری و رستری</h3>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>برداری (Vector)</th>
+                            <th>رستری (Raster)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>ساختار</strong></td>
+                            <td>نقطه، خط، چندضلعی</td>
+                            <td>سلول‌های منظم (پیکسل)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>دقت مکانی</strong></td>
+                            <td>بالا (دقت بی‌نهایت)</td>
+                            <td>وابسته به تفکیک‌پذیری</td>
+                        </tr>
+                        <tr>
+                            <td><strong>حجم فایل</strong></td>
+                            <td>کم (برای اشیاء محدود)</td>
+                            <td>زیاد (بستگی به تفکیک)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>کاربرد</strong></td>
+                            <td>مرزها، جاده‌ها، ساختمان‌ها</td>
+                            <td>تصاویر، DEM، پدیده‌های پیوسته</td>
+                        </tr>
+                        <tr>
+                            <td><strong>تحلیل</strong></td>
+                            <td>توپولوژی، شبکه، بافر</td>
+                            <td>آماری، همپوشانی، طبقه‌بندی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>نمایش</strong></td>
+                            <td>واضح و قابل مقیاس</td>
+                            <td>ممکن است پیکسلی شود</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="box box-tip">
+                <div class="box-title">
+                    <span>💡</span>
+                    کدام را انتخاب کنیم؟
+                </div>
+                <p><strong>برداری را انتخاب کنید اگر:</strong></p>
+                <ul>
+                    <li>نیاز به دقت بالا دارید</li>
+                    <li>با اشیاء گسسته کار می‌کنید</li>
+                    <li>تحلیل‌های شبکه یا توپولوژیک می‌خواهید</li>
+                    <li>نقشه‌های قابل چاپ نیاز دارید</li>
+                </ul>
+                
+                <p><strong>رستری را انتخاب کنید اگر:</strong></p>
+                <ul>
+                    <li>با تصاویر ماهواره‌ای کار می‌کنید</li>
+                    <li>پدیده‌های پیوسته را مدل می‌کنید</li>
+                    <li>تحلیل‌های آماری نیاز دارید</li>
+                    <li>از یادگیری عمیق استفاده می‌کنید</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Continue with CRS Section... (ادامه در پیام بعدی) -->
+
+    </main>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('pre').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = '✅ کپی شد!';
+                button.style.background = 'rgba(16, 185, 129, 0.2)';
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Active navigation
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
