@@ -1,0 +1,4615 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع FlatGeobuf - فرمت مدرن داده‌های مکانی</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --secondary: #3b82f6;
+            --accent: #8b5cf6;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-2: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #475569;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            
+            --font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px rgba(16, 185, 129, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           HEADER
+        ═══════════════════════════════════════════════════════════ */
+        .header {
+            background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .header-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .badge.primary {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--primary);
+            color: var(--primary-light);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           NAVIGATION
+        ═══════════════════════════════════════════════════════════ */
+        .nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--surface-2);
+            color: var(--primary-light);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           MAIN CONTAINER
+        ═══════════════════════════════════════════════════════════ */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           SECTIONS
+        ═══════════════════════════════════════════════════════════ */
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--surface-2);
+        }
+
+        .section-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .section-title-group {
+            flex: 1;
+        }
+
+        .section-number {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.25rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           TYPOGRAPHY
+        ═══════════════════════════════════════════════════════════ */
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            margin: 2rem 0 1rem;
+            padding-right: 1rem;
+            border-right: 4px solid var(--primary);
+        }
+
+        h4 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 1.5rem 0 0.75rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.9;
+        }
+
+        strong {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--primary-light);
+            text-decoration: underline;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           CODE BLOCKS
+        ═══════════════════════════════════════════════════════════ */
+        .code-block {
+            background: #1a1a2e;
+            border-radius: var(--radius-lg);
+            margin: 1.5rem 0;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.35rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: var(--font-family);
+        }
+
+        .code-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .code-body {
+            padding: 0;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+            padding: 1.25rem;
+            background: transparent !important;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-body code {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            background: transparent !important;
+        }
+
+        /* Inline code */
+        :not(pre) > code {
+            background: var(--surface-2);
+            color: var(--primary-light);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            border: 1px solid var(--border);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           INFO BOXES
+        ═══════════════════════════════════════════════════════════ */
+        .info-box {
+            border-radius: var(--radius-lg);
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+            border-right: 4px solid;
+        }
+
+        .info-box.info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--info);
+        }
+
+        .info-box.tip {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+        }
+
+        .info-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .info-box.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--error);
+        }
+
+        .info-box-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .info-box.info .info-box-title { color: var(--info); }
+        .info-box.tip .info-box-title { color: var(--success); }
+        .info-box.warning .info-box-title { color: var(--warning); }
+        .info-box.danger .info-box-title { color: var(--error); }
+
+        .info-box-content {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .info-box-content ul,
+        .info-box-content ol {
+            margin: 0.5rem 0;
+            padding-right: 1.5rem;
+        }
+
+        .info-box-content li {
+            margin-bottom: 0.35rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           COMPARISON TABLE
+        ═══════════════════════════════════════════════════════════ */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: right;
+            border: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--surface-2);
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .comparison-table td {
+            background: var(--surface);
+            color: var(--text-secondary);
+        }
+
+        .comparison-table tr:hover td {
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .comparison-table .check {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+
+        .comparison-table .cross {
+            color: var(--error);
+            font-size: 1.2rem;
+        }
+
+        .comparison-table .partial {
+            color: var(--warning);
+            font-size: 1.2rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           FEATURE CARDS
+        ═══════════════════════════════════════════════════════════ */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .feature-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           ARCHITECTURE DIAGRAM
+        ═══════════════════════════════════════════════════════════ */
+        .architecture-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(59, 130, 246, 0.05));
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .arch-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .arch-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .arch-layer {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .arch-layer:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .arch-layer.header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .arch-layer.index {
+            background: linear-gradient(135deg, var(--secondary), #2563eb);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        .arch-layer.data {
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .arch-arrow {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           PERFORMANCE CHART
+        ═══════════════════════════════════════════════════════════ */
+        .perf-chart {
+            margin: 1.5rem 0;
+        }
+
+        .perf-item {
+            margin-bottom: 1rem;
+        }
+
+        .perf-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .perf-name {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .perf-value {
+            color: var(--text-secondary);
+        }
+
+        .perf-bar {
+            height: 12px;
+            background: var(--surface-2);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .perf-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .perf-fill.excellent {
+            background: linear-gradient(90deg, var(--success), var(--primary-light));
+        }
+
+        .perf-fill.good {
+            background: linear-gradient(90deg, var(--secondary), #60a5fa);
+        }
+
+        .perf-fill.average {
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
+        }
+
+        .perf-fill.poor {
+            background: linear-gradient(90deg, var(--error), #f87171);
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           STEPS
+        ═══════════════════════════════════════════════════════════ */
+        .steps {
+            margin: 1.5rem 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+            padding-top: 0.25rem;
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           USE CASE CARDS
+        ═══════════════════════════════════════════════════════════ */
+        .usecase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .usecase-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .usecase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary), transparent);
+            opacity: 0.1;
+            border-radius: 0 0 0 100%;
+        }
+
+        .usecase-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .usecase-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.75rem;
+        }
+
+        .usecase-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════════════════════════════ */
+        .footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .section {
+                padding: 1.5rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .section-icon {
+                margin: 0 auto;
+            }
+
+            .nav-content {
+                gap: 0.25rem;
+            }
+
+            .nav-link {
+                padding: 0.4rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .comparison-table {
+                font-size: 0.8rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.5rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════
+           SCROLL TO TOP
+        ═══════════════════════════════════════════════════════════ */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-lg);
+            z-index: 99;
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <span class="logo">📦</span>
+            <h1>FlatGeobuf</h1>
+            <p class="subtitle">فرمت باینری مدرن و سریع برای داده‌های جغرافیایی با قابلیت Streaming</p>
+            <div class="header-badges">
+                <span class="badge primary">
+                    <span>⚡</span>
+                    سریع‌تر از GeoJSON
+                </span>
+                <span class="badge">
+                    <span>📡</span>
+                    HTTP Range Requests
+                </span>
+                <span class="badge">
+                    <span>🌐</span>
+                    Cloud-Native
+                </span>
+                <span class="badge">
+                    <span>🔓</span>
+                    Open Source
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-content">
+            <a href="#intro" class="nav-link active">معرفی</a>
+            <a href="#architecture" class="nav-link">معماری</a>
+            <a href="#comparison" class="nav-link">مقایسه</a>
+            <a href="#python" class="nav-link">Python</a>
+            <a href="#javascript" class="nav-link">JavaScript</a>
+            <a href="#gdal" class="nav-link">GDAL/OGR</a>
+            <a href="#qgis" class="nav-link">QGIS</a>
+            <a href="#web" class="nav-link">وب</a>
+            <a href="#advanced" class="nav-link">پیشرفته</a>
+            <a href="#usecases" class="nav-link">کاربردها</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">📖</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی FlatGeobuf</h2>
+                    <p class="section-subtitle">چرا FlatGeobuf و چه مزایایی دارد؟</p>
+                </div>
+            </div>
+
+            <h3>FlatGeobuf چیست؟</h3>
+            <p>
+                <strong>FlatGeobuf</strong> یک فرمت باینری برای ذخیره و انتقال داده‌های جغرافیایی است که 
+                بر پایه <strong>FlatBuffers</strong> (کتابخانه سریالیزاسیون گوگل) ساخته شده است.
+                این فرمت برای حل مشکلات فرمت‌های سنتی مانند GeoJSON و Shapefile طراحی شده و 
+                امکان <strong>دسترسی تصادفی</strong> و <strong>streaming</strong> به داده‌ها را فراهم می‌کند.
+            </p>
+
+            <div class="info-box tip">
+                <div class="info-box-title">
+                    <span>💡</span>
+                    نکته کلیدی
+                </div>
+                <div class="info-box-content">
+                    FlatGeobuf می‌تواند فقط بخشی از فایل را که نیاز دارید بخواند، 
+                    بدون نیاز به دانلود کل فایل. این ویژگی برای فایل‌های بزرگ و 
+                    کاربردهای وب بسیار مهم است.
+                </div>
+            </div>
+
+            <h3>ویژگی‌های کلیدی</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">سرعت بالا</div>
+                    <div class="feature-desc">
+                        خواندن و نوشتن بسیار سریع‌تر از GeoJSON و Shapefile 
+                        به دلیل فرمت باینری و عدم نیاز به parsing
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📡</div>
+                    <div class="feature-title">HTTP Range Requests</div>
+                    <div class="feature-desc">
+                        امکان خواندن بخشی از فایل از طریق HTTP بدون دانلود کامل، 
+                        ایده‌آل برای Cloud Storage
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🗂️</div>
+                    <div class="feature-title">Spatial Index</div>
+                    <div class="feature-desc">
+                        ایندکس مکانی داخلی (R-tree) برای جستجوی سریع 
+                        بر اساس bounding box
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <div class="feature-title">فایل واحد</div>
+                    <div class="feature-desc">
+                        تمام داده‌ها در یک فایل .fgb ذخیره می‌شود، 
+                        برخلاف Shapefile که چندین فایل دارد
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-title">Streaming</div>
+                    <div class="feature-desc">
+                        امکان نوشتن و خواندن به صورت streaming 
+                        برای داده‌های بسیار بزرگ
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <div class="feature-title">پشتیبانی کامل</div>
+                    <div class="feature-desc">
+                        پشتیبانی از تمام انواع geometry، CRS، 
+                        و attribute types مختلف
+                    </div>
+                </div>
+            </div>
+
+            <h3>تاریخچه و توسعه</h3>
+            <p>
+                FlatGeobuf توسط <strong>Björn Harrtell</strong> در سال ۲۰۱۹ معرفی شد.
+                این فرمت با هدف ایجاد یک جایگزین مدرن برای Shapefile و GeoJSON طراحی شده 
+                که مناسب معماری‌های Cloud-Native باشد. پروژه به صورت open-source در 
+                <a href="https://github.com/flatgeobuf/flatgeobuf" target="_blank">GitHub</a> 
+                در دسترس است.
+            </p>
+
+            <div class="info-box info">
+                <div class="info-box-title">
+                    <span>📋</span>
+                    مشخصات فنی
+                </div>
+                <div class="info-box-content">
+                    <ul>
+                        <li><strong>پسوند فایل:</strong> <code>.fgb</code></li>
+                        <li><strong>MIME Type:</strong> <code>application/flatgeobuf</code></li>
+                        <li><strong>Magic Bytes:</strong> <code>0x6667620366676200</code></li>
+                        <li><strong>Encoding:</strong> Little-endian</li>
+                        <li><strong>حداکثر اندازه feature:</strong> 2GB (محدودیت FlatBuffers)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Architecture -->
+        <section class="section" id="architecture">
+            <div class="section-header">
+                <div class="section-icon">🏗️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">معماری FlatGeobuf</h2>
+                    <p class="section-subtitle">ساختار داخلی و نحوه سازماندهی داده‌ها</p>
+                </div>
+            </div>
+
+            <h3>ساختار فایل</h3>
+            <p>
+                یک فایل FlatGeobuf از سه بخش اصلی تشکیل شده است:
+            </p>
+
+            <div class="architecture-box">
+                <div class="arch-title">📐 ساختار فایل FlatGeobuf</div>
+                <div class="arch-layers">
+                    <div class="arch-layer header">
+                        📋 Header (متادیتا + Schema)
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-layer index">
+                        🗂️ Spatial Index (R-tree) - اختیاری
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-layer data">
+                        📦 Features (Geometry + Properties)
+                    </div>
+                </div>
+            </div>
+
+            <h3>۱. Header</h3>
+            <p>
+                بخش Header شامل اطلاعات متادیتا و schema داده‌ها است:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>📋</span>
+                        <span>Header Structure</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">Header {
+    name: string              // نام لایه
+    envelope: [4 x double]    // bounding box کل
+    geometry_type: GeometryType
+    has_z: bool
+    has_m: bool
+    has_t: bool               // temporal
+    has_tm: bool              // temporal with measure
+    columns: [Column]         // تعریف ستون‌ها
+    features_count: ulong     // تعداد features
+    index_node_size: ushort   // اندازه node در R-tree
+    crs: Crs                  // سیستم مختصات
+    title: string
+    description: string
+    metadata: string          // متادیتای اضافی (JSON)
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>۲. Spatial Index (R-tree)</h3>
+            <p>
+                ایندکس مکانی به صورت <strong>Packed Hilbert R-tree</strong> پیاده‌سازی شده است.
+                این ایندکس امکان جستجوی سریع features بر اساس bounding box را فراهم می‌کند.
+            </p>
+
+            <div class="info-box tip">
+                <div class="info-box-title">
+                    <span>⚡</span>
+                    مزیت R-tree
+                </div>
+                <div class="info-box-content">
+                    با استفاده از R-tree، می‌توانید فقط features یک منطقه خاص را 
+                    بخوانید بدون اینکه کل فایل را پردازش کنید. این ویژگی برای 
+                    HTTP Range Requests حیاتی است.
+                </div>
+            </div>
+
+            <h3>۳. Features</h3>
+            <p>
+                هر feature شامل geometry و properties است که به صورت FlatBuffer سریالیز شده:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>📦</span>
+                        <span>Feature Structure</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">Feature {
+    geometry: Geometry {
+        ends: [uint]          // برای multi-geometries
+        xy: [double]          // مختصات x, y
+        z: [double]           // مختصات z (اختیاری)
+        m: [double]           // measures (اختیاری)
+        t: [double]           // temporal (اختیاری)
+        tm: [ulong]           // temporal measures
+        type: GeometryType
+        parts: [Geometry]     // برای GeometryCollection
+    }
+    properties: [ubyte]       // مقادیر ستون‌ها (باینری)
+    columns: [Column]         // override schema (نادر)
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>انواع Geometry پشتیبانی‌شده</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>نوع</th>
+                        <th>کد</th>
+                        <th>توضیح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Point</td>
+                        <td>1</td>
+                        <td>نقطه تکی</td>
+                    </tr>
+                    <tr>
+                        <td>LineString</td>
+                        <td>2</td>
+                        <td>خط</td>
+                    </tr>
+                    <tr>
+                        <td>Polygon</td>
+                        <td>3</td>
+                        <td>چندضلعی</td>
+                    </tr>
+                    <tr>
+                        <td>MultiPoint</td>
+                        <td>4</td>
+                        <td>چند نقطه</td>
+                    </tr>
+                    <tr>
+                        <td>MultiLineString</td>
+                        <td>5</td>
+                        <td>چند خط</td>
+                    </tr>
+                    <tr>
+                        <td>MultiPolygon</td>
+                        <td>6</td>
+                        <td>چند چندضلعی</td>
+                    </tr>
+                    <tr>
+                        <td>GeometryCollection</td>
+                        <td>7</td>
+                        <td>مجموعه geometries</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>انواع داده ستون‌ها</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>نوع</th>
+                        <th>اندازه</th>
+                        <th>توضیح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Byte</td>
+                        <td>1 byte</td>
+                        <td>عدد صحیح ۸ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>UByte</td>
+                        <td>1 byte</td>
+                        <td>عدد صحیح بدون علامت ۸ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>Bool</td>
+                        <td>1 byte</td>
+                        <td>مقدار بولی</td>
+                    </tr>
+                    <tr>
+                        <td>Short</td>
+                        <td>2 bytes</td>
+                        <td>عدد صحیح ۱۶ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>UShort</td>
+                        <td>2 bytes</td>
+                        <td>عدد صحیح بدون علامت ۱۶ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>Int</td>
+                        <td>4 bytes</td>
+                        <td>عدد صحیح ۳۲ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>UInt</td>
+                        <td>4 bytes</td>
+                        <td>عدد صحیح بدون علامت ۳۲ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>Long</td>
+                        <td>8 bytes</td>
+                        <td>عدد صحیح ۶۴ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>ULong</td>
+                        <td>8 bytes</td>
+                        <td>عدد صحیح بدون علامت ۶۴ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>Float</td>
+                        <td>4 bytes</td>
+                        <td>عدد اعشاری ۳۲ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>Double</td>
+                        <td>8 bytes</td>
+                        <td>عدد اعشاری ۶۴ بیتی</td>
+                    </tr>
+                    <tr>
+                        <td>String</td>
+                        <td>متغیر</td>
+                        <td>رشته UTF-8</td>
+                    </tr>
+                    <tr>
+                        <td>Json</td>
+                        <td>متغیر</td>
+                        <td>رشته JSON</td>
+                    </tr>
+                    <tr>
+                        <td>DateTime</td>
+                        <td>متغیر</td>
+                        <td>تاریخ و زمان ISO 8601</td>
+                    </tr>
+                    <tr>
+                        <td>Binary</td>
+                        <td>متغیر</td>
+                        <td>داده باینری</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 3: Comparison -->
+        <section class="section" id="comparison">
+            <div class="section-header">
+                <div class="section-icon">⚖️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">مقایسه با فرمت‌های دیگر</h2>
+                    <p class="section-subtitle">FlatGeobuf در مقابل GeoJSON، Shapefile و GeoPackage</p>
+                </div>
+            </div>
+
+            <h3>جدول مقایسه کامل</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>ویژگی</th>
+                        <th>FlatGeobuf</th>
+                        <th>GeoJSON</th>
+                        <th>Shapefile</th>
+                        <th>GeoPackage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>فرمت</td>
+                        <td>باینری</td>
+                        <td>متنی (JSON)</td>
+                        <td>باینری</td>
+                        <td>SQLite</td>
+                    </tr>
+                    <tr>
+                        <td>فایل واحد</td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Spatial Index</td>
+                        <td><span class="check">✓</span> داخلی</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="partial">◐</span> فایل جدا</td>
+                        <td><span class="check">✓</span> داخلی</td>
+                    </tr>
+                    <tr>
+                        <td>HTTP Range Requests</td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                    </tr>
+                    <tr>
+                        <td>Streaming</td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="partial">◐</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                    </tr>
+                    <tr>
+                        <td>سرعت خواندن</td>
+                        <td>بسیار سریع</td>
+                        <td>کند</td>
+                        <td>متوسط</td>
+                        <td>متوسط</td>
+                    </tr>
+                    <tr>
+                        <td>اندازه فایل</td>
+                        <td>کوچک</td>
+                        <td>بزرگ</td>
+                        <td>متوسط</td>
+                        <td>متوسط</td>
+                    </tr>
+                    <tr>
+                        <td>خوانایی انسان</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                    </tr>
+                    <tr>
+                        <td>چند لایه</td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="cross">✗</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>پشتیبانی CRS</td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="partial">◐</span></td>
+                        <td><span class="check">✓</span></td>
+                        <td><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>حداکثر اندازه</td>
+                        <td>نامحدود*</td>
+                        <td>محدود به RAM</td>
+                        <td>2GB</td>
+                        <td>نامحدود</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>مقایسه عملکرد</h3>
+            <p>
+                نتایج benchmark برای خواندن یک فایل ۱۰۰,۰۰۰ feature:
+            </p>
+
+            <div class="perf-chart">
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">FlatGeobuf</span>
+                        <span class="perf-value">۱۲۰ms</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill excellent" style="width: 95%;"></div>
+                    </div>
+                </div>
+
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">GeoPackage</span>
+                        <span class="perf-value">۳۵۰ms</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill good" style="width: 70%;"></div>
+                    </div>
+                </div>
+
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">Shapefile</span>
+                        <span class="perf-value">۵۸۰ms</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill average" style="width: 50%;"></div>
+                    </div>
+                </div>
+
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">GeoJSON</span>
+                        <span class="perf-value">۲۴۰۰ms</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill poor" style="width: 15%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>مقایسه اندازه فایل</h3>
+            <p>
+                اندازه فایل برای ۱۰۰,۰۰۰ polygon feature:
+            </p>
+
+            <div class="perf-chart">
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">FlatGeobuf</span>
+                        <span class="perf-value">۴۵MB</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill excellent" style="width: 90%;"></div>
+                    </div>
+                </div>
+
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">Shapefile</span>
+                        <span class="perf-value">۶۲MB</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill good" style="width: 72%;"></div>
+                    </div>
+                </div>
+
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">GeoPackage</span>
+                        <span class="perf-value">۷۸MB</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill average" style="width: 58%;"></div>
+                    </div>
+                </div>
+
+                <div class="perf-item">
+                    <div class="perf-label">
+                        <span class="perf-name">GeoJSON</span>
+                        <span class="perf-value">۱۸۵MB</span>
+                    </div>
+                    <div class="perf-bar">
+                        <div class="perf-fill poor" style="width: 24%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-box-title">
+                    <span>⚠️</span>
+                    محدودیت‌های FlatGeobuf
+                </div>
+                <div class="info-box-content">
+                    <ul>
+                        <li>فقط یک لایه در هر فایل (برخلاف GeoPackage)</li>
+                        <li>غیرقابل خواندن توسط انسان (برخلاف GeoJSON)</li>
+                        <li>عدم پشتیبانی از رابطه‌های پیچیده</li>
+                        <li>نیاز به کتابخانه خاص برای خواندن</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <!-- Section 4: Python -->
+        <section class="section" id="python">
+            <div class="section-header">
+                <div class="section-icon">🐍</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">کار با Python</h2>
+                    <p class="section-subtitle">استفاده از FlatGeobuf در پایتون</p>
+                </div>
+            </div>
+
+            <h3>نصب کتابخانه‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>💻</span>
+                        <span>Terminal</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># نصب کتابخانه اصلی
+pip install flatgeobuf
+
+# نصب GeoPandas (توصیه شده)
+pip install geopandas
+
+# نصب Fiona (برای GDAL/OGR)
+pip install fiona
+
+# نصب pyogrio (سریع‌تر از fiona)
+pip install pyogrio</code></pre>
+                </div>
+            </div>
+
+            <h3>خواندن و نوشتن با GeoPandas</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>geopandas_example.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point, Polygon
+import pandas as pd
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد GeoDataFrame نمونه
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد داده‌های نمونه
+data = {
+    'name': ['تهران', 'اصفهان', 'شیراز', 'تبریز', 'مشهد'],
+    'population': [8693706, 1961260, 1565572, 1558693, 3001184],
+    'province': ['تهران', 'اصفهان', 'فارس', 'آذربایجان شرقی', 'خراسان رضوی'],
+    'geometry': [
+        Point(51.3890, 35.6892),
+        Point(51.6546, 32.6546),
+        Point(52.5311, 29.5918),
+        Point(46.2919, 38.0800),
+        Point(59.5794, 36.2972)
+    ]
+}
+
+gdf = gpd.GeoDataFrame(data, crs="EPSG:4326")
+print("GeoDataFrame ایجاد شد:")
+print(gdf)
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره به فرمت FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+# روش ۱: استفاده از to_file
+gdf.to_file("cities.fgb", driver="FlatGeobuf")
+print("\n✅ فایل cities.fgb ذخیره شد")
+
+# روش ۲: با تنظیمات اضافی
+gdf.to_file(
+    "cities_indexed.fgb",
+    driver="FlatGeobuf",
+    SPATIAL_INDEX="YES",        # ایجاد spatial index
+    VERIFY_BUFFERS="NO"         # سرعت بیشتر
+)
+print("✅ فایل cities_indexed.fgb با index ذخیره شد")
+
+# ═══════════════════════════════════════════════════════════
+# خواندن فایل FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+# خواندن کامل فایل
+gdf_read = gpd.read_file("cities.fgb")
+print("\n📖 فایل خوانده شد:")
+print(gdf_read)
+
+# خواندن با فیلتر مکانی (bbox)
+from shapely.geometry import box
+bbox = box(50, 30, 55, 40)  # minx, miny, maxx, maxy
+
+gdf_filtered = gpd.read_file("cities_indexed.fgb", bbox=bbox.bounds)
+print(f"\n📍 Features در محدوده: {len(gdf_filtered)}")
+
+# خواندن با فیلتر مکانی (mask)
+gdf_masked = gpd.read_file("cities_indexed.fgb", mask=bbox)
+print(f"📍 Features با mask: {len(gdf_masked)}")
+
+# خواندن فقط ستون‌های خاص
+gdf_cols = gpd.read_file(
+    "cities.fgb",
+    columns=['name', 'population']  # فقط این ستون‌ها
+)
+print("\n📊 ستون‌های انتخاب شده:")
+print(gdf_cols.columns.tolist())
+
+# خواندن با محدودیت تعداد
+gdf_limited = gpd.read_file("cities.fgb", rows=3)
+print(f"\n🔢 فقط {len(gdf_limited)} سطر خوانده شد")</code></pre>
+                </div>
+            </div>
+
+            <h3>استفاده از کتابخانه flatgeobuf مستقیم</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>flatgeobuf_direct.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import flatgeobuf as fgb
+from shapely.geometry import shape, mapping
+import json
+
+# ═══════════════════════════════════════════════════════════
+# خواندن فایل FlatGeobuf به صورت مستقیم
+# ═══════════════════════════════════════════════════════════
+
+def read_fgb_file(filepath):
+    """خواندن فایل FlatGeobuf و تبدیل به لیست features"""
+    features = []
+    
+    with open(filepath, 'rb') as f:
+        # خواندن header
+        header = fgb.get_header_meta(f)
+        print(f"📋 Header Info:")
+        print(f"   Name: {header.get('name', 'N/A')}")
+        print(f"   Features Count: {header.get('features_count', 'N/A')}")
+        print(f"   Geometry Type: {header.get('geometry_type', 'N/A')}")
+        print(f"   CRS: {header.get('crs', {}).get('code', 'N/A')}")
+        
+        # خواندن columns
+        columns = header.get('columns', [])
+        print(f"   Columns: {[c['name'] for c in columns]}")
+        
+        # خواندن features
+        f.seek(0)  # برگشت به ابتدا
+        for feature in fgb.reader(f):
+            features.append(feature)
+    
+    return features, header
+
+
+# استفاده
+features, header = read_fgb_file("cities.fgb")
+print(f"\n✅ {len(features)} feature خوانده شد")
+
+# نمایش اولین feature
+if features:
+    first = features[0]
+    print(f"\n🔍 اولین Feature:")
+    print(f"   Geometry Type: {first['geometry']['type']}")
+    print(f"   Properties: {first['properties']}")
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن با فیلتر مکانی (Bounding Box)
+# ═══════════════════════════════════════════════════════════
+
+def read_fgb_with_bbox(filepath, minx, miny, maxx, maxy):
+    """خواندن features در یک محدوده مکانی"""
+    features = []
+    
+    with open(filepath, 'rb') as f:
+        # استفاده از spatial index
+        for feature in fgb.reader(f, (minx, miny, maxx, maxy)):
+            features.append(feature)
+    
+    return features
+
+
+# خواندن features در محدوده تهران
+bbox_features = read_fgb_with_bbox(
+    "cities_indexed.fgb",
+    minx=50.0, miny=34.0,
+    maxx=53.0, maxy=37.0
+)
+print(f"\n📍 Features در محدوده تهران: {len(bbox_features)}")
+
+
+# ═══════════════════════════════════════════════════════════
+# نوشتن فایل FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+def write_fgb_file(features, filepath, crs="EPSG:4326"):
+    """نوشتن features به فایل FlatGeobuf"""
+    
+    # تبدیل به GeoJSON FeatureCollection
+    geojson = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+    
+    with open(filepath, 'wb') as f:
+        fgb.writer(f, geojson, crs=crs, write_index=True)
+    
+    print(f"✅ فایل {filepath} ذخیره شد")
+
+
+# ایجاد features نمونه
+sample_features = [
+    {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [51.3890, 35.6892]
+        },
+        "properties": {
+            "name": "تهران",
+            "population": 8693706
+        }
+    },
+    {
+        "type": "Feature",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [51.6546, 32.6546]
+        },
+        "properties": {
+            "name": "اصفهان",
+            "population": 1961260
+        }
+    }
+]
+
+write_fgb_file(sample_features, "output.fgb")</code></pre>
+                </div>
+            </div>
+
+            <h3>خواندن از URL (HTTP Range Requests)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>http_range_requests.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import httpx
+import flatgeobuf as fgb
+from io import BytesIO
+
+# ═══════════════════════════════════════════════════════════
+# خواندن FlatGeobuf از URL با HTTP Range Requests
+# ═══════════════════════════════════════════════════════════
+
+class HTTPRangeReader:
+    """
+    کلاس برای خواندن فایل از URL با پشتیبانی از Range Requests
+    """
+    
+    def __init__(self, url):
+        self.url = url
+        self.client = httpx.Client()
+        self._size = None
+        self._position = 0
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.client.close()
+    
+    @property
+    def size(self):
+        if self._size is None:
+            response = self.client.head(self.url)
+            self._size = int(response.headers.get('content-length', 0))
+        return self._size
+    
+    def seek(self, position, whence=0):
+        if whence == 0:
+            self._position = position
+        elif whence == 1:
+            self._position += position
+        elif whence == 2:
+            self._position = self.size + position
+    
+    def tell(self):
+        return self._position
+    
+    def read(self, size=-1):
+        if size == -1:
+            size = self.size - self._position
+        
+        if size <= 0:
+            return b''
+        
+        headers = {
+            'Range': f'bytes={self._position}-{self._position + size - 1}'
+        }
+        
+        response = self.client.get(self.url, headers=headers)
+        data = response.content
+        self._position += len(data)
+        
+        return data
+
+
+async def read_fgb_from_url_async(url, bbox=None):
+    """
+    خواندن FlatGeobuf از URL به صورت async
+    """
+    import httpx
+    
+    async with httpx.AsyncClient() as client:
+        features = []
+        
+        # دریافت header
+        response = await client.get(url, headers={'Range': 'bytes=0-8191'})
+        header_data = response.content
+        
+        # پردازش با flatgeobuf
+        # (این یک مثال ساده است - پیاده‌سازی کامل پیچیده‌تر است)
+        
+        return features
+
+
+# ═══════════════════════════════════════════════════════════
+# مثال استفاده
+# ═══════════════════════════════════════════════════════════
+
+def example_remote_read():
+    """مثال خواندن از URL"""
+    
+    url = "https://example.com/data/countries.fgb"
+    
+    # خواندن با bbox
+    bbox = (50, 30, 55, 40)  # minx, miny, maxx, maxy
+    
+    try:
+        with HTTPRangeReader(url) as reader:
+            print(f"📡 اندازه فایل: {reader.size:,} bytes")
+            
+            # خواندن features در محدوده
+            for feature in fgb.reader(reader, bbox):
+                print(f"  - {feature['properties'].get('name', 'N/A')}")
+                
+    except Exception as e:
+        print(f"❌ خطا: {e}")
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده با GeoPandas و pyogrio
+# ═══════════════════════════════════════════════════════════
+
+def read_remote_with_geopandas(url, bbox=None):
+    """
+    خواندن FlatGeobuf از URL با GeoPandas
+    نیاز به pyogrio>=0.7.0
+    """
+    import geopandas as gpd
+    
+    # GeoPandas از GDAL/OGR استفاده می‌کند که از vsicurl پشتیبانی می‌کند
+    vsi_url = f"/vsicurl/{url}"
+    
+    if bbox:
+        gdf = gpd.read_file(vsi_url, bbox=bbox)
+    else:
+        gdf = gpd.read_file(vsi_url)
+    
+    return gdf
+
+
+# مثال
+# gdf = read_remote_with_geopandas(
+#     "https://example.com/data/countries.fgb",
+#     bbox=(50, 30, 55, 40)
+# )</code></pre>
+                </div>
+            </div>
+
+            <h3>تبدیل فرمت‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>format_conversion.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import time
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل از فرمت‌های دیگر به FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+def convert_to_flatgeobuf(input_path, output_path, create_index=True):
+    """
+    تبدیل هر فرمت پشتیبانی‌شده به FlatGeobuf
+    """
+    print(f"📂 خواندن {input_path}...")
+    start = time.time()
+    
+    gdf = gpd.read_file(input_path)
+    read_time = time.time() - start
+    print(f"   ✅ {len(gdf)} feature در {read_time:.2f}s خوانده شد")
+    
+    print(f"💾 نوشتن {output_path}...")
+    start = time.time()
+    
+    gdf.to_file(
+        output_path,
+        driver="FlatGeobuf",
+        SPATIAL_INDEX="YES" if create_index else "NO"
+    )
+    write_time = time.time() - start
+    print(f"   ✅ در {write_time:.2f}s نوشته شد")
+    
+    return gdf
+
+
+# تبدیل GeoJSON به FlatGeobuf
+convert_to_flatgeobuf("data.geojson", "data.fgb")
+
+# تبدیل Shapefile به FlatGeobuf
+convert_to_flatgeobuf("data.shp", "data.fgb")
+
+# تبدیل GeoPackage به FlatGeobuf
+convert_to_flatgeobuf("data.gpkg", "data.fgb")
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل از FlatGeobuf به فرمت‌های دیگر
+# ═══════════════════════════════════════════════════════════
+
+def convert_from_flatgeobuf(input_path, output_path, driver=None):
+    """
+    تبدیل FlatGeobuf به فرمت‌های دیگر
+    """
+    gdf = gpd.read_file(input_path)
+    
+    # تشخیص خودکار driver از پسوند
+    if driver is None:
+        ext = output_path.lower().split('.')[-1]
+        driver_map = {
+            'geojson': 'GeoJSON',
+            'json': 'GeoJSON',
+            'shp': 'ESRI Shapefile',
+            'gpkg': 'GPKG',
+            'parquet': 'Parquet',
+            'gml': 'GML',
+            'kml': 'KML'
+        }
+        driver = driver_map.get(ext)
+    
+    if driver == 'Parquet':
+        gdf.to_parquet(output_path)
+    else:
+        gdf.to_file(output_path, driver=driver)
+    
+    print(f"✅ تبدیل به {output_path} انجام شد")
+
+
+# مثال‌ها
+convert_from_flatgeobuf("data.fgb", "data.geojson")
+convert_from_flatgeobuf("data.fgb", "data.gpkg")
+convert_from_flatgeobuf("data.fgb", "data.parquet")
+
+
+# ═══════════════════════════════════════════════════════════
+# Batch Conversion
+# ═══════════════════════════════════════════════════════════
+
+from pathlib import Path
+import concurrent.futures
+
+def batch_convert_to_fgb(input_dir, output_dir, pattern="*.geojson"):
+    """
+    تبدیل دسته‌ای فایل‌ها به FlatGeobuf
+    """
+    input_path = Path(input_dir)
+    output_path = Path(output_dir)
+    output_path.mkdir(exist_ok=True)
+    
+    files = list(input_path.glob(pattern))
+    print(f"📁 {len(files)} فایل پیدا شد")
+    
+    def convert_file(input_file):
+        output_file = output_path / (input_file.stem + ".fgb")
+        try:
+            gdf = gpd.read_file(input_file)
+            gdf.to_file(output_file, driver="FlatGeobuf")
+            return True, input_file.name
+        except Exception as e:
+            return False, f"{input_file.name}: {e}"
+    
+    # تبدیل موازی
+    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+        results = list(executor.map(convert_file, files))
+    
+    success = sum(1 for r in results if r[0])
+    print(f"✅ {success}/{len(files)} فایل با موفقیت تبدیل شد")
+    
+    # نمایش خطاها
+    for ok, msg in results:
+        if not ok:
+            print(f"   ❌ {msg}")
+
+
+# batch_convert_to_fgb("input_folder", "output_folder", "*.shp")</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-box-title">
+                    <span>💡</span>
+                    نکته عملکرد
+                </div>
+                <div class="info-box-content">
+                    برای فایل‌های بزرگ، استفاده از <code>pyogrio</code> به جای <code>fiona</code> 
+                    سرعت خواندن را تا ۵ برابر افزایش می‌دهد:
+                    <br><br>
+                    <code>gpd.read_file("data.fgb", engine="pyogrio")</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: JavaScript -->
+        <section class="section" id="javascript">
+            <div class="section-header">
+                <div class="section-icon">🟨</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">کار با JavaScript</h2>
+                    <p class="section-subtitle">استفاده از FlatGeobuf در مرورگر و Node.js</p>
+                </div>
+            </div>
+
+            <h3>نصب در Node.js</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>💻</span>
+                        <span>Terminal</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># نصب با npm
+npm install flatgeobuf
+
+# نصب با yarn
+yarn add flatgeobuf
+
+# نصب با pnpm
+pnpm add flatgeobuf</code></pre>
+                </div>
+            </div>
+
+            <h3>استفاده در Node.js</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🟨</span>
+                        <span>nodejs_example.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import { deserialize, serialize } from 'flatgeobuf/lib/mjs/geojson.js';
+import { readFileSync, writeFileSync } from 'fs';
+
+// ═══════════════════════════════════════════════════════════
+// خواندن فایل FlatGeobuf
+// ═══════════════════════════════════════════════════════════
+
+async function readFlatGeobuf(filePath) {
+    const buffer = readFileSync(filePath);
+    const uint8Array = new Uint8Array(buffer);
+    
+    // تبدیل به GeoJSON
+    const geojson = {
+        type: 'FeatureCollection',
+        features: []
+    };
+    
+    for await (const feature of deserialize(uint8Array)) {
+        geojson.features.push(feature);
+    }
+    
+    console.log(`✅ ${geojson.features.length} feature خوانده شد`);
+    return geojson;
+}
+
+// استفاده
+const geojson = await readFlatGeobuf('data.fgb');
+console.log(geojson.features[0]);
+
+
+// ═══════════════════════════════════════════════════════════
+// خواندن با فیلتر مکانی (Bounding Box)
+// ═══════════════════════════════════════════════════════════
+
+async function readWithBbox(filePath, bbox) {
+    const buffer = readFileSync(filePath);
+    const uint8Array = new Uint8Array(buffer);
+    
+    const [minX, minY, maxX, maxY] = bbox;
+    const rect = { minX, minY, maxX, maxY };
+    
+    const features = [];
+    for await (const feature of deserialize(uint8Array, rect)) {
+        features.push(feature);
+    }
+    
+    console.log(`📍 ${features.length} feature در محدوده`);
+    return features;
+}
+
+// خواندن features در محدوده ایران
+const iranFeatures = await readWithBbox('world.fgb', [44, 25, 64, 40]);
+
+
+// ═══════════════════════════════════════════════════════════
+// نوشتن فایل FlatGeobuf
+// ═══════════════════════════════════════════════════════════
+
+async function writeFlatGeobuf(geojson, filePath) {
+    // سریالیز به FlatGeobuf
+    const uint8Array = serialize(geojson);
+    
+    // نوشتن به فایل
+    writeFileSync(filePath, Buffer.from(uint8Array));
+    
+    console.log(`✅ فایل ${filePath} ذخیره شد`);
+}
+
+// ایجاد GeoJSON نمونه
+const sampleGeojson = {
+    type: 'FeatureCollection',
+    features: [
+        {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [51.3890, 35.6892]
+            },
+            properties: {
+                name: 'تهران',
+                population: 8693706
+            }
+        },
+        {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [51.6546, 32.6546]
+            },
+            properties: {
+                name: 'اصفهان',
+                population: 1961260
+            }
+        }
+    ]
+};
+
+await writeFlatGeobuf(sampleGeojson, 'cities.fgb');
+
+
+// ═══════════════════════════════════════════════════════════
+// خواندن Header (متادیتا)
+// ═══════════════════════════════════════════════════════════
+
+import { HeaderMeta } from 'flatgeobuf/lib/mjs/header-meta.js';
+
+function readHeader(filePath) {
+    const buffer = readFileSync(filePath);
+    const uint8Array = new Uint8Array(buffer);
+    
+    const headerMeta = HeaderMeta.fromByteBuffer(uint8Array);
+    
+    console.log('📋 Header Info:');
+    console.log(`   Name: ${headerMeta.name}`);
+    console.log(`   Features Count: ${headerMeta.featuresCount}`);
+    console.log(`   Geometry Type: ${headerMeta.geometryType}`);
+    console.log(`   Has Index: ${headerMeta.indexNodeSize > 0}`);
+    
+    if (headerMeta.columns) {
+        console.log('   Columns:');
+        headerMeta.columns.forEach(col => {
+            console.log(`     - ${col.name}: ${col.type}`);
+        });
+    }
+    
+    return headerMeta;
+}
+
+readHeader('cities.fgb');</code></pre>
+                </div>
+            </div>
+
+            <h3>استفاده در مرورگر</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🌐</span>
+                        <span>browser_example.html</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;FlatGeobuf در مرورگر&lt;/title&gt;
+    &lt;script type="module"&gt;
+        import { deserialize } from 'https://unpkg.com/flatgeobuf@3.27.2/dist/flatgeobuf-geojson.min.js';
+        
+        // ═══════════════════════════════════════════════════════════
+        // خواندن از URL با HTTP Range Requests
+        // ═══════════════════════════════════════════════════════════
+        
+        async function loadFeaturesFromUrl(url, bbox = null) {
+            const features = [];
+            
+            // ایجاد rect برای فیلتر مکانی
+            let rect = null;
+            if (bbox) {
+                rect = {
+                    minX: bbox[0],
+                    minY: bbox[1],
+                    maxX: bbox[2],
+                    maxY: bbox[3]
+                };
+            }
+            
+            // خواندن با HTTP Range Requests
+            const iter = deserialize(url, rect);
+            
+            for await (const feature of iter) {
+                features.push(feature);
+                
+                // نمایش پیشرفت
+                if (features.length % 1000 === 0) {
+                    console.log(`📥 ${features.length} feature بارگذاری شد...`);
+                }
+            }
+            
+            console.log(`✅ مجموع: ${features.length} feature`);
+            return features;
+        }
+        
+        // ═══════════════════════════════════════════════════════════
+        // مثال استفاده
+        // ═══════════════════════════════════════════════════════════
+        
+        async function main() {
+            const url = 'https://flatgeobuf.org/test/data/countries.fgb';
+            
+            // خواندن همه features
+            console.log('📡 بارگذاری همه کشورها...');
+            const allFeatures = await loadFeaturesFromUrl(url);
+            
+            // خواندن با فیلتر مکانی (فقط خاورمیانه)
+            console.log('\n📍 بارگذاری خاورمیانه...');
+            const middleEast = await loadFeaturesFromUrl(url, [25, 10, 65, 45]);
+            
+            // نمایش نتایج
+            document.getElementById('result').innerHTML = `
+                &lt;p&gt;کل کشورها: ${allFeatures.length}&lt;/p&gt;
+                &lt;p&gt;کشورهای خاورمیانه: ${middleEast.length}&lt;/p&gt;
+                &lt;ul&gt;
+                    ${middleEast.map(f => `&lt;li&gt;${f.properties.name}&lt;/li&gt;`).join('')}
+                &lt;/ul&gt;
+            `;
+        }
+        
+        main().catch(console.error);
+    &lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;FlatGeobuf Demo&lt;/h1&gt;
+    &lt;div id="result"&gt;در حال بارگذاری...&lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </div>
+            </div>
+
+            <h3>یکپارچه‌سازی با Leaflet</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🗺️</span>
+                        <span>leaflet_integration.html</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;FlatGeobuf + Leaflet&lt;/title&gt;
+    &lt;link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /&gt;
+    &lt;script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"&gt;&lt;/script&gt;
+    &lt;style&gt;
+        #map { height: 100vh; width: 100%; }
+        .info-box {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="map"&gt;&lt;/div&gt;
+    
+    &lt;script type="module"&gt;
+        import { deserialize } from 'https://unpkg.com/flatgeobuf@3.27.2/dist/flatgeobuf-geojson.min.js';
+        
+        // ═══════════════════════════════════════════════════════════
+        // تنظیمات نقشه
+        // ═══════════════════════════════════════════════════════════
+        
+        const map = L.map('map').setView([35.6892, 51.3890], 5);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        // لایه برای features
+        const featureLayer = L.geoJSON(null, {
+            style: {
+                color: '#10b981',
+                weight: 2,
+                fillOpacity: 0.3
+            },
+            onEachFeature: (feature, layer) => {
+                if (feature.properties) {
+                    const props = feature.properties;
+                    layer.bindPopup(`
+                        &lt;div class="info-box"&gt;
+                            &lt;h4&gt;${props.name || 'N/A'}&lt;/h4&gt;
+                            &lt;p&gt;جمعیت: ${props.population?.toLocaleString() || 'N/A'}&lt;/p&gt;
+                        &lt;/div&gt;
+                    `);
+                }
+            }
+        }).addTo(map);
+        
+        // ═══════════════════════════════════════════════════════════
+        // بارگذاری FlatGeobuf بر اساس محدوده نقشه
+        // ═══════════════════════════════════════════════════════════
+        
+        const fgbUrl = 'https://flatgeobuf.org/test/data/countries.fgb';
+        let loadedFeatureIds = new Set();
+        
+        async function loadFeaturesInView() {
+            const bounds = map.getBounds();
+            
+            const rect = {
+                minX: bounds.getWest(),
+                minY: bounds.getSouth(),
+                maxX: bounds.getEast(),
+                maxY: bounds.getNorth()
+            };
+            
+            console.log('📍 بارگذاری features در محدوده:', rect);
+            
+            try {
+                for await (const feature of deserialize(fgbUrl, rect)) {
+                    // جلوگیری از بارگذاری تکراری
+                    const featureId = feature.properties?.name || JSON.stringify(feature.geometry.coordinates[0]);
+                    
+                    if (!loadedFeatureIds.has(featureId)) {
+                        loadedFeatureIds.add(featureId);
+                        featureLayer.addData(feature);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ خطا در بارگذاری:', error);
+            }
+        }
+        
+        // بارگذاری اولیه
+        loadFeaturesInView();
+        
+        // بارگذاری هنگام تغییر محدوده نقشه
+        map.on('moveend', loadFeaturesInView);
+        
+        // ═══════════════════════════════════════════════════════════
+        // نمایش اطلاعات بارگذاری
+        // ═══════════════════════════════════════════════════════════
+        
+        const info = L.control({ position: 'topright' });
+        
+        info.onAdd = function() {
+            this._div = L.DomUtil.create('div', 'info-box');
+            this.update();
+            return this._div;
+        };
+        
+        info.update = function() {
+            this._div.innerHTML = `
+                &lt;strong&gt;FlatGeobuf Demo&lt;/strong&gt;&lt;br&gt;
+                Features بارگذاری شده: ${loadedFeatureIds.size}
+            `;
+        };
+        
+        info.addTo(map);
+        
+        // به‌روزرسانی شمارنده
+        setInterval(() => info.update(), 1000);
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </div>
+            </div>
+
+            <h3>یکپارچه‌سازی با MapLibre GL JS</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🗺️</span>
+                        <span>maplibre_integration.html</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;FlatGeobuf + MapLibre GL&lt;/title&gt;
+    &lt;link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" /&gt;
+    &lt;script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"&gt;&lt;/script&gt;
+    &lt;style&gt;
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div id="map"&gt;&lt;/div&gt;
+    
+    &lt;script type="module"&gt;
+        import { deserialize } from 'https://unpkg.com/flatgeobuf@3.27.2/dist/flatgeobuf-geojson.min.js';
+        
+        // ═══════════════════════════════════════════════════════════
+        // تنظیمات نقشه
+        // ═══════════════════════════════════════════════════════════
+        
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://demotiles.maplibre.org/style.json',
+            center: [51.3890, 35.6892],
+            zoom: 4
+        });
+        
+        const fgbUrl = 'https://flatgeobuf.org/test/data/countries.fgb';
+        
+        // ═══════════════════════════════════════════════════════════
+        // بارگذاری و نمایش FlatGeobuf
+        // ═══════════════════════════════════════════════════════════
+        
+        map.on('load', async () => {
+            // اضافه کردن source خالی
+            map.addSource('fgb-source', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+            });
+            
+            // اضافه کردن لایه fill
+            map.addLayer({
+                id: 'fgb-fill',
+                type: 'fill',
+                source: 'fgb-source',
+                paint: {
+                    'fill-color': '#10b981',
+                    'fill-opacity': 0.3
+                }
+            });
+            
+            // اضافه کردن لایه خط
+            map.addLayer({
+                id: 'fgb-line',
+                type: 'line',
+                source: 'fgb-source',
+                paint: {
+                    'line-color': '#059669',
+                    'line-width': 2
+                }
+            });
+            
+            // بارگذاری features
+            await loadFeatures();
+        });
+        
+        async function loadFeatures() {
+            const bounds = map.getBounds();
+            
+            const rect = {
+                minX: bounds.getWest(),
+                minY: bounds.getSouth(),
+                maxX: bounds.getEast(),
+                maxY: bounds.getNorth()
+            };
+            
+            const features = [];
+            
+            for await (const feature of deserialize(fgbUrl, rect)) {
+                features.push(feature);
+            }
+            
+            // به‌روزرسانی source
+            map.getSource('fgb-source').setData({
+                type: 'FeatureCollection',
+                features: features
+            });
+            
+            console.log(`✅ ${features.length} feature بارگذاری شد`);
+        }
+        
+        // بارگذاری مجدد هنگام تغییر محدوده
+        map.on('moveend', loadFeatures);
+        
+        // ═══════════════════════════════════════════════════════════
+        // Popup برای نمایش اطلاعات
+        // ═══════════════════════════════════════════════════════════
+        
+        const popup = new maplibregl.Popup({
+            closeButton: false,
+            closeOnClick: false
+        });
+        
+        map.on('mousemove', 'fgb-fill', (e) => {
+            map.getCanvas().style.cursor = 'pointer';
+            
+            const feature = e.features[0];
+            const props = feature.properties;
+            
+            popup
+                .setLngLat(e.lngLat)
+                .setHTML(`&lt;strong&gt;${props.name || 'N/A'}&lt;/strong&gt;`)
+                .addTo(map);
+        });
+        
+        map.on('mouseleave', 'fgb-fill', () => {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: GDAL/OGR -->
+        <section class="section" id="gdal">
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">کار با GDAL/OGR</h2>
+                    <p class="section-subtitle">استفاده از ابزارهای خط فرمان GDAL</p>
+                </div>
+            </div>
+
+            <h3>بررسی پشتیبانی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>💻</span>
+                        <span>Terminal</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># بررسی نسخه GDAL
+gdalinfo --version
+
+# بررسی پشتیبانی از FlatGeobuf
+ogrinfo --formats | grep -i flatgeobuf
+# خروجی: FlatGeobuf -vector- (rw+v): FlatGeobuf
+
+# نمایش اطلاعات فایل
+ogrinfo data.fgb
+
+# نمایش اطلاعات با جزئیات
+ogrinfo -al -so data.fgb</code></pre>
+                </div>
+            </div>
+
+            <h3>تبدیل فرمت با ogr2ogr</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>💻</span>
+                        <span>ogr2ogr commands</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# تبدیل به FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+# از GeoJSON
+ogr2ogr -f FlatGeobuf output.fgb input.geojson
+
+# از Shapefile
+ogr2ogr -f FlatGeobuf output.fgb input.shp
+
+# از GeoPackage
+ogr2ogr -f FlatGeobuf output.fgb input.gpkg
+
+# از PostGIS
+ogr2ogr -f FlatGeobuf output.fgb \
+    PG:"host=localhost dbname=gis user=postgres" \
+    -sql "SELECT * FROM my_table"
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل با گزینه‌های پیشرفته
+# ═══════════════════════════════════════════════════════════
+
+# با ایجاد spatial index
+ogr2ogr -f FlatGeobuf output.fgb input.geojson \
+    -lco SPATIAL_INDEX=YES
+
+# بدون spatial index (سریع‌تر برای نوشتن)
+ogr2ogr -f FlatGeobuf output.fgb input.geojson \
+    -lco SPATIAL_INDEX=NO
+
+# با تغییر سیستم مختصات
+ogr2ogr -f FlatGeobuf output.fgb input.geojson \
+    -t_srs EPSG:32639  # UTM Zone 39N
+
+# با فیلتر مکانی
+ogr2ogr -f FlatGeobuf iran.fgb world.fgb \
+    -spat 44 25 64 40  # minx miny maxx maxy
+
+# با فیلتر SQL
+ogr2ogr -f FlatGeobuf cities_large.fgb cities.fgb \
+    -sql "SELECT * FROM cities WHERE population > 1000000"
+
+# با انتخاب ستون‌های خاص
+ogr2ogr -f FlatGeobuf output.fgb input.fgb \
+    -select "name,population,geometry"
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل از FlatGeobuf به فرمت‌های دیگر
+# ═══════════════════════════════════════════════════════════
+
+# به GeoJSON
+ogr2ogr -f GeoJSON output.geojson input.fgb
+
+# به Shapefile
+ogr2ogr -f "ESRI Shapefile" output.shp input.fgb
+
+# به GeoPackage
+ogr2ogr -f GPKG output.gpkg input.fgb
+
+# به PostGIS
+ogr2ogr -f PostgreSQL \
+    PG:"host=localhost dbname=gis user=postgres" \
+    input.fgb -nln my_table
+
+# به CSV (فقط attributes)
+ogr2ogr -f CSV output.csv input.fgb \
+    -lco GEOMETRY=AS_WKT
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن از URL
+# ═══════════════════════════════════════════════════════════
+
+# استفاده از /vsicurl/
+ogrinfo /vsicurl/https://example.com/data.fgb
+
+# تبدیل از URL
+ogr2ogr -f GeoJSON output.geojson \
+    /vsicurl/https://example.com/data.fgb
+
+# با فیلتر مکانی از URL
+ogr2ogr -f GeoJSON iran.geojson \
+    /vsicurl/https://flatgeobuf.org/test/data/countries.fgb \
+    -spat 44 25 64 40
+
+
+# ═══════════════════════════════════════════════════════════
+# عملیات پیشرفته
+# ═══════════════════════════════════════════════════════════
+
+# Append به فایل موجود
+ogr2ogr -f FlatGeobuf output.fgb new_data.geojson -append
+
+# به‌روزرسانی فایل
+ogr2ogr -f FlatGeobuf output.fgb input.fgb -update
+
+# ادغام چند فایل
+ogr2ogr -f FlatGeobuf merged.fgb file1.fgb
+ogr2ogr -f FlatGeobuf merged.fgb file2.fgb -append
+ogr2ogr -f FlatGeobuf merged.fgb file3.fgb -append
+
+# تبدیل با progress
+ogr2ogr -f FlatGeobuf output.fgb input.geojson -progress</code></pre>
+                </div>
+            </div>
+
+            <h3>گزینه‌های لایه (Layer Creation Options)</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>گزینه</th>
+                        <th>مقدار پیش‌فرض</th>
+                        <th>توضیح</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>SPATIAL_INDEX</code></td>
+                        <td>YES</td>
+                        <td>ایجاد R-tree spatial index</td>
+                    </tr>
+                    <tr>
+                        <td><code>VERIFY_BUFFERS</code></td>
+                        <td>YES</td>
+                        <td>تأیید صحت buffers (غیرفعال کردن = سریع‌تر)</td>
+                    </tr>
+                    <tr>
+                        <td><code>TEMPORARY_DIR</code></td>
+                        <td>-</td>
+                        <td>مسیر فایل‌های موقت</td>
+                    </tr>
+                    <tr>
+                        <td><code>TITLE</code></td>
+                        <td>-</td>
+                        <td>عنوان لایه</td>
+                    </tr>
+                    <tr>
+                        <td><code>DESCRIPTION</code></td>
+                        <td>-</td>
+                        <td>توضیحات لایه</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box tip">
+                <div class="info-box-title">
+                    <span>⚡</span>
+                    نکته سرعت
+                </div>
+                <div class="info-box-content">
+                    برای تبدیل سریع‌تر فایل‌های بزرگ:
+                    <br><br>
+                    <code>ogr2ogr -f FlatGeobuf out.fgb in.geojson -lco SPATIAL_INDEX=NO -lco VERIFY_BUFFERS=NO</code>
+                    <br><br>
+                    سپس می‌توانید index را جداگانه اضافه کنید.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: QGIS -->
+        <section class="section" id="qgis">
+            <div class="section-header">
+                <div class="section-icon">🗺️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">کار با QGIS</h2>
+                    <p class="section-subtitle">استفاده از FlatGeobuf در QGIS</p>
+                </div>
+            </div>
+
+            <h3>پشتیبانی در QGIS</h3>
+            <p>
+                QGIS از نسخه <strong>3.16</strong> به بعد از FlatGeobuf پشتیبانی می‌کند.
+                این پشتیبانی از طریق GDAL/OGR انجام می‌شود.
+            </p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">باز کردن فایل FlatGeobuf</div>
+                        <div class="step-desc">
+                            از منوی <strong>Layer → Add Layer → Add Vector Layer</strong> استفاده کنید
+                            یا فایل .fgb را مستقیماً به نقشه بکشید (drag & drop).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">ذخیره به فرمت FlatGeobuf</div>
+                        <div class="step-desc">
+                            روی لایه راست‌کلیک کنید → <strong>Export → Save Features As</strong>
+                            <br>در قسمت Format گزینه <strong>FlatGeobuf</strong> را انتخاب کنید.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">بارگذاری از URL</div>
+                        <div class="step-desc">
+                            در پنجره Add Vector Layer، در قسمت Source Type گزینه 
+                            <strong>Protocol: HTTP(S), cloud, etc.</strong> را انتخاب کنید
+                            و URL فایل FlatGeobuf را وارد کنید.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>استفاده از PyQGIS</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>pyqgis_example.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from qgis.core import (
+    QgsVectorLayer,
+    QgsProject,
+    QgsVectorFileWriter,
+    QgsCoordinateReferenceSystem,
+    QgsCoordinateTransformContext
+)
+
+# ═══════════════════════════════════════════════════════════
+# بارگذاری فایل FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+# از فایل محلی
+layer = QgsVectorLayer("path/to/data.fgb", "My Layer", "ogr")
+
+if layer.isValid():
+    QgsProject.instance().addMapLayer(layer)
+    print(f"✅ لایه با {layer.featureCount()} feature بارگذاری شد")
+else:
+    print("❌ خطا در بارگذاری لایه")
+
+
+# از URL (با HTTP Range Requests)
+url = "/vsicurl/https://example.com/data.fgb"
+remote_layer = QgsVectorLayer(url, "Remote Layer", "ogr")
+
+if remote_layer.isValid():
+    QgsProject.instance().addMapLayer(remote_layer)
+
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره به فرمت FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+def save_to_flatgeobuf(layer, output_path, create_index=True):
+    """ذخیره لایه به فرمت FlatGeobuf"""
+    
+    options = QgsVectorFileWriter.SaveVectorOptions()
+    options.driverName = "FlatGeobuf"
+    options.fileEncoding = "UTF-8"
+    
+    # گزینه‌های لایه
+    options.layerOptions = [
+        f"SPATIAL_INDEX={'YES' if create_index else 'NO'}"
+    ]
+    
+    # نوشتن فایل
+    error = QgsVectorFileWriter.writeAsVectorFormatV3(
+        layer,
+        output_path,
+        QgsCoordinateTransformContext(),
+        options
+    )
+    
+    if error[0] == QgsVectorFileWriter.NoError:
+        print(f"✅ فایل {output_path} ذخیره شد")
+        return True
+    else:
+        print(f"❌ خطا: {error[1]}")
+        return False
+
+
+# استفاده
+active_layer = iface.activeLayer()
+save_to_flatgeobuf(active_layer, "/path/to/output.fgb")
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل دسته‌ای
+# ═══════════════════════════════════════════════════════════
+
+import os
+from pathlib import Path
+
+def batch_convert_to_fgb(input_folder, output_folder, pattern="*.shp"):
+    """تبدیل دسته‌ای فایل‌ها به FlatGeobuf"""
+    
+    input_path = Path(input_folder)
+    output_path = Path(output_folder)
+    output_path.mkdir(exist_ok=True)
+    
+    files = list(input_path.glob(pattern))
+    print(f"📁 {len(files)} فایل پیدا شد")
+    
+    success_count = 0
+    
+    for file in files:
+        layer = QgsVectorLayer(str(file), file.stem, "ogr")
+        
+        if layer.isValid():
+            output_file = output_path / (file.stem + ".fgb")
+            
+            if save_to_flatgeobuf(layer, str(output_file)):
+                success_count += 1
+        else:
+            print(f"❌ خطا در خواندن {file.name}")
+    
+    print(f"\n✅ {success_count}/{len(files)} فایل تبدیل شد")
+
+
+# batch_convert_to_fgb("input_folder", "output_folder", "*.geojson")
+
+
+# ═══════════════════════════════════════════════════════════
+# Processing Algorithm
+# ═══════════════════════════════════════════════════════════
+
+import processing
+
+# تبدیل با Processing
+result = processing.run("native:package", {
+    'LAYERS': [layer],
+    'OUTPUT': '/path/to/output.fgb',
+    'OVERWRITE': True
+})
+
+# فیلتر مکانی و تبدیل
+result = processing.run("native:extractbyextent", {
+    'INPUT': layer,
+    'EXTENT': '50,55,30,40',  # xmin,xmax,ymin,ymax
+    'CLIP': False,
+    'OUTPUT': '/path/to/filtered.fgb'
+})</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box info">
+                <div class="info-box-title">
+                    <span>💡</span>
+                    نکته QGIS
+                </div>
+                <div class="info-box-content">
+                    در QGIS 3.28 و بالاتر، می‌توانید از FlatGeobuf به عنوان 
+                    فرمت پیش‌فرض برای لایه‌های موقت استفاده کنید:
+                    <br><br>
+                    <strong>Settings → Options → Processing → General → Default output vector layer extension</strong>
+                    <br>
+                    مقدار را به <code>fgb</code> تغییر دهید.
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Web Applications -->
+        <section class="section" id="web">
+            <div class="section-header">
+                <div class="section-icon">🌐</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">کاربرد در وب</h2>
+                    <p class="section-subtitle">استفاده از FlatGeobuf در اپلیکیشن‌های وب</p>
+                </div>
+            </div>
+
+            <h3>مزایای FlatGeobuf برای وب</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📡</div>
+                    <div class="feature-title">HTTP Range Requests</div>
+                    <div class="feature-desc">
+                        فقط بخش مورد نیاز از فایل دانلود می‌شود، 
+                        نه کل فایل
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">بارگذاری سریع</div>
+                    <div class="feature-desc">
+                        parsing سریع‌تر از GeoJSON به دلیل 
+                        فرمت باینری
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <div class="feature-title">حجم کمتر</div>
+                    <div class="feature-desc">
+                        فایل‌های کوچک‌تر = انتقال سریع‌تر 
+                        در شبکه
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-title">Streaming</div>
+                    <div class="feature-desc">
+                        نمایش تدریجی features بدون انتظار 
+                        برای دانلود کامل
+                    </div>
+                </div>
+            </div>
+
+            <h3>سرور: FastAPI + FlatGeobuf</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>server.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from fastapi import FastAPI, Query, Response, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse, FileResponse
+import geopandas as gpd
+from shapely.geometry import box
+import flatgeobuf as fgb
+from pathlib import Path
+from typing import Optional
+import io
+
+app = FastAPI(title="FlatGeobuf API")
+
+# CORS برای دسترسی از مرورگر
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Range", "Accept-Ranges", "Content-Length"]
+)
+
+DATA_DIR = Path("data")
+
+
+# ═══════════════════════════════════════════════════════════
+# Endpoint: دانلود فایل با پشتیبانی Range Requests
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/data/{filename}")
+async def get_flatgeobuf_file(
+    filename: str,
+    range: Optional[str] = None
+):
+    """
+    سرو فایل FlatGeobuf با پشتیبانی از HTTP Range Requests
+    """
+    file_path = DATA_DIR / filename
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="فایل یافت نشد")
+    
+    if not filename.endswith('.fgb'):
+        raise HTTPException(status_code=400, detail="فقط فایل‌های .fgb پشتیبانی می‌شود")
+    
+    file_size = file_path.stat().st_size
+    
+    # اگر Range header وجود دارد
+    if range:
+        # پارس Range header
+        # مثال: bytes=0-1023
+        range_str = range.replace("bytes=", "")
+        start, end = range_str.split("-")
+        start = int(start)
+        end = int(end) if end else file_size - 1
+        
+        # محدود کردن end
+        end = min(end, file_size - 1)
+        content_length = end - start + 1
+        
+        # خواندن بخش مورد نظر
+        with open(file_path, "rb") as f:
+            f.seek(start)
+            data = f.read(content_length)
+        
+        return Response(
+            content=data,
+            status_code=206,  # Partial Content
+            headers={
+                "Content-Range": f"bytes {start}-{end}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(content_length),
+                "Content-Type": "application/flatgeobuf"
+            }
+        )
+    
+    # بدون Range - کل فایل
+    return FileResponse(
+        file_path,
+        media_type="application/flatgeobuf",
+        headers={
+            "Accept-Ranges": "bytes",
+            "Content-Length": str(file_size)
+        }
+    )
+
+
+# ═══════════════════════════════════════════════════════════
+# Endpoint: فیلتر مکانی و برگرداندن GeoJSON
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/api/features/{layer_name}")
+async def get_features(
+    layer_name: str,
+    bbox: Optional[str] = Query(None, description="minx,miny,maxx,maxy"),
+    limit: int = Query(1000, ge=1, le=10000),
+    offset: int = Query(0, ge=0),
+    properties: Optional[str] = Query(None, description="ستون‌های مورد نظر")
+):
+    """
+    دریافت features با فیلتر مکانی
+    """
+    file_path = DATA_DIR / f"{layer_name}.fgb"
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="لایه یافت نشد")
+    
+    # خواندن با فیلتر
+    read_kwargs = {}
+    
+    if bbox:
+        coords = [float(x) for x in bbox.split(",")]
+        read_kwargs["bbox"] = tuple(coords)
+    
+    if properties:
+        read_kwargs["columns"] = properties.split(",")
+    
+    gdf = gpd.read_file(file_path, **read_kwargs)
+    
+    # pagination
+    total = len(gdf)
+    gdf = gdf.iloc[offset:offset + limit]
+    
+    # تبدیل به GeoJSON
+    geojson = gdf.__geo_interface__
+    
+    return {
+        "type": "FeatureCollection",
+        "features": geojson["features"],
+        "metadata": {
+            "total": total,
+            "offset": offset,
+            "limit": limit,
+            "returned": len(gdf)
+        }
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# Endpoint: تبدیل و دانلود به فرمت FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+@app.post("/api/convert/to-fgb")
+async def convert_to_flatgeobuf(geojson: dict):
+    """
+    تبدیل GeoJSON به FlatGeobuf
+    """
+    try:
+        # تبدیل به GeoDataFrame
+        gdf = gpd.GeoDataFrame.from_features(geojson["features"])
+        gdf.set_crs("EPSG:4326", inplace=True)
+        
+        # نوشتن به buffer
+        buffer = io.BytesIO()
+        gdf.to_file(buffer, driver="FlatGeobuf")
+        buffer.seek(0)
+        
+        return StreamingResponse(
+            buffer,
+            media_type="application/flatgeobuf",
+            headers={
+                "Content-Disposition": "attachment; filename=data.fgb"
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+# ═══════════════════════════════════════════════════════════
+# Endpoint: اطلاعات لایه
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/api/layers/{layer_name}/info")
+async def get_layer_info(layer_name: str):
+    """
+    دریافت اطلاعات متادیتای لایه
+    """
+    file_path = DATA_DIR / f"{layer_name}.fgb"
+    
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="لایه یافت نشد")
+    
+    gdf = gpd.read_file(file_path, rows=0)  # فقط schema
+    
+    # خواندن header
+    with open(file_path, 'rb') as f:
+        header = fgb.get_header_meta(f)
+    
+    return {
+        "name": layer_name,
+        "features_count": header.get("features_count"),
+        "geometry_type": header.get("geometry_type"),
+        "crs": str(gdf.crs),
+        "bounds": header.get("envelope"),
+        "columns": [
+            {
+                "name": col,
+                "type": str(gdf[col].dtype) if col in gdf.columns else "geometry"
+            }
+            for col in list(gdf.columns)
+        ],
+        "file_size_bytes": file_path.stat().st_size,
+        "has_spatial_index": header.get("index_node_size", 0) > 0
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# Endpoint: لیست لایه‌ها
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/api/layers")
+async def list_layers():
+    """
+    لیست تمام لایه‌های موجود
+    """
+    layers = []
+    
+    for file_path in DATA_DIR.glob("*.fgb"):
+        try:
+            with open(file_path, 'rb') as f:
+                header = fgb.get_header_meta(f)
+            
+            layers.append({
+                "name": file_path.stem,
+                "features_count": header.get("features_count"),
+                "geometry_type": header.get("geometry_type"),
+                "file_size_bytes": file_path.stat().st_size
+            })
+        except:
+            pass
+    
+    return {"layers": layers}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)</code></pre>
+                </div>
+            </div>
+
+            <h3>کلاینت: React + FlatGeobuf</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>⚛️</span>
+                        <span>FlatGeobufMap.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import { deserialize } from 'flatgeobuf/lib/mjs/geojson.js';
+import 'leaflet/dist/leaflet.css';
+
+// ═══════════════════════════════════════════════════════════
+// Hook برای بارگذاری FlatGeobuf
+// ═══════════════════════════════════════════════════════════
+
+function useFlatGeobuf(url, bbox = null) {
+    const [features, setFeatures] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [progress, setProgress] = useState(0);
+    
+    const loadFeatures = useCallback(async () => {
+        if (!url) return;
+        
+        setLoading(true);
+        setError(null);
+        setProgress(0);
+        
+        try {
+            const rect = bbox ? {
+                minX: bbox[0],
+                minY: bbox[1],
+                maxX: bbox[2],
+                maxY: bbox[3]
+            } : null;
+            
+            const loadedFeatures = [];
+            let count = 0;
+            
+            for await (const feature of deserialize(url, rect)) {
+                loadedFeatures.push(feature);
+                count++;
+                
+                // به‌روزرسانی هر 100 feature
+                if (count % 100 === 0) {
+                    setProgress(count);
+                }
+            }
+            
+            setFeatures(loadedFeatures);
+            setProgress(loadedFeatures.length);
+            
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    }, [url, bbox?.join(',')]);
+    
+    useEffect(() => {
+        loadFeatures();
+    }, [loadFeatures]);
+    
+    return { features, loading, error, progress, reload: loadFeatures };
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// کامپوننت بارگذاری بر اساس محدوده نقشه
+// ═══════════════════════════════════════════════════════════
+
+function FlatGeobufLayer({ url, style, onEachFeature }) {
+    const map = useMap();
+    const [features, setFeatures] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const loadedBounds = useRef(null);
+    
+    const loadFeaturesInBounds = useCallback(async () => {
+        const bounds = map.getBounds();
+        
+        // جلوگیری از بارگذاری تکراری
+        if (loadedBounds.current) {
+            const lb = loadedBounds.current;
+            if (
+                bounds.getWest() >= lb.getWest() &&
+                bounds.getSouth() >= lb.getSouth() &&
+                bounds.getEast() <= lb.getEast() &&
+                bounds.getNorth() <= lb.getNorth()
+            ) {
+                return;
+            }
+        }
+        
+        setLoading(true);
+        
+        const rect = {
+            minX: bounds.getWest(),
+            minY: bounds.getSouth(),
+            maxX: bounds.getEast(),
+            maxY: bounds.getNorth()
+        };
+        
+        try {
+            const newFeatures = [];
+            
+            for await (const feature of deserialize(url, rect)) {
+                newFeatures.push(feature);
+            }
+            
+            setFeatures(prev => {
+                // ادغام با features قبلی (حذف تکراری‌ها)
+                const existingIds = new Set(
+                    prev.map(f => JSON.stringify(f.geometry.coordinates))
+                );
+                
+                const uniqueNew = newFeatures.filter(
+                    f => !existingIds.has(JSON.stringify(f.geometry.coordinates))
+                );
+                
+                return [...prev, ...uniqueNew];
+            });
+            
+            loadedBounds.current = bounds;
+            
+        } catch (err) {
+            console.error('Error loading features:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [url, map]);
+    
+    useEffect(() => {
+        loadFeaturesInBounds();
+        
+        map.on('moveend', loadFeaturesInBounds);
+        
+        return () => {
+            map.off('moveend', loadFeaturesInBounds);
+        };
+    }, [map, loadFeaturesInBounds]);
+    
+    const geojson = {
+        type: 'FeatureCollection',
+        features: features
+    };
+    
+    return (
+        <>
+            {loading && (
+                <div className="loading-indicator">
+                    در حال بارگذاری...
+                </div>
+            )}
+            <GeoJSON 
+                data={geojson}
+                style={style}
+                onEachFeature={onEachFeature}
+            />
+        </>
+    );
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// کامپوننت اصلی نقشه
+// ═══════════════════════════════════════════════════════════
+
+export default function FlatGeobufMap() {
+    const fgbUrl = 'https://flatgeobuf.org/test/data/countries.fgb';
+    
+    const style = {
+        color: '#10b981',
+        weight: 2,
+        fillOpacity: 0.3
+    };
+    
+    const onEachFeature = (feature, layer) => {
+        if (feature.properties) {
+            layer.bindPopup(`
+                <strong>${feature.properties.name || 'N/A'}</strong>
+            `);
+        }
+    };
+    
+    return (
+        <div style={{ height: '100vh', width: '100%' }}>
+            <MapContainer
+                center={[35.6892, 51.3890]}
+                zoom={4}
+                style={{ height: '100%', width: '100%' }}
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="© OpenStreetMap"
+                />
+                
+                <FlatGeobufLayer
+                    url={fgbUrl}
+                    style={style}
+                    onEachFeature={onEachFeature}
+                />
+            </MapContainer>
+            
+            <style jsx>{`
+                .loading-indicator {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: white;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    z-index: 1000;
+                }
+            `}</style>
+        </div>
+    );
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>استفاده با Deck.gl</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>⚛️</span>
+                        <span>DeckGLMap.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import React, { useState, useEffect } from 'react';
+import DeckGL from '@deck.gl/react';
+import { GeoJsonLayer } from '@deck.gl/layers';
+import { Map } from 'react-map-gl';
+import { deserialize } from 'flatgeobuf/lib/mjs/geojson.js';
+
+const INITIAL_VIEW_STATE = {
+    longitude: 51.3890,
+    latitude: 35.6892,
+    zoom: 4,
+    pitch: 0,
+    bearing: 0
+};
+
+export default function DeckGLFlatGeobufMap() {
+    const [features, setFeatures] = useState([]);
+    const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
+    
+    const fgbUrl = 'https://flatgeobuf.org/test/data/countries.fgb';
+    
+    // بارگذاری features بر اساس محدوده دید
+    useEffect(() => {
+        async function loadFeatures() {
+            // محاسبه bbox از viewState
+            const { longitude, latitude, zoom } = viewState;
+            const scale = Math.pow(2, zoom);
+            const width = 360 / scale;
+            const height = 180 / scale;
+            
+            const rect = {
+                minX: longitude - width / 2,
+                minY: latitude - height / 2,
+                maxX: longitude + width / 2,
+                maxY: latitude + height / 2
+            };
+            
+            const loadedFeatures = [];
+            
+            for await (const feature of deserialize(fgbUrl, rect)) {
+                loadedFeatures.push(feature);
+            }
+            
+            setFeatures(loadedFeatures);
+        }
+        
+        loadFeatures();
+    }, [viewState.longitude, viewState.latitude, viewState.zoom]);
+    
+    const layers = [
+        new GeoJsonLayer({
+            id: 'fgb-layer',
+            data: {
+                type: 'FeatureCollection',
+                features: features
+            },
+            pickable: true,
+            stroked: true,
+            filled: true,
+            lineWidthMinPixels: 1,
+            getFillColor: [16, 185, 129, 80],
+            getLineColor: [5, 150, 105, 255],
+            getLineWidth: 2
+        })
+    ];
+    
+    return (
+        <DeckGL
+            viewState={viewState}
+            onViewStateChange={({ viewState }) => setViewState(viewState)}
+            controller={true}
+            layers={layers}
+            getTooltip={({ object }) => object && {
+                html: `<strong>${object.properties?.name || 'N/A'}</strong>`,
+                style: {
+                    backgroundColor: '#1e293b',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '4px'
+                }
+            }}
+        >
+            <Map
+                mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+            />
+        </DeckGL>
+    );
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Advanced Topics -->
+        <section class="section" id="advanced">
+            <div class="section-header">
+                <div class="section-icon">🔬</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">موضوعات پیشرفته</h2>
+                    <p class="section-subtitle">بهینه‌سازی، عملکرد و نکات تخصصی</p>
+                </div>
+            </div>
+
+            <h3>بهینه‌سازی عملکرد</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>optimization.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import time
+from pathlib import Path
+
+# ═══════════════════════════════════════════════════════════
+# Benchmark: مقایسه سرعت خواندن
+# ═══════════════════════════════════════════════════════════
+
+def benchmark_read(file_path, iterations=5):
+    """اندازه‌گیری سرعت خواندن"""
+    times = []
+    
+    for _ in range(iterations):
+        start = time.perf_counter()
+        gdf = gpd.read_file(file_path)
+        elapsed = time.perf_counter() - start
+        times.append(elapsed)
+    
+    avg_time = sum(times) / len(times)
+    return {
+        "file": file_path,
+        "features": len(gdf),
+        "avg_time_sec": round(avg_time, 3),
+        "features_per_sec": round(len(gdf) / avg_time)
+    }
+
+
+# مقایسه فرمت‌ها
+formats = ["data.fgb", "data.geojson", "data.gpkg", "data.shp"]
+
+print("📊 Benchmark Results:")
+print("-" * 60)
+
+for fmt in formats:
+    if Path(fmt).exists():
+        result = benchmark_read(fmt)
+        print(f"{fmt:20} | {result['avg_time_sec']:8.3f}s | {result['features_per_sec']:,} f/s")
+
+
+# ═══════════════════════════════════════════════════════════
+# بهینه‌سازی نوشتن
+# ═══════════════════════════════════════════════════════════
+
+def optimized_write(gdf, output_path, chunk_size=100000):
+    """
+    نوشتن بهینه برای فایل‌های بزرگ
+    """
+    import tempfile
+    import os
+    
+    total = len(gdf)
+    
+    if total <= chunk_size:
+        # فایل کوچک - نوشتن مستقیم
+        gdf.to_file(
+            output_path,
+            driver="FlatGeobuf",
+            SPATIAL_INDEX="YES"
+        )
+        return
+    
+    # فایل بزرگ - نوشتن به صورت chunks
+    temp_files = []
+    
+    for i in range(0, total, chunk_size):
+        chunk = gdf.iloc[i:i + chunk_size]
+        
+        temp_file = tempfile.NamedTemporaryFile(
+            suffix=".fgb",
+            delete=False
+        )
+        temp_files.append(temp_file.name)
+        
+        chunk.to_file(
+            temp_file.name,
+            driver="FlatGeobuf",
+            SPATIAL_INDEX="NO"  # بدون index برای سرعت
+        )
+        
+        print(f"  📦 Chunk {i//chunk_size + 1}: {len(chunk)} features")
+    
+    # ادغام فایل‌ها
+    print("🔗 ادغام chunks...")
+    
+    merged = gpd.GeoDataFrame()
+    for temp_file in temp_files:
+        chunk_gdf = gpd.read_file(temp_file)
+        merged = gpd.concat([merged, chunk_gdf], ignore_index=True)
+        os.unlink(temp_file)
+    
+    # نوشتن نهایی با index
+    merged.to_file(
+        output_path,
+        driver="FlatGeobuf",
+        SPATIAL_INDEX="YES"
+    )
+    
+    print(f"✅ {total} features نوشته شد")
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن موازی
+# ═══════════════════════════════════════════════════════════
+
+import concurrent.futures
+from shapely.geometry import box
+
+def parallel_read_by_tiles(file_path, bbox, tile_size=1.0, max_workers=4):
+    """
+    خواندن موازی با تقسیم به tiles
+    """
+    minx, miny, maxx, maxy = bbox
+    
+    # ایجاد tiles
+    tiles = []
+    x = minx
+    while x < maxx:
+        y = miny
+        while y < maxy:
+            tile_bbox = (
+                x, y,
+                min(x + tile_size, maxx),
+                min(y + tile_size, maxy)
+            )
+            tiles.append(tile_bbox)
+            y += tile_size
+        x += tile_size
+    
+    print(f"📦 {len(tiles)} tile ایجاد شد")
+    
+    def read_tile(tile_bbox):
+        try:
+            gdf = gpd.read_file(file_path, bbox=tile_bbox)
+            return gdf
+        except:
+            return gpd.GeoDataFrame()
+    
+    # خواندن موازی
+    results = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {executor.submit(read_tile, tile): tile for tile in tiles}
+        
+        for future in concurrent.futures.as_completed(futures):
+            gdf = future.result()
+            if len(gdf) > 0:
+                results.append(gdf)
+    
+    # ادغام نتایج
+    if results:
+        merged = gpd.concat(results, ignore_index=True)
+        # حذف تکراری‌ها
+        merged = merged.drop_duplicates(subset='geometry')
+        return merged
+    
+    return gpd.GeoDataFrame()
+
+
+# استفاده
+# gdf = parallel_read_by_tiles(
+#     "large_file.fgb",
+#     bbox=(44, 25, 64, 40),
+#     tile_size=2.0,
+#     max_workers=8
+# )
+
+
+# ═══════════════════════════════════════════════════════════
+# کش کردن با Redis
+# ═══════════════════════════════════════════════════════════
+
+import redis
+import pickle
+import hashlib
+
+class FlatGeobufCache:
+    """کش برای نتایج query های FlatGeobuf"""
+    
+    def __init__(self, redis_url="redis://localhost:6379"):
+        self.redis = redis.from_url(redis_url)
+        self.ttl = 3600  # 1 ساعت
+    
+    def _make_key(self, file_path, bbox=None):
+        """ایجاد کلید یکتا برای کش"""
+        key_data = f"{file_path}:{bbox}"
+        return f"fgb:{hashlib.md5(key_data.encode()).hexdigest()}"
+    
+    def get(self, file_path, bbox=None):
+        """دریافت از کش"""
+        key = self._make_key(file_path, bbox)
+        data = self.redis.get(key)
+        
+        if data:
+            return pickle.loads(data)
+        return None
+    
+    def set(self, file_path, gdf, bbox=None):
+        """ذخیره در کش"""
+        key = self._make_key(file_path, bbox)
+        data = pickle.dumps(gdf)
+        self.redis.setex(key, self.ttl, data)
+    
+    def read_file(self, file_path, bbox=None):
+        """خواندن با کش"""
+        # بررسی کش
+        cached = self.get(file_path, bbox)
+        if cached is not None:
+            print("📦 از کش خوانده شد")
+            return cached
+        
+        # خواندن از فایل
+        print("📂 از فایل خوانده می‌شود...")
+        gdf = gpd.read_file(file_path, bbox=bbox)
+        
+        # ذخیره در کش
+        self.set(file_path, gdf, bbox)
+        
+        return gdf
+
+
+# استفاده
+# cache = FlatGeobufCache()
+# gdf = cache.read_file("data.fgb", bbox=(50, 30, 55, 40))</code></pre>
+                </div>
+            </div>
+
+            <h3>کار با داده‌های بزرگ</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>large_data.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import dask_geopandas as dgpd
+from pathlib import Path
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از Dask برای داده‌های بزرگ
+# ═══════════════════════════════════════════════════════════
+
+def process_large_fgb_with_dask(file_path, output_path, operation="simplify"):
+    """
+    پردازش فایل بزرگ با Dask
+    """
+    # خواندن با Dask
+    ddf = dgpd.read_file(file_path, npartitions=8)
+    
+    print(f"📊 تعداد پارتیشن‌ها: {ddf.npartitions}")
+    
+    # عملیات
+    if operation == "simplify":
+        ddf['geometry'] = ddf.geometry.simplify(0.001)
+    elif operation == "buffer":
+        ddf['geometry'] = ddf.geometry.buffer(0.01)
+    elif operation == "centroid":
+        ddf['geometry'] = ddf.geometry.centroid
+    
+    # محاسبه و ذخیره
+    result = ddf.compute()
+    result.to_file(output_path, driver="FlatGeobuf")
+    
+    print(f"✅ {len(result)} feature پردازش و ذخیره شد")
+    return result
+
+
+# ═══════════════════════════════════════════════════════════
+# Streaming Write
+# ═══════════════════════════════════════════════════════════
+
+def stream_write_fgb(features_generator, output_path, schema, crs="EPSG:4326"):
+    """
+    نوشتن streaming به FlatGeobuf
+    """
+    import fiona
+    from fiona.crs import from_epsg
+    
+    # تنظیمات fiona
+    fiona_schema = {
+        'geometry': schema['geometry_type'],
+        'properties': schema['properties']
+    }
+    
+    with fiona.open(
+        output_path,
+        'w',
+        driver='FlatGeobuf',
+        crs=from_epsg(int(crs.split(':')[1])),
+        schema=fiona_schema
+    ) as dst:
+        count = 0
+        for feature in features_generator:
+            dst.write(feature)
+            count += 1
+            
+            if count % 10000 == 0:
+                print(f"  📝 {count} feature نوشته شد...")
+        
+        print(f"✅ مجموع: {count} feature")
+
+
+# مثال استفاده
+def generate_features():
+    """Generator برای تولید features"""
+    from shapely.geometry import Point
+    import random
+    
+    for i in range(1000000):
+        yield {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [
+                    random.uniform(44, 64),
+                    random.uniform(25, 40)
+                ]
+            },
+            'properties': {
+                'id': i,
+                'name': f'Point {i}',
+                'value': random.random()
+            }
+        }
+
+
+schema = {
+    'geometry_type': 'Point',
+    'properties': {
+        'id': 'int',
+        'name': 'str',
+        'value': 'float'
+    }
+}
+
+# stream_write_fgb(generate_features(), "large_output.fgb", schema)
+
+
+# ═══════════════════════════════════════════════════════════
+# Memory-Efficient Reading
+# ═══════════════════════════════════════════════════════════
+
+def memory_efficient_read(file_path, chunk_size=50000):
+    """
+    خواندن با مصرف حافظه کم
+    """
+    import fiona
+    
+    with fiona.open(file_path) as src:
+        total = len(src)
+        print(f"📊 مجموع features: {total:,}")
+        
+        chunk = []
+        
+        for i, feature in enumerate(src):
+            chunk.append(feature)
+            
+            if len(chunk) >= chunk_size:
+                # پردازش chunk
+                gdf = gpd.GeoDataFrame.from_features(chunk)
+                yield gdf
+                
+                chunk = []
+                print(f"  📦 پردازش {i+1:,}/{total:,}")
+        
+        # آخرین chunk
+        if chunk:
+            gdf = gpd.GeoDataFrame.from_features(chunk)
+            yield gdf
+
+
+# استفاده
+# for chunk_gdf in memory_efficient_read("large_file.fgb"):
+#     # پردازش هر chunk
+#     process(chunk_gdf)</code></pre>
+                </div>
+            </div>
+
+            <h3>اعتبارسنجی و تعمیر</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>validation.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.validation import make_valid, explain_validity
+from shapely.geometry import mapping
+import flatgeobuf as fgb
+
+# ═══════════════════════════════════════════════════════════
+# اعتبارسنجی فایل FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+def validate_fgb_file(file_path):
+    """
+    اعتبارسنجی کامل فایل FlatGeobuf
+    """
+    issues = []
+    
+    # ۱. بررسی header
+    try:
+        with open(file_path, 'rb') as f:
+            header = fgb.get_header_meta(f)
+        
+        print("✅ Header معتبر است")
+        print(f"   - نام: {header.get('name', 'N/A')}")
+        print(f"   - تعداد features: {header.get('features_count', 'N/A')}")
+        print(f"   - نوع geometry: {header.get('geometry_type', 'N/A')}")
+        
+    except Exception as e:
+        issues.append(f"Header Error: {e}")
+        print(f"❌ خطا در Header: {e}")
+        return issues
+    
+    # ۲. بررسی features
+    try:
+        gdf = gpd.read_file(file_path)
+        print(f"✅ {len(gdf)} feature خوانده شد")
+        
+    except Exception as e:
+        issues.append(f"Read Error: {e}")
+        print(f"❌ خطا در خواندن: {e}")
+        return issues
+    
+    # ۳. بررسی geometries
+    invalid_count = 0
+    null_count = 0
+    
+    for idx, geom in enumerate(gdf.geometry):
+        if geom is None:
+            null_count += 1
+            issues.append(f"Feature {idx}: Null geometry")
+        elif not geom.is_valid:
+            invalid_count += 1
+            reason = explain_validity(geom)
+            issues.append(f"Feature {idx}: Invalid - {reason}")
+    
+    if null_count > 0:
+        print(f"⚠️ {null_count} geometry خالی")
+    
+    if invalid_count > 0:
+        print(f"⚠️ {invalid_count} geometry نامعتبر")
+    else:
+        print("✅ همه geometries معتبر هستند")
+    
+    # ۴. بررسی CRS
+    if gdf.crs:
+        print(f"✅ CRS: {gdf.crs}")
+    else:
+        issues.append("Missing CRS")
+        print("⚠️ CRS تعریف نشده")
+    
+    # ۵. بررسی bounds
+    bounds = gdf.total_bounds
+    print(f"📍 Bounds: {bounds}")
+    
+    # بررسی bounds معقول
+    if bounds[0] < -180 or bounds[2] > 180:
+        issues.append("Longitude out of range")
+    if bounds[1] < -90 or bounds[3] > 90:
+        issues.append("Latitude out of range")
+    
+    return issues
+
+
+# ═══════════════════════════════════════════════════════════
+# تعمیر فایل FlatGeobuf
+# ═══════════════════════════════════════════════════════════
+
+def repair_fgb_file(input_path, output_path, fix_geometry=True, set_crs=None):
+    """
+    تعمیر فایل FlatGeobuf
+    """
+    print(f"🔧 تعمیر {input_path}...")
+    
+    gdf = gpd.read_file(input_path)
+    original_count = len(gdf)
+    
+    # ۱. تعمیر geometries
+    if fix_geometry:
+        repaired_count = 0
+        
+        def repair_geom(geom):
+            nonlocal repaired_count
+            if geom is None:
+                return None
+            if not geom.is_valid:
+                repaired_count += 1
+                return make_valid(geom)
+            return geom
+        
+        gdf['geometry'] = gdf.geometry.apply(repair_geom)
+        
+        if repaired_count > 0:
+            print(f"   🔧 {repaired_count} geometry تعمیر شد")
+    
+    # ۲. حذف geometries خالی
+    null_mask = gdf.geometry.isna() | gdf.geometry.is_empty
+    null_count = null_mask.sum()
+    
+    if null_count > 0:
+        gdf = gdf[~null_mask]
+        print(f"   🗑️ {null_count} geometry خالی حذف شد")
+    
+    # ۳. تنظیم CRS
+    if set_crs:
+        gdf = gdf.set_crs(set_crs, allow_override=True)
+        print(f"   📍 CRS تنظیم شد: {set_crs}")
+    elif gdf.crs is None:
+        gdf = gdf.set_crs("EPSG:4326")
+        print("   📍 CRS پیش‌فرض تنظیم شد: EPSG:4326")
+    
+    # ۴. ذخیره
+    gdf.to_file(output_path, driver="FlatGeobuf")
+    
+    print(f"✅ ذخیره شد: {len(gdf)}/{original_count} features")
+    
+    return gdf
+
+
+# استفاده
+# issues = validate_fgb_file("data.fgb")
+# if issues:
+#     repair_fgb_file("data.fgb", "data_repaired.fgb")</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-box-title">
+                    <span>💡</span>
+                    بهترین شیوه‌ها
+                </div>
+                <div class="info-box-content">
+                    <ul>
+                        <li><strong>همیشه spatial index ایجاد کنید</strong> مگر برای فایل‌های موقت</li>
+                        <li><strong>از pyogrio استفاده کنید</strong> برای سرعت بیشتر</li>
+                        <li><strong>داده‌ها را simplify کنید</strong> قبل از ذخیره برای وب</li>
+                        <li><strong>CRS را صریحاً مشخص کنید</strong></li>
+                        <li><strong>geometries را اعتبارسنجی کنید</strong> قبل از ذخیره</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Use Cases -->
+        <section class="section" id="usecases">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دهم</div>
+                    <h2 class="section-title">موارد استفاده</h2>
+                    <p class="section-subtitle">کاربردهای عملی FlatGeobuf</p>
+                </div>
+            </div>
+
+            <div class="usecase-grid">
+                <div class="usecase-card">
+                    <div class="usecase-icon">🗺️</div>
+                    <div class="usecase-title">نقشه‌های وب تعاملی</div>
+                    <div class="usecase-desc">
+                        بارگذاری سریع لایه‌های بزرگ در مرورگر با 
+                        HTTP Range Requests. کاربر فقط داده‌های 
+                        محدوده دید را دانلود می‌کند.
+                    </div>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">☁️</div>
+                    <div class="usecase-title">Cloud Storage</div>
+                    <div class="usecase-desc">
+                        ذخیره داده‌های مکانی در S3، GCS یا Azure Blob 
+                        و دسترسی مستقیم بدون نیاز به سرور واسط.
+                    </div>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">📱</div>
+                    <div class="usecase-title">اپلیکیشن‌های موبایل</div>
+                    <div class="usecase-desc">
+                        کاهش مصرف داده با دانلود فقط بخش‌های 
+                        مورد نیاز. مناسب برای اپ‌های آفلاین.
+                    </div>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">🔄</div>
+                    <div class="usecase-title">Data Pipeline</div>
+                    <div class="usecase-desc">
+                        فرمت میانی سریع برای ETL و پردازش 
+                        داده‌های مکانی. سریع‌تر از GeoJSON.
+                    </div>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">📊</div>
+                    <div class="usecase-title">داشبوردهای تحلیلی</div>
+                    <div class="usecase-desc">
+                        نمایش سریع داده‌های بزرگ در داشبوردها 
+                        با فیلتر مکانی real-time.
+                    </div>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">🗄️</div>
+                    <div class="usecase-title">آرشیو داده</div>
+                    <div class="usecase-desc">
+                        جایگزین مدرن برای Shapefile با 
+                        فایل واحد و بدون محدودیت اندازه.
+                    </div>
+                </div>
+            </div>
+
+            <h3>مثال عملی: سیستم نقشه شهری</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🐍</span>
+                        <span>urban_map_system.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+سیستم نقشه شهری با FlatGeobuf
+================================
+این مثال نشان می‌دهد چگونه از FlatGeobuf برای
+یک سیستم نقشه شهری استفاده کنیم.
+"""
+
+from fastapi import FastAPI, Query
+from fastapi.staticfiles import StaticFiles
+import geopandas as gpd
+from pathlib import Path
+
+app = FastAPI(title="Urban Map System")
+
+# مسیر داده‌ها
+DATA_DIR = Path("data/urban")
+
+# لایه‌های شهری
+LAYERS = {
+    "buildings": "ساختمان‌ها",
+    "roads": "معابر",
+    "parks": "پارک‌ها",
+    "poi": "نقاط مهم",
+    "districts": "مناطق"
+}
+
+
+@app.get("/api/layers")
+async def get_layers():
+    """لیست لایه‌های موجود"""
+    layers = []
+    
+    for layer_id, layer_name in LAYERS.items():
+        file_path = DATA_DIR / f"{layer_id}.fgb"
+        
+        if file_path.exists():
+            gdf = gpd.read_file(file_path, rows=0)
+            
+            layers.append({
+                "id": layer_id,
+                "name": layer_name,
+                "geometry_type": gdf.geometry.geom_type.iloc[0] if len(gdf) > 0 else None,
+                "url": f"/data/{layer_id}.fgb"
+            })
+    
+    return {"layers": layers}
+
+
+@app.get("/api/search")
+async def search_features(
+    q: str = Query(..., min_length=2),
+    layer: str = Query(None),
+    limit: int = Query(20, le=100)
+):
+    """جستجو در features"""
+    results = []
+    
+    layers_to_search = [layer] if layer else LAYERS.keys()
+    
+    for layer_id in layers_to_search:
+        file_path = DATA_DIR / f"{layer_id}.fgb"
+        
+        if not file_path.exists():
+            continue
+        
+        gdf = gpd.read_file(file_path)
+        
+        # جستجو در ستون name
+        if 'name' in gdf.columns:
+            matches = gdf[gdf['name'].str.contains(q, case=False, na=False)]
+            
+            for _, row in matches.head(limit).iterrows():
+                results.append({
+                    "layer": layer_id,
+                    "name": row.get('name'),
+                    "geometry": row.geometry.__geo_interface__,
+                    "properties": {
+                        k: v for k, v in row.items() 
+                        if k != 'geometry' and v is not None
+                    }
+                })
+    
+    return {"results": results[:limit]}
+
+
+@app.get("/api/stats/{layer}")
+async def get_layer_stats(
+    layer: str,
+    bbox: str = Query(None)
+):
+    """آمار لایه"""
+    file_path = DATA_DIR / f"{layer}.fgb"
+    
+    if not file_path.exists():
+        return {"error": "Layer not found"}
+    
+    read_kwargs = {}
+    if bbox:
+        coords = [float(x) for x in bbox.split(",")]
+        read_kwargs["bbox"] = tuple(coords)
+    
+    gdf = gpd.read_file(file_path, **read_kwargs)
+    
+    stats = {
+        "layer": layer,
+        "feature_count": len(gdf),
+        "bounds": list(gdf.total_bounds),
+        "geometry_types": gdf.geometry.geom_type.value_counts().to_dict()
+    }
+    
+    # آمار اضافی بر اساس نوع لایه
+    if layer == "buildings" and 'area' in gdf.columns:
+        stats["total_area"] = float(gdf['area'].sum())
+        stats["avg_area"] = float(gdf['area'].mean())
+    
+    if layer == "roads" and 'length' in gdf.columns:
+        stats["total_length"] = float(gdf['length'].sum())
+    
+    return stats
+
+
+# سرو فایل‌های FlatGeobuf
+app.mount("/data", StaticFiles(directory=DATA_DIR), name="data")
+
+
+# ═══════════════════════════════════════════════════════════
+# آماده‌سازی داده‌ها
+# ═══════════════════════════════════════════════════════════
+
+def prepare_urban_data():
+    """آماده‌سازی و بهینه‌سازی داده‌های شهری"""
+    
+    for layer_id in LAYERS.keys():
+        source_file = DATA_DIR / f"{layer_id}_source.geojson"
+        output_file = DATA_DIR / f"{layer_id}.fgb"
+        
+        if not source_file.exists():
+            continue
+        
+        print(f"🔄 پردازش {layer_id}...")
+        
+        gdf = gpd.read_file(source_file)
+        
+        # ساده‌سازی geometries برای وب
+        if layer_id in ["buildings", "parks", "districts"]:
+            gdf['geometry'] = gdf.geometry.simplify(0.0001)
+        
+        # اضافه کردن ستون‌های محاسباتی
+        if layer_id == "buildings":
+            gdf['area'] = gdf.geometry.area
+        
+        if layer_id == "roads":
+            gdf['length'] = gdf.geometry.length
+        
+        # ذخیره به FlatGeobuf
+        gdf.to_file(output_file, driver="FlatGeobuf")
+        
+        print(f"   ✅ {len(gdf)} features ذخیره شد")
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)</code></pre>
+                </div>
+            </div>
+
+            <h3>خلاصه و جمع‌بندی</h3>
+            <div class="info-box tip">
+                <div class="info-box-title">
+                    <span>🎯</span>
+                    چه زمانی از FlatGeobuf استفاده کنیم؟
+                </div>
+                <div class="info-box-content">
+                    <ul>
+                        <li>✅ نقشه‌های وب با داده‌های بزرگ</li>
+                        <li>✅ ذخیره‌سازی در Cloud Storage</li>
+                        <li>✅ جایگزین Shapefile</li>
+                        <li>✅ نیاز به فیلتر مکانی سریع</li>
+                        <li>✅ Streaming داده‌های مکانی</li>
+                        <li>❌ نیاز به چند لایه در یک فایل → GeoPackage</li>
+                        <li>❌ نیاز به خوانایی انسان → GeoJSON</li>
+                        <li>❌ نیاز به روابط پیچیده → PostGIS</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">📦</div>
+            <p class="footer-text">
+                آموزش جامع FlatGeobuf - فرمت مدرن داده‌های مکانی
+            </p>
+            <div class="footer-links">
+                <a href="https://flatgeobuf.org" target="_blank">وبسایت رسمی</a>
+                <a href="https://github.com/flatgeobuf/flatgeobuf" target="_blank">GitHub</a>
+                <a href="https://gdal.org/drivers/vector/flatgeobuf.html" target="_blank">GDAL Docs</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" onclick="scrollToTop()">↑</button>
+
+    <script>
+        // Initialize Highlight.js
+        hljs.highlightAll();
+
+        // Copy Code Function
+        function copyCode(btn) {
+            const codeBlock = btn.closest('.code-block');
+            const code = codeBlock.querySelector('code').innerText;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span>✓</span> کپی شد!';
+                btn.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        // Scroll to Top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/Hide Scroll Button
+        window.addEventListener('scroll', () => {
+            const scrollBtn = document.querySelector('.scroll-top');
+            if (window.scrollY > 500) {
+                scrollBtn.classList.add('visible');
+            } else {
+                scrollBtn.classList.remove('visible');
+            }
+        });
+
+        // Active Navigation
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Smooth Scroll for Navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
