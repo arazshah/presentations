@@ -3090,4 +3090,3969 @@ function ClusteringMap({ rawData }) {
             new ScatterplotLayer({
                 id: 'clustered-points',
                 data: clusteringResult.points,
-                getPosition:
+                getPosition:d => d.position,
+                getRadius: d => d.isNoise ? 50 : 100,
+                getFillColor: d => {
+                    if (d.isNoise) return [128, 128, 128, 150];  // نویز - خاکستری
+                    return [...CLUSTER_COLORS[d.cluster % CLUSTER_COLORS.length], 200];
+                },
+                pickable: true,
+                stroked: true,
+                getLineColor: [255, 255, 255, 100],
+                lineWidthMinPixels: 1
+            })
+        );
+        
+        // لایه مراکز خوشه‌ها
+        if (showCentroids && clusteringResult.centroids) {
+            layersList.push(
+                new ScatterplotLayer({
+                    id: 'centroids',
+                    data: clusteringResult.centroids,
+                    getPosition: d => d.position,
+                    getRadius: 300,
+                    getFillColor: d => [...CLUSTER_COLORS[d.clusterId % CLUSTER_COLORS.length], 255],
+                    stroked: true,
+                    getLineColor: [255, 255, 255],
+                    lineWidthMinPixels: 3
+                }),
+                new TextLayer({
+                    id: 'centroid-labels',
+                    data: clusteringResult.centroids,
+                    getPosition: d => d.position,
+                    getText: d => `خوشه ${d.clusterId + 1}\n(${d.count} نقطه)`,
+                    getSize: 14,
+                    getColor: [255, 255, 255],
+                    getTextAnchor: 'middle',
+                    getAlignmentBaseline: 'top',
+                    getPixelOffset: [0, 20]
+                })
+            );
+        }
+        
+        return layersList;
+    }, [clusteringResult, showHulls, showCentroids, clusterHulls]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // پیدا کردن K بهینه
+    // ═══════════════════════════════════════════════════════════
+    
+    const handleFindOptimalK = useCallback(() => {
+        if (!rawData || rawData.length === 0) return;
+        const result = findOptimalK(rawData);
+        setKValue(result.optimalK);
+        console.log('تعداد بهینه خوشه‌ها:', result.optimalK);
+    }, [rawData]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // تخمین پارامترهای DBSCAN
+    // ═══════════════════════════════════════════════════════════
+    
+    const handleEstimateParams = useCallback(() => {
+        if (!rawData || rawData.length === 0) return;
+        const params = estimateDBSCANParams(rawData);
+        setEpsilon(params.suggestedEpsilon);
+        setMinPoints(params.suggestedMinPoints);
+        console.log('پارامترهای پیشنهادی:', params);
+    }, [rawData]);
+    
+    return (
+        <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+            <DeckGL
+                initialViewState={{
+                    longitude: 51.3890,
+                    latitude: 35.6892,
+                    zoom: 10,
+                    pitch: 45
+                }}
+                controller={true}
+                layers={layers}
+                getTooltip={({ object }) => object && {
+                    html: `
+                        <div style="direction: rtl; font-family: Vazirmatn;">
+                            <strong>${object.name || 'نقطه'}</strong><br/>
+                            خوشه: ${object.isNoise ? 'نویز' : object.cluster + 1}<br/>
+                            ${object.distanceToCenter ? 
+                                `فاصله از مرکز: ${object.distanceToCenter.toFixed(4)}` : ''}
+                        </div>
+                    `,
+                    style: {
+                        backgroundColor: '#1e293b',
+                        color: 'white',
+                        padding: '10px',
+                        borderRadius: '8px'
+                    }
+                }}
+            >
+                <Map mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" />
+            </DeckGL>
+            
+            {/* پنل کنترل */}
+            <div style={{
+                position: 'absolute',
+                top: 20,
+                right: 20,
+                background: 'rgba(30, 41, 59, 0.95)',
+                padding: '20px',
+                borderRadius: '12px',
+                color: 'white',
+                minWidth: '280px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)'
+            }}>
+                <h3 style={{ margin: '0 0 15px', fontSize: '18px' }}>
+                    🎯 تنظیمات خوشه‌بندی
+                </h3>
+                
+                {/* انتخاب الگوریتم */}
+                <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        الگوریتم:
+                    </label>
+                    <select 
+                        value={algorithm} 
+                        onChange={e => setAlgorithm(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: '#374151',
+                            color: 'white'
+                        }}
+                    >
+                        <option value="kmeans">K-Means</option>
+                        <option value="dbscan">DBSCAN</option>
+                    </select>
+                </div>
+                
+                {/* پارامترهای K-Means */}
+                {algorithm === 'kmeans' && (
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                            تعداد خوشه‌ها (K): {kValue}
+                        </label>
+                        <input
+                            type="range"
+                            min="2"
+                            max="15"
+                            value={kValue}
+                            onChange={e => setKValue(parseInt(e.target.value))}
+                            style={{ width: '100%' }}
+                        />
+                        <button
+                            onClick={handleFindOptimalK}
+                            style={{
+                                width: '100%',
+                                marginTop: '10px',
+                                padding: '8px',
+                                borderRadius: '6px',
+                                border: 'none',
+                                background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+                                color: 'white',
+                                cursor: 'pointer',
+                                fontSize: '14px'
+                            }}
+                        >
+                            🔍 یافتن K بهینه
+                        </button>
+                    </div>
+                )}
+                
+                {/* پارامترهای DBSCAN */}
+                {algorithm === 'dbscan' && (
+                    <>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                                Epsilon (km): {epsilon.toFixed(2)}
+                            </label>
+                            <input
+                                type="range"
+                                min="0.1"
+                                max="5"
+                                step="0.1"
+                                value={epsilon}
+                                onChange={e => setEpsilon(parseFloat(e.target.value))}
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                        <div style={{ marginBottom: '15px' }}>
+                            <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                                حداقل نقاط: {minPoints}
+                            </label>
+                            <input
+                                type="range"
+                                min="2"
+                                max="20"
+                                value={minPoints}
+                                onChange={e => setMinPoints(parseInt(e.target.value))}
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                        <button
+                            onClick={handleEstimateParams}
+                            style={{
+                                width: '100%',
+                                padding: '8px',
+                                borderRadius: '6px',
+                                border: 'none',
+                                background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+                                color: 'white',
+                                cursor: 'pointer',
+                                fontSize: '14px'
+                            }}
+                        >
+                            ⚙️ تخمین پارامترها
+                        </button>
+                    </>
+                )}
+                
+                {/* نمایش/مخفی کردن */}
+                <div style={{ marginTop: '15px', borderTop: '1px solid #475569', paddingTop: '15px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <input
+                            type="checkbox"
+                            checked={showHulls}
+                            onChange={e => setShowHulls(e.target.checked)}
+                        />
+                        نمایش محدوده خوشه‌ها
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', cursor: 'pointer' }}>
+                        <input
+                            type="checkbox"
+                            checked={showCentroids}
+                            onChange={e => setShowCentroids(e.target.checked)}
+                        />
+                        نمایش مراکز
+                    </label>
+                </div>
+                
+                {/* آمار */}
+                {clusteringResult && (
+                    <div style={{ marginTop: '15px', borderTop: '1px solid #475569', paddingTop: '15px', fontSize: '13px' }}>
+                        <div>تعداد کل نقاط: {clusteringResult.points.length}</div>
+                        <div>تعداد خوشه‌ها: {clusteringResult.centroids?.length || clusteringResult.clusterCount}</div>
+                        {clusteringResult.noiseCount !== undefined && (
+                            <div>نقاط نویز: {clusteringResult.noiseCount} ({(clusteringResult.noiseRatio * 100).toFixed(1)}%)</div>
+                        )}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default ClusteringMap;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: AI Prediction -->
+        <section class="section ai-section" id="ai-prediction">
+            <div class="section-header">
+                <div class="section-icon">🔮</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم - AI</div>
+                    <h2 class="section-title">
+                        <span class="ai-badge">🤖 AI</span>
+                        پیش‌بینی مکانی
+                    </h2>
+                    <p class="section-subtitle">پیش‌بینی ترافیک، تقاضا و الگوهای حرکت با TensorFlow.js</p>
+                </div>
+            </div>
+
+            <div class="info-box ai">
+                <div class="info-box-title">
+                    <span>🧠</span>
+                    پیش‌بینی مکانی با یادگیری عمیق
+                </div>
+                <div class="info-box-content">
+                    استفاده از شبکه‌های عصبی برای پیش‌بینی:
+                    <ul>
+                        <li><strong>ترافیک:</strong> پیش‌بینی حجم ترافیک در ساعات آینده</li>
+                        <li><strong>تقاضا:</strong> پیش‌بینی تقاضای تاکسی/اسنپ در مناطق مختلف</li>
+                        <li><strong>مسیر:</strong> پیش‌بینی مسیر حرکت وسایل نقلیه</li>
+                        <li><strong>زمان رسیدن:</strong> تخمین ETA بر اساس شرایط ترافیکی</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>معماری مدل پیش‌بینی</h3>
+            <div class="architecture-box">
+                <div class="arch-title">🔮 Pipeline پیش‌بینی مکانی</div>
+                <div class="arch-flow">
+                    <div class="arch-box data">
+                        <div class="arch-box-icon">📊</div>
+                        <div class="arch-box-label">Historical Data</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">
+                        <div class="arch-box-icon">🔧</div>
+                        <div class="arch-box-label">Feature Engineering</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box ai">
+                        <div class="arch-box-icon">🧠</div>
+                        <div class="arch-box-label">LSTM/GRU</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box">
+                        <div class="arch-box-icon">📈</div>
+                        <div class="arch-box-label">Predictions</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box viz">
+                        <div class="arch-box-icon">🗺️</div>
+                        <div class="arch-box-label">Deck.gl</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>مدل پیش‌بینی ترافیک با TensorFlow.js</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🤖</span>
+                        <span>ai/prediction.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import * as tf from '@tensorflow/tfjs';
+
+/**
+ * مدل پیش‌بینی ترافیک با LSTM
+ */
+export class TrafficPredictor {
+    constructor() {
+        this.model = null;
+        this.isTraining = false;
+        this.inputShape = [24, 4];  // 24 ساعت، 4 ویژگی
+        this.outputSize = 1;        // پیش‌بینی 1 ساعت آینده
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // ساخت مدل LSTM
+    // ═══════════════════════════════════════════════════════════
+    
+    buildModel() {
+        this.model = tf.sequential();
+        
+        // لایه LSTM اول
+        this.model.add(tf.layers.lstm({
+            units: 64,
+            returnSequences: true,
+            inputShape: this.inputShape
+        }));
+        
+        // Dropout برای جلوگیری از overfitting
+        this.model.add(tf.layers.dropout({ rate: 0.2 }));
+        
+        // لایه LSTM دوم
+        this.model.add(tf.layers.lstm({
+            units: 32,
+            returnSequences: false
+        }));
+        
+        this.model.add(tf.layers.dropout({ rate: 0.2 }));
+        
+        // لایه Dense برای خروجی
+        this.model.add(tf.layers.dense({
+            units: 16,
+            activation: 'relu'
+        }));
+        
+        this.model.add(tf.layers.dense({
+            units: this.outputSize,
+            activation: 'linear'
+        }));
+        
+        // کامپایل مدل
+        this.model.compile({
+            optimizer: tf.train.adam(0.001),
+            loss: 'meanSquaredError',
+            metrics: ['mae']
+        });
+        
+        console.log('مدل ساخته شد:');
+        this.model.summary();
+        
+        return this.model;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // آماده‌سازی داده
+    // ═══════════════════════════════════════════════════════════
+    
+    prepareData(rawData, lookback = 24) {
+        /**
+         * rawData: آرایه‌ای از اشیا با فرمت:
+         * {
+         *   timestamp: Date,
+         *   trafficValue: number,
+         *   hour: number,
+         *   dayOfWeek: number,
+         *   isHoliday: boolean
+         * }
+         */
+        
+        const X = [];
+        const y = [];
+        
+        for (let i = lookback; i < rawData.length - 1; i++) {
+            // ویژگی‌های lookback ساعت گذشته
+            const features = [];
+            for (let j = i - lookback; j < i; j++) {
+                features.push([
+                    rawData[j].trafficValue / 100,  // نرمال‌سازی
+                    rawData[j].hour / 24,
+                    rawData[j].dayOfWeek / 7,
+                    rawData[j].isHoliday ? 1 : 0
+                ]);
+            }
+            X.push(features);
+            
+            // هدف: ترافیک ساعت بعد
+            y.push([rawData[i + 1].trafficValue / 100]);
+        }
+        
+        return {
+            X: tf.tensor3d(X),
+            y: tf.tensor2d(y)
+        };
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // آموزش مدل
+    // ═══════════════════════════════════════════════════════════
+    
+    async train(data, options = {}) {
+        const {
+            epochs = 50,
+            batchSize = 32,
+            validationSplit = 0.2,
+            onEpochEnd = null
+        } = options;
+        
+        if (!this.model) {
+            this.buildModel();
+        }
+        
+        this.isTraining = true;
+        
+        const { X, y } = this.prepareData(data);
+        
+        const history = await this.model.fit(X, y, {
+            epochs,
+            batchSize,
+            validationSplit,
+            shuffle: true,
+            callbacks: {
+                onEpochEnd: (epoch, logs) => {
+                    console.log(`Epoch ${epoch + 1}: loss = ${logs.loss.toFixed(4)}, mae = ${logs.mae.toFixed(4)}`);
+                    if (onEpochEnd) onEpochEnd(epoch, logs);
+                }
+            }
+        });
+        
+        this.isTraining = false;
+        
+        // آزادسازی حافظه
+        X.dispose();
+        y.dispose();
+        
+        return history;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // پیش‌بینی
+    // ═══════════════════════════════════════════════════════════
+    
+    predict(recentData) {
+        if (!this.model) {
+            throw new Error('مدل آموزش ندیده است');
+        }
+        
+        // آماده‌سازی ورودی
+        const features = recentData.map(d => [
+            d.trafficValue / 100,
+            d.hour / 24,
+            d.dayOfWeek / 7,
+            d.isHoliday ? 1 : 0
+        ]);
+        
+        const input = tf.tensor3d([features]);
+        const prediction = this.model.predict(input);
+        const result = prediction.dataSync()[0] * 100;  // برگرداندن به مقیاس اصلی
+        
+        input.dispose();
+        prediction.dispose();
+        
+        return Math.max(0, Math.min(100, result));  // محدود کردن به [0, 100]
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // پیش‌بینی چند ساعت آینده
+    // ═══════════════════════════════════════════════════════════
+    
+    predictMultiStep(recentData, steps = 6) {
+        const predictions = [];
+        let currentData = [...recentData];
+        
+        for (let i = 0; i < steps; i++) {
+            const nextValue = this.predict(currentData);
+            
+            // ساخت نقطه داده جدید
+            const lastData = currentData[currentData.length - 1];
+            const nextHour = (lastData.hour + 1) % 24;
+            const nextDayOfWeek = nextHour === 0 ? 
+                (lastData.dayOfWeek + 1) % 7 : lastData.dayOfWeek;
+            
+            const newDataPoint = {
+                trafficValue: nextValue,
+                hour: nextHour,
+                dayOfWeek: nextDayOfWeek,
+                isHoliday: lastData.isHoliday
+            };
+            
+            predictions.push({
+                hour: nextHour,
+                value: nextValue
+            });
+            
+            // به‌روزرسانی برای پیش‌بینی بعدی
+            currentData = [...currentData.slice(1), newDataPoint];
+        }
+        
+        return predictions;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // ذخیره و بارگذاری مدل
+    // ═══════════════════════════════════════════════════════════
+    
+    async saveModel(path = 'localstorage://traffic-model') {
+        if (!this.model) return;
+        await this.model.save(path);
+        console.log('مدل ذخیره شد:', path);
+    }
+    
+    async loadModel(path = 'localstorage://traffic-model') {
+        try {
+            this.model = await tf.loadLayersModel(path);
+            console.log('مدل بارگذاری شد:', path);
+            return true;
+        } catch (error) {
+            console.log('مدل یافت نشد، نیاز به آموزش دارد');
+            return false;
+        }
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>پیش‌بینی تقاضا بر اساس H3</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🤖</span>
+                        <span>ai/demandPrediction.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import * as tf from '@tensorflow/tfjs';
+import * as h3 from 'h3-js';
+
+/**
+ * پیش‌بینی تقاضا بر اساس شاخص H3
+ */
+export class H3DemandPredictor {
+    constructor(resolution = 8) {
+        this.resolution = resolution;
+        this.model = null;
+        this.hexagonModels = new Map();  // مدل جداگانه برای هر هگزاگون
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // تبدیل نقاط به H3
+    // ═══════════════════════════════════════════════════════════
+    
+    pointsToH3(points) {
+        const h3Counts = new Map();
+        
+        points.forEach(point => {
+            const h3Index = h3.latLngToCell(
+                point.position[1],
+                point.position[0],
+                this.resolution
+            );
+            
+            if (!h3Counts.has(h3Index)) {
+                h3Counts.set(h3Index, {
+                    h3Index,
+                    count: 0,
+                    values: [],
+                    center: h3.cellToLatLng(h3Index)
+                });
+            }
+            
+            const hex = h3Counts.get(h3Index);
+            hex.count++;
+            if (point.value !== undefined) {
+                hex.values.push(point.value);
+            }
+        });
+        
+        // محاسبه میانگین مقادیر
+        return Array.from(h3Counts.values()).map(hex => ({
+            ...hex,
+            avgValue: hex.values.length > 0 ? 
+                hex.values.reduce((a, b) => a + b, 0) / hex.values.length : 0
+        }));
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // ویژگی‌های مکانی هگزاگون
+    // ═══════════════════════════════════════════════════════════
+    
+    getHexFeatures(h3Index, historicalData) {
+        // همسایه‌های حلقه 1
+        const neighbors = h3.gridDisk(h3Index, 1);
+        
+        // ویژگی‌های زمانی
+        const now = new Date();
+        const hour = now.getHours();
+        const dayOfWeek = now.getDay();
+        const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+        
+        // ویژگی‌های مکانی
+        const [lat, lng] = h3.cellToLatLng(h3Index);
+        
+        // تاریخچه این هگزاگون
+        const hexHistory = historicalData.filter(d => d.h3Index === h3Index);
+        const avgDemand = hexHistory.length > 0 ?
+            hexHistory.reduce((sum, d) => sum + d.demand, 0) / hexHistory.length : 0;
+        
+        // تقاضای همسایه‌ها
+        const neighborDemand = neighbors.reduce((sum, n) => {
+            const nHistory = historicalData.filter(d => d.h3Index === n);
+            return sum + (nHistory.length > 0 ?
+                nHistory.reduce((s, d) => s + d.demand, 0) / nHistory.length : 0);
+        }, 0) / neighbors.length;
+        
+        return {
+            hour: hour / 24,
+            dayOfWeek: dayOfWeek / 7,
+            isWeekend: isWeekend ? 1 : 0,
+            lat: (lat + 90) / 180,
+            lng: (lng + 180) / 360,
+            avgDemand: avgDemand / 100,
+            neighborDemand: neighborDemand / 100
+        };
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // ساخت مدل ساده برای پیش‌بینی تقاضا
+    // ═══════════════════════════════════════════════════════════
+    
+    buildSimpleModel() {
+        const model = tf.sequential();
+        
+        model.add(tf.layers.dense({
+            units: 32,
+            activation: 'relu',
+            inputShape: [7]  // 7 ویژگی
+        }));
+        
+        model.add(tf.layers.dropout({ rate: 0.2 }));
+        
+        model.add(tf.layers.dense({
+            units: 16,
+            activation: 'relu'
+        }));
+        
+        model.add(tf.layers.dense({
+            units: 1,
+            activation: 'sigmoid'  // خروجی بین 0 و 1
+        }));
+        
+        model.compile({
+            optimizer: tf.train.adam(0.01),
+            loss: 'meanSquaredError'
+        });
+        
+        return model;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // پیش‌بینی تقاضا برای همه هگزاگون‌ها
+    // ═══════════════════════════════════════════════════════════
+    
+    async predictDemand(hexagons, historicalData) {
+        if (!this.model) {
+            this.model = this.buildSimpleModel();
+            // در عمل باید مدل آموزش دیده باشد
+        }
+        
+        const predictions = [];
+        
+        for (const hex of hexagons) {
+            const features = this.getHexFeatures(hex.h3Index, historicalData);
+            const featureArray = Object.values(features);
+            
+            const input = tf.tensor2d([featureArray]);
+            const prediction = this.model.predict(input);
+            const demand = prediction.dataSync()[0] * 100;
+            
+            predictions.push({
+                h3Index: hex.h3Index,
+                center: hex.center,
+                predictedDemand: demand,
+                confidence: this.calculateConfidence(hex, historicalData)
+            });
+            
+            input.dispose();
+            prediction.dispose();
+        }
+        
+        return predictions;
+    }
+    
+    calculateConfidence(hex, historicalData) {
+        const hexHistory = historicalData.filter(d => d.h3Index === hex.h3Index);
+        
+        if (hexHistory.length < 10) return 0.3;  // داده کم
+        if (hexHistory.length < 50) return 0.6;  // داده متوسط
+        return 0.9;  // داده کافی
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// کامپوننت نمایش پیش‌بینی
+// ═══════════════════════════════════════════════════════════
+
+import { H3HexagonLayer } from '@deck.gl/geo-layers';
+
+export function createPredictionLayer(predictions) {
+    return new H3HexagonLayer({
+        id: 'demand-prediction',
+        data: predictions,
+        getHexagon: d => d.h3Index,
+        
+        getFillColor: d => {
+            const intensity = d.predictedDemand / 100;
+            // رنگ از سبز (تقاضای کم) به قرمز (تقاضای زیاد)
+            return [
+                Math.floor(255 * intensity),
+                Math.floor(255 * (1 - intensity)),
+                50,
+                Math.floor(150 + 100 * d.confidence)
+            ];
+        },
+        
+        getElevation: d => d.predictedDemand * 10,
+        elevationScale: 1,
+        extruded: true,
+        
+        pickable: true,
+        autoHighlight: true,
+        
+        updateTriggers: {
+            getFillColor: predictions.map(p => p.predictedDemand),
+            getElevation: predictions.map(p => p.predictedDemand)
+        }
+    });
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>کامپوننت پیش‌بینی ترافیک</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>⚛️</span>
+                        <span>PredictionMap.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import DeckGL from '@deck.gl/react';
+import { Map } from 'react-map-gl';
+import { HexagonLayer } from '@deck.gl/aggregation-layers';
+import { PathLayer, ScatterplotLayer } from '@deck.gl/layers';
+import { TrafficPredictor } from '../ai/prediction';
+
+function PredictionMap({ historicalData, currentData }) {
+    const [predictor] = useState(() => new TrafficPredictor());
+    const [predictions, setPredictions] = useState([]);
+    const [isTraining, setIsTraining] = useState(false);
+    const [modelReady, setModelReady] = useState(false);
+    const [selectedHour, setSelectedHour] = useState(0);
+    
+    // ═══════════════════════════════════════════════════════════
+    // بارگذاری یا آموزش مدل
+    // ═══════════════════════════════════════════════════════════
+    
+    useEffect(() => {
+        async function initModel() {
+            // سعی در بارگذاری مدل ذخیره شده
+            const loaded = await predictor.loadModel();
+            
+            if (!loaded && historicalData && historicalData.length > 100) {
+                // آموزش مدل جدید
+                setIsTraining(true);
+                await predictor.train(historicalData, {
+                    epochs: 30,
+                    onEpochEnd: (epoch, logs) => {
+                        console.log(`آموزش: ${epoch + 1}/30`);
+                    }
+                });
+                await predictor.saveModel();
+                setIsTraining(false);
+            }
+            
+            setModelReady(true);
+        }
+        
+        initModel();
+    }, [historicalData, predictor]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // اجرای پیش‌بینی
+    // ═══════════════════════════════════════════════════════════
+    
+    useEffect(() => {
+        if (!modelReady || !currentData || currentData.length < 24) return;
+        
+        const multiPredictions = predictor.predictMultiStep(currentData, 12);
+        setPredictions(multiPredictions);
+    }, [modelReady, currentData, predictor]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // لایه‌ها
+    // ═══════════════════════════════════════════════════════════
+    
+    const layers = useMemo(() => {
+        if (!currentData) return [];
+        
+        return [
+            // لایه هگزاگونی برای داده‌های فعلی
+            new HexagonLayer({
+                id: 'current-traffic',
+                data: currentData,
+                getPosition: d => d.position,
+                getElevationWeight: d => d.trafficValue,
+                elevationScale: 50,
+                extruded: true,
+                radius: 500,
+                colorRange: [
+                    [65, 182, 196],
+                    [127, 205, 187],
+                    [199, 233, 180],
+                    [237, 248, 177],
+                    [255, 255, 204],
+                    [254, 217, 118],
+                    [254, 178, 76],
+                    [253, 141, 60],
+                    [252, 78, 42],
+                    [227, 26, 28]
+                ],
+                opacity: 0.8
+            }),
+            
+            // نمایش پیش‌بینی‌ها
+            predictions.length > 0 && new ScatterplotLayer({
+                id: 'predictions',
+                data: predictions,
+                getPosition: (d, { index }) => {
+                    // نمایش پیش‌بینی‌ها در یک ردیف
+                    const basePos = [51.3890, 35.75];
+                    return [basePos[0] + index * 0.03, basePos[1]];
+                },
+                getRadius: d => 200 + d.value * 10,
+                getFillColor: d => {
+                    const intensity = d.value / 100;
+                    return [
+                        255 * intensity,
+                        255 * (1 - intensity),
+                        100,
+                        200
+                    ];
+                },
+                pickable: true
+            })
+        ].filter(Boolean);
+    }, [currentData, predictions]);
+    
+    return (
+        <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+            <DeckGL
+                initialViewState={{
+                    longitude: 51.3890,
+                    latitude: 35.6892,
+                    zoom: 11,
+                    pitch: 45
+                }}
+                controller={true}
+                layers={layers}
+            >
+                <Map mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" />
+            </DeckGL>
+            
+            {/* پنل وضعیت */}
+            <div style={{
+                position: 'absolute',
+                top: 20,
+                right: 20,
+                background: 'rgba(30, 41, 59, 0.95)',
+                padding: '20px',
+                borderRadius: '12px',
+                color: 'white',
+                minWidth: '300px'
+            }}>
+                <h3 style={{ margin: '0 0 15px' }}>🔮 پیش‌بینی ترافیک</h3>
+                
+                {isTraining && (
+                    <div style={{ 
+                        background: 'rgba(16, 185, 129, 0.2)', 
+                        padding: '10px', 
+                        borderRadius: '8px',
+                        marginBottom: '15px'
+                    }}>
+                        ⏳ در حال آموزش مدل...
+                    </div>
+                )}
+                
+                {modelReady && !isTraining && (
+                    <div style={{ 
+                        background: 'rgba(16, 185, 129, 0.2)', 
+                        padding: '10px', 
+                        borderRadius: '8px',
+                        marginBottom: '15px'
+                    }}>
+                        ✅ مدل آماده است
+                    </div>
+                )}
+                
+                {/* نمایش پیش‌بینی‌ها */}
+                {predictions.length > 0 && (
+                    <div>
+                        <h4 style={{ margin: '15px 0 10px' }}>پیش‌بینی ساعات آینده:</h4>
+                        <div style={{ 
+                            display: 'grid', 
+                            gridTemplateColumns: 'repeat(4, 1fr)', 
+                            gap: '8px' 
+                        }}>
+                            {predictions.map((pred, i) => (
+                                <div 
+                                    key={i}
+                                    style={{
+                                        background: `rgba(${255 * pred.value / 100}, ${255 * (1 - pred.value / 100)}, 100, 0.3)`,
+                                        padding: '8px',
+                                        borderRadius: '6px',
+                                        textAlign: 'center',
+                                        fontSize: '12px'
+                                    }}
+                                >
+                                    <div style={{ fontWeight: 'bold' }}>{pred.hour}:00</div>
+                                    <div>{pred.value.toFixed(0)}%</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default PredictionMap;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: AI Anomaly Detection -->
+        <section class="section ai-section" id="ai-anomaly">
+            <div class="section-header">
+                <div class="section-icon">🚨</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم - AI</div>
+                    <h2 class="section-title">
+                        <span class="ai-badge">🤖 AI</span>
+                        تشخیص ناهنجاری
+                    </h2>
+                    <p class="section-subtitle">شناسایی الگوهای غیرعادی در داده‌های مکانی و GPS</p>
+                </div>
+            </div>
+
+            <div class="info-box ai">
+                <div class="info-box-title">
+                    <span>🚨</span>
+                    کاربردهای تشخیص ناهنجاری مکانی
+                </div>
+                <div class="info-box-content">
+                    <ul>
+                        <li><strong>ردیابی ناوگان:</strong> شناسایی انحراف از مسیر یا توقف‌های غیرعادی</li>
+                        <li><strong>امنیت:</strong> تشخیص رفتارهای مشکوک بر اساس الگوی حرکت</li>
+                        <li><strong>کنترل کیفیت:</strong> شناسایی داده‌های GPS نادرست</li>
+                        <li><strong>پایش ترافیک:</strong> تشخیص تصادفات یا ترافیک غیرعادی</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>الگوریتم‌های تشخیص ناهنجاری</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🤖</span>
+                        <span>ai/anomaly.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">/**
+ * تشخیص ناهنجاری در داده‌های مکانی
+ */
+
+// ═══════════════════════════════════════════════════════════
+// تشخیص ناهنجاری مبتنی بر فاصله (Distance-based)
+// ═══════════════════════════════════════════════════════════
+
+export function detectDistanceAnomalies(points, k = 5, threshold = 2) {
+    const anomalies = [];
+    
+    // محاسبه فاصله k-نزدیک‌ترین همسایه برای هر نقطه
+    points.forEach((point, i) => {
+        const distances = [];
+        
+        points.forEach((other, j) => {
+            if (i !== j) {
+                distances.push({
+                    index: j,
+                    distance: haversineDistance(point.position, other.position)
+                });
+            }
+        });
+        
+        // مرتب‌سازی و گرفتن k نزدیک‌ترین
+        distances.sort((a, b) => a.distance - b.distance);
+        const kNearest = distances.slice(0, k);
+        
+        // میانگین فاصله از k همسایه
+        const avgDistance = kNearest.reduce((sum, d) => sum + d.distance, 0) / k;
+        
+        point.avgKDistance = avgDistance;
+    });
+    
+    // محاسبه میانگین و انحراف معیار
+    const allDistances = points.map(p => p.avgKDistance);
+    const mean = allDistances.reduce((a, b) => a + b, 0) / allDistances.length;
+    const std = Math.sqrt(
+        allDistances.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / allDistances.length
+    );
+    
+    // شناسایی ناهنجاری‌ها
+    points.forEach(point => {
+        const zScore = (point.avgKDistance - mean) / std;
+        point.isAnomaly = zScore > threshold;
+        point.anomalyScore = zScore;
+    });
+    
+    return points;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// تشخیص ناهنجاری در مسیر (Trajectory Anomaly)
+// ═══════════════════════════════════════════════════════════
+
+export function detectTrajectoryAnomalies(trajectory, options = {}) {
+    const {
+        speedThreshold = 200,    // حداکثر سرعت مجاز (km/h)
+        angleThreshold = 120,    // حداکثر زاویه چرخش (درجه)
+        minPoints = 3
+    } = options;
+    
+    if (trajectory.length < minPoints) {
+        return { anomalies: [], trajectory };
+    }
+    
+    const anomalies = [];
+    
+    for (let i = 1; i < trajectory.length; i++) {
+        const current = trajectory[i];
+        const previous = trajectory[i - 1];
+        
+        // محاسبه فاصله
+        const distance = haversineDistance(previous.position, current.position);
+        
+        // محاسبه زمان (اگر timestamp موجود است)
+        const timeDiff = current.timestamp && previous.timestamp ?
+            (current.timestamp - previous.timestamp) / 1000 / 3600 : 1; // ساعت
+        
+        // محاسبه سرعت
+        const speed = timeDiff > 0 ? distance / timeDiff : 0;
+        
+        current.speed = speed;
+        current.distance = distance;
+        
+        // تشخیص ناهنجاری سرعت
+        if (speed > speedThreshold) {
+            anomalies.push({
+                index: i,
+                type: 'speed',
+                value: speed,
+                threshold: speedThreshold,
+                point: current,
+                message: `سرعت غیرعادی: ${speed.toFixed(1)} km/h`
+            });
+            current.isSpeedAnomaly = true;
+        }
+        
+        // محاسبه زاویه چرخش
+        if (i >= 2) {
+            const prev2 = trajectory[i - 2];
+            const angle = calculateTurnAngle(prev2.position, previous.position, current.position);
+            current.turnAngle = angle;
+            
+            if (Math.abs(angle) > angleThreshold) {
+                anomalies.push({
+                    index: i,
+                    type: 'angle',
+                    value: angle,
+                    threshold: angleThreshold,
+                    point: current,
+                    message: `چرخش ناگهانی: ${angle.toFixed(1)}°`
+                });
+                current.isAngleAnomaly = true;
+            }
+        }
+        
+        // تشخیص پرش مکانی (teleportation)
+        if (distance > 10 && timeDiff < 0.01) {  // بیش از 10 کیلومتر در کمتر از 36 ثانیه
+            anomalies.push({
+                index: i,
+                type: 'teleport',
+                value: distance,
+                point: current,
+                message: `پرش مکانی: ${distance.toFixed(2)} km`
+            });
+            current.isTeleportAnomaly = true;
+        }
+    }
+    
+    return { anomalies, trajectory };
+}
+
+function calculateTurnAngle(p1, p2, p3) {
+    const bearing1 = calculateBearing(p1, p2);
+    const bearing2 = calculateBearing(p2, p3);
+    let angle = bearing2 - bearing1;
+    
+    // نرمال‌سازی به [-180, 180]
+    while (angle > 180) angle -= 360;
+    while (angle < -180) angle += 360;
+    
+    return angle;
+}
+
+function calculateBearing(p1, p2) {
+    const lat1 = toRad(p1[1]);
+    const lat2 = toRad(p2[1]);
+    const dLon = toRad(p2[0] - p1[0]);
+    
+    const y = Math.sin(dLon) * Math.cos(lat2);
+    const x = Math.cos(lat1) * Math.sin(lat2) - 
+              Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+    
+    return toDeg(Math.atan2(y, x));
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// تشخیص ناهنجاری مبتنی بر الگو (Pattern-based)
+// ═══════════════════════════════════════════════════════════
+
+export function detectPatternAnomalies(trips, normalPatterns) {
+    /**
+     * trips: آرایه سفرها
+     * normalPatterns: الگوهای عادی (از تاریخچه استخراج شده)
+     */
+    
+    const anomalies = [];
+    
+    trips.forEach(trip => {
+        // استخراج ویژگی‌های سفر
+        const features = extractTripFeatures(trip);
+        
+        // مقایسه با الگوهای عادی
+        let minDistance = Infinity;
+        let closestPattern = null;
+        
+        normalPatterns.forEach(pattern => {
+            const distance = calculateFeatureDistance(features, pattern.features);
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPattern = pattern;
+            }
+        });
+        
+        // آستانه انحراف
+        const threshold = closestPattern ? closestPattern.threshold : 2;
+        
+        if (minDistance > threshold) {
+            anomalies.push({
+                trip,
+                features,
+                distance: minDistance,
+                threshold,
+                closestPattern,
+                message: 'سفر با الگوی غیرعادی'
+            });
+            trip.isPatternAnomaly = true;
+        }
+        
+        trip.patternDistance = minDistance;
+    });
+    
+    return anomalies;
+}
+
+function extractTripFeatures(trip) {
+    const points = trip.points;
+    const n = points.length;
+    
+    if (n < 2) return null;
+    
+    // فاصله کل
+    let totalDistance = 0;
+    for (let i = 1; i < n; i++) {
+        totalDistance += haversineDistance(points[i - 1].position, points[i].position);
+    }
+    
+    // مدت زمان
+    const duration = points[n - 1].timestamp - points[0].timestamp;
+    
+    // سرعت میانگین
+    const avgSpeed = totalDistance / (duration / 1000 / 3600);
+    
+    // تعداد توقف‌ها
+    let stops = 0;
+    for (let i = 1; i < n; i++) {
+        if (points[i].speed < 2) {  // سرعت کمتر از 2 km/h
+            stops++;
+        }
+    }
+    
+    // فاصله مستقیم
+    const directDistance = haversineDistance(points[0].position, points[n - 1].position);
+    
+    // نسبت پیچیدگی مسیر
+    const complexity = totalDistance / (directDistance || 1);
+    
+    return {
+        totalDistance,
+        duration,
+        avgSpeed,
+        stops,
+        directDistance,
+        complexity,
+        startHour: new Date(points[0].timestamp).getHours(),
+        endHour: new Date(points[n - 1].timestamp).getHours()
+    };
+}
+
+function calculateFeatureDistance(f1, f2) {
+    if (!f1 || !f2) return Infinity;
+    
+    // فاصله اقلیدسی نرمال‌شده
+    return Math.sqrt(
+        Math.pow((f1.totalDistance - f2.totalDistance) / f2.totalDistance, 2) +
+        Math.pow((f1.duration - f2.duration) / f2.duration, 2) +
+        Math.pow((f1.avgSpeed - f2.avgSpeed) / f2.avgSpeed, 2) +
+        Math.pow((f1.complexity - f2.complexity) / f2.complexity, 2)
+    );
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// توابع کمکی
+// ═══════════════════════════════════════════════════════════
+
+function haversineDistance(p1, p2) {
+    const R = 6371;
+    const dLat = toRad(p2[1] - p1[1]);
+    const dLon = toRad(p2[0] - p1[0]);
+    
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRad(p1[1])) * Math.cos(toRad(p2[1])) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    
+    return R * c;
+}
+
+function toRad(deg) { return deg * Math.PI / 180; }
+function toDeg(rad) { return rad * 180 / Math.PI; }</code></pre>
+                </div>
+            </div>
+
+            <h3>کامپوننت نمایش ناهنجاری‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>⚛️</span>
+                        <span>AnomalyMap.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import React, { useState, useMemo, useCallback } from 'react';
+import DeckGL from '@deck.gl/react';
+import { Map } from 'react-map-gl';
+import { PathLayer, ScatterplotLayer, IconLayer } from '@deck.gl/layers';
+import { 
+    detectDistanceAnomalies, 
+    detectTrajectoryAnomalies 
+} from '../ai/anomaly';
+
+function AnomalyMap({ trajectoryData, pointsData }) {
+    const [showAnomaliesOnly, setShowAnomaliesOnly] = useState(false);
+    const [anomalyType, setAnomalyType] = useState('all');
+    const [speedThreshold, setSpeedThreshold] = useState(120);
+    const [angleThreshold, setAngleThreshold] = useState(90);
+    
+    // ═══════════════════════════════════════════════════════════
+    // تشخیص ناهنجاری‌ها
+    // ═══════════════════════════════════════════════════════════
+    
+    const trajectoryResult = useMemo(() => {
+        if (!trajectoryData || trajectoryData.length === 0) return null;
+        
+        return detectTrajectoryAnomalies(trajectoryData, {
+            speedThreshold,
+            angleThreshold
+        });
+    }, [trajectoryData, speedThreshold, angleThreshold]);
+    
+    const pointsResult = useMemo(() => {
+        if (!pointsData || pointsData.length === 0) return null;
+        
+        return detectDistanceAnomalies(pointsData, 5, 2);
+    }, [pointsData]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // فیلتر ناهنجاری‌ها
+    // ═══════════════════════════════════════════════════════════
+    
+    const filteredAnomalies = useMemo(() => {
+        if (!trajectoryResult) return [];
+        
+        let anomalies = trajectoryResult.anomalies;
+        
+        if (anomalyType !== 'all') {
+            anomalies = anomalies.filter(a => a.type === anomalyType);
+        }
+        
+        return anomalies;
+    }, [trajectoryResult, anomalyType]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // لایه‌ها
+    // ═══════════════════════════════════════════════════════════
+    
+    const layers = useMemo(() => {
+        const layersList = [];
+        
+        // لایه مسیر
+        if (trajectoryResult && !showAnomaliesOnly) {
+            layersList.push(
+                new PathLayer({
+                    id: 'trajectory',
+                    data: [{
+                        path: trajectoryResult.trajectory.map(p => p.position),
+                        color: [100, 100, 200]
+                    }],
+                    getPath: d => d.path,
+                    getColor: d => d.color,
+                    getWidth: 3,
+                    widthMinPixels: 2,
+                    rounded: true
+                })
+            );
+        }
+        
+        // لایه نقاط مسیر با رنگ‌بندی بر اساس سرعت
+        if (trajectoryResult) {
+            layersList.push(
+                new ScatterplotLayer({
+                    id: 'trajectory-points',
+                    data: trajectoryResult.trajectory.filter(p => 
+                        !showAnomaliesOnly || p.isSpeedAnomaly || p.isAngleAnomaly || p.isTeleportAnomaly
+                    ),
+                    getPosition: d => d.position,
+                    getRadius: d => {
+                        if (d.isSpeedAnomaly || d.isAngleAnomaly || d.isTeleportAnomaly) {
+                            return 150;
+                        }
+                        return 50;
+                    },
+                    getFillColor: d => {
+                        if (d.isTeleportAnomaly) return [255, 0, 255, 200];  // بنفش - پرش مکانی
+                        if (d.isSpeedAnomaly) return [255, 0, 0, 200];       // قرمز - سرعت بالا
+                        if (d.isAngleAnomaly) return [255, 165, 0, 200];     // نارنجی - چرخش ناگهانی
+                        
+                        // رنگ‌بندی بر اساس سرعت
+                        const speedRatio = Math.min(d.speed / speedThreshold, 1);
+                        return [
+                            Math.floor(255 * speedRatio),
+                            Math.floor(255 * (1 - speedRatio)),
+                            100,
+                            150
+                        ];
+                    },
+                    pickable: true,
+                    stroked: true,
+                    getLineColor: d => {
+                        if (d.isSpeedAnomaly || d.isAngleAnomaly || d.isTeleportAnomaly) {
+                            return [255, 255, 255];
+                        }
+                        return [0, 0, 0, 0];
+                    },
+                    lineWidthMinPixels: 2
+                })
+            );
+        }
+        
+        // لایه نقاط با ناهنجاری فاصله‌ای
+        if (pointsResult) {
+            layersList.push(
+                new ScatterplotLayer({
+                    id: 'distance-anomalies',
+                    data: pointsResult.filter(p => 
+                        !showAnomaliesOnly || p.isAnomaly
+                    ),
+                    getPosition: d => d.position,
+                    getRadius: d => d.isAnomaly ? 200 : 80,
+                    getFillColor: d => {
+                        if (d.isAnomaly) {
+                            const intensity = Math.min(d.anomalyScore / 5, 1);
+                            return [255, Math.floor(255 * (1 - intensity)), 0, 200];
+                        }
+                        return [100, 200, 100, 150];
+                    },
+                    pickable: true
+                })
+            );
+        }
+        
+        // آیکون‌های هشدار برای ناهنجاری‌ها
+        if (filteredAnomalies.length > 0) {
+            layersList.push(
+                new IconLayer({
+                    id: 'anomaly-icons',
+                    data: filteredAnomalies,
+                    getPosition: d => d.point.position,
+                    getIcon: d => ({
+                        url: d.type === 'speed' ? '/icons/speed-warning.png' :
+                             d.type === 'angle' ? '/icons/turn-warning.png' :
+                             '/icons/teleport-warning.png',
+                        width: 64,
+                        height: 64,
+                        anchorY: 64
+                    }),
+                    getSize: 40,
+                    pickable: true
+                })
+            );
+        }
+        
+        return layersList;
+    }, [trajectoryResult, pointsResult, filteredAnomalies, showAnomaliesOnly, speedThreshold]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // Tooltip
+    // ═══════════════════════════════════════════════════════════
+    
+    const getTooltip = useCallback(({ object }) => {
+        if (!object) return null;
+        
+        let content = '';
+        
+        if (object.isSpeedAnomaly) {
+            content = `🚨 سرعت غیرعادی: ${object.speed?.toFixed(1)} km/h`;
+        } else if (object.isAngleAnomaly) {
+            content = `⚠️ چرخش ناگهانی: ${object.turnAngle?.toFixed(1)}°`;
+        } else if (object.isTeleportAnomaly) {
+            content = `📍 پرش مکانی: ${object.distance?.toFixed(2)} km`;
+        } else if (object.isAnomaly) {
+            content = `🔴 ناهنجاری فاصله‌ای\nامتیاز: ${object.anomalyScore?.toFixed(2)}`;
+        } else if (object.speed !== undefined) {
+            content = `سرعت: ${object.speed?.toFixed(1)} km/h`;
+        } else if (object.message) {
+            content = object.message;
+        }
+        
+        return content ? {
+            html: `<div style="direction:rtl; font-family:Vazirmatn; padding:8px;">${content}</div>`,
+            style: {
+                backgroundColor: object.isSpeedAnomaly || object.isAngleAnomaly || object.isTeleportAnomaly || object.isAnomaly ?
+                    'rgba(220, 38, 38, 0.95)' : 'rgba(30, 41, 59, 0.95)',
+                color: 'white',
+                borderRadius: '8px'
+            }
+        } : null;
+    }, []);
+    
+    return (
+        <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+            <DeckGL
+                initialViewState={{
+                    longitude: 51.3890,
+                    latitude: 35.6892,
+                    zoom: 12,
+                    pitch: 30
+                }}
+                controller={true}
+                layers={layers}
+                getTooltip={getTooltip}
+            >
+                <Map mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" />
+            </DeckGL>
+            
+            {/* پنل کنترل */}
+            <div style={{
+                position: 'absolute',
+                top: 20,
+                right: 20,
+                background: 'rgba(30, 41, 59, 0.95)',
+                padding: '20px',
+                borderRadius: '12px',
+                color: 'white',
+                minWidth: '300px',
+                maxHeight: '80vh',
+                overflowY: 'auto'
+            }}>
+                <h3 style={{ margin: '0 0 15px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    🚨 تشخیص ناهنجاری
+                </h3>
+                
+                {/* فیلترها */}
+                <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                        <input
+                            type="checkbox"
+                            checked={showAnomaliesOnly}
+                            onChange={e => setShowAnomaliesOnly(e.target.checked)}
+                        />
+                        فقط ناهنجاری‌ها
+                    </label>
+                </div>
+                
+                <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        نوع ناهنجاری:
+                    </label>
+                    <select
+                        value={anomalyType}
+                        onChange={e => setAnomalyType(e.target.value)}
+                        style={{
+                            width: '100%',
+                            padding: '8px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: '#374151',
+                            color: 'white'
+                        }}
+                    >
+                        <option value="all">همه</option>
+                        <option value="speed">سرعت غیرعادی</option>
+                        <option value="angle">چرخش ناگهانی</option>
+                        <option value="teleport">پرش مکانی</option>
+                    </select>
+                </div>
+                
+                {/* آستانه‌ها */}
+                <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        آستانه سرعت: {speedThreshold} km/h
+                    </label>
+                    <input
+                        type="range"
+                        min="50"
+                        max="300"
+                        value={speedThreshold}
+                        onChange={e => setSpeedThreshold(parseInt(e.target.value))}
+                        style={{ width: '100%' }}
+                    />
+                </div>
+                
+                <div style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+                        آستانه زاویه: {angleThreshold}°
+                    </label>
+                    <input
+                        type="range"
+                        min="30"
+                        max="180"
+                        value={angleThreshold}
+                        onChange={e => setAngleThreshold(parseInt(e.target.value))}
+                        style={{ width: '100%' }}
+                    />
+                </div>
+                
+                {/* آمار */}
+                <div style={{ 
+                    borderTop: '1px solid #475569', 
+                    paddingTop: '15px',
+                    marginTop: '15px'
+                }}>
+                    <h4 style={{ margin: '0 0 10px', fontSize: '14px' }}>📊 آمار ناهنجاری‌ها</h4>
+                    
+                    {trajectoryResult && (
+                        <div style={{ fontSize: '13px', lineHeight: '1.8' }}>
+                            <div>تعداد کل نقاط: {trajectoryResult.trajectory.length}</div>
+                            <div style={{ color: '#ef4444' }}>
+                                🔴 سرعت غیرعادی: {trajectoryResult.anomalies.filter(a => a.type === 'speed').length}
+                            </div>
+                            <div style={{ color: '#f59e0b' }}>
+                                🟠 چرخش ناگهانی: {trajectoryResult.anomalies.filter(a => a.type === 'angle').length}
+                            </div>
+                            <div style={{ color: '#a855f7' }}>
+                                🟣 پرش مکانی: {trajectoryResult.anomalies.filter(a => a.type === 'teleport').length}
+                            </div>
+                        </div>
+                    )}
+                </div>
+                
+                {/* لیست ناهنجاری‌ها */}
+                {filteredAnomalies.length > 0 && (
+                    <div style={{ 
+                        borderTop: '1px solid #475569', 
+                        paddingTop: '15px',
+                        marginTop: '15px',
+                        maxHeight: '200px',
+                        overflowY: 'auto'
+                    }}>
+                        <h4 style={{ margin: '0 0 10px', fontSize: '14px' }}>📋 لیست ناهنجاری‌ها</h4>
+                        
+                        {filteredAnomalies.slice(0, 10).map((anomaly, i) => (
+                            <div 
+                                key={i}
+                                style={{
+                                    background: 'rgba(239, 68, 68, 0.2)',
+                                    padding: '8px',
+                                    borderRadius: '6px',
+                                    marginBottom: '8px',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                <div style={{ fontWeight: 'bold' }}>
+                                    {anomaly.type === 'speed' ? '🔴 سرعت' :
+                                     anomaly.type === 'angle' ? '🟠 چرخش' : '🟣 پرش'}
+                                </div>
+                                <div>{anomaly.message}</div>
+                            </div>
+                        ))}
+                        
+                        {filteredAnomalies.length > 10 && (
+                            <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
+                                و {filteredAnomalies.length - 10} مورد دیگر...
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+            
+            {/* راهنمای رنگ‌ها */}
+            <div style={{
+                position: 'absolute',
+                bottom: 20,
+                right: 20,
+                background: 'rgba(30, 41, 59, 0.95)',
+                padding: '15px',
+                borderRadius: '10px',
+                color: 'white',
+                fontSize: '12px'
+            }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>راهنما:</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ width: '12px', height: '12px', background: '#ef4444', borderRadius: '50%' }}></span>
+                    سرعت غیرعادی
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span style={{ width: '12px', height: '12px', background: '#f59e0b', borderRadius: '50%' }}></span>
+                    چرخش ناگهانی
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ width: '12px', height: '12px', background: '#a855f7', borderRadius: '50%' }}></span>
+                    پرش مکانی
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default AnomalyMap;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: AI NLP -->
+        <section class="section ai-section" id="ai-nlp">
+            <div class="section-header">
+                <div class="section-icon">💬</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم - AI</div>
+                    <h2 class="section-title">
+                        <span class="ai-badge">🤖 AI</span>
+                        NLP مکانی
+                    </h2>
+                    <p class="section-subtitle">جستجوی زبان طبیعی و تحلیل متن مکانی</p>
+                </div>
+            </div>
+
+            <div class="info-box ai">
+                <div class="info-box-title">
+                    <span>💬</span>
+                    NLP مکانی چیست؟
+                </div>
+                <div class="info-box-content">
+                    استفاده از پردازش زبان طبیعی برای تعامل با نقشه:
+                    <ul>
+                        <li><strong>جستجوی طبیعی:</strong> "رستوران‌های نزدیک میدان آزادی"</li>
+                        <li><strong>دستورات صوتی:</strong> "نقشه را به سمت شمال ببر"</li>
+                        <li><strong>استخراج موقعیت:</strong> شناسایی مکان‌ها از متن</li>
+                        <li><strong>Geocoding هوشمند:</strong> تبدیل آدرس‌های نامنظم به مختصات</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>سیستم جستجوی زبان طبیعی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>🤖</span>
+                        <span>ai/nlp.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">/**
+ * سیستم NLP مکانی برای جستجو و تعامل با نقشه
+ */
+
+// ═══════════════════════════════════════════════════════════
+// استخراج intent و entities از متن
+// ═══════════════════════════════════════════════════════════
+
+export class SpatialNLP {
+    constructor() {
+        // الگوهای شناسایی intent
+        this.intentPatterns = {
+            search: [
+                /(?:پیدا کن|جستجو|نشون بده|کجاست?|بگرد)\s+(.+)/i,
+                /(.+)\s+(?:کجاست?|کجا هست?)/i,
+                /(?:search|find|show|where)\s+(.+)/i
+            ],
+            navigate: [
+                /(?:برو به|مسیر|راهنمایی به|ببر به)\s+(.+)/i,
+                /(?:navigate|go to|directions to)\s+(.+)/i
+            ],
+            zoom: [
+                /(?:زوم|بزرگنمایی|نزدیک|دور)\s*(کن|شو)?/i,
+                /(?:zoom)\s*(in|out)?/i
+            ],
+            pan: [
+                /(?:برو|حرکت)\s+(?:به سمت\s+)?(شمال|جنوب|شرق|غرب)/i,
+                /(?:pan|move)\s+(north|south|east|west)/i
+            ],
+            filter: [
+                /(?:فیلتر|نمایش فقط|فقط)\s+(.+)/i,
+                /(?:filter|show only)\s+(.+)/i
+            ],
+            nearby: [
+                /(.+)\s+(?:نزدیک|اطراف|در حوالی)\s+(.+)/i,
+                /(.+)\s+(?:near|around|close to)\s+(.+)/i
+            ],
+            radius: [
+                /(?:در شعاع|تا فاصله)\s+(\d+)\s*(متر|کیلومتر|km|m)/i,
+                /(?:within|radius)\s+(\d+)\s*(meters?|km|kilometers?)/i
+            ]
+        };
+        
+        // دسته‌بندی‌های مکانی
+        this.placeCategories = {
+            restaurant: ['رستوران', 'غذاخوری', 'کافه', 'فست فود', 'restaurant', 'cafe', 'food'],
+            hospital: ['بیمارستان', 'درمانگاه', 'کلینیک', 'hospital', 'clinic'],
+            pharmacy: ['داروخانه', 'pharmacy'],
+            bank: ['بانک', 'خودپرداز', 'atm', 'bank'],
+            gas_station: ['پمپ بنزین', 'جایگاه سوخت', 'gas station', 'fuel'],
+            parking: ['پارکینگ', 'توقفگاه', 'parking'],
+            mosque: ['مسجد', 'mosque'],
+            park: ['پارک', 'بوستان', 'park', 'garden'],
+            school: ['مدرسه', 'دانشگاه', 'school', 'university'],
+            hotel: ['هتل', 'مهمانپذیر', 'hotel']
+        };
+        
+        // مکان‌های شناخته شده
+        this.knownPlaces = {
+            'میدان آزادی': { position: [51.3380, 35.6997], name: 'میدان آزادی' },
+            'برج میلاد': { position: [51.3753, 35.7448], name: 'برج میلاد' },
+            'بازار بزرگ': { position: [51.4215, 35.6761], name: 'بازار بزرگ تهران' },
+            'پل طبیعت': { position: [51.4053, 35.7617], name: 'پل طبیعت' },
+            'دربند': { position: [51.4193, 35.8125], name: 'دربند' },
+            'ولیعصر': { position: [51.4103, 35.7129], name: 'میدان ولیعصر' },
+            'تجریش': { position: [51.4293, 35.8044], name: 'میدان تجریش' }
+        };
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // تحلیل متن ورودی
+    // ═══════════════════════════════════════════════════════════
+    
+    parse(text) {
+        const result = {
+            originalText: text,
+            intent: null,
+            entities: [],
+            category: null,
+            location: null,
+            radius: null,
+            direction: null,
+            confidence: 0
+        };
+        
+        // تشخیص intent
+        for (const [intent, patterns] of Object.entries(this.intentPatterns)) {
+            for (const pattern of patterns) {
+                const match = text.match(pattern);
+                if (match) {
+                    result.intent = intent;
+                    result.entities = match.slice(1).filter(Boolean);
+                    result.confidence = 0.8;
+                    break;
+                }
+            }
+            if (result.intent) break;
+        }
+        
+        // اگر intent تشخیص داده نشد، فرض جستجو
+        if (!result.intent) {
+            result.intent = 'search';
+            result.entities = [text];
+            result.confidence = 0.5;
+        }
+        
+        // تشخیص دسته‌بندی
+        for (const [category, keywords] of Object.entries(this.placeCategories)) {
+            if (keywords.some(kw => text.toLowerCase().includes(kw.toLowerCase()))) {
+                result.category = category;
+                break;
+            }
+        }
+        
+        // تشخیص مکان شناخته شده
+        for (const [name, place] of Object.entries(this.knownPlaces)) {
+            if (text.includes(name)) {
+                result.location = place;
+                break;
+            }
+        }
+        
+        // تشخیص شعاع
+        const radiusMatch = text.match(/(\d+)\s*(متر|کیلومتر|km|m)/i);
+        if (radiusMatch) {
+            let radius = parseInt(radiusMatch[1]);
+            if (radiusMatch[2].toLowerCase().includes('کیلومتر') || 
+                radiusMatch[2].toLowerCase() === 'km') {
+                radius *= 1000;
+            }
+            result.radius = radius;
+        }
+        
+        // تشخیص جهت
+        const directionMap = {
+            'شمال': 'north', 'جنوب': 'south', 
+            'شرق': 'east', 'غرب': 'west',
+            'north': 'north', 'south': 'south',
+            'east': 'east', 'west': 'west'
+        };
+        
+        for (const [key, value] of Object.entries(directionMap)) {
+            if (text.includes(key)) {
+                result.direction = value;
+                break;
+            }
+        }
+        
+        return result;
+    }
+    
+    // ═══════════════════════════════════════════════════════════
+    // اجرای دستور
+    // ═══════════════════════════════════════════════════════════
+    
+    async execute(parsed, mapContext) {
+        const { setViewState, searchPlaces, filterData, setSelectedLocation } = mapContext;
+        
+        switch (parsed.intent) {
+            case 'search':
+                return await this.handleSearch(parsed, mapContext);
+            
+            case 'navigate':
+                return await this.handleNavigate(parsed, mapContext);
+            
+            case 'zoom':
+                return this.handleZoom(parsed, mapContext);
+            
+            case 'pan':
+                return this.handlePan(parsed, mapContext);
+            
+            case 'filter':
+                return this.handleFilter(parsed, mapContext);
+            
+            case 'nearby':
+                return await this.handleNearby(parsed, mapContext);
+            
+            default:
+                return { success: false, message: 'دستور قابل تشخیص نیست' };
+        }
+    }
+    
+    async handleSearch(parsed, { searchPlaces, setViewState, setSearchResults }) {
+        const query = parsed.entities[0] || '';
+        
+        // اگر مکان شناخته شده است
+        if (parsed.location) {
+            setViewState(prev => ({
+                ...prev,
+                longitude: parsed.location.position[0],
+                latitude: parsed.location.position[1],
+                zoom: 15,
+                transitionDuration: 1000
+            }));
+            
+            return {
+                success: true,
+                message: `نمایش ${parsed.location.name}`,
+                location: parsed.location
+            };
+        }
+        
+        // جستجوی API
+        try {
+            const results = await searchPlaces(query, {
+                category: parsed.category,
+                radius: parsed.radius || 5000
+            });
+            
+            if (results.length > 0) {
+                setSearchResults(results);
+                
+                // زوم روی اولین نتیجه
+                setViewState(prev => ({
+                    ...prev,
+                    longitude: results[0].position[0],
+                    latitude: results[0].position[1],
+                    zoom: 14,
+                    transitionDuration: 1000
+                }));
+                
+                return {
+                    success: true,
+                    message: `${results.length} نتیجه یافت شد`,
+                    results
+                };
+            }
+            
+            return { success: false, message: 'نتیجه‌ای یافت نشد' };
+        } catch (error) {
+            return { success: false, message: 'خطا در جستجو' };
+        }
+    }
+    
+    handleZoom(parsed, { setViewState }) {
+        const text = parsed.originalText.toLowerCase();
+        const zoomIn = text.includes('نزدیک') || text.includes('بزرگ') || text.includes('in');
+        
+        setViewState(prev => ({
+            ...prev,
+            zoom: prev.zoom + (zoomIn ? 2 : -2),
+            transitionDuration: 500
+        }));
+        
+        return {
+            success: true,
+            message: zoomIn ? 'بزرگنمایی انجام شد' : 'کوچک‌نمایی انجام شد'
+        };
+    }
+    
+    handlePan(parsed, { setViewState }) {
+        const delta = 0.01;  // تقریباً 1 کیلومتر
+        const moves = {
+            north: [0, delta],
+            south: [0, -delta],
+            east: [delta, 0],
+            west: [-delta, 0]
+        };
+        
+        const move = moves[parsed.direction];
+        if (!move) return { success: false, message: 'جهت نامشخص' };
+        
+        setViewState(prev => ({
+            ...prev,
+            longitude: prev.longitude + move[0],
+            latitude: prev.latitude + move[1],
+            transitionDuration: 500
+        }));
+        
+        const directionNames = {
+            north: 'شمال', south: 'جنوب', east: 'شرق', west: 'غرب'
+        };
+        
+        return {
+            success: true,
+            message: `حرکت به سمت ${directionNames[parsed.direction]}`
+        };
+    }
+    
+    handleFilter(parsed, { filterData }) {
+        const filterText = parsed.entities[0] || '';
+        
+        if (parsed.category) {
+            filterData({ category: parsed.category });
+            return {
+                success: true,
+                message: `فیلتر بر اساس ${parsed.category}`
+            };
+        }
+        
+        filterData({ text: filterText });
+        return {
+            success: true,
+            message: `فیلتر: ${filterText}`
+        };
+    }
+    
+    async handleNearby(parsed, mapContext) {
+        const [what, where] = parsed.entities;
+        
+        // ابتدا مکان مرجع را پیدا کن
+        const locationResult = await this.handleSearch(
+            { ...parsed, entities: [where], location: this.knownPlaces[where] },
+            mapContext
+        );
+        
+        if (!locationResult.success) {
+            return { success: false, message: `مکان "${where}" یافت نشد` };
+        }
+        
+        // سپس جستجوی نزدیک
+        const center = locationResult.location?.position || 
+                       locationResult.results?.[0]?.position;
+        
+        if (center) {
+            return await this.handleSearch(
+                { ...parsed, entities: [what], radius: parsed.radius || 1000 },
+                { ...mapContext, center }
+            );
+        }
+        
+        return { success: false, message: 'خطا در جستجوی نزدیک' };
+    }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// استخراج موقعیت از متن (Geoparsing)
+// ═══════════════════════════════════════════════════════════
+
+export function extractLocationsFromText(text) {
+    const locations = [];
+    
+    // الگوهای آدرس فارسی
+    const patterns = [
+        // خیابان + نام
+        /(?:خیابان|کوچه|بلوار|میدان|بزرگراه)\s+([آ-ی\s]+)/g,
+        // منطقه + عدد
+        /(?:منطقه)\s+(\d+)/g,
+        // پلاک
+        /(?:پلاک)\s+(\d+)/g,
+        // کد پستی
+        /(\d{10})/g
+    ];
+    
+    patterns.forEach(pattern => {
+        let match;
+        while ((match = pattern.exec(text)) !== null) {
+            locations.push({
+                text: match[0],
+                value: match[1],
+                index: match.index
+            });
+        }
+    });
+    
+    return locations;
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>کامپوننت جستجوی زبان طبیعی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>⚛️</span>
+                        <span>NLPSearchMap.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import React, { useState, useCallback, useRef, useMemo } from 'react';
+import DeckGL from '@deck.gl/react';
+import { Map } from 'react-map-gl';
+import { ScatterplotLayer, IconLayer, TextLayer } from '@deck.gl/layers';
+import { FlyToInterpolator } from '@deck.gl/core';
+import { SpatialNLP } from '../ai/nlp';
+
+function NLPSearchMap() {
+    const [viewState, setViewState] = useState({
+        longitude: 51.3890,
+        latitude: 35.6892,
+        zoom: 11,
+        pitch: 0,
+        bearing: 0
+    });
+    
+    const [query, setQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [messages, setMessages] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    
+    const nlp = useRef(new SpatialNLP());
+    const inputRef = useRef(null);
+    
+    // ═══════════════════════════════════════════════════════════
+    // شبیه‌سازی API جستجو
+    // ═══════════════════════════════════════════════════════════
+    
+    const searchPlaces = useCallback(async (query, options = {}) => {
+        // شبیه‌سازی - در عمل از API واقعی استفاده شود
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const mockResults = [
+            { id: 1, name: 'رستوران سنتی', position: [51.39, 35.70], category: 'restaurant' },
+            { id: 2, name: 'کافه مدرن', position: [51.41, 35.69], category: 'restaurant' },
+            { id: 3, name: 'فست فود', position: [51.38, 35.71], category: 'restaurant' }
+        ];
+        
+        if (options.category) {
+            return mockResults.filter(r => r.category === options.category);
+        }
+        
+        return mockResults.filter(r => 
+            r.name.includes(query) || query.includes(r.category)
+        );
+    }, []);
+    
+    const filterData = useCallback((filter) => {
+        console.log('Filter:', filter);
+    }, []);
+    
+    // ═══════════════════════════════════════════════════════════
+    // پردازش دستور
+    // ═══════════════════════════════════════════════════════════
+    
+    const handleSubmit = useCallback(async (e) => {
+        e.preventDefault();
+        if (!query.trim() || isProcessing) return;
+        
+        setIsProcessing(true);
+        
+        // افزودن پیام کاربر
+        const userMessage = { type: 'user', text: query };
+        setMessages(prev => [...prev, userMessage]);
+        
+        try {
+            // تحلیل متن
+            const parsed = nlp.current.parse(query);
+            console.log('Parsed:', parsed);
+            
+            // اجرای دستور
+            const result = await nlp.current.execute(parsed, {
+                setViewState: (updater) => {
+                    setViewState(prev => ({
+                        ...updater(prev),
+                        transitionInterpolator: new FlyToInterpolator(),
+                        transitionDuration: 1000
+                    }));
+                },
+                searchPlaces,
+                filterData,
+                setSearchResults
+            });
+            
+            // افزودن پاسخ
+            const botMessage = {
+                type: 'bot',
+                text: result.message,
+                success: result.success,
+                results: result.results
+            };
+            setMessages(prev => [...prev, botMessage]);
+            
+        } catch (error) {
+            setMessages(prev => [...prev, {
+                type: 'bot',
+                text: 'خطا در پردازش دستور',
+                success: false
+            }]);
+        }
+        
+        setQuery('');
+        setIsProcessing(false);
+    }, [query, isProcessing, searchPlaces, filterData]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // پیشنهادات
+    // ═══════════════════════════════════════════════════════════
+    
+    const suggestions = [
+        'رستوران‌های نزدیک میدان آزادی',
+        'برو به برج میلاد',
+        'زوم کن',
+        'حرکت به سمت شمال',
+        'داروخانه در شعاع 1 کیلومتر',
+        'فیلتر پارکینگ'
+    ];
+    
+    // ═══════════════════════════════════════════════════════════
+    // لایه‌ها
+    // ═══════════════════════════════════════════════════════════
+    
+    const layers = useMemo(() => {
+        if (searchResults.length === 0) return [];
+        
+        return [
+            new ScatterplotLayer({
+                id: 'search-results',
+                data: searchResults,
+                getPosition: d => d.position,
+                getRadius: 100,
+                getFillColor: [99, 102, 241, 200],
+                stroked: true,
+                getLineColor: [255, 255, 255],
+                lineWidthMinPixels: 2,
+                pickable: true
+            }),
+            new TextLayer({
+                id: 'result-labels',
+                data: searchResults,
+                getPosition: d => d.position,
+                getText: d => d.name,
+                getSize: 14,
+                getColor: [255, 255, 255],
+                getTextAnchor: 'middle',
+                getAlignmentBaseline: 'top',
+                getPixelOffset: [0, 15]
+            })
+        ];
+    }, [searchResults]);
+    
+    return (
+        <div style={{ width: '100%', height: '100vh', position: 'relative' }}>
+            <DeckGL
+                viewState={viewState}
+                onViewStateChange={({ viewState }) => setViewState(viewState)}
+                controller={true}
+                layers={layers}
+                getTooltip={({ object }) => object && {
+                    html: `<div style="direction:rtl">${object.name}</div>`,
+                    style: { backgroundColor: '#1e293b', color: 'white', padding: '8px', borderRadius: '6px' }
+                }}
+            >
+                <Map mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" />
+            </DeckGL>
+            
+            {/* پنل چت */}
+            <div style={{
+                position: 'absolute',
+                bottom: 20,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '90%',
+                maxWidth: '600px',
+                background: 'rgba(30, 41, 59, 0.95)',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}>
+                {/* پیام‌ها */}
+                {messages.length > 0 && (
+                    <div style={{
+                        maxHeight: '200px',
+                        overflowY: 'auto',
+                        padding: '15px',
+                        borderBottom: '1px solid #374151'
+                    }}>
+                        {messages.slice(-5).map((msg, i) => (
+                            <div 
+                                key={i}
+                                style={{
+                                    marginBottom: '10px',
+                                    textAlign: msg.type === 'user' ? 'left' : 'right'
+                                }}
+                            >
+                                <span style={{
+                                    display: 'inline-block',
+                                    background: msg.type === 'user' ? '#374151' : 
+                                               msg.success ? '#10b981' : '#ef4444',
+                                    color: 'white',
+                                    padding: '8px 12px',
+                                    borderRadius: '12px',
+                                    fontSize: '14px',
+                                    maxWidth: '80%'
+                                }}>
+                                    {msg.type === 'bot' && (msg.success ? '✅ ' : '❌ ')}
+                                    {msg.text}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+                
+                {/* پیشنهادات */}
+                {messages.length === 0 && (
+                    <div style={{ padding: '15px', borderBottom: '1px solid #374151' }}>
+                        <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '10px' }}>
+                            پیشنهادات:
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {suggestions.map((s, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setQuery(s)}
+                                    style={{
+                                        background: '#374151',
+                                        border: 'none',
+                                        color: '#e2e8f0',
+                                        padding: '6px 12px',
+                                        borderRadius: '20px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                
+                {/* فرم ورودی */}
+                <form onSubmit={handleSubmit} style={{ display: 'flex', padding: '15px' }}>
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                        placeholder="دستور خود را وارد کنید... (مثال: رستوران نزدیک میدان آزادی)"
+                        style={{
+                            flex: 1,
+                            background: '#1e293b',
+                            border: '1px solid #374151',
+                            borderRadius: '10px',
+                            padding: '12px 16px',
+                            color: 'white',
+                            fontSize: '14px',
+                            outline: 'none',
+                            direction: 'rtl'
+                        }}
+                        disabled={isProcessing}
+                    />
+                    <button
+                        type="submit"
+                        disabled={isProcessing || !query.trim()}
+                        style={{
+                            background: isProcessing ? '#374151' : 'linear-gradient(135deg, #6366f1, #06b6d4)',
+                            border: 'none',
+                            borderRadius: '10px',
+                            padding: '12px 20px',
+                            marginRight: '10px',
+                            color: 'white',
+                            cursor: isProcessing ? 'wait' : 'pointer',
+                            fontSize: '14px'
+                        }}
+                    >
+                        {isProcessing ? '⏳' : '🔍'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+export default NLPSearchMap;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Performance -->
+        <section class="section" id="performance">
+            <div class="section-header">
+                <div class="section-icon">⚡</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دهم</div>
+                    <h2 class="section-title">بهینه‌سازی عملکرد</h2>
+                    <p class="section-subtitle">تکنیک‌های بهبود کارایی برای داده‌های بزرگ</p>
+                </div>
+            </div>
+
+            <h3>اصول بهینه‌سازی</h3>
+            <div class="info-box info">
+                <div class="info-box-title">
+                    <span>💡</span>
+                    نکات کلیدی عملکرد
+                </div>
+                <div class="info-box-content">
+                    <ul>
+                        <li><strong>Memoization:</strong> استفاده از useMemo و useCallback</li>
+                        <li><strong>Data Aggregation:</strong> تجمیع داده‌ها قبل از ارسال به GPU</li>
+                        <li><strong>Level of Detail:</strong> نمایش جزئیات بر اساس zoom</li>
+                        <li><strong>Web Workers:</strong> پردازش سنگین در thread جداگانه</li>
+                        <li><strong>Binary Data:</strong> استفاده از فرمت‌های باینری</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>تکنیک‌های بهینه‌سازی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>⚛️</span>
+                        <span>OptimizedMap.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import DeckGL from '@deck.gl/react';
+import { Map } from 'react-map-gl';
+import { ScatterplotLayer } from '@deck.gl/layers';
+import { DataFilterExtension } from '@deck.gl/extensions';
+
+// ═══════════════════════════════════════════════════════════
+// 1. Memoization - جلوگیری از رندر مجدد
+// ═══════════════════════════════════════════════════════════
+
+function OptimizedMap({ data }) {
+    const [viewState, setViewState] = useState({
+        longitude: 51.3890,
+        latitude: 35.6892,
+        zoom: 10
+    });
+    
+    const [filter, setFilter] = useState({ minValue: 0, maxValue: 100 });
+    
+    // Memoize لایه‌ها
+    const layers = useMemo(() => [
+        new ScatterplotLayer({
+            id: 'points',
+            data,
+            getPosition: d => d.position,
+            getRadius: d => d.value,
+            getFillColor: d => d.color,
+            
+            // فعال‌سازی فیلتر GPU
+            extensions: [new DataFilterExtension({ filterSize: 1 })],
+            getFilterValue: d => d.value,
+            filterRange: [filter.minValue, filter.maxValue],
+            
+            // بهینه‌سازی picking
+            pickable: true,
+            autoHighlight: true,
+            
+            // تنظیمات عملکرد
+            updateTriggers: {
+                getFilterValue: filter
+            }
+        })
+    ], [data, filter]);
+    
+    // Memoize handler
+    const onViewStateChange = useCallback(({ viewState }) => {
+        setViewState(viewState);
+    }, []);
+    
+    return (
+        <DeckGL
+            viewState={viewState}
+            onViewStateChange={onViewStateChange}
+            layers={layers}
+            controller={true}
+        >
+            <Map mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" />
+        </DeckGL>
+    );
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// 2. Level of Detail - جزئیات بر اساس zoom
+// ═══════════════════════════════════════════════════════════
+
+function LODMap({ data }) {
+    const [viewState, setViewState] = useState({
+        longitude: 51.3890,
+        latitude: 35.6892,
+        zoom: 10
+    });
+    
+    // انتخاب داده بر اساس zoom
+    const visibleData = useMemo(() => {
+        const zoom = viewState.zoom;
+        
+        if (zoom < 8) {
+            // zoom کم: فقط شهرهای بزرگ
+            return data.filter(d => d.importance === 'high');
+        } else if (zoom < 12) {
+            // zoom متوسط: شهرها + مناطق
+            return data.filter(d => d.importance !== 'low');
+        } else {
+            // zoom بالا: همه نقاط
+            return data;
+        }
+    }, [data, viewState.zoom]);
+    
+    // تنظیم شعاع بر اساس zoom
+    const radiusScale = useMemo(() => {
+        return Math.max(1, 20 - viewState.zoom);
+    }, [viewState.zoom]);
+    
+    const layers = useMemo(() => [
+        new ScatterplotLayer({
+            id: 'lod-points',
+            data: visibleData,
+            getPosition: d => d.position,
+            getRadius: d => d.radius * radiusScale,
+            getFillColor: d => d.color,
+            radiusMinPixels: 2,
+            radiusMaxPixels: 100,
+            pickable: true,
+            
+            // Transitions نرم
+            transitions: {
+                getPosition: 300,
+                getRadius: 300
+            }
+        })
+    ], [visibleData, radiusScale]);
+    
+    return (
+        <DeckGL
+            viewState={viewState}
+            onViewStateChange={({ viewState }) => setViewState(viewState)}
+            layers={layers}
+            controller={true}
+        />
+    );
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// 3. Web Worker برای پردازش سنگین
+// ═══════════════════════════════════════════════════════════
+
+// worker.js
+const workerCode = `
+    self.onmessage = function(e) {
+        const { type, data } = e.data;
+        
+        if (type === 'cluster') {
+            // خوشه‌بندی در worker
+            const clusters = performClustering(data.points, data.k);
+            self.postMessage({ type: 'clusterResult', clusters });
+        }
+        
+        if (type === 'aggregate') {
+            // تجمیع داده
+            const aggregated = aggregateData(data.points, data.resolution);
+            self.postMessage({ type: 'aggregateResult', aggregated });
+        }
+    };
+    
+    function performClustering(points, k) {
+        // الگوریتم خوشه‌بندی
+        // ...
+        return clusters;
+    }
+    
+    function aggregateData(points, resolution) {
+        // تجمیع در grid
+        // ...
+        return aggregated;
+    }
+`;
+
+// استفاده از Worker
+function useWorker() {
+    const [worker, setWorker] = useState(null);
+    const [result, setResult] = useState(null);
+    
+    useEffect(() => {
+        const blob = new Blob([workerCode], { type: 'application/javascript' });
+        const w = new Worker(URL.createObjectURL(blob));
+        
+        w.onmessage = (e) => {
+            setResult(e.data);
+        };
+        
+        setWorker(w);
+        
+        return () => w.terminate();
+    }, []);
+    
+    const process = useCallback((type, data) => {
+        if (worker) {
+            worker.postMessage({ type, data });
+        }
+    }, [worker]);
+    
+    return { process, result };
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// 4. Binary Data Format
+// ═══════════════════════════════════════════════════════════
+
+async function loadBinaryData(url) {
+    const response = await fetch(url);
+    const buffer = await response.arrayBuffer();
+    
+    // فرض: هر نقطه 20 بایت
+    // [lng: float32, lat: float32, value: float32, r: uint8, g: uint8, b: uint8, a: uint8, padding: 4 bytes]
+    
+    const dataView = new DataView(buffer);
+    const pointCount = buffer.byteLength / 20;
+    const points = [];
+    
+    for (let i = 0; i < pointCount; i++) {
+        const offset = i * 20;
+        points.push({
+            position: [
+                dataView.getFloat32(offset, true),
+                dataView.getFloat32(offset + 4, true)
+            ],
+            value: dataView.getFloat32(offset + 8, true),
+            color: [
+                dataView.getUint8(offset + 12),
+                dataView.getUint8(offset + 13),
+                dataView.getUint8(offset + 14),
+                dataView.getUint8(offset + 15)
+            ]
+        });
+    }
+    
+    return points;
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// 5. Viewport Culling - فقط نقاط قابل مشاهده
+// ═══════════════════════════════════════════════════════════
+
+function filterByViewport(data, viewport) {
+    const { longitude, latitude, zoom } = viewport;
+    
+    // محاسبه bounds
+    const latRange = 180 / Math.pow(2, zoom);
+    const lngRange = 360 / Math.pow(2, zoom);
+    
+    const bounds = {
+        minLng: longitude - lngRange / 2,
+        maxLng: longitude + lngRange / 2,
+        minLat: latitude - latRange / 2,
+        maxLat: latitude + latRange / 2
+    };
+    
+    return data.filter(d => {
+        const [lng, lat] = d.position;
+        return lng >= bounds.minLng && lng <= bounds.maxLng &&
+               lat >= bounds.minLat && lat <= bounds.maxLat;
+    });
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// 6. Debounce برای تغییرات مکرر
+// ═══════════════════════════════════════════════════════════
+
+function useDebounce(value, delay) {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+        
+        return () => clearTimeout(handler);
+    }, [value, delay]);
+    
+    return debouncedValue;
+}
+
+function DebouncedFilterMap({ data }) {
+    const [filterValue, setFilterValue] = useState(50);
+    const debouncedFilter = useDebounce(filterValue, 300);
+    
+    const filteredData = useMemo(() => {
+        return data.filter(d => d.value >= debouncedFilter);
+    }, [data, debouncedFilter]);
+    
+    // ...
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>جدول مقایسه تکنیک‌ها</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>تکنیک</th>
+                        <th>کاربرد</th>
+                        <th>بهبود عملکرد</th>
+                        <th>پیچیدگی</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Memoization</td>
+                        <td>جلوگیری از محاسبات تکراری</td>
+                        <td>20-50%</td>
+                        <td>کم</td>
+                    </tr>
+                    <tr>
+                        <td>Level of Detail</td>
+                        <td>داده‌های بزرگ</td>
+                        <td>50-80%</td>
+                        <td>متوسط</td>
+                    </tr>
+                    <tr>
+                        <td>Web Workers</td>
+                        <td>پردازش سنگین</td>
+                        <td>30-60%</td>
+                        <td>زیاد</td>
+                    </tr>
+                    <tr>
+                        <td>Binary Data</td>
+                        <td>بارگذاری سریع</td>
+                        <td>60-80%</td>
+                        <td>زیاد</td>
+                    </tr>
+                    <tr>
+                        <td>GPU Filtering</td>
+                        <td>فیلتر real-time</td>
+                        <td>70-90%</td>
+                        <td>کم</td>
+                    </tr>
+                    <tr>
+                        <td>Viewport Culling</td>
+                        <td>داده‌های پراکنده</td>
+                        <td>40-70%</td>
+                        <td>کم</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 11: Projects -->
+        <section class="section" id="projects">
+            <div class="section-header">
+                <div class="section-icon">🚀</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل یازدهم</div>
+                    <h2 class="section-title">پروژه‌های عملی</h2>
+                    <p class="section-subtitle">نمونه پروژه‌های کامل با Deck.gl و AI</p>
+                </div>
+            </div>
+
+            <h3>پروژه‌های پیشنهادی</h3>
+            <div class="usecase-grid">
+                <div class="usecase-card">
+                    <div class="usecase-icon">🚕</div>
+                    <div class="usecase-title">سیستم مدیریت ناوگان</div>
+                    <div class="usecase-desc">
+                        ردیابی real-time وسایل نقلیه، تشخیص ناهنجاری مسیر، 
+                        پیش‌بینی ETA و بهینه‌سازی مسیر با AI
+                    </div>
+                </div>
+                
+                <div class="usecase-card">
+                    <div class="usecase-icon">🏪</div>
+                    <div class="usecase-title">تحلیل مکانی کسب‌وکار</div>
+                    <div class="usecase-desc">
+                        تحلیل تراکم مشتریان، پیدا کردن بهترین مکان برای 
+                        شعبه جدید، خوشه‌بندی مشتریان
+                    </div>
+                </div>
+                
+                <div class="usecase-card">
+                    <div class="usecase-icon">🌡️</div>
+                    <div class="usecase-title">پایش محیط زیست</div>
+                    <div class="usecase-desc">
+                        نمایش داده‌های سنسورها، پیش‌بینی آلودگی، 
+                        تشخیص ناهنجاری در داده‌های محیطی
+                    </div>
+                </div>
+                
+                <div class="usecase-card">
+                    <div class="usecase-icon">🏙️</div>
+                    <div class="usecase-title">داشبورد شهر هوشمند</div>
+                    <div class="usecase-desc">
+                        نمایش ترافیک، حمل‌ونقل عمومی، مصرف انرژی 
+                        و پیش‌بینی تقاضا
+                    </div>
+                </div>
+                
+                <div class="usecase-card">
+                    <div class="usecase-icon">🚨</div>
+                    <div class="usecase-title">سیستم هشدار بحران</div>
+                    <div class="usecase-desc">
+                        نمایش مناطق خطر، مسیرهای تخلیه، 
+                        پیش‌بینی گسترش بحران
+                    </div>
+                </div>
+                
+                <div class="usecase-card">
+                    <div class="usecase-icon">📦</div>
+                    <div class="usecase-title">بهینه‌سازی لجستیک</div>
+                    <div class="usecase-desc">
+                        برنامه‌ریزی مسیر تحویل، پیش‌بینی تقاضا، 
+                        مدیریت انبار
+                    </div>
+                </div>
+            </div>
+
+            <h3>ساختار پروژه کامل</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>📁</span>
+                        <span>Full Project Structure</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">fleet-management-system/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Map/
+│   │   │   │   ├── FleetMap.jsx
+│   │   │   │   ├── VehicleLayer.jsx
+│   │   │   │   ├── RouteLayer.jsx
+│   │   │   │   └── AnomalyLayer.jsx
+│   │   │   ├── Dashboard/
+│   │   │   │   ├── Stats.jsx
+│   │   │   │   ├── VehicleList.jsx
+│   │   │   │   └── AlertPanel.jsx
+│   │   │   └── Controls/
+│   │   │       ├── FilterPanel.jsx
+│   │   │       └── TimeSlider.jsx
+│   │   ├── ai/
+│   │   │   ├── anomalyDetection.js
+│   │   │   ├── etaPrediction.js
+│   │   │   ├── routeOptimization.js
+│   │   │   └── demandForecasting.js
+│   │   ├── hooks/
+│   │   │   ├── useWebSocket.js
+│   │   │   ├── useFleetData.js
+│   │   │   └── useAIModels.js
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   ├── websocket.js
+│   │   │   └── geocoding.js
+│   │   ├── utils/
+│   │   │   ├── geoUtils.js
+│   │   │   ├── colorScales.js
+│   │   │   └── formatters.js
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── public/
+│   │   └── icons/
+│   └── package.json
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── routes/
+│   │   │   │   ├── vehicles.py
+│   │   │   │   ├── routes.py
+│   │   │   │   └── analytics.py
+│   │   │   └── websocket.py
+│   │   ├── models/
+│   │   │   ├── vehicle.py
+│   │   │   ├── route.py
+│   │   │   └── alert.py
+│   │   ├── services/
+│   │   │   ├── tracking.py
+│   │   │   ├── anomaly.py
+│   │   │   └── prediction.py
+│   │   ├── ai/
+│   │   │   ├── models/
+│   │   │   │   ├── eta_model.py
+│   │   │   │   └── anomaly_model.py
+│   │   │   └── training/
+│   │   │       └── train.py
+│   │   └── main.py
+│   ├── requirements.txt
+│   └── Dockerfile
+│
+├── docker-compose.yml
+└── README.md</code></pre>
+                </div>
+                <!------ ماند -->
+                </div>
+
+            <h3>پروژه کامل: سیستم مدیریت ناوگان</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <span>⚛️</span>
+                        <span>FleetManagementApp.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import DeckGL from '@deck.gl/react';
+import { Map } from 'react-map-gl';
+import { 
+    ScatterplotLayer, 
+    PathLayer, 
+    IconLayer,
+    TextLayer 
+} from '@deck.gl/layers';
+import { TripsLayer } from '@deck.gl/geo-layers';
+import { FlyToInterpolator } from '@deck.gl/core';
+
+// AI Modules
+import { detectTrajectoryAnomalies } from './ai/anomalyDetection';
+import { predictETA } from './ai/etaPrediction';
+
+// ═══════════════════════════════════════════════════════════
+// Constants
+// ═══════════════════════════════════════════════════════════
+
+const INITIAL_VIEW_STATE = {
+    longitude: 51.3890,
+    latitude: 35.6892,
+    zoom: 11,
+    pitch: 45,
+    bearing: 0
+};
+
+const VEHICLE_COLORS = {
+    active: [16, 185, 129],      // سبز
+    idle: [251, 191, 36],        // زرد
+    offline: [156, 163, 175],    // خاکستری
+    alert: [239, 68, 68]         // قرمز
+};
+
+// ═══════════════════════════════════════════════════════════
+// Main Component
+// ═══════════════════════════════════════════════════════════
+
+function FleetManagementApp() {
+    // State
+    const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
+    const [vehicles, setVehicles] = useState([]);
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
+    const [routes, setRoutes] = useState([]);
+    const [alerts, setAlerts] = useState([]);
+    const [filter, setFilter] = useState('all');
+    const [animationTime, setAnimationTime] = useState(0);
+    const [showPredictions, setShowPredictions] = useState(true);
+    
+    // ═══════════════════════════════════════════════════════════
+    // WebSocket Connection for Real-time Updates
+    // ═══════════════════════════════════════════════════════════
+    
+    useEffect(() => {
+        const ws = new WebSocket('wss://api.example.com/fleet/ws');
+        
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            
+            switch (data.type) {
+                case 'vehicle_update':
+                    setVehicles(prev => {
+                        const index = prev.findIndex(v => v.id === data.vehicle.id);
+                        if (index >= 0) {
+                            const updated = [...prev];
+                            updated[index] = { ...updated[index], ...data.vehicle };
+                            return updated;
+                        }
+                        return [...prev, data.vehicle];
+                    });
+                    break;
+                    
+                case 'alert':
+                    setAlerts(prev => [data.alert, ...prev].slice(0, 50));
+                    break;
+                    
+                case 'route_update':
+                    setRoutes(prev => {
+                        const index = prev.findIndex(r => r.vehicleId === data.route.vehicleId);
+                        if (index >= 0) {
+                            const updated = [...prev];
+                            updated[index] = data.route;
+                            return updated;
+                        }
+                        return [...prev, data.route];
+                    });
+                    break;
+            }
+        };
+        
+        ws.onerror = (error) => console.error('WebSocket error:', error);
+        
+        return () => ws.close();
+    }, []);
+    
+    // ═══════════════════════════════════════════════════════════
+    // AI: Anomaly Detection
+    // ═══════════════════════════════════════════════════════════
+    
+    useEffect(() => {
+        vehicles.forEach(vehicle => {
+            if (vehicle.trajectory && vehicle.trajectory.length > 10) {
+                const { anomalies } = detectTrajectoryAnomalies(vehicle.trajectory, {
+                    speedThreshold: 120,
+                    angleThreshold: 90
+                });
+                
+                if (anomalies.length > 0) {
+                    const newAlert = {
+                        id: Date.now(),
+                        vehicleId: vehicle.id,
+                        type: 'anomaly',
+                        message: `ناهنجاری در حرکت ${vehicle.name}: ${anomalies[0].message}`,
+                        timestamp: new Date(),
+                        severity: 'warning'
+                    };
+                    
+                    setAlerts(prev => [newAlert, ...prev].slice(0, 50));
+                }
+            }
+        });
+    }, [vehicles]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // AI: ETA Prediction
+    // ═══════════════════════════════════════════════════════════
+    
+    const vehiclesWithETA = useMemo(() => {
+        if (!showPredictions) return vehicles;
+        
+        return vehicles.map(vehicle => {
+            if (vehicle.destination && vehicle.trajectory) {
+                const eta = predictETA(
+                    vehicle.position,
+                    vehicle.destination,
+                    vehicle.trajectory,
+                    { trafficFactor: 1.2 }
+                );
+                return { ...vehicle, predictedETA: eta };
+            }
+            return vehicle;
+        });
+    }, [vehicles, showPredictions]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // Filtered Data
+    // ═══════════════════════════════════════════════════════════
+    
+    const filteredVehicles = useMemo(() => {
+        if (filter === 'all') return vehiclesWithETA;
+        return vehiclesWithETA.filter(v => v.status === filter);
+    }, [vehiclesWithETA, filter]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // Animation Loop for Trips Layer
+    // ═══════════════════════════════════════════════════════════
+    
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setAnimationTime(t => (t + 1) % 1000);
+        }, 50);
+        return () => clearInterval(interval);
+    }, []);
+    
+    // ═══════════════════════════════════════════════════════════
+    // Event Handlers
+    // ═══════════════════════════════════════════════════════════
+    
+    const handleVehicleClick = useCallback((vehicle) => {
+        setSelectedVehicle(vehicle);
+        setViewState(prev => ({
+            ...prev,
+            longitude: vehicle.position[0],
+            latitude: vehicle.position[1],
+            zoom: 15,
+            transitionDuration: 1000,
+            transitionInterpolator: new FlyToInterpolator()
+        }));
+    }, []);
+    
+    const handleAlertClick = useCallback((alert) => {
+        const vehicle = vehicles.find(v => v.id === alert.vehicleId);
+        if (vehicle) {
+            handleVehicleClick(vehicle);
+        }
+    }, [vehicles, handleVehicleClick]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // Layers
+    // ═══════════════════════════════════════════════════════════
+    
+    const layers = useMemo(() => {
+        const layersList = [];
+        
+        // 1. Routes Layer (planned routes)
+        if (routes.length > 0) {
+            layersList.push(
+                new PathLayer({
+                    id: 'planned-routes',
+                    data: routes,
+                    getPath: d => d.path,
+                    getColor: d => d.vehicleId === selectedVehicle?.id ? 
+                        [99, 102, 241, 200] : [100, 100, 100, 100],
+                    getWidth: d => d.vehicleId === selectedVehicle?.id ? 8 : 4,
+                    widthMinPixels: 2,
+                    rounded: true,
+                    billboard: false
+                })
+            );
+        }
+        
+        // 2. Trips Layer (animated vehicle trails)
+        const tripsData = filteredVehicles
+            .filter(v => v.trajectory && v.trajectory.length > 1)
+            .map(v => ({
+                vehicleId: v.id,
+                path: v.trajectory.map((p, i) => [...p.position, i * 10]),
+                color: VEHICLE_COLORS[v.status] || VEHICLE_COLORS.active
+            }));
+        
+        if (tripsData.length > 0) {
+            layersList.push(
+                new TripsLayer({
+                    id: 'vehicle-trails',
+                    data: tripsData,
+                    getPath: d => d.path,
+                    getColor: d => d.color,
+                    opacity: 0.6,
+                    widthMinPixels: 3,
+                    trailLength: 200,
+                    currentTime: animationTime,
+                    shadowEnabled: false
+                })
+            );
+        }
+        
+        // 3. Vehicles Layer
+        layersList.push(
+            new ScatterplotLayer({
+                id: 'vehicles',
+                data: filteredVehicles,
+                getPosition: d => d.position,
+                getRadius: d => d.id === selectedVehicle?.id ? 150 : 100,
+                getFillColor: d => {
+                    if (d.hasAnomaly) return VEHICLE_COLORS.alert;
+                    return [...VEHICLE_COLORS[d.status] || VEHICLE_COLORS.active, 200];
+                },
+                getLineColor: d => d.id === selectedVehicle?.id ? 
+                    [255, 255, 255] : [0, 0, 0, 0],
+                lineWidthMinPixels: 3,
+                stroked: true,
+                pickable: true,
+                onClick: ({ object }) => object && handleVehicleClick(object),
+                autoHighlight: true,
+                highlightColor: [255, 255, 255, 100],
+                
+                transitions: {
+                    getPosition: 500
+                }
+            })
+        );
+        
+        // 4. Vehicle Labels
+        layersList.push(
+            new TextLayer({
+                id: 'vehicle-labels',
+                data: filteredVehicles,
+                getPosition: d => d.position,
+                getText: d => d.name,
+                getSize: 12,
+                getColor: [255, 255, 255],
+                getTextAnchor: 'middle',
+                getAlignmentBaseline: 'top',
+                getPixelOffset: [0, 20],
+                fontFamily: 'Vazirmatn, sans-serif'
+            })
+        );
+        
+        // 5. Alert Icons
+        const alertVehicles = filteredVehicles.filter(v => v.hasAnomaly);
+        if (alertVehicles.length > 0) {
+            layersList.push(
+                new IconLayer({
+                    id: 'alert-icons',
+                    data: alertVehicles,
+                    getPosition: d => d.position,
+                    getIcon: () => ({
+                        url: '/icons/alert.png',
+                        width: 64,
+                        height: 64,
+                        anchorY: 64
+                    }),
+                    getSize: 40,
+                    pickable: true
+                })
+            );
+        }
+        
+        // 6. Destination markers for selected vehicle
+        if (selectedVehicle?.destination) {
+            layersList.push(
+                new ScatterplotLayer({
+                    id: 'destination',
+                    data: [{ position: selectedVehicle.destination }],
+                    getPosition: d => d.position,
+                    getRadius: 100,
+                    getFillColor: [239, 68, 68, 150],
+                    stroked: true,
+                    getLineColor: [255, 255, 255],
+                    lineWidthMinPixels: 2
+                }),
+                new IconLayer({
+                    id: 'destination-icon',
+                    data: [{ position: selectedVehicle.destination }],
+                    getPosition: d => d.position,
+                    getIcon: () => ({
+                        url: '/icons/flag.png',
+                        width: 64,
+                        height: 64,
+                        anchorY: 64
+                    }),
+                    getSize: 50
+                })
+            );
+        }
+        
+        return layersList;
+    }, [filteredVehicles, routes, selectedVehicle, animationTime, handleVehicleClick]);
+    
+    // ═══════════════════════════════════════════════════════════
+    // Tooltip
+    // ═══════════════════════════════════════════════════════════
+    
+    const getTooltip = useCallback(({ object }) => {
+        if (!object) return null;
+        
+        if (object.name) {
+            // Vehicle tooltip
+            return {
+                html: `
+                    <div style="direction: rtl; font-family: Vazirmatn; min-width: 200px;">
+                        <div style="font-weight: bold; font-size: 16px; margin-bottom: 8px;">
+                            🚗 ${object.name}
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            وضعیت: <span style="color: ${
+                                object.status === 'active' ? '#10b981' :
+                                object.status === 'idle' ? '#fbbf24' : '#9ca3af'
+                            }">${
+                                object.status === 'active' ? 'فعال' :
+                                object.status === 'idle' ? 'توقف' : 'آفلاین'
+                            }</span>
+                        </div>
+                        <div style="margin-bottom: 4px;">
+                            سرعت: ${object.speed?.toFixed(0) || 0} km/h
+                        </div>
+                        ${object.predictedETA ? `
+                            <div style="margin-bottom: 4px;">
+                                زمان رسیدن: ${object.predictedETA} دقیقه
+                            </div>
+                        ` : ''}
+                        ${object.hasAnomaly ? `
+                            <div style="color: #ef4444; margin-top: 8px;">
+                                ⚠️ هشدار: ناهنجاری شناسایی شده
+                            </div>
+                        ` : ''}
+                    </div>
+                `,
+                style: {
+                    backgroundColor: 'rgba(30, 41, 59, 0.95)',
+                    color: 'white',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                }
+            };
+        }
+        
+        return null;
+    }, []);
+    
+    // ═══════════════════════════════════════════════════════════
+    // Render
+    // ═══════════════════════════════════════════════════════════
+    
+    return (
+        <div style={{ width: '100%', height: '100vh', display: 'flex' }}>
+            {/* Sidebar */}
+            <div style={{
+                width: '350px',
+                background: '#1e293b',
+                color: 'white',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden'
+            }}>
+                {/* Header */}
+                <div style={{ 
+                    padding: '20px', 
+                    borderBottom: '1px solid #374151',
+                    background: 'linear-gradient(135deg, #1e293b, #334155)'
+                }}>
+                    <h1 style={{ margin: 0, fontSize: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        🚗 مدیریت ناوگان
+                    </h1>
+                    <p style={{ margin: '5px 0 0', color: '#94a3b8', fontSize: '14px' }}>
+                        {vehicles.length} وسیله نقلیه فعال
+                    </p>
+                </div>
+                
+                {/* Filters */}
+                <div style={{ padding: '15px', borderBottom: '1px solid #374151' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {['all', 'active', 'idle', 'offline'].map(f => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '20px',
+                                    border: 'none',
+                                    background: filter === f ? '#6366f1' : '#374151',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '12px'
+                                }}
+                            >
+                                {f === 'all' ? 'همه' :
+                                 f === 'active' ? '🟢 فعال' :
+                                 f === 'idle' ? '🟡 توقف' : '⚫ آفلاین'}
+                            </button>
+                        ))}
+                    </div>
+                    
+                    <label style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        marginTop: '10px',
+                        fontSize: '13px',
+                        cursor: 'pointer'
+                    }}>
+                        <input
+                            type="checkbox"
+                            checked={showPredictions}
+                            onChange={e => setShowPredictions(e.target.checked)}
+                        />
+                        نمایش پیش‌بینی AI
+                    </label>
+                </div>
+                
+                {/* Vehicle List */}
+                <div style={{ flex: 1, overflow: 'auto', padding: '10px' }}>
+                    <h3 style={{ fontSize: '14px', color: '#94a3b8', margin: '0 0 10px' }}>
+                        وسایل نقلیه
+                    </h3>
+                    
+                    {filteredVehicles.map(vehicle => (
+                        <div
+                            key={vehicle.id}
+                            onClick={() => handleVehicleClick(vehicle)}
+                            style={{
+                                padding: '12px',
+                                background: selectedVehicle?.id === vehicle.id ? '#374151' : 'transparent',
+                                borderRadius: '8px',
+                                marginBottom: '8px',
+                                cursor: 'pointer',
+                                transition: 'background 0.2s',
+                                border: vehicle.hasAnomaly ? '1px solid #ef4444' : '1px solid transparent'
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <span style={{ fontWeight: 'bold' }}>{vehicle.name}</span>
+                                <span style={{
+                                    width: '10px',
+                                    height: '10px',
+                                    borderRadius: '50%',
+                                    background: vehicle.status === 'active' ? '#10b981' :
+                                               vehicle.status === 'idle' ? '#fbbf24' : '#9ca3af'
+                                }}></span>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>
+                                سرعت: {vehicle.speed?.toFixed(0) || 0} km/h
+                                {vehicle.predictedETA && ` • ETA: ${vehicle.predictedETA} دقیقه`}
+                            </div>
+                            {vehicle.hasAnomaly && (
+                                <div style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px' }}>
+                                    ⚠️ ناهنجاری شناسایی شده
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+                
+                {/* Alerts */}
+                <div style={{ 
+                    borderTop: '1px solid #374151',
+                    maxHeight: '200px',
+                    overflow: 'auto'
+                }}>
+                    <div style={{ 
+                        padding: '10px 15px', 
+                        background: '#374151',
+                        position: 'sticky',
+                        top: 0,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
+                            🚨 هشدارها
+                        </span>
+                        <span style={{ 
+                            background: '#ef4444', 
+                            padding: '2px 8px', 
+                            borderRadius: '10px',
+                            fontSize: '12px'
+                        }}>
+                            {alerts.length}
+                        </span>
+                    </div>
+                    
+                    {alerts.slice(0, 10).map(alert => (
+                        <div
+                            key={alert.id}
+                            onClick={() => handleAlertClick(alert)}
+                            style={{
+                                padding: '10px 15px',
+                                borderBottom: '1px solid #374151',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                            }}
+                        >
+                            <div style={{ 
+                                color: alert.severity === 'warning' ? '#fbbf24' : '#ef4444' 
+                            }}>
+                                {alert.message}
+                            </div>
+                            <div style={{ color: '#64748b', fontSize: '11px', marginTop: '4px' }}>
+                                {new Date(alert.timestamp).toLocaleTimeString('fa-IR')}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+            
+            {/* Map */}
+            <div style={{ flex: 1, position: 'relative' }}>
+                <DeckGL
+                    viewState={viewState}
+                    onViewStateChange={({ viewState }) => setViewState(viewState)}
+                    controller={true}
+                    layers={layers}
+                    getTooltip={getTooltip}
+                >
+                    <Map mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json" />
+                </DeckGL>
+                
+                {/* Stats Overlay */}
+                <div style={{
+                    position: 'absolute',
+                    top: 20,
+                    right: 20,
+                    display: 'flex',
+                    gap: '10px'
+                }}>
+                    <div style={{
+                        background: 'rgba(16, 185, 129, 0.9)',
+                        padding: '10px 20px',
+                        borderRadius: '8px',
+                        color: 'white',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                            {vehicles.filter(v => v.status === 'active').length}
+                        </div>
+                        <div style={{ fontSize: '12px' }}>فعال</div>
+                    </div>
+                    
+                    <div style={{
+                        background: 'rgba(251, 191, 36, 0.9)',
+                        padding: '10px 20px',
+                        borderRadius: '8px',
+                        color: 'white',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                            {vehicles.filter(v => v.status === 'idle').length}
+                        </div>
+                        <div style={{ fontSize: '12px' }}>توقف</div>
+                    </div>
+                    
+                    <div style={{
+                        background: 'rgba(239, 68, 68, 0.9)',
+                        padding: '10px 20px',
+                        borderRadius: '8px',
+                        color: 'white',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                            {alerts.filter(a => a.severity === 'warning').length}
+                        </div>
+                        <div style={{ fontSize: '12px' }}>هشدار</div>
+                    </div>
+                </div>
+                
+                {/* Selected Vehicle Info */}
+                {selectedVehicle && (
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 20,
+                        left: 20,
+                        right: 20,
+                        background: 'rgba(30, 41, 59, 0.95)',
+                        padding: '20px',
+                        borderRadius: '12px',
+                        color: 'white',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <div>
+                            <h3 style={{ margin: '0 0 5px' }}>{selectedVehicle.name}</h3>
+                            <p style={{ margin: 0, color: '#94a3b8', fontSize: '14px' }}>
+                                راننده: {selectedVehicle.driver || 'نامشخص'}
+                            </p>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '30px', textAlign: 'center' }}>
+                            <div>
+                                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                                    {selectedVehicle.speed?.toFixed(0) || 0}
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#94a3b8' }}>km/h</div>
+                            </div>
+                            
+                            {selectedVehicle.predictedETA && (
+                                <div>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>
+                                        {selectedVehicle.predictedETA}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#94a3b8' }}>دقیقه تا مقصد</div>
+                                </div>
+                            )}
+                            
+                            <div>
+                                <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+                                    {selectedVehicle.totalDistance?.toFixed(1) || 0}
+                                </div>
+                                <div style={{ fontSize: '12px', color: '#94a3b8' }}>km امروز</div>
+                            </div>
+                        </div>
+                        
+                        <button
+                            onClick={() => setSelectedVehicle(null)}
+                            style={{
+                                background: '#374151',
+                                border: 'none',
+                                color: 'white',
+                                padding: '8px 16px',
+                                borderRadius: '6px',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            ✕ بستن
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+export default FleetManagementApp;</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 12: Resources -->
+        <section class="section" id="resources">
+            <div class="section-header">
+                <div class="section-icon">📚</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوازدهم</div>
+                    <h2 class="section-title">منابع و مراجع</h2>
+                    <p class="section-subtitle">لینک‌ها، کتابخانه‌ها و منابع یادگیری</p>
+                </div>
+            </div>
+
+            <h3>مستندات رسمی</h3>
+            <div class="resources-grid">
+                <a href="https://deck.gl/docs" target="_blank" class="resource-card">
+                    <div class="resource-icon">📖</div>
+                    <div class="resource-title">Deck.gl Documentation</div>
+                    <div class="resource-desc">مستندات رسمی و کامل Deck.gl</div>
+                </a>
+                
+                <a href="https://deck.gl/examples" target="_blank" class="resource-card">
+                    <div class="resource-icon">🎨</div>
+                    <div class="resource-title">Deck.gl Examples</div>
+                    <div class="resource-desc">نمونه‌های تعاملی و کد</div>
+                </a>
+                
+                <a href="https://www.tensorflow.org/js" target="_blank" class="resource-card">
+                    <div class="resource-icon">🧠</div>
+                    <div class="resource-title">TensorFlow.js</div>
+                    <div class="resource-desc">یادگیری ماشین در مرورگر</div>
+                </a>
+                
+                <a href="https://h3geo.org/" target="_blank" class="resource-card">
+                    <div class="resource-icon">⬡</div>
+                    <div class="resource-title">H3 Geo</div>
+                    <div class="resource-desc">سیستم شاخص‌گذاری شش‌ضلعی</div>
+                </a>
+                
+                <a href="https://maplibre.org/" target="_blank" class="resource-card">
+                    <div class="resource-icon">🗺️</div>
+                    <div class="resource-title">MapLibre</div>
+                    <div class="resource-desc">نقشه متن‌باز و رایگان</div>
+                </a>
+                
+                <a href="https://turfjs.org/" target="_blank" class="resource-card">
+                    <div class="resource-icon">🌿</div>
+                    <div class="resource-title">Turf.js</div>
+                    <div class="resource-desc">تحلیل مکانی در JavaScript</div>
+                </a>
+            </div>
+
+            <h3>کتابخانه‌های مرتبط</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>کتابخانه</th>
+                        <th>کاربرد</th>
+                        <th>نصب</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>@deck.gl/core</code></td>
+                        <td>هسته اصلی Deck.gl</td>
+                        <td><code>npm i @deck.gl/core</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>@deck.gl/layers</code></td>
+                        <td>لایه‌های استاندارد</td>
+                        <td><code>npm i @deck.gl/layers</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>@deck.gl/geo-layers</code></td>
+                        <td>لایه‌های جغرافیایی (H3, Tile3D)</td>
+                        <td><code>npm i @deck.gl/geo-layers</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>@deck.gl/aggregation-layers</code></td>
+                        <td>لایه‌های تجمیعی (Hexagon, Heatmap)</td>
+                        <td><code>npm i @deck.gl/aggregation-layers</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>@tensorflow/tfjs</code></td>
+                        <td>یادگیری ماشین</td>
+                        <td><code>npm i @tensorflow/tfjs</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>ml-kmeans</code></td>
+                        <td>خوشه‌بندی K-Means</td>
+                        <td><code>npm i ml-kmeans</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>h3-js</code></td>
+                        <td>شاخص‌گذاری H3</td>
+                        <td><code>npm i h3-js</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>@turf/turf</code></td>
+                        <td>تحلیل مکانی</td>
+                        <td><code>npm i @turf/turf</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>d3-scale</code></td>
+                        <td>مقیاس‌بندی داده</td>
+                        <td><code>npm i d3-scale</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>خلاصه آموزش</h3>
+            <div class="summary-box">
+                <h4>🎯 نکات کلیدی</h4>
+                <ul>
+                    <li><strong>Deck.gl</strong> یک کتابخانه قدرتمند برای ویژوالیزیشن داده‌های مکانی با WebGL است</li>
+                    <li><strong>لایه‌ها</strong> واحد اصلی نمایش داده هستند - هر نوع داده لایه مخصوص خود را دارد</li>
+                    <li><strong>Accessors</strong> نحوه استخراج مقادیر از داده را مشخص می‌کنند</li>
+                    <li><strong>AI Integration</strong> امکان خوشه‌بندی، پیش‌بینی و تشخیص ناهنجاری را فراهم می‌کند</li>
+                    <li><strong>Performance</strong> با تکنیک‌هایی مثل memoization و GPU filtering بهینه می‌شود</li>
+                </ul>
+                
+                <h4>🚀 قدم‌های بعدی</h4>
+                <ol>
+                    <li>یک پروژه ساده با ScatterplotLayer بسازید</li>
+                    <li>لایه‌های مختلف را امتحان کنید</li>
+                    <li>خوشه‌بندی K-Means را اضافه کنید</li>
+                    <li>پیش‌بینی با TensorFlow.js را پیاده‌سازی کنید</li>
+                    <li>یک پروژه کامل مثل مدیریت ناوگان بسازید</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>🗺️ آموزش Deck.gl با AI</h4>
+                    <p>راهنمای جامع ویژوالیزیشن داده‌های مکانی با هوش مصنوعی</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>لینک‌های مفید</h4>
+                    <ul>
+                        <li><a href="https://deck.gl" target="_blank">Deck.gl</a></li>
+                        <li><a href="https://maplibre.org" target="_blank">MapLibre</a></li>
+                        <li><a href="https://tensorflow.org/js" target="_blank">TensorFlow.js</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>فصل‌ها</h4>
+                    <ul>
+                        <li><a href="#intro">معرفی</a></li>
+                        <li><a href="#ai-clustering">خوشه‌بندی AI</a></li>
+                        <li><a href="#ai-prediction">پیش‌بینی AI</a></li>
+                        <li><a href="#projects">پروژه‌ها</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>ساخته شده با ❤️ برای جامعه GIS ایران</p>
+                <p>© 2025 - تمامی حقوق محفوظ است</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    
+    <script>
+        // Initialize highlight.js
+        document.addEventListener('DOMContentLoaded', () => {
+            hljs.highlightAll();
+        });
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span>✅</span> کپی شد!';
+                button.style.background = 'rgba(16, 185, 129, 0.3)';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                button.innerHTML = '<span>❌</span> خطا';
+                setTimeout(() => {
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            });
+        }
+        
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Add scroll progress indicator
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            
+            // Update progress bar if exists
+            const progressBar = document.querySelector('.scroll-progress');
+            if (progressBar) {
+                progressBar.style.width = scrolled + '%';
+            }
+        });
+        
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+        
+        // Table of Contents highlighting
+        const sections = document.querySelectorAll('.section');
+        const tocLinks = document.querySelectorAll('.toc-link');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            tocLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Dark/Light mode toggle (if needed)
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', 
+                document.body.classList.contains('light-mode') ? 'light' : 'dark'
+            );
+        }
+        
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+        
+        // Print-friendly version
+        function printPage() {
+            window.print();
+        }
+        
+        // Search functionality
+        function searchContent(query) {
+            const sections = document.querySelectorAll('.section');
+            const results = [];
+            
+            sections.forEach(section => {
+                const text = section.textContent.toLowerCase();
+                if (text.includes(query.toLowerCase())) {
+                    results.push({
+                        id: section.id,
+                        title: section.querySelector('.section-title')?.textContent || 'بدون عنوان',
+                        preview: text.substring(text.indexOf(query.toLowerCase()) - 50, 
+                                                text.indexOf(query.toLowerCase()) + 100)
+                    });
+                }
+            });
+            
+            return results;
+        }
+        
+        console.log('🗺️ Deck.gl + AI Tutorial Loaded Successfully!');
+        console.log('📚 Sections:', document.querySelectorAll('.section').length);
+        console.log('💻 Code Blocks:', document.querySelectorAll('.code-block').length);
+    </script>
+</body>
+</html>
