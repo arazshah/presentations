@@ -1,0 +1,4622 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع Zarr - ذخیره‌سازی آرایه‌های بزرگ در پایتون</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            --primary: #E85D04;
+            --primary-dark: #D00000;
+            --primary-light: #F48C06;
+            --secondary: #9D4EDD;
+            --accent: #00B4D8;
+            --bg-dark: #0A0A0F;
+            --bg-card: #151520;
+            --bg-code: #0D0D12;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border: #2D2D3A;
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --info: #06B6D4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(232, 93, 4, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(232, 93, 4, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(157, 78, 221, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(0, 180, 216, 0.1) 0%, transparent 50%);
+        }
+
+        /* Animated cubes */
+        .hero-shapes {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .cube {
+            position: absolute;
+            opacity: 0.1;
+            border: 2px solid var(--primary);
+            animation: float-cube 15s infinite ease-in-out;
+        }
+
+        .cube-1 {
+            top: 15%;
+            left: 10%;
+            width: 60px;
+            height: 60px;
+            animation-delay: 0s;
+        }
+
+        .cube-2 {
+            top: 60%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            animation-delay: -5s;
+        }
+
+        .cube-3 {
+            bottom: 20%;
+            left: 20%;
+            width: 50px;
+            height: 50px;
+            animation-delay: -10s;
+        }
+
+        .cube-4 {
+            top: 30%;
+            right: 25%;
+            width: 40px;
+            height: 40px;
+            animation-delay: -7s;
+        }
+
+        @keyframes float-cube {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-30px) rotate(90deg); }
+            50% { transform: translateY(0) rotate(180deg); }
+            75% { transform: translateY(30px) rotate(270deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(232, 93, 4, 0.1);
+            border: 1px solid rgba(232, 93, 4, 0.3);
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 10px 30px rgba(232, 93, 4, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(232, 93, 4, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(232, 93, 4, 0.1);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(232, 93, 4, 0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1rem;
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .section-number {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.25rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Headings */
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--primary-light);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Code Block */
+        .code-block {
+            direction: ltr;
+            background: var(--bg-code);
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.python {
+            background: #3776AB;
+            color: #FFD43B;
+        }
+
+        .code-lang-icon.bash {
+            background: #4EAA25;
+            color: white;
+        }
+
+        .code-lang-icon.json {
+            background: #292929;
+            color: #F7DF1E;
+        }
+
+        .code-lang-icon.yaml {
+            background: #CB171E;
+            color: white;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+        }
+
+        .code-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .code-btn.copied {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+        }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* Info Box */
+        .info-box {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border: 1px solid;
+        }
+
+        .info-box.tip {
+            background: rgba(232, 93, 4, 0.1);
+            border-color: rgba(232, 93, 4, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .info-box.info {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: rgba(6, 182, 212, 0.3);
+        }
+
+        .info-box.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .info-content ul {
+            margin: 0.5rem 0 0 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .info-content li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-card);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tr:hover {
+            background: rgba(232, 93, 4, 0.05);
+        }
+
+        /* Concept Cards */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .concept-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .concept-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Diagram */
+        .diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .chunk-visual {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .chunk {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .chunk.empty {
+            background: var(--bg-dark);
+            border: 2px dashed var(--border);
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 6rem 1rem 3rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .section-icon {
+                margin: 0 auto;
+            }
+
+            h3 {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Inline Code */
+        code:not([class*="language-"]) {
+            background: rgba(232, 93, 4, 0.1);
+            color: var(--primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Resources Grid */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .resource-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .resource-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .resource-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .resource-card p {
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .resource-card a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .resource-card a:hover {
+            background: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Comparison Table */
+        .comparison-highlight {
+            background: rgba(232, 93, 4, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <div class="logo-icon">📦</div>
+                <span class="logo-text">Zarr</span>
+            </a>
+            <div class="nav-links">
+                <a href="#intro" class="nav-link">معرفی</a>
+                <a href="#installation" class="nav-link">نصب</a>
+                <a href="#concepts" class="nav-link">مفاهیم</a>
+                <a href="#arrays" class="nav-link">آرایه‌ها</a>
+                <a href="#groups" class="nav-link">گروه‌ها</a>
+                <a href="#storage" class="nav-link">ذخیره‌سازی</a>
+                <a href="#compression" class="nav-link">فشرده‌سازی</a>
+                <a href="#parallel" class="nav-link">موازی</a>
+                <a href="#cloud" class="nav-link">ابری</a>
+                <a href="#projects" class="nav-link">پروژه‌ها</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-shapes">
+            <div class="cube cube-1"></div>
+            <div class="cube cube-2"></div>
+            <div class="cube cube-3"></div>
+            <div class="cube cube-4"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🚀</span>
+                <span>ذخیره‌سازی آرایه‌های بزرگ چندبعدی</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">Zarr</span>
+            </h1>
+            <p class="hero-subtitle">
+                فرمت قدرتمند برای ذخیره‌سازی آرایه‌های بزرگ با پشتیبانی از chunking،
+                فشرده‌سازی، و دسترسی موازی - ایده‌آل برای داده‌های علمی و Big Data!
+            </p>
+            <div class="hero-buttons">
+                <a href="#intro" class="btn btn-primary">
+                    <span>📖</span>
+                    شروع یادگیری
+                </a>
+                <a href="https://zarr.readthedocs.io" target="_blank" class="btn btn-secondary">
+                    <span>🔗</span>
+                    مستندات رسمی
+                </a>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧊</div>
+                    <div class="feature-title">Chunked Arrays</div>
+                    <div class="feature-desc">تقسیم آرایه به قطعات کوچک‌تر</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗜️</div>
+                    <div class="feature-title">فشرده‌سازی</div>
+                    <div class="feature-desc">پشتیبانی از الگوریتم‌های متنوع</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">☁️</div>
+                    <div class="feature-title">Cloud Native</div>
+                    <div class="feature-desc">S3، GCS، Azure و HTTP</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">دسترسی موازی</div>
+                    <div class="feature-desc">خواندن/نوشتن همزمان</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">📦</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی Zarr</h2>
+                    <p class="section-subtitle">آشنایی با فرمت ذخیره‌سازی آرایه‌های بزرگ</p>
+                </div>
+            </div>
+
+            <h3>🎯 Zarr چیست؟</h3>
+            <p>
+                <strong>Zarr</strong> یک فرمت ذخیره‌سازی برای آرایه‌های چندبعدی بزرگ (N-dimensional arrays)
+                است که برای کار با داده‌های علمی، تصاویر ماهواره‌ای، داده‌های ژنومی و هر نوع داده بزرگ
+                طراحی شده است. Zarr از <strong>chunking</strong> (تقسیم به قطعات)، <strong>فشرده‌سازی</strong>
+                و <strong>دسترسی موازی</strong> پشتیبانی می‌کند.
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">N-D</div>
+                    <div class="stat-label">آرایه چندبعدی</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">TB+</div>
+                    <div class="stat-label">مقیاس داده</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">Cloud</div>
+                    <div class="stat-label">پشتیبانی ابری</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">Parallel</div>
+                    <div class="stat-label">دسترسی موازی</div>
+                </div>
+            </div>
+
+            <h3>✨ ویژگی‌های کلیدی</h3>
+            <ul>
+                <li><strong>Chunking:</strong> تقسیم آرایه‌های بزرگ به قطعات کوچک‌تر برای دسترسی کارآمد</li>
+                <li><strong>فشرده‌سازی:</strong> پشتیبانی از Blosc، Zstd، LZ4، Gzip و غیره</li>
+                <li><strong>Cloud Storage:</strong> ذخیره‌سازی مستقیم در S3، GCS، Azure Blob</li>
+                <li><strong>دسترسی موازی:</strong> خواندن و نوشتن همزمان از چندین پروسس</li>
+                <li><strong>Hierarchical:</strong> ساختار سلسله‌مراتبی مشابه HDF5</li>
+                <li><strong>سازگاری NumPy:</strong> API مشابه آرایه‌های NumPy</li>
+                <li><strong>Lazy Loading:</strong> بارگذاری تنبل - فقط داده‌های مورد نیاز</li>
+            </ul>
+
+            <h3>🆚 مقایسه با فرمت‌های دیگر</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>Zarr</th>
+                            <th>HDF5</th>
+                            <th>NetCDF</th>
+                            <th>Parquet</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>نوع داده</td>
+                            <td class="comparison-highlight">N-D Array</td>
+                            <td>N-D Array</td>
+                            <td>N-D Array</td>
+                            <td>Tabular</td>
+                        </tr>
+                        <tr>
+                            <td>Cloud Native</td>
+                            <td class="comparison-highlight">✅ عالی</td>
+                            <td>⚠️ محدود</td>
+                            <td>⚠️ محدود</td>
+                            <td>✅ خوب</td>
+                        </tr>
+                        <tr>
+                            <td>Parallel Write</td>
+                            <td class="comparison-highlight">✅ بله</td>
+                            <td>⚠️ پیچیده</td>
+                            <td>❌ خیر</td>
+                            <td>✅ بله</td>
+                        </tr>
+                        <tr>
+                            <td>Chunking</td>
+                            <td class="comparison-highlight">✅ پیش‌فرض</td>
+                            <td>✅ بله</td>
+                            <td>✅ بله</td>
+                            <td>✅ Row Groups</td>
+                        </tr>
+                        <tr>
+                            <td>فشرده‌سازی</td>
+                            <td class="comparison-highlight">✅ متنوع</td>
+                            <td>✅ متنوع</td>
+                            <td>✅ محدود</td>
+                            <td>✅ متنوع</td>
+                        </tr>
+                        <tr>
+                            <td>فرمت فایل</td>
+                            <td class="comparison-highlight">Directory/Zip</td>
+                            <td>Single File</td>
+                            <td>Single File</td>
+                            <td>Directory</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🔷 کاربردهای اصلی</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <div class="concept-icon">🛰️</div>
+                    <div class="concept-title">تصاویر ماهواره‌ای</div>
+                    <div class="concept-desc">ذخیره و پردازش داده‌های سنجش از دور و GeoTIFF</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🧬</div>
+                    <div class="concept-title">داده‌های ژنومی</div>
+                    <div class="concept-desc">ذخیره‌سازی ماتریس‌های بزرگ بیان ژن</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🌡️</div>
+                    <div class="concept-title">داده‌های آب‌وهوایی</div>
+                    <div class="concept-desc">مدل‌های اقلیمی و پیش‌بینی هوا</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🔬</div>
+                    <div class="concept-title">میکروسکوپی</div>
+                    <div class="concept-desc">تصاویر سه‌بعدی با وضوح بالا</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🤖</div>
+                    <div class="concept-title">یادگیری ماشین</div>
+                    <div class="concept-desc">ذخیره تنسورهای بزرگ آموزشی</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">📊</div>
+                    <div class="concept-title">تحلیل علمی</div>
+                    <div class="concept-desc">شبیه‌سازی‌های عددی بزرگ</div>
+                </div>
+            </div>
+
+            <div class="info-box info">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>چرا Zarr؟</h4>
+                    <p>
+                        Zarr برای حل مشکلات HDF5 در محیط‌های ابری و توزیع‌شده طراحی شده است.
+                        برخلاف HDF5 که یک فایل واحد است، Zarr از ساختار دایرکتوری استفاده می‌کند
+                        که امکان دسترسی موازی و ذخیره‌سازی در object storage را فراهم می‌کند.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Installation -->
+        <section class="section" id="installation">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">نصب و راه‌اندازی</h2>
+                    <p class="section-subtitle">روش‌های مختلف نصب Zarr</p>
+                </div>
+            </div>
+
+            <h3>📦 نصب با pip</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">$</div>
+                        <span>Terminal</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># نصب پایه
+pip install zarr
+
+# نصب با وابستگی‌های اضافی
+pip install "zarr[jupyter]"     # پشتیبانی Jupyter
+pip install "zarr[s3]"          # پشتیبانی S3
+
+# نصب همه وابستگی‌ها
+pip install "zarr[complete]"
+
+# نصب نسخه خاص
+pip install zarr==2.16.0
+
+# ارتقا به آخرین نسخه
+pip install --upgrade zarr</code></pre>
+                </div>
+            </div>
+
+            <h3>🐍 نصب با Conda</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">$</div>
+                        <span>Terminal</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># از کانال conda-forge (توصیه شده)
+conda install -c conda-forge zarr
+
+# ایجاد محیط جدید
+conda create -n zarr-env python=3.11 zarr numpy xarray dask
+conda activate zarr-env
+
+# نصب با fsspec برای cloud storage
+conda install -c conda-forge zarr fsspec s3fs gcsfs</code></pre>
+                </div>
+            </div>
+
+            <h3>✅ بررسی نصب</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>check_install.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+print(f"Zarr version: {zarr.__version__}")
+print(f"NumPy version: {np.__version__}")
+
+# تست ساده
+z = zarr.zeros((100, 100), chunks=(10, 10))
+z[0, 0] = 42
+print(f"Array shape: {z.shape}")
+print(f"Chunk shape: {z.chunks}")
+print(f"Value at [0,0]: {z[0, 0]}")
+
+# بررسی compressor پیش‌فرض
+print(f"Default compressor: {z.compressor}")
+
+# خروجی:
+# Zarr version: 2.16.1
+# NumPy version: 1.24.0
+# Array shape: (100, 100)
+# Chunk shape: (10, 10)
+# Value at [0,0]: 42.0
+# Default compressor: Blosc(cname='lz4', clevel=5, ...)</code></pre>
+                </div>
+            </div>
+
+            <h3>📚 وابستگی‌های مفید</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">$</div>
+                        <span>requirements.txt</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># Core
+zarr>=2.16.0
+numpy>=1.20.0
+numcodecs>=0.11.0
+
+# Cloud Storage
+fsspec>=2023.1.0
+s3fs>=2023.1.0      # Amazon S3
+gcsfs>=2023.1.0     # Google Cloud Storage
+adlfs>=2023.1.0     # Azure Blob Storage
+
+# Integration
+xarray>=2023.1.0    # Labeled arrays
+dask>=2023.1.0      # Parallel computing
+h5py>=3.8.0         # HDF5 compatibility
+
+# Compression
+blosc>=1.10.0
+lz4>=4.0.0
+zstd>=1.5.0
+
+# Visualization
+matplotlib>=3.5.0</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکته مهم</h4>
+                    <p>
+                        برای استفاده از فشرده‌سازی Blosc (پیش‌فرض و سریع‌ترین)، مطمئن شوید که
+                        <code>numcodecs</code> به درستی نصب شده است. در برخی سیستم‌ها ممکن است
+                        نیاز به نصب کتابخانه‌های C باشد.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Core Concepts -->
+        <section class="section" id="concepts">
+            <div class="section-header">
+                <div class="section-icon">🧠</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">مفاهیم اصلی</h2>
+                    <p class="section-subtitle">درک Chunking، Storage و ساختار Zarr</p>
+                </div>
+            </div>
+
+            <h3>🧊 Chunking چیست؟</h3>
+            <p>
+                <strong>Chunking</strong> به معنای تقسیم یک آرایه بزرگ به قطعات (chunks) کوچک‌تر است.
+                هر chunk به صورت جداگانه ذخیره و فشرده می‌شود. این امکان را می‌دهد که فقط بخش‌های
+                مورد نیاز از داده بارگذاری شود.
+            </p>
+
+            <div class="diagram">
+                <div class="diagram-title">آرایه ۸×۸ با chunks ۴×۴</div>
+                <div class="chunk-visual">
+                    <div class="chunk">0,0</div>
+                    <div class="chunk">0,1</div>
+                    <div class="chunk">1,0</div>
+                    <div class="chunk">1,1</div>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">
+                    هر chunk به صورت مستقل ذخیره، فشرده و خوانده می‌شود
+                </p>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>chunking_example.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# مثال Chunking
+# ═══════════════════════════════════════════════════════════
+
+# آرایه ۱۰۰۰×۱۰۰۰ با chunks ۱۰۰×۱۰۰
+# یعنی ۱۰×۱۰ = ۱۰۰ chunk
+z = zarr.zeros((1000, 1000), chunks=(100, 100), dtype='f4')
+
+print(f"Shape: {z.shape}")           # (1000, 1000)
+print(f"Chunks: {z.chunks}")         # (100, 100)
+print(f"Number of chunks: {z.nchunks}")  # 100
+
+# دسترسی به یک بخش فقط chunk های مربوطه را می‌خواند
+subset = z[50:150, 50:150]  # فقط ۴ chunk خوانده می‌شود
+
+# ═══════════════════════════════════════════════════════════
+# انتخاب اندازه chunk مناسب
+# ═══════════════════════════════════════════════════════════
+
+# قانون کلی: هر chunk بین ۱ تا ۱۰۰ مگابایت
+# برای float32 (4 bytes):
+# - 256×256 = 256KB (کوچک)
+# - 1024×1024 = 4MB (متوسط)
+# - 4096×4096 = 64MB (بزرگ)
+
+# برای داده‌های ۳ بعدی (time, lat, lon)
+z_3d = zarr.zeros(
+    (365, 1000, 1000),  # یک سال روزانه
+    chunks=(30, 250, 250),  # ۳۰ روز، ۲۵۰×۲۵۰ مکانی
+    dtype='f4'
+)
+
+print(f"3D chunks: {z_3d.chunks}")
+print(f"Chunk size: {np.prod(z_3d.chunks) * 4 / 1024 / 1024:.2f} MB")</code></pre>
+                </div>
+            </div>
+
+            <h3>📁 ساختار ذخیره‌سازی</h3>
+            <p>
+                Zarr داده‌ها را در یک ساختار دایرکتوری ذخیره می‌کند. هر chunk یک فایل جداگانه است
+                و متادیتا در فایل‌های JSON ذخیره می‌شود.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">$</div>
+                        <span>Directory Structure</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">my_array.zarr/
+├── .zarray          # متادیتای آرایه (JSON)
+├── .zattrs          # ویژگی‌های کاربر (JSON)
+├── 0.0              # chunk در موقعیت (0,0)
+├── 0.1              # chunk در موقعیت (0,1)
+├── 1.0              # chunk در موقعیت (1,0)
+└── 1.1              # chunk در موقعیت (1,1)
+
+# برای گروه‌ها:
+my_group.zarr/
+├── .zgroup          # متادیتای گروه
+├── .zattrs          # ویژگی‌های گروه
+├── array1/          # زیرآرایه ۱
+│   ├── .zarray
+│   ├── .zattrs
+│   └── 0.0
+└── subgroup/        # زیرگروه
+    ├── .zgroup
+    └── array2/
+        └── ...</code></pre>
+                </div>
+            </div>
+
+            <h3>📋 فایل .zarray</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon json">{ }</div>
+                        <span>.zarray</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-json">{
+    "zarr_format": 2,
+    "shape": [1000, 1000],
+    "chunks": [100, 100],
+    "dtype": "&lt;f4",
+    "compressor": {
+        "id": "blosc",
+        "cname": "lz4",
+        "clevel": 5,
+        "shuffle": 1
+    },
+    "fill_value": 0.0,
+    "order": "C",
+    "filters": null
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>🔑 مفاهیم کلیدی</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <div class="concept-icon">🧊</div>
+                    <div class="concept-title">Chunk</div>
+                    <div class="concept-desc">قطعه‌ای از آرایه که به صورت مستقل ذخیره می‌شود</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🗜️</div>
+                    <div class="concept-title">Compressor</div>
+                    <div class="concept-desc">الگوریتم فشرده‌سازی (Blosc, Zstd, ...)</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🔢</div>
+                    <div class="concept-title">dtype</div>
+                    <div class="concept-desc">نوع داده (float32, int64, ...)</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">📁</div>
+                    <div class="concept-title">Store</div>
+                    <div class="concept-desc">محل ذخیره‌سازی (Directory, Zip, S3, ...)</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">📂</div>
+                    <div class="concept-title">Group</div>
+                    <div class="concept-desc">کانتینر برای آرایه‌ها و زیرگروه‌ها</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🏷️</div>
+                    <div class="concept-title">Attributes</div>
+                    <div class="concept-desc">متادیتای دلخواه (key-value)</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Arrays -->
+        <section class="section" id="arrays">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">کار با آرایه‌ها</h2>
+                    <p class="section-subtitle">ایجاد، خواندن و نوشتن آرایه‌های Zarr</p>
+                </div>
+            </div>
+
+            <h3>🆕 ایجاد آرایه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>create_arrays.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد آرایه در حافظه
+# ═══════════════════════════════════════════════════════════
+
+# آرایه صفر
+z_zeros = zarr.zeros((1000, 1000), chunks=(100, 100), dtype='f4')
+
+# آرایه یک
+z_ones = zarr.ones((1000, 1000), chunks=(100, 100), dtype='f4')
+
+# آرایه خالی (بدون مقداردهی اولیه)
+z_empty = zarr.empty((1000, 1000), chunks=(100, 100), dtype='f4')
+
+# آرایه با مقدار پیش‌فرض
+z_full = zarr.full((1000, 1000), fill_value=42, chunks=(100, 100), dtype='i4')
+
+print(f"Zeros: {z_zeros[0, 0]}")  # 0.0
+print(f"Ones: {z_ones[0, 0]}")    # 1.0
+print(f"Full: {z_full[0, 0]}")    # 42
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد از آرایه NumPy
+# ═══════════════════════════════════════════════════════════
+
+# داده NumPy
+data = np.random.randn(500, 500).astype('f4')
+
+# تبدیل به Zarr (در حافظه)
+z_from_numpy = zarr.array(data, chunks=(100, 100))
+print(f"From NumPy: shape={z_from_numpy.shape}, chunks={z_from_numpy.chunks}")
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد با open_array (روی دیسک)
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد آرایه جدید روی دیسک
+z_disk = zarr.open_array(
+    'my_array.zarr',
+    mode='w',
+    shape=(1000, 1000),
+    chunks=(100, 100),
+    dtype='f4'
+)
+
+# نوشتن داده
+z_disk[:] = np.random.randn(1000, 1000)
+print(f"Disk array created: {z_disk.info}")
+
+# ═══════════════════════════════════════════════════════════
+# انواع dtype
+# ═══════════════════════════════════════════════════════════
+
+# اعداد صحیح
+z_int8 = zarr.zeros((100,), dtype='i1')    # int8
+z_int16 = zarr.zeros((100,), dtype='i2')   # int16
+z_int32 = zarr.zeros((100,), dtype='i4')   # int32
+z_int64 = zarr.zeros((100,), dtype='i8')   # int64
+
+# اعداد اعشاری
+z_float16 = zarr.zeros((100,), dtype='f2') # float16
+z_float32 = zarr.zeros((100,), dtype='f4') # float32
+z_float64 = zarr.zeros((100,), dtype='f8') # float64
+
+# بولی
+z_bool = zarr.zeros((100,), dtype='bool')
+
+# رشته با طول ثابت
+z_str = zarr.zeros((100,), dtype='U10')  # Unicode 10 کاراکتر
+
+# structured dtype
+dt = np.dtype([('x', 'f4'), ('y', 'f4'), ('label', 'U10')])
+z_struct = zarr.zeros((100,), dtype=dt)</code></pre>
+                </div>
+            </div>
+
+            <h3>📖 خواندن و نوشتن</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>read_write.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# خواندن و نوشتن پایه
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد آرایه
+z = zarr.zeros((1000, 1000), chunks=(100, 100), dtype='f4')
+
+# نوشتن یک مقدار
+z[0, 0] = 42.0
+
+# نوشتن یک سطر
+z[0, :] = np.arange(1000)
+
+# نوشتن یک ستون
+z[:, 0] = np.arange(1000)
+
+# نوشتن یک بلوک
+z[100:200, 100:200] = np.random.randn(100, 100)
+
+# نوشتن کل آرایه
+z[:] = np.random.randn(1000, 1000)
+
+# ═══════════════════════════════════════════════════════════
+# خواندن داده
+# ═══════════════════════════════════════════════════════════
+
+# خواندن یک مقدار
+value = z[0, 0]
+print(f"Single value: {value}")
+
+# خواندن یک سطر
+row = z[0, :]
+print(f"Row shape: {row.shape}")
+
+# خواندن یک بلوک
+block = z[100:200, 100:200]
+print(f"Block shape: {block.shape}")
+
+# خواندن کل آرایه به NumPy
+full_array = z[:]
+print(f"Full array shape: {full_array.shape}")
+
+# ═══════════════════════════════════════════════════════════
+# Slicing پیشرفته
+# ═══════════════════════════════════════════════════════════
+
+# با step
+every_other = z[::2, ::2]  # هر دومی
+print(f"Every other: {every_other.shape}")  # (500, 500)
+
+# ایندکس منفی
+last_row = z[-1, :]
+last_col = z[:, -1]
+
+# Boolean indexing (نیاز به NumPy)
+data = z[:]
+mask = data > 0
+positive_values = data[mask]
+
+# Fancy indexing
+indices = [0, 10, 50, 100]
+selected_rows = z[indices, :]
+
+# ═══════════════════════════════════════════════════════════
+# عملیات در محل (in-place)
+# ═══════════════════════════════════════════════════════════
+
+z = zarr.zeros((100, 100), chunks=(10, 10))
+
+# set_basic_selection
+z.set_basic_selection((slice(0, 10), slice(0, 10)), np.ones((10, 10)))
+
+# get_basic_selection
+block = z.get_basic_selection((slice(0, 10), slice(0, 10)))
+
+# set_coordinate_selection (نقاط پراکنده)
+coords = ([0, 1, 2], [0, 1, 2])  # نقاط قطری
+z.set_coordinate_selection(coords, [1, 2, 3])
+
+# get_coordinate_selection
+values = z.get_coordinate_selection(coords)
+print(f"Diagonal values: {values}")
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره و بارگذاری
+# ═══════════════════════════════════════════════════════════
+
+# ذخیره روی دیسک
+z_save = zarr.open_array('data.zarr', mode='w', shape=(100, 100), chunks=(10, 10))
+z_save[:] = np.random.randn(100, 100)
+
+# بارگذاری از دیسک
+z_load = zarr.open_array('data.zarr', mode='r')
+print(f"Loaded shape: {z_load.shape}")
+
+# حالت‌های مختلف open
+# 'r'  - فقط خواندن
+# 'r+' - خواندن و نوشتن (باید وجود داشته باشد)
+# 'w'  - نوشتن (ایجاد یا بازنویسی)
+# 'w-' - نوشتن (فقط ایجاد، خطا اگر وجود دارد)
+# 'a'  - خواندن و نوشتن (ایجاد اگر وجود ندارد)</code></pre>
+                </div>
+            </div>
+
+            <h3>📋 اطلاعات آرایه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>array_info.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ایجاد آرایه نمونه
+z = zarr.open_array(
+    'sample.zarr',
+    mode='w',
+    shape=(1000, 1000, 100),
+    chunks=(100, 100, 10),
+    dtype='f4'
+)
+z[:] = np.random.randn(*z.shape)
+
+# ═══════════════════════════════════════════════════════════
+# ویژگی‌های آرایه
+# ═══════════════════════════════════════════════════════════
+
+print(f"Shape: {z.shape}")           # (1000, 1000, 100)
+print(f"Chunks: {z.chunks}")         # (100, 100, 10)
+print(f"Dtype: {z.dtype}")           # float32
+print(f"Ndim: {z.ndim}")             # 3
+print(f"Size: {z.size}")             # 100,000,000
+print(f"Itemsize: {z.itemsize}")     # 4 bytes
+
+# ═══════════════════════════════════════════════════════════
+# اطلاعات chunk
+# ═══════════════════════════════════════════════════════════
+
+print(f"Number of chunks: {z.nchunks}")           # 1000
+print(f"Chunks initialized: {z.nchunks_initialized}")
+print(f"Chunk store: {z.chunk_store}")
+
+# اندازه chunk به بایت
+chunk_size_bytes = np.prod(z.chunks) * z.itemsize
+print(f"Chunk size: {chunk_size_bytes / 1024 / 1024:.2f} MB")
+
+# ═══════════════════════════════════════════════════════════
+# اطلاعات فشرده‌سازی
+# ═══════════════════════════════════════════════════════════
+
+print(f"Compressor: {z.compressor}")
+print(f"Filters: {z.filters}")
+print(f"Fill value: {z.fill_value}")
+
+# ═══════════════════════════════════════════════════════════
+# گزارش کامل
+# ═══════════════════════════════════════════════════════════
+
+print(z.info)
+# خروجی:
+# Name               : sample.zarr
+# Type               : zarr.core.Array
+# Data type          : float32
+# Shape              : (1000, 1000, 100)
+# Chunk shape        : (100, 100, 10)
+# Order              : C
+# Read-only          : False
+# Compressor         : Blosc(cname='lz4', clevel=5, shuffle=SHUFFLE, blocksize=0)
+# Store type         : zarr.storage.DirectoryStore
+# No. bytes          : 400000000 (381.5M)
+# No. bytes stored   : 401234567 (382.7M)
+# Storage ratio      : 1.0
+# Chunks initialized : 1000/1000
+
+# ═══════════════════════════════════════════════════════════
+# Attributes (متادیتا)
+# ═══════════════════════════════════════════════════════════
+
+# افزودن attributes
+z.attrs['description'] = 'داده‌های نمونه'
+z.attrs['created_by'] = 'Python Zarr Tutorial'
+z.attrs['version'] = 1.0
+z.attrs['units'] = 'meters'
+z.attrs['coordinates'] = {'x': [0, 1000], 'y': [0, 1000]}
+
+# خواندن attributes
+print(f"Description: {z.attrs['description']}")
+print(f"All attrs: {dict(z.attrs)}")
+
+# بروزرسانی attributes
+z.attrs.update({
+    'modified': '2024-01-15',
+    'author': 'Data Scientist'
+})
+
+# حذف attribute
+del z.attrs['version']</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 تغییر اندازه آرایه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>resize_array.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# Resize - تغییر اندازه
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد آرایه قابل تغییر اندازه
+z = zarr.zeros((100, 100), chunks=(10, 10), dtype='f4')
+print(f"Initial shape: {z.shape}")
+
+# بزرگ کردن
+z.resize(200, 200)
+print(f"After resize: {z.shape}")
+
+# کوچک کردن
+z.resize(50, 50)
+print(f"After shrink: {z.shape}")
+
+# ═══════════════════════════════════════════════════════════
+# Append - افزودن داده
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد آرایه
+z = zarr.zeros((0, 100), chunks=(10, 100), dtype='f4')
+print(f"Initial: {z.shape}")
+
+# افزودن سطرها
+for i in range(5):
+    new_data = np.random.randn(10, 100).astype('f4')
+    z.append(new_data, axis=0)
+    print(f"After append {i+1}: {z.shape}")
+
+# خروجی:
+# Initial: (0, 100)
+# After append 1: (10, 100)
+# After append 2: (20, 100)
+# ...
+
+# ═══════════════════════════════════════════════════════════
+# آرایه با اندازه نامحدود
+# ═══════════════════════════════════════════════════════════
+
+# استفاده از None برای بعد نامحدود
+z_unlimited = zarr.open_array(
+    'unlimited.zarr',
+    mode='w',
+    shape=(0, 100),      # شروع با صفر سطر
+    chunks=(100, 100),
+    dtype='f4'
+)
+
+# افزودن تدریجی
+batch_size = 100
+for batch in range(10):
+    data = np.random.randn(batch_size, 100).astype('f4')
+    z_unlimited.append(data, axis=0)
+
+print(f"Final shape: {z_unlimited.shape}")  # (1000, 100)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Groups -->
+        <section class="section" id="groups">
+            <div class="section-header">
+                <div class="section-icon">📂</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">گروه‌ها و سلسله‌مراتب</h2>
+                    <p class="section-subtitle">سازماندهی داده‌ها در ساختار درختی</p>
+                </div>
+            </div>
+
+            <h3>📁 ایجاد گروه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>groups.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد گروه ریشه
+# ═══════════════════════════════════════════════════════════
+
+# در حافظه
+root = zarr.group()
+
+# روی دیسک
+root = zarr.open_group('my_data.zarr', mode='w')
+
+print(f"Root group: {root}")
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد زیرگروه‌ها
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد زیرگروه
+subgroup1 = root.create_group('experiment1')
+subgroup2 = root.create_group('experiment2')
+
+# ایجاد گروه تو در تو
+nested = root.create_group('results/2024/january')
+
+# دسترسی به گروه‌ها
+exp1 = root['experiment1']
+jan_results = root['results/2024/january']
+
+# ═══════════════════════════════════════════════════════════
+# افزودن آرایه به گروه
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد آرایه در گروه
+root.create_dataset(
+    'temperatures',
+    shape=(365, 100, 100),
+    chunks=(30, 50, 50),
+    dtype='f4'
+)
+
+# ایجاد آرایه از داده موجود
+data = np.random.randn(100, 100).astype('f4')
+root.create_dataset('measurements', data=data, chunks=(50, 50))
+
+# ایجاد آرایه صفر
+root.zeros('zeros_array', shape=(100, 100), chunks=(10, 10))
+
+# ایجاد آرایه یک
+root.ones('ones_array', shape=(100, 100), chunks=(10, 10))
+
+# ایجاد آرایه خالی
+root.empty('empty_array', shape=(100, 100), chunks=(10, 10))
+
+# ═══════════════════════════════════════════════════════════
+# پیمایش ساختار
+# ═══════════════════════════════════════════════════════════
+
+# لیست محتویات
+print(f"Contents: {list(root.keys())}")
+print(f"Groups: {list(root.groups())}")
+print(f"Arrays: {list(root.arrays())}")
+
+# بررسی وجود
+print(f"Has 'temperatures': {'temperatures' in root}")
+
+# پیمایش بازگشتی
+def print_tree(group, indent=0):
+    for name, item in group.items():
+        prefix = "  " * indent
+        if isinstance(item, zarr.Group):
+            print(f"{prefix}📂 {name}/")
+            print_tree(item, indent + 1)
+        else:
+            print(f"{prefix}📊 {name} {item.shape} {item.dtype}")
+
+print_tree(root)
+
+# استفاده از tree()
+print(root.tree())</code></pre>
+                </div>
+            </div>
+
+            <h3>🏗️ ساختار پروژه نمونه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>project_structure.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# ساختار پروژه داده‌های آب‌وهوایی
+# ═══════════════════════════════════════════════════════════
+
+root = zarr.open_group('climate_data.zarr', mode='w')
+
+# متادیتای پروژه
+root.attrs['project'] = 'Climate Analysis 2024'
+root.attrs['author'] = 'Data Science Team'
+root.attrs['created'] = '2024-01-15'
+
+# ═══════════════════════════════════════════════════════════
+# گروه مختصات
+# ═══════════════════════════════════════════════════════════
+
+coords = root.create_group('coordinates')
+
+# زمان
+time_data = np.arange('2024-01-01', '2025-01-01', dtype='datetime64[D]')
+coords.create_dataset('time', data=time_data.astype('int64'))
+coords['time'].attrs['units'] = 'days since 1970-01-01'
+coords['time'].attrs['calendar'] = 'standard'
+
+# عرض جغرافیایی
+lat = np.linspace(-90, 90, 181)
+coords.create_dataset('latitude', data=lat)
+coords['latitude'].attrs['units'] = 'degrees_north'
+
+# طول جغرافیایی
+lon = np.linspace(-180, 180, 361)
+coords.create_dataset('longitude', data=lon)
+coords['longitude'].attrs['units'] = 'degrees_east'
+
+# ═══════════════════════════════════════════════════════════
+# گروه متغیرها
+# ═══════════════════════════════════════════════════════════
+
+variables = root.create_group('variables')
+
+# دما
+temp = variables.create_dataset(
+    'temperature',
+    shape=(366, 181, 361),
+    chunks=(30, 45, 90),
+    dtype='f4',
+    fill_value=np.nan
+)
+temp.attrs['units'] = 'K'
+temp.attrs['long_name'] = 'Surface Temperature'
+temp.attrs['standard_name'] = 'surface_temperature'
+
+# بارش
+precip = variables.create_dataset(
+    'precipitation',
+    shape=(366, 181, 361),
+    chunks=(30, 45, 90),
+    dtype='f4',
+    fill_value=np.nan
+)
+precip.attrs['units'] = 'mm/day'
+precip.attrs['long_name'] = 'Daily Precipitation'
+
+# فشار
+pressure = variables.create_dataset(
+    'pressure',
+    shape=(366, 181, 361),
+    chunks=(30, 45, 90),
+    dtype='f4',
+    fill_value=np.nan
+)
+pressure.attrs['units'] = 'Pa'
+pressure.attrs['long_name'] = 'Surface Pressure'
+
+# ═══════════════════════════════════════════════════════════
+# گروه نتایج تحلیل
+# ═══════════════════════════════════════════════════════════
+
+analysis = root.create_group('analysis')
+
+# میانگین ماهانه
+monthly = analysis.create_group('monthly_means')
+monthly.create_dataset('temperature', shape=(12, 181, 361), chunks=(1, 181, 361), dtype='f4')
+monthly.create_dataset('precipitation', shape=(12, 181, 361), chunks=(1, 181, 361), dtype='f4')
+
+# آنومالی‌ها
+anomalies = analysis.create_group('anomalies')
+anomalies.create_dataset('temperature', shape=(366, 181, 361), chunks=(30, 45, 90), dtype='f4')
+
+# نمایش ساختار
+print(root.tree())
+
+# خروجی:
+# /
+# ├── coordinates
+# │   ├── latitude (181,) float64
+# │   ├── longitude (361,) float64
+# │   └── time (366,) int64
+# ├── variables
+# │   ├── temperature (366, 181, 361) float32
+# │   ├── precipitation (366, 181, 361) float32
+# │   └── pressure (366, 181, 361) float32
+# └── analysis
+#     ├── monthly_means
+#     │   ├── temperature (12, 181, 361) float32
+#     │   └── precipitation (12, 181, 361) float32
+#     └── anomalies
+#         └── temperature (366, 181, 361) float32</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 کپی و انتقال</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>copy_move.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ایجاد منبع
+source = zarr.open_group('source.zarr', mode='w')
+source.create_dataset('data', data=np.random.randn(100, 100))
+source.create_group('subgroup')
+source['subgroup'].create_dataset('nested', data=np.arange(50))
+
+# ═══════════════════════════════════════════════════════════
+# کپی آرایه
+# ═══════════════════════════════════════════════════════════
+
+dest = zarr.open_group('dest.zarr', mode='w')
+
+# کپی ساده
+zarr.copy(source['data'], dest, name='data_copy')
+
+# کپی با تغییر chunks
+zarr.copy(
+    source['data'],
+    dest,
+    name='data_rechunked',
+    chunks=(50, 50)
+)
+
+# ═══════════════════════════════════════════════════════════
+# کپی گروه کامل
+# ═══════════════════════════════════════════════════════════
+
+# کپی بازگشتی
+zarr.copy_all(source, dest)
+
+# کپی با شرط
+def should_copy(name, item):
+    # فقط آرایه‌ها را کپی کن
+    return isinstance(item, zarr.Array)
+
+# ═══════════════════════════════════════════════════════════
+# ادغام چند منبع
+# ═══════════════════════════════════════════════════════════
+
+# منابع مختلف
+source1 = zarr.open_group('source1.zarr', mode='w')
+source1.create_dataset('a', data=np.arange(10))
+
+source2 = zarr.open_group('source2.zarr', mode='w')
+source2.create_dataset('b', data=np.arange(20))
+
+# ادغام در یک مقصد
+merged = zarr.open_group('merged.zarr', mode='w')
+zarr.copy_all(source1, merged)
+zarr.copy_all(source2, merged)
+
+print(list(merged.keys()))  # ['a', 'b']</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Storage -->
+        <section class="section" id="storage">
+            <div class="section-header">
+                <div class="section-icon">💾</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">انواع ذخیره‌سازی</h2>
+                    <p class="section-subtitle">Directory، Zip، Memory و سایر Store ها</p>
+                </div>
+            </div>
+
+            <h3>📁 DirectoryStore (پیش‌فرض)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>directory_store.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+from zarr.storage import DirectoryStore
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# DirectoryStore - ذخیره در دایرکتوری
+# ═══════════════════════════════════════════════════════════
+
+# روش ۱: مستقیم
+z = zarr.open_array('data.zarr', mode='w', shape=(1000, 1000), chunks=(100, 100))
+
+# روش ۲: با store صریح
+store = DirectoryStore('data_explicit.zarr')
+z = zarr.open_array(store, mode='w', shape=(1000, 1000), chunks=(100, 100))
+
+# روش ۳: با dimension_separator
+# برای سازگاری با سیستم‌های مختلف
+store = DirectoryStore('data_nested.zarr', dimension_separator='/')
+z = zarr.open_array(store, mode='w', shape=(100, 100, 100), chunks=(10, 10, 10))
+# chunks ذخیره می‌شوند به صورت: 0/0/0, 0/0/1, ...
+
+# ═══════════════════════════════════════════════════════════
+# بررسی ساختار
+# ═══════════════════════════════════════════════════════════
+
+import os
+
+def show_directory_structure(path, indent=0):
+    """نمایش ساختار دایرکتوری"""
+    for item in sorted(os.listdir(path)):
+        item_path = os.path.join(path, item)
+        prefix = "  " * indent
+        if os.path.isdir(item_path):
+            print(f"{prefix}📁 {item}/")
+            show_directory_structure(item_path, indent + 1)
+        else:
+            size = os.path.getsize(item_path)
+            print(f"{prefix}📄 {item} ({size} bytes)")
+
+show_directory_structure('data.zarr')</code></pre>
+                </div>
+            </div>
+
+            <h3>📦 ZipStore</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>zip_store.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+from zarr.storage import ZipStore
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# ZipStore - ذخیره در فایل ZIP
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد و نوشتن
+store = ZipStore('data.zip', mode='w')
+root = zarr.group(store=store)
+
+# افزودن داده
+root.create_dataset('array1', data=np.random.randn(100, 100))
+root.create_dataset('array2', data=np.arange(1000))
+root.attrs['description'] = 'Sample data in ZIP'
+
+# بستن store (مهم!)
+store.close()
+
+# ═══════════════════════════════════════════════════════════
+# خواندن از ZIP
+# ═══════════════════════════════════════════════════════════
+
+# باز کردن برای خواندن
+store = ZipStore('data.zip', mode='r')
+root = zarr.group(store=store)
+
+print(f"Arrays: {list(root.keys())}")
+print(f"array1 shape: {root['array1'].shape}")
+
+data = root['array1'][:]
+store.close()
+
+# ═══════════════════════════════════════════════════════════
+# استفاده با context manager
+# ═══════════════════════════════════════════════════════════
+
+# نوشتن
+with ZipStore('data_context.zip', mode='w') as store:
+    z = zarr.open_array(store, mode='w', shape=(100, 100), chunks=(10, 10))
+    z[:] = np.random.randn(100, 100)
+
+# خواندن
+with ZipStore('data_context.zip', mode='r') as store:
+    z = zarr.open_array(store, mode='r')
+    print(f"Shape: {z.shape}")
+    data = z[:]
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل Directory به ZIP
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد در دایرکتوری
+z_dir = zarr.open_array('temp_data.zarr', mode='w', shape=(100, 100))
+z_dir[:] = np.random.randn(100, 100)
+
+# کپی به ZIP
+source_store = zarr.DirectoryStore('temp_data.zarr')
+dest_store = ZipStore('archived_data.zip', mode='w')
+
+zarr.copy_store(source_store, dest_store)
+dest_store.close()
+
+print("Data archived to ZIP successfully!")</code></pre>
+                </div>
+            </div>
+
+            <h3>🧠 MemoryStore</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>memory_store.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+from zarr.storage import MemoryStore, KVStore
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# MemoryStore - ذخیره در حافظه
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد store در حافظه
+store = MemoryStore()
+z = zarr.open_array(store, mode='w', shape=(1000, 1000), chunks=(100, 100))
+z[:] = np.random.randn(1000, 1000)
+
+# یا ساده‌تر (پیش‌فرض)
+z = zarr.zeros((1000, 1000), chunks=(100, 100))  # در حافظه
+
+# ═══════════════════════════════════════════════════════════
+# KVStore - استفاده از dict
+# ═══════════════════════════════════════════════════════════
+
+# استفاده از dictionary معمولی
+my_dict = {}
+store = KVStore(my_dict)
+z = zarr.open_array(store, mode='w', shape=(100, 100), chunks=(10, 10))
+z[:] = np.arange(10000).reshape(100, 100)
+
+# بررسی محتوای dict
+print(f"Keys in dict: {list(my_dict.keys())[:5]}...")
+# ['.zarray', '0.0', '0.1', '0.2', ...]
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره به دیسک از حافظه
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد در حافظه
+mem_store = MemoryStore()
+z_mem = zarr.open_array(mem_store, mode='w', shape=(100, 100), chunks=(10, 10))
+z_mem[:] = np.random.randn(100, 100)
+
+# کپی به دیسک
+disk_store = zarr.DirectoryStore('from_memory.zarr')
+zarr.copy_store(mem_store, disk_store)
+
+# ═══════════════════════════════════════════════════════════
+# بارگذاری از دیسک به حافظه
+# ═══════════════════════════════════════════════════════════
+
+# خواندن از دیسک
+disk_store = zarr.DirectoryStore('from_memory.zarr')
+mem_store = MemoryStore()
+zarr.copy_store(disk_store, mem_store)
+
+# استفاده از حافظه
+z = zarr.open_array(mem_store, mode='r')
+print(f"Loaded to memory: {z.shape}")</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 LMDBStore و سایر Store ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>other_stores.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# LMDBStore - پایگاه داده سریع
+# ═══════════════════════════════════════════════════════════
+
+try:
+    from zarr.storage import LMDBStore
+    
+    # ایجاد LMDB store
+    store = LMDBStore('data.lmdb')
+    z = zarr.open_array(store, mode='w', shape=(1000, 1000), chunks=(100, 100))
+    z[:] = np.random.randn(1000, 1000)
+    store.close()
+    
+    # مزایا: سریع برای خواندن/نوشتن تصادفی
+except ImportError:
+    print("LMDB not installed. Install with: pip install lmdb")
+
+# ═══════════════════════════════════════════════════════════
+# SQLiteStore
+# ═══════════════════════════════════════════════════════════
+
+try:
+    from zarr.storage import SQLiteStore
+    
+    store = SQLiteStore('data.sqlite')
+    z = zarr.open_array(store, mode='w', shape=(100, 100), chunks=(10, 10))
+    z[:] = np.random.randn(100, 100)
+    store.close()
+except ImportError:
+    print("SQLite store not available")
+
+# ═══════════════════════════════════════════════════════════
+# ConsolidatedMetadataStore - بهینه برای خواندن
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد داده
+root = zarr.open_group('consolidated.zarr', mode='w')
+for i in range(100):
+    root.create_dataset(f'array_{i}', data=np.random.randn(10, 10))
+
+# تجمیع متادیتا (یک فایل به جای صدها)
+zarr.consolidate_metadata('consolidated.zarr')
+
+# باز کردن با متادیتای تجمیع شده
+root = zarr.open_consolidated('consolidated.zarr', mode='r')
+print(f"Arrays: {len(list(root.keys()))}")
+
+# ═══════════════════════════════════════════════════════════
+# مقایسه Store ها
+# ═══════════════════════════════════════════════════════════
+
+"""
+| Store           | مزایا                      | معایب                    |
+|-----------------|---------------------------|--------------------------|
+| DirectoryStore  | ساده، موازی               | فایل‌های زیاد            |
+| ZipStore        | یک فایل، قابل انتقال      | کند برای نوشتن          |
+| MemoryStore     | سریع‌ترین                  | محدود به RAM            |
+| LMDBStore       | سریع، ACID                | نیاز به نصب             |
+| S3Store         | مقیاس‌پذیر                 | latency بالا            |
+"""</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Compression -->
+        <section class="section" id="compression">
+            <div class="section-header">
+                <div class="section-icon">🗜️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">فشرده‌سازی</h2>
+                    <p class="section-subtitle">الگوریتم‌های فشرده‌سازی و بهینه‌سازی</p>
+                </div>
+            </div>
+
+            <h3>📊 الگوریتم‌های فشرده‌سازی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>compression.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+from numcodecs import Blosc, Zstd, LZ4, GZip, BZ2, LZMA
+
+# ═══════════════════════════════════════════════════════════
+# Blosc - پیش‌فرض و سریع‌ترین
+# ═══════════════════════════════════════════════════════════
+
+# الگوریتم‌های داخلی Blosc
+compressors = {
+    'lz4': Blosc(cname='lz4', clevel=5, shuffle=Blosc.SHUFFLE),
+    'lz4hc': Blosc(cname='lz4hc', clevel=5, shuffle=Blosc.SHUFFLE),
+    'zstd': Blosc(cname='zstd', clevel=5, shuffle=Blosc.SHUFFLE),
+    'zlib': Blosc(cname='zlib', clevel=5, shuffle=Blosc.SHUFFLE),
+    'snappy': Blosc(cname='snappy', clevel=5, shuffle=Blosc.SHUFFLE),
+}
+
+# استفاده
+z = zarr.zeros(
+    (1000, 1000),
+    chunks=(100, 100),
+    compressor=Blosc(cname='zstd', clevel=5, shuffle=Blosc.SHUFFLE)
+)
+
+# ═══════════════════════════════════════════════════════════
+# سطوح فشرده‌سازی
+# ═══════════════════════════════════════════════════════════
+
+# clevel: 0 (بدون فشرده‌سازی) تا 9 (حداکثر فشرده‌سازی)
+# سطح بالاتر = فشرده‌سازی بیشتر ولی کندتر
+
+compressor_fast = Blosc(cname='lz4', clevel=1)      # سریع، فشرده‌سازی کم
+compressor_balanced = Blosc(cname='zstd', clevel=5) # متعادل
+compressor_max = Blosc(cname='zstd', clevel=9)      # کند، فشرده‌سازی زیاد
+
+# ═══════════════════════════════════════════════════════════
+# Shuffle - بهینه‌سازی قبل از فشرده‌سازی
+# ═══════════════════════════════════════════════════════════
+
+# NOSHUFFLE: بدون shuffle
+# SHUFFLE: byte shuffle (پیش‌فرض)
+# BITSHUFFLE: bit shuffle (برای داده‌های علمی)
+
+compressor_noshuffle = Blosc(cname='zstd', shuffle=Blosc.NOSHUFFLE)
+compressor_shuffle = Blosc(cname='zstd', shuffle=Blosc.SHUFFLE)
+compressor_bitshuffle = Blosc(cname='zstd', shuffle=Blosc.BITSHUFFLE)
+
+# ═══════════════════════════════════════════════════════════
+# سایر الگوریتم‌ها
+# ═══════════════════════════════════════════════════════════
+
+# Zstandard (مستقل)
+z_zstd = zarr.zeros((100, 100), compressor=Zstd(level=5))
+
+# LZ4 (مستقل)
+z_lz4 = zarr.zeros((100, 100), compressor=LZ4())
+
+# GZip (سازگار با همه)
+z_gzip = zarr.zeros((100, 100), compressor=GZip(level=5))
+
+# BZ2 (فشرده‌سازی بالا)
+z_bz2 = zarr.zeros((100, 100), compressor=BZ2(level=5))
+
+# LZMA (فشرده‌سازی حداکثر)
+z_lzma = zarr.zeros((100, 100), compressor=LZMA())
+
+# بدون فشرده‌سازی
+z_none = zarr.zeros((100, 100), compressor=None)
+
+# ═══════════════════════════════════════════════════════════
+# مقایسه عملکرد
+# ═══════════════════════════════════════════════════════════
+
+import time
+
+def benchmark_compressor(compressor, data, name):
+    """بنچمارک یک compressor"""
+    # نوشتن
+    start = time.time()
+    z = zarr.array(data, chunks=(100, 100), compressor=compressor)
+    write_time = time.time() - start
+    
+    # اندازه
+    stored_size = z.nbytes_stored if hasattr(z, 'nbytes_stored') else 0
+    
+    # خواندن
+    start = time.time()
+    _ = z[:]
+    read_time = time.time() - start
+    
+    ratio = data.nbytes / stored_size if stored_size > 0 else 0
+    
+    print(f"{name:15} | Write: {write_time:.3f}s | Read: {read_time:.3f}s | Ratio: {ratio:.2f}x")
+
+# داده تست
+data = np.random.randn(1000, 1000).astype('f4')
+
+print("Compressor       | Write Time | Read Time | Compression Ratio")
+print("-" * 60)
+
+benchmark_compressor(Blosc(cname='lz4', clevel=5), data, "Blosc-LZ4")
+benchmark_compressor(Blosc(cname='zstd', clevel=5), data, "Blosc-Zstd")
+benchmark_compressor(Zstd(level=5), data, "Zstd")
+benchmark_compressor(GZip(level=5), data, "GZip")
+benchmark_compressor(None, data, "None")</code></pre>
+                </div>
+            </div>
+
+            <h3>🔧 Filters</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>filters.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+from numcodecs import Delta, FixedScaleOffset, Quantize, PackBits, Categorize
+
+# ═══════════════════════════════════════════════════════════
+# Delta Filter - برای داده‌های سری زمانی
+# ═══════════════════════════════════════════════════════════
+
+# داده سری زمانی (تغییرات کوچک)
+time_series = np.cumsum(np.random.randn(10000)).astype('f4')
+
+# بدون filter
+z_no_filter = zarr.array(time_series, chunks=(1000,))
+print(f"Without Delta: {z_no_filter.nbytes_stored} bytes")
+
+# با Delta filter
+z_delta = zarr.array(
+    time_series,
+    chunks=(1000,),
+    filters=[Delta(dtype='f4')]
+)
+print(f"With Delta: {z_delta.nbytes_stored} bytes")
+
+# ═══════════════════════════════════════════════════════════
+# FixedScaleOffset - برای داده‌های با دقت ثابت
+# ═══════════════════════════════════════════════════════════
+
+# داده دما (مثلاً ۲ رقم اعشار کافی است)
+temperatures = np.random.uniform(20, 30, size=(1000, 1000)).astype('f8')
+
+# تبدیل به int16 با scale
+z_scaled = zarr.array(
+    temperatures,
+    chunks=(100, 100),
+    filters=[FixedScaleOffset(offset=20, scale=100, dtype='f8', astype='i2')]
+)
+# ذخیره به صورت int16 (2 bytes) به جای float64 (8 bytes)
+
+# ═══════════════════════════════════════════════════════════
+# Quantize - کاهش دقت
+# ═══════════════════════════════════════════════════════════
+
+# داده با دقت بالا
+precise_data = np.random.randn(1000, 1000).astype('f8')
+
+# کاهش به ۳ رقم معنادار
+z_quantized = zarr.array(
+    precise_data,
+    chunks=(100, 100),
+    filters=[Quantize(digits=3, dtype='f8')]
+)
+
+# ═══════════════════════════════════════════════════════════
+# PackBits - برای داده‌های باینری
+# ═══════════════════════════════════════════════════════════
+
+# داده باینری
+binary_data = np.random.randint(0, 2, size=(1000, 1000), dtype='u1')
+
+# فشرده‌سازی بیت‌ها
+z_packed = zarr.array(
+    binary_data,
+    chunks=(100, 100),
+    filters=[PackBits()]
+)
+# ۸ برابر کوچک‌تر!
+
+# ═══════════════════════════════════════════════════════════
+# ترکیب Filters
+# ═══════════════════════════════════════════════════════════
+
+from numcodecs import Blosc
+
+# زنجیره filters: Delta -> Quantize -> Blosc
+z_chained = zarr.array(
+    time_series,
+    chunks=(1000,),
+    filters=[Delta(dtype='f4'), Quantize(digits=3, dtype='f4')],
+    compressor=Blosc(cname='zstd', clevel=5)
+)
+
+print(f"Original size: {time_series.nbytes}")
+print(f"Stored size: {z_chained.nbytes_stored}")</code></pre>
+                </div>
+            </div>
+
+            <h3>📈 انتخاب بهینه</h3>
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>راهنمای انتخاب Compressor</h4>
+                    <ul>
+                        <li><strong>Blosc-LZ4:</strong> سریع‌ترین، برای داده‌های بزرگ با نیاز به سرعت</li>
+                        <li><strong>Blosc-Zstd:</strong> تعادل خوب سرعت و فشرده‌سازی (پیشنهادی)</li>
+                        <li><strong>GZip:</strong> سازگاری حداکثر، برای اشتراک‌گذاری</li>
+                        <li><strong>LZMA:</strong> فشرده‌سازی حداکثر، برای آرشیو</li>
+                        <li><strong>None:</strong> برای داده‌های از پیش فشرده (JPEG, PNG)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الگوریتم</th>
+                            <th>سرعت فشرده‌سازی</th>
+                            <th>سرعت استخراج</th>
+                            <th>نسبت فشرده‌سازی</th>
+                            <th>کاربرد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Blosc-LZ4</td>
+                            <td>⚡⚡⚡⚡⚡</td>
+                            <td>⚡⚡⚡⚡⚡</td>
+                            <td>⭐⭐</td>
+                            <td>Real-time</td>
+                        </tr>
+                        <tr>
+                            <td>Blosc-Zstd</td>
+                            <td>⚡⚡⚡⚡</td>
+                            <td>⚡⚡⚡⚡⚡</td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>عمومی</td>
+                        </tr>
+                        <tr>
+                            <td>GZip</td>
+                            <td>⚡⚡</td>
+                            <td>⚡⚡⚡</td>
+                            <td>⭐⭐⭐</td>
+                            <td>سازگاری</td>
+                        </tr>
+                        <tr>
+                            <td>LZMA</td>
+                            <td>⚡</td>
+                            <td>⚡⚡</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>آرشیو</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 8: Parallel -->
+        <section class="section" id="parallel">
+            <div class="section-header">
+                <div class="section-icon">⚡</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">پردازش موازی</h2>
+                    <p class="section-subtitle">Dask، Multiprocessing و دسترسی همزمان</p>
+                </div>
+            </div>
+
+            <h3>🔀 دسترسی موازی به Chunks</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>parallel_access.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import multiprocessing as mp
+
+# ═══════════════════════════════════════════════════════════
+# خواندن موازی با ThreadPoolExecutor
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد داده
+z = zarr.open_array('parallel_data.zarr', mode='w', shape=(1000, 1000), chunks=(100, 100))
+z[:] = np.random.randn(1000, 1000)
+
+def read_chunk(args):
+    """خواندن یک chunk"""
+    path, chunk_coords = args
+    z = zarr.open_array(path, mode='r')
+    i, j = chunk_coords
+    return z[i*100:(i+1)*100, j*100:(j+1)*100]
+
+# خواندن موازی
+chunk_coords = [(i, j) for i in range(10) for j in range(10)]
+args = [('parallel_data.zarr', coord) for coord in chunk_coords]
+
+with ThreadPoolExecutor(max_workers=4) as executor:
+    results = list(executor.map(read_chunk, args))
+
+print(f"Read {len(results)} chunks in parallel")
+
+# ═══════════════════════════════════════════════════════════
+# نوشتن موازی با ProcessPoolExecutor
+# ═══════════════════════════════════════════════════════════
+
+def write_chunk(args):
+    """نوشتن یک chunk"""
+    path, chunk_coords, data = args
+    z = zarr.open_array(path, mode='r+')
+    i, j = chunk_coords
+    z[i*100:(i+1)*100, j*100:(j+1)*100] = data
+    return chunk_coords
+
+# آماده‌سازی داده
+write_args = [
+    ('parallel_data.zarr', (i, j), np.random.randn(100, 100))
+    for i in range(10) for j in range(10)
+]
+
+# نوشتن موازی (هر chunk مستقل است)
+with ProcessPoolExecutor(max_workers=4) as executor:
+    results = list(executor.map(write_chunk, write_args))
+
+print(f"Wrote {len(results)} chunks in parallel")
+
+# ═══════════════════════════════════════════════════════════
+# Synchronizer برای دسترسی همزمان
+# ═══════════════════════════════════════════════════════════
+
+from zarr.sync import ThreadSynchronizer, ProcessSynchronizer
+
+# برای چند thread
+sync = ThreadSynchronizer()
+z = zarr.open_array(
+    'synced_data.zarr',
+    mode='w',
+    shape=(1000, 1000),
+    chunks=(100, 100),
+    synchronizer=sync
+)
+
+# برای چند process
+sync = ProcessSynchronizer('sync.lock')
+z = zarr.open_array(
+    'process_synced.zarr',
+    mode='w',
+    shape=(1000, 1000),
+    chunks=(100, 100),
+    synchronizer=sync
+)</code></pre>
+                </div>
+            </div>
+
+            <h3>🐼 ادغام با Dask</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>dask_integration.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+import dask.array as da
+
+# ═══════════════════════════════════════════════════════════
+# خواندن Zarr با Dask
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد داده Zarr
+z = zarr.open_array('dask_data.zarr', mode='w', shape=(10000, 10000), chunks=(1000, 1000))
+z[:] = np.random.randn(10000, 10000)
+
+# باز کردن با Dask
+dask_array = da.from_zarr('dask_data.zarr')
+print(f"Dask array: {dask_array}")
+# dask.array<from-zarr, shape=(10000, 10000), dtype=float64, chunksize=(1000, 1000)>
+
+# ═══════════════════════════════════════════════════════════
+# عملیات Lazy
+# ═══════════════════════════════════════════════════════════
+
+# این‌ها فقط گراف محاسباتی می‌سازند
+result = dask_array.mean()
+result_squared = (dask_array ** 2).sum()
+result_filtered = dask_array[dask_array > 0].mean()
+
+# اجرای واقعی
+mean_value = result.compute()
+print(f"Mean: {mean_value}")
+
+# ═══════════════════════════════════════════════════════════
+# نوشتن نتایج به Zarr
+# ═══════════════════════════════════════════════════════════
+
+# محاسبه و ذخیره
+processed = dask_array * 2 + 1
+processed.to_zarr('processed_data.zarr', overwrite=True)
+
+# یا با کنترل بیشتر
+da.to_zarr(
+    processed,
+    'processed_controlled.zarr',
+    chunks=(500, 500),
+    compressor=zarr.Blosc(cname='zstd'),
+    overwrite=True
+)
+
+# ═══════════════════════════════════════════════════════════
+# پردازش موازی با Dask
+# ═══════════════════════════════════════════════════════════
+
+from dask.distributed import Client
+
+# راه‌اندازی کلاستر محلی
+client = Client(n_workers=4)
+print(f"Dashboard: {client.dashboard_link}")
+
+# عملیات پیچیده
+def complex_operation(block):
+    """عملیات سفارشی روی هر chunk"""
+    return np.fft.fft2(block).real
+
+# اعمال روی همه chunks
+result = dask_array.map_blocks(complex_operation, dtype=float)
+result.to_zarr('fft_result.zarr', overwrite=True)
+
+# بستن کلاینت
+client.close()
+
+# ═══════════════════════════════════════════════════════════
+# Rechunking با Dask
+# ═══════════════════════════════════════════════════════════
+
+# تغییر اندازه chunks
+original = da.from_zarr('dask_data.zarr')  # chunks=(1000, 1000)
+rechunked = original.rechunk((500, 2000))   # chunks جدید
+rechunked.to_zarr('rechunked_data.zarr', overwrite=True)</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 ادغام با Xarray</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>xarray_integration.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+import xarray as xr
+import pandas as pd
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد Dataset و ذخیره به Zarr
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد مختصات
+times = pd.date_range('2024-01-01', periods=365, freq='D')
+lats = np.linspace(-90, 90, 181)
+lons = np.linspace(-180, 180, 361)
+
+# ایجاد Dataset
+ds = xr.Dataset(
+    {
+        'temperature': (['time', 'lat', 'lon'], 
+                       np.random.randn(365, 181, 361).astype('f4')),
+        'precipitation': (['time', 'lat', 'lon'], 
+                         np.random.rand(365, 181, 361).astype('f4') * 10),
+    },
+    coords={
+        'time': times,
+        'lat': lats,
+        'lon': lons,
+    },
+    attrs={
+        'title': 'Sample Climate Data',
+        'source': 'Zarr Tutorial',
+    }
+)
+
+# ذخیره به Zarr
+ds.to_zarr('climate.zarr', mode='w')
+
+# ═══════════════════════════════════════════════════════════
+# خواندن از Zarr
+# ═══════════════════════════════════════════════════════════
+
+# خواندن کامل
+ds_loaded = xr.open_zarr('climate.zarr')
+print(ds_loaded)
+
+# خواندن با chunks
+ds_chunked = xr.open_zarr('climate.zarr', chunks={'time': 30, 'lat': 45, 'lon': 90})
+
+# ═══════════════════════════════════════════════════════════
+# عملیات با Xarray + Dask
+# ═══════════════════════════════════════════════════════════
+
+# میانگین زمانی
+temp_mean = ds_chunked['temperature'].mean(dim='time')
+temp_mean.to_zarr('temp_mean.zarr', mode='w')
+
+# انتخاب منطقه
+iran = ds_chunked.sel(lat=slice(25, 40), lon=slice(44, 63))
+iran.to_zarr('iran_climate.zarr', mode='w')
+
+# محاسبه آنومالی
+climatology = ds_chunked.groupby('time.month').mean()
+anomaly = ds_chunked.groupby('time.month') - climatology
+anomaly.to_zarr('anomaly.zarr', mode='w')
+
+# ═══════════════════════════════════════════════════════════
+# Append به Zarr موجود
+# ═══════════════════════════════════════════════════════════
+
+# داده جدید
+new_times = pd.date_range('2025-01-01', periods=365, freq='D')
+new_ds = xr.Dataset(
+    {
+        'temperature': (['time', 'lat', 'lon'], 
+                       np.random.randn(365, 181, 361).astype('f4')),
+        'precipitation': (['time', 'lat', 'lon'], 
+                         np.random.rand(365, 181, 361).astype('f4') * 10),
+    },
+    coords={
+        'time': new_times,
+        'lat': lats,
+        'lon': lons,
+    }
+)
+
+# افزودن به Zarr موجود
+new_ds.to_zarr('climate.zarr', mode='a', append_dim='time')
+
+# بررسی
+ds_appended = xr.open_zarr('climate.zarr')
+print(f"Total time steps: {len(ds_appended.time)}")  # 730</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Cloud -->
+        <section class="section" id="cloud">
+            <div class="section-header">
+                <div class="section-icon">☁️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">ذخیره‌سازی ابری</h2>
+                    <p class="section-subtitle">S3، GCS، Azure و HTTP</p>
+                </div>
+            </div>
+
+            <h3>🪣 Amazon S3</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>s3_storage.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+import s3fs
+
+# ═══════════════════════════════════════════════════════════
+# اتصال به S3
+# ═══════════════════════════════════════════════════════════
+
+# با credentials
+s3 = s3fs.S3FileSystem(
+    key='YOUR_ACCESS_KEY',
+    secret='YOUR_SECRET_KEY',
+    endpoint_url='https://s3.amazonaws.com'  # یا MinIO
+)
+
+# با profile
+s3 = s3fs.S3FileSystem(profile='my-profile')
+
+# Anonymous (برای داده‌های عمومی)
+s3 = s3fs.S3FileSystem(anon=True)
+
+# ═══════════════════════════════════════════════════════════
+# نوشتن به S3
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد store
+store = s3fs.S3Map(root='my-bucket/data.zarr', s3=s3, check=False)
+
+# ایجاد آرایه
+z = zarr.open_array(
+    store,
+    mode='w',
+    shape=(1000, 1000),
+    chunks=(100, 100),
+    dtype='f4')
+
+# نوشتن داده
+z[:] = np.random.randn(1000, 1000)
+print(f"Data written to S3: {z.shape}")
+
+# ═══════════════════════════════════════════════════════════
+# خواندن از S3
+# ═══════════════════════════════════════════════════════════
+
+# باز کردن برای خواندن
+store = s3fs.S3Map(root='my-bucket/data.zarr', s3=s3)
+z = zarr.open_array(store, mode='r')
+
+# خواندن بخشی از داده
+subset = z[0:100, 0:100]
+print(f"Read subset: {subset.shape}")
+
+# ═══════════════════════════════════════════════════════════
+# استفاده با fsspec
+# ═══════════════════════════════════════════════════════════
+
+import fsspec
+
+# روش ساده‌تر با fsspec
+mapper = fsspec.get_mapper('s3://my-bucket/data.zarr')
+z = zarr.open_array(mapper, mode='r')
+
+# با تنظیمات
+mapper = fsspec.get_mapper(
+    's3://my-bucket/data.zarr',
+    key='ACCESS_KEY',
+    secret='SECRET_KEY'
+)
+
+# ═══════════════════════════════════════════════════════════
+# داده‌های عمومی AWS
+# ═══════════════════════════════════════════════════════════
+
+# مثال: داده‌های آب‌وهوایی ERA5
+import xarray as xr
+
+# باز کردن داده عمومی
+ds = xr.open_zarr(
+    's3://era5-pds/zarr/2020/01/data/air_temperature_at_2_metres.zarr',
+    storage_options={'anon': True}
+)
+print(ds)
+
+# ═══════════════════════════════════════════════════════════
+# MinIO (S3-compatible)
+# ═══════════════════════════════════════════════════════════
+
+s3_minio = s3fs.S3FileSystem(
+    key='minioadmin',
+    secret='minioadmin',
+    endpoint_url='http://localhost:9000',
+    client_kwargs={'region_name': 'us-east-1'}
+)
+
+store = s3fs.S3Map(root='mybucket/data.zarr', s3=s3_minio, check=False)
+z = zarr.open_array(store, mode='w', shape=(100, 100), chunks=(10, 10))</code></pre>
+                </div>
+            </div>
+
+            <h3>🌐 Google Cloud Storage</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>gcs_storage.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+import gcsfs
+
+# ═══════════════════════════════════════════════════════════
+# اتصال به GCS
+# ═══════════════════════════════════════════════════════════
+
+# با credentials پیش‌فرض
+gcs = gcsfs.GCSFileSystem()
+
+# با service account
+gcs = gcsfs.GCSFileSystem(
+    project='my-project',
+    token='path/to/service-account.json'
+)
+
+# Anonymous
+gcs = gcsfs.GCSFileSystem(token='anon')
+
+# ═══════════════════════════════════════════════════════════
+# نوشتن و خواندن
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد store
+store = gcsfs.GCSMap(root='my-bucket/data.zarr', gcs=gcs, check=False)
+
+# نوشتن
+z = zarr.open_array(store, mode='w', shape=(1000, 1000), chunks=(100, 100))
+z[:] = np.random.randn(1000, 1000)
+
+# خواندن
+z_read = zarr.open_array(store, mode='r')
+data = z_read[:]
+
+# ═══════════════════════════════════════════════════════════
+# با fsspec
+# ═══════════════════════════════════════════════════════════
+
+import fsspec
+
+mapper = fsspec.get_mapper('gcs://my-bucket/data.zarr')
+z = zarr.open_array(mapper, mode='r')
+
+# ═══════════════════════════════════════════════════════════
+# داده‌های عمومی Google
+# ═══════════════════════════════════════════════════════════
+
+import xarray as xr
+
+# NOAA GOES-16 satellite data
+ds = xr.open_zarr(
+    'gs://gcp-public-data-goes-16/ABI-L2-MCMIPF/2024/001/00/',
+    storage_options={'token': 'anon'}
+)</code></pre>
+                </div>
+            </div>
+
+            <h3>🔷 Azure Blob Storage</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>azure_storage.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+import adlfs
+
+# ═══════════════════════════════════════════════════════════
+# اتصال به Azure Blob
+# ═══════════════════════════════════════════════════════════
+
+# با connection string
+abfs = adlfs.AzureBlobFileSystem(
+    connection_string='DefaultEndpointsProtocol=https;AccountName=...'
+)
+
+# با account key
+abfs = adlfs.AzureBlobFileSystem(
+    account_name='mystorageaccount',
+    account_key='YOUR_ACCOUNT_KEY'
+)
+
+# با SAS token
+abfs = adlfs.AzureBlobFileSystem(
+    account_name='mystorageaccount',
+    sas_token='YOUR_SAS_TOKEN'
+)
+
+# ═══════════════════════════════════════════════════════════
+# نوشتن و خواندن
+# ═══════════════════════════════════════════════════════════
+
+import fsspec
+
+# با fsspec
+mapper = fsspec.get_mapper(
+    'abfs://mycontainer/data.zarr',
+    account_name='mystorageaccount',
+    account_key='YOUR_KEY'
+)
+
+# نوشتن
+z = zarr.open_array(mapper, mode='w', shape=(1000, 1000), chunks=(100, 100))
+z[:] = np.random.randn(1000, 1000)
+
+# خواندن
+z_read = zarr.open_array(mapper, mode='r')
+data = z_read[:]
+
+# ═══════════════════════════════════════════════════════════
+# داده‌های عمومی Azure
+# ═══════════════════════════════════════════════════════════
+
+import xarray as xr
+
+# Planetary Computer data
+ds = xr.open_zarr(
+    'abfs://daymet/daymet-daily-na.zarr',
+    storage_options={
+        'account_name': 'daymeteuwest',
+        'credential': None  # public
+    }
+)</code></pre>
+                </div>
+            </div>
+
+            <h3>🌍 HTTP/HTTPS Store</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>http_storage.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import fsspec
+import xarray as xr
+
+# ═══════════════════════════════════════════════════════════
+# خواندن از HTTP
+# ═══════════════════════════════════════════════════════════
+
+# با fsspec
+mapper = fsspec.get_mapper('https://example.com/data.zarr')
+z = zarr.open_array(mapper, mode='r')
+
+# با caching
+mapper = fsspec.get_mapper(
+    'simplecache::https://example.com/data.zarr',
+    simplecache={'cache_storage': '/tmp/zarr_cache'}
+)
+
+# ═══════════════════════════════════════════════════════════
+# داده‌های عمومی
+# ═══════════════════════════════════════════════════════════
+
+# Pangeo data
+ds = xr.open_zarr(
+    'https://ncsa.osn.xsede.org/Pangeo/pangeo-forge/gpcp-feedstock/gpcp.zarr',
+    consolidated=True
+)
+print(ds)
+
+# ═══════════════════════════════════════════════════════════
+# Reference FileSystem (برای NetCDF/HDF5 روی cloud)
+# ═══════════════════════════════════════════════════════════
+
+# برای دسترسی به NetCDF بدون دانلود کامل
+import ujson
+
+# ایجاد reference file با kerchunk
+# این امکان دسترسی chunk-wise به NetCDF را می‌دهد
+
+# خواندن با reference
+mapper = fsspec.get_mapper(
+    'reference://',
+    fo='references.json',
+    remote_protocol='s3',
+    remote_options={'anon': True}
+)
+ds = xr.open_zarr(mapper)</code></pre>
+                </div>
+            </div>
+
+            <h3>⚡ بهینه‌سازی Cloud</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>cloud_optimization.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import zarr
+import numpy as np
+import fsspec
+
+# ═══════════════════════════════════════════════════════════
+# Consolidated Metadata
+# ═══════════════════════════════════════════════════════════
+
+# بدون consolidation: یک request برای هر .zarray و .zattrs
+# با consolidation: یک request برای همه metadata
+
+# ایجاد با consolidation
+root = zarr.open_group('s3://bucket/data.zarr', mode='w')
+for i in range(100):
+    root.create_dataset(f'array_{i}', data=np.random.randn(100, 100))
+
+# تجمیع metadata
+zarr.consolidate_metadata('s3://bucket/data.zarr')
+
+# باز کردن با metadata تجمیع شده (سریع‌تر)
+root = zarr.open_consolidated('s3://bucket/data.zarr')
+
+# ═══════════════════════════════════════════════════════════
+# Chunk Size بهینه برای Cloud
+# ═══════════════════════════════════════════════════════════
+
+# قانون: هر chunk بین 1-100 MB
+# کوچک‌تر: overhead زیاد requests
+# بزرگ‌تر: دانلود اضافی
+
+# برای داده ۳ بعدی (time, lat, lon):
+# - اگر دسترسی زمانی: chunks بزرگ در time
+# - اگر دسترسی مکانی: chunks بزرگ در lat/lon
+
+# مثال: داده آب‌وهوایی
+z = zarr.open_array(
+    's3://bucket/climate.zarr',
+    mode='w',
+    shape=(365*10, 1000, 1000),  # 10 سال، 1000x1000 grid
+    chunks=(365, 100, 100),       # یک سال، 100x100 مکانی
+    dtype='f4'
+)
+
+# ═══════════════════════════════════════════════════════════
+# Caching
+# ═══════════════════════════════════════════════════════════
+
+# Local cache
+mapper = fsspec.get_mapper(
+    'filecache::s3://bucket/data.zarr',
+    filecache={
+        'cache_storage': '/tmp/zarr_cache',
+        'expiry_time': 3600  # 1 ساعت
+    }
+)
+
+# Memory cache (LRU)
+mapper = fsspec.get_mapper(
+    'blockcache::s3://bucket/data.zarr',
+    blockcache={
+        'cache_storage': 'memory',
+        'block_size': 1024 * 1024  # 1MB blocks
+    }
+)
+
+# ═══════════════════════════════════════════════════════════
+# Async Access
+# ═══════════════════════════════════════════════════════════
+
+import asyncio
+import s3fs
+
+async def read_chunks_async():
+    """خواندن async چندین chunk"""
+    s3 = s3fs.S3FileSystem(anon=True, asynchronous=True)
+    
+    async with s3:
+        # خواندن همزمان چندین فایل
+        paths = [f's3://bucket/data.zarr/{i}.0' for i in range(10)]
+        contents = await asyncio.gather(*[s3._cat_file(p) for p in paths])
+    
+    return contents
+
+# اجرا
+# results = asyncio.run(read_chunks_async())</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات بهینه‌سازی Cloud</h4>
+                    <ul>
+                        <li><strong>Consolidated Metadata:</strong> همیشه برای داده‌های ابری استفاده کنید</li>
+                        <li><strong>Chunk Size:</strong> بین 1-100 MB برای تعادل سرعت و overhead</li>
+                        <li><strong>Caching:</strong> برای دسترسی مکرر به داده‌های مشابه</li>
+                        <li><strong>Region:</strong> compute و storage در یک region باشند</li>
+                        <li><strong>Compression:</strong> Zstd برای تعادل سرعت و اندازه</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Projects -->
+        <section class="section" id="projects">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دهم</div>
+                    <h2 class="section-title">پروژه‌های عملی</h2>
+                    <p class="section-subtitle">پروژه‌های کاربردی با Zarr</p>
+                </div>
+            </div>
+
+            <h3>🛰️ پروژه ۱: پردازش تصاویر ماهواره‌ای</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>satellite_processing.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پروژه پردازش تصاویر ماهواره‌ای
+- ذخیره‌سازی تصاویر چندباندی
+- محاسبه شاخص‌های گیاهی
+- تحلیل سری زمانی
+"""
+
+import zarr
+import numpy as np
+from numcodecs import Blosc
+from typing import Dict, List, Tuple, Optional
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+import json
+
+@dataclass
+class SatelliteImage:
+    """تصویر ماهواره‌ای"""
+    data: np.ndarray
+    timestamp: datetime
+    bands: List[str]
+    crs: str
+    transform: Tuple[float, ...]
+    cloud_cover: float
+
+class SatelliteDataCube:
+    """مکعب داده ماهواره‌ای با Zarr"""
+    
+    def __init__(self, path: str, mode: str = 'a'):
+        """
+        Args:
+            path: مسیر ذخیره‌سازی
+            mode: حالت باز کردن
+        """
+        self.path = path
+        self.root = zarr.open_group(path, mode=mode)
+        
+        if mode == 'w':
+            self._initialize_structure()
+    
+    def _initialize_structure(self):
+        """ایجاد ساختار اولیه"""
+        # متادیتا
+        self.root.attrs['created'] = datetime.now().isoformat()
+        self.root.attrs['format'] = 'satellite_datacube_v1'
+        
+        # گروه‌ها
+        self.root.create_group('bands')
+        self.root.create_group('indices')
+        self.root.create_group('masks')
+        self.root.create_group('metadata')
+    
+    def add_band(
+        self,
+        name: str,
+        shape: Tuple[int, int, int],
+        chunks: Tuple[int, int, int] = None,
+        dtype: str = 'f4',
+        attrs: Dict = None
+    ):
+        """
+        افزودن باند جدید
+        
+        Args:
+            name: نام باند (مثل 'red', 'nir')
+            shape: (time, height, width)
+            chunks: اندازه chunks
+            dtype: نوع داده
+            attrs: ویژگی‌های اضافی
+        """
+        if chunks is None:
+            # chunks پیش‌فرض: 10 زمان، 512x512 مکانی
+            chunks = (10, 512, 512)
+        
+        compressor = Blosc(cname='zstd', clevel=5, shuffle=Blosc.BITSHUFFLE)
+        
+        arr = self.root['bands'].create_dataset(
+            name,
+            shape=shape,
+            chunks=chunks,
+            dtype=dtype,
+            compressor=compressor,
+            fill_value=np.nan
+        )
+        
+        if attrs:
+            arr.attrs.update(attrs)
+        
+        return arr
+    
+    def add_image(
+        self,
+        image: SatelliteImage,
+        time_index: int
+    ):
+        """
+        افزودن تصویر به مکعب داده
+        
+        Args:
+            image: تصویر ماهواره‌ای
+            time_index: اندیس زمانی
+        """
+        for i, band_name in enumerate(image.bands):
+            if band_name in self.root['bands']:
+                self.root['bands'][band_name][time_index] = image.data[i]
+        
+        # ذخیره متادیتا
+        meta = self.root['metadata'].require_group(f'time_{time_index}')
+        meta.attrs['timestamp'] = image.timestamp.isoformat()
+        meta.attrs['cloud_cover'] = image.cloud_cover
+        meta.attrs['crs'] = image.crs
+    
+    def calculate_ndvi(self, time_slice: slice = None) -> np.ndarray:
+        """
+        محاسبه NDVI
+        
+        Args:
+            time_slice: برش زمانی
+            
+        Returns:
+            آرایه NDVI
+        """
+        if time_slice is None:
+            time_slice = slice(None)
+        
+        red = self.root['bands']['red'][time_slice]
+        nir = self.root['bands']['nir'][time_slice]
+        
+        # NDVI = (NIR - Red) / (NIR + Red)
+        ndvi = (nir - red) / (nir + red + 1e-10)
+        
+        return ndvi
+    
+    def calculate_evi(self, time_slice: slice = None) -> np.ndarray:
+        """
+        محاسبه EVI (Enhanced Vegetation Index)
+        """
+        if time_slice is None:
+            time_slice = slice(None)
+        
+        red = self.root['bands']['red'][time_slice]
+        nir = self.root['bands']['nir'][time_slice]
+        blue = self.root['bands']['blue'][time_slice]
+        
+        # EVI = 2.5 * (NIR - Red) / (NIR + 6*Red - 7.5*Blue + 1)
+        evi = 2.5 * (nir - red) / (nir + 6*red - 7.5*blue + 1 + 1e-10)
+        
+        return np.clip(evi, -1, 1)
+    
+    def save_index(self, name: str, data: np.ndarray, attrs: Dict = None):
+        """ذخیره شاخص محاسبه شده"""
+        compressor = Blosc(cname='zstd', clevel=5)
+        
+        if name in self.root['indices']:
+            self.root['indices'][name][:] = data
+        else:
+            arr = self.root['indices'].create_dataset(
+                name,
+                data=data,
+                chunks=(10, 512, 512),
+                compressor=compressor
+            )
+            if attrs:
+                arr.attrs.update(attrs)
+    
+    def get_time_series(
+        self,
+        band: str,
+        pixel: Tuple[int, int]
+    ) -> np.ndarray:
+        """
+        استخراج سری زمانی یک پیکسل
+        
+        Args:
+            band: نام باند
+            pixel: (row, col)
+            
+        Returns:
+            سری زمانی
+        """
+        row, col = pixel
+        return self.root['bands'][band][:, row, col]
+    
+    def get_spatial_subset(
+        self,
+        band: str,
+        bbox: Tuple[int, int, int, int],
+        time_index: int = None
+    ) -> np.ndarray:
+        """
+        استخراج زیرمجموعه مکانی
+        
+        Args:
+            band: نام باند
+            bbox: (row_start, row_end, col_start, col_end)
+            time_index: اندیس زمانی (None برای همه)
+        """
+        r1, r2, c1, c2 = bbox
+        
+        if time_index is not None:
+            return self.root['bands'][band][time_index, r1:r2, c1:c2]
+        else:
+            return self.root['bands'][band][:, r1:r2, c1:c2]
+    
+    def generate_cloud_mask(self, threshold: float = 0.3):
+        """تولید ماسک ابر"""
+        # ساده‌سازی: استفاده از باند آبی
+        blue = self.root['bands']['blue'][:]
+        mask = blue > threshold
+        
+        compressor = Blosc(cname='zstd', clevel=5)
+        self.root['masks'].create_dataset(
+            'cloud',
+            data=mask,
+            chunks=(10, 512, 512),
+            compressor=compressor,
+            overwrite=True
+        )
+    
+    def get_statistics(self, band: str) -> Dict:
+        """آمار یک باند"""
+        data = self.root['bands'][band][:]
+        valid = data[~np.isnan(data)]
+        
+        return {
+            'min': float(np.min(valid)),
+            'max': float(np.max(valid)),
+            'mean': float(np.mean(valid)),
+            'std': float(np.std(valid)),
+            'valid_pixels': int(len(valid)),
+            'total_pixels': int(data.size)
+        }
+    
+    def info(self):
+        """نمایش اطلاعات"""
+        print(f"Satellite Data Cube: {self.path}")
+        print(f"Created: {self.root.attrs.get('created', 'Unknown')}")
+        print(f"\nBands:")
+        for name, arr in self.root['bands'].items():
+            print(f"  - {name}: {arr.shape} {arr.dtype}")
+        print(f"\nIndices:")
+        for name, arr in self.root['indices'].items():
+            print(f"  - {name}: {arr.shape}")
+        print(f"\n{self.root.tree()}")
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از کلاس
+# ═══════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    # ایجاد مکعب داده
+    cube = SatelliteDataCube('satellite_cube.zarr', mode='w')
+    
+    # تعریف باندها
+    shape = (100, 2048, 2048)  # 100 تصویر، 2048x2048 پیکسل
+    
+    for band in ['blue', 'green', 'red', 'nir', 'swir1', 'swir2']:
+        cube.add_band(
+            band,
+            shape=shape,
+            attrs={'wavelength': f'{band}_wavelength'}
+        )
+    
+    # شبیه‌سازی افزودن تصاویر
+    for t in range(10):
+        # داده شبیه‌سازی شده
+        fake_image = SatelliteImage(
+            data=np.random.rand(6, 2048, 2048).astype('f4'),
+            timestamp=datetime(2024, 1, 1) + timedelta(days=t*16),
+            bands=['blue', 'green', 'red', 'nir', 'swir1', 'swir2'],
+            crs='EPSG:32639',
+            transform=(10, 0, 500000, 0, -10, 4000000),
+            cloud_cover=np.random.uniform(0, 0.3)
+        )
+        cube.add_image(fake_image, t)
+    
+    # محاسبه NDVI
+    ndvi = cube.calculate_ndvi(time_slice=slice(0, 10))
+    cube.save_index('ndvi', ndvi, attrs={'description': 'NDVI index'})
+    
+    # نمایش اطلاعات
+    cube.info()
+    
+    # آمار
+    stats = cube.get_statistics('red')
+    print(f"\nRed band statistics: {stats}")</code></pre>
+                </div>
+            </div>
+
+            <h3>🌡️ پروژه ۲: تحلیل داده‌های آب‌وهوایی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>climate_analysis.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پروژه تحلیل داده‌های آب‌وهوایی
+- ذخیره‌سازی داده‌های شبکه‌ای
+- محاسبه آنومالی
+- تحلیل روند
+"""
+
+import zarr
+import numpy as np
+from numcodecs import Blosc, Delta
+from typing import Dict, Tuple, Optional
+from datetime import datetime
+import xarray as xr
+
+class ClimateDataStore:
+    """ذخیره‌سازی داده‌های آب‌وهوایی"""
+    
+    def __init__(self, path: str, mode: str = 'a'):
+        self.path = path
+        self.root = zarr.open_group(path, mode=mode)
+        
+        if mode == 'w':
+            self._initialize()
+    
+    def _initialize(self):
+        """ساختار اولیه"""
+        self.root.attrs['title'] = 'Climate Data Store'
+        self.root.attrs['created'] = datetime.now().isoformat()
+        
+        self.root.create_group('coordinates')
+        self.root.create_group('variables')
+        self.root.create_group('analysis')
+    
+    def set_coordinates(
+        self,
+        times: np.ndarray,
+        lats: np.ndarray,
+        lons: np.ndarray
+    ):
+        """تنظیم مختصات"""
+        coords = self.root['coordinates']
+        
+        # زمان
+        coords.create_dataset('time', data=times.astype('datetime64[ns]').astype('i8'))
+        coords['time'].attrs['units'] = 'nanoseconds since 1970-01-01'
+        
+        # عرض جغرافیایی
+        coords.create_dataset('latitude', data=lats)
+        coords['latitude'].attrs['units'] = 'degrees_north'
+        
+        # طول جغرافیایی
+        coords.create_dataset('longitude', data=lons)
+        coords['longitude'].attrs['units'] = 'degrees_east'
+        
+        # ذخیره ابعاد
+        self.root.attrs['dims'] = {
+            'time': len(times),
+            'lat': len(lats),
+            'lon': len(lons)
+        }
+    
+    def add_variable(
+        self,
+        name: str,
+        data: np.ndarray = None,
+        shape: Tuple = None,
+        units: str = '',
+        long_name: str = '',
+        chunks: Tuple = None
+    ):
+        """افزودن متغیر"""
+        if shape is None and data is not None:
+            shape = data.shape
+        
+        if chunks is None:
+            # chunks بهینه برای دسترسی زمانی و مکانی
+            dims = self.root.attrs['dims']
+            chunks = (30, dims['lat'] // 4, dims['lon'] // 4)
+        
+        # فشرده‌سازی با Delta برای داده‌های آب‌وهوایی
+        compressor = Blosc(cname='zstd', clevel=5, shuffle=Blosc.SHUFFLE)
+        
+        arr = self.root['variables'].create_dataset(
+            name,
+            shape=shape,
+            chunks=chunks,
+            dtype='f4',
+            compressor=compressor,
+            fill_value=np.nan
+        )
+        
+        arr.attrs['units'] = units
+        arr.attrs['long_name'] = long_name
+        
+        if data is not None:
+            arr[:] = data
+        
+        return arr
+    
+    def calculate_climatology(
+        self,
+        variable: str,
+        period: str = 'monthly'
+    ) -> np.ndarray:
+        """
+        محاسبه اقلیم‌شناسی
+        
+        Args:
+            variable: نام متغیر
+            period: 'monthly' یا 'daily'
+        """
+        data = self.root['variables'][variable][:]
+        times = self.root['coordinates']['time'][:]
+        
+        # تبدیل به datetime
+        times = times.astype('datetime64[ns]')
+        
+        if period == 'monthly':
+            months = np.array([t.astype('datetime64[M]').astype(int) % 12 + 1 
+                              for t in times])
+            climatology = np.zeros((12,) + data.shape[1:], dtype='f4')
+            
+            for m in range(1, 13):
+                mask = months == m
+                climatology[m-1] = np.nanmean(data[mask], axis=0)
+        
+        elif period == 'daily':
+            # Day of year
+            doys = np.array([(t - t.astype('datetime64[Y]')).astype(int) + 1 
+                            for t in times])
+            climatology = np.zeros((366,) + data.shape[1:], dtype='f4')
+            
+            for d in range(1, 367):
+                mask = doys == d
+                if mask.any():
+                    climatology[d-1] = np.nanmean(data[mask], axis=0)
+        
+        # ذخیره
+        self.root['analysis'].create_dataset(
+            f'{variable}_climatology_{period}',
+            data=climatology,
+            chunks='auto',
+            overwrite=True
+        )
+        
+        return climatology
+    
+    def calculate_anomaly(
+        self,
+        variable: str,
+        climatology: np.ndarray = None,
+        period: str = 'monthly'
+    ) -> np.ndarray:
+        """محاسبه آنومالی"""
+        data = self.root['variables'][variable][:]
+        times = self.root['coordinates']['time'][:].astype('datetime64[ns]')
+        
+        if climatology is None:
+            climatology = self.calculate_climatology(variable, period)
+        
+        anomaly = np.zeros_like(data)
+        
+        if period == 'monthly':
+            months = np.array([t.astype('datetime64[M]').astype(int) % 12 
+                              for t in times])
+            for t in range(len(times)):
+                anomaly[t] = data[t] - climatology[months[t]]
+        
+        # ذخیره
+        self.root['analysis'].create_dataset(
+            f'{variable}_anomaly',
+            data=anomaly,
+            chunks=self.root['variables'][variable].chunks,
+            overwrite=True
+        )
+        
+        return anomaly
+    
+    def calculate_trend(
+        self,
+        variable: str,
+        method: str = 'linear'
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        محاسبه روند
+        
+        Returns:
+            (slope, intercept) per pixel
+        """
+        data = self.root['variables'][variable][:]
+        n_time, n_lat, n_lon = data.shape
+        
+        # زمان به عدد
+        t = np.arange(n_time)
+        
+        # محاسبه رگرسیون خطی برای هر پیکسل
+        slope = np.zeros((n_lat, n_lon), dtype='f4')
+        intercept = np.zeros((n_lat, n_lon), dtype='f4')
+        
+        for i in range(n_lat):
+            for j in range(n_lon):
+                y = data[:, i, j]
+                valid = ~np.isnan(y)
+                if valid.sum() > 10:  # حداقل 10 نقطه
+                    coeffs = np.polyfit(t[valid], y[valid], 1)
+                    slope[i, j] = coeffs[0]
+                    intercept[i, j] = coeffs[1]
+                else:
+                    slope[i, j] = np.nan
+                    intercept[i, j] = np.nan
+        
+        # ذخیره
+        self.root['analysis'].create_dataset(
+            f'{variable}_trend_slope',
+            data=slope,
+            overwrite=True
+        )
+        self.root['analysis'].create_dataset(
+            f'{variable}_trend_intercept',
+            data=intercept,
+            overwrite=True
+        )
+        
+        return slope, intercept
+    
+    def spatial_mean(self, variable: str, weights: np.ndarray = None) -> np.ndarray:
+        """میانگین مکانی وزن‌دار"""
+        data = self.root['variables'][variable][:]
+        
+        if weights is None:
+            # وزن‌دهی با کسینوس عرض جغرافیایی
+            lats = self.root['coordinates']['latitude'][:]
+            weights = np.cos(np.deg2rad(lats))
+            weights = weights[:, np.newaxis]  # broadcast
+        
+        # میانگین وزن‌دار
+        weighted_mean = np.nansum(data * weights, axis=(1, 2)) / np.nansum(weights)
+        
+        return weighted_mean
+    
+    def to_xarray(self) -> xr.Dataset:
+        """تبدیل به xarray Dataset"""
+        return xr.open_zarr(self.path)
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده
+# ═══════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    # ایجاد store
+    store = ClimateDataStore('climate_store.zarr', mode='w')
+    
+    # تنظیم مختصات
+    times = np.arange('2000-01-01', '2024-01-01', dtype='datetime64[D]')
+    lats = np.linspace(-90, 90, 181)
+    lons = np.linspace(-180, 180, 361)
+    
+    store.set_coordinates(times, lats, lons)
+    
+    # افزودن متغیرها
+    n_time = len(times)
+    n_lat = len(lats)
+    n_lon = len(lons)
+    
+    # دما (شبیه‌سازی)
+    temp_data = 288 + 10 * np.sin(np.deg2rad(lats))[:, np.newaxis] + \
+                np.random.randn(n_time, n_lat, n_lon).astype('f4') * 2
+    
+    store.add_variable(
+        'temperature',
+        data=temp_data,
+        units='K',
+        long_name='Surface Air Temperature'
+    )
+    
+    # محاسبه اقلیم‌شناسی
+    clim = store.calculate_climatology('temperature', 'monthly')
+    print(f"Climatology shape: {clim.shape}")
+    
+    # محاسبه آنومالی
+    anom = store.calculate_anomaly('temperature', clim, 'monthly')
+    print(f"Anomaly range: [{np.nanmin(anom):.2f}, {np.nanmax(anom):.2f}]")
+    
+    # میانگین جهانی
+    global_mean = store.spatial_mean('temperature')
+    print(f"Global mean temperature: {np.mean(global_mean):.2f} K")
+    
+    print(f"\n{store.root.tree()}")</code></pre>
+                </div>
+            </div>
+
+            <h3>🧬 پروژه ۳: ذخیره‌سازی داده‌های ژنومی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>genomic_data.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پروژه ذخیره‌سازی داده‌های ژنومی
+- ماتریس بیان ژن
+- داده‌های single-cell
+- فشرده‌سازی بهینه
+"""
+
+import zarr
+import numpy as np
+from numcodecs import Blosc, Quantize, FixedScaleOffset
+from typing import Dict, List, Tuple, Optional
+from scipy import sparse
+
+class GeneExpressionStore:
+    """ذخیره‌سازی داده‌های بیان ژن"""
+    
+    def __init__(self, path: str, mode: str = 'a'):
+        self.path = path
+        self.root = zarr.open_group(path, mode=mode)
+        
+        if mode == 'w':
+            self._initialize()
+    
+    def _initialize(self):
+        """ساختار اولیه"""
+        self.root.attrs['format'] = 'gene_expression_v1'
+        self.root.attrs['created'] = np.datetime64('now').astype(str)
+        
+        self.root.create_group('X')           # ماتریس بیان
+        self.root.create_group('obs')         # متادیتای سلول‌ها
+        self.root.create_group('var')         # متادیتای ژن‌ها
+        self.root.create_group('layers')      # لایه‌های اضافی
+        self.root.create_group('obsm')        # embedding ها
+        self.root.create_group('varm')        # loadings
+        self.root.create_group('uns')         # unstructured
+    
+    def set_expression_matrix(
+        self,
+        data: np.ndarray,
+        sparse_threshold: float = 0.9
+    ):
+        """
+        ذخیره ماتریس بیان
+        
+        Args:
+            data: ماتریس (cells × genes)
+            sparse_threshold: آستانه sparsity برای فشرده‌سازی
+        """
+        n_cells, n_genes = data.shape
+        
+        # بررسی sparsity
+        sparsity = np.sum(data == 0) / data.size
+        
+        if sparsity > sparse_threshold:
+            # ذخیره sparse
+            self._store_sparse(data)
+        else:
+            # ذخیره dense
+            self._store_dense(data)
+        
+        self.root.attrs['n_cells'] = n_cells
+        self.root.attrs['n_genes'] = n_genes
+        self.root.attrs['sparsity'] = float(sparsity)
+    
+    def _store_dense(self, data: np.ndarray):
+        """ذخیره dense"""
+        # فشرده‌سازی با کاهش دقت
+        compressor = Blosc(cname='zstd', clevel=5, shuffle=Blosc.BITSHUFFLE)
+        
+        # برای داده‌های count، می‌توان از int استفاده کرد
+        if np.allclose(data, data.astype('i4')):
+            dtype = 'i4'
+        else:
+            dtype = 'f4'
+        
+        # chunks بهینه: 1000 سلول × همه ژن‌ها
+        n_cells, n_genes = data.shape
+        chunks = (min(1000, n_cells), n_genes)
+        
+        self.root['X'].create_dataset(
+            'data',
+            data=data.astype(dtype),
+            chunks=chunks,
+            compressor=compressor
+        )
+        self.root['X'].attrs['format'] = 'dense'
+    
+    def _store_sparse(self, data: np.ndarray):
+        """ذخیره sparse (CSR format)"""
+        sp = sparse.csr_matrix(data)
+        
+        compressor = Blosc(cname='zstd', clevel=5)
+        
+        # ذخیره components
+        self.root['X'].create_dataset('data', data=sp.data, compressor=compressor)
+        self.root['X'].create_dataset('indices', data=sp.indices, compressor=compressor)
+        self.root['X'].create_dataset('indptr', data=sp.indptr, compressor=compressor)
+        
+        self.root['X'].attrs['format'] = 'csr'
+        self.root['X'].attrs['shape'] = data.shape
+    
+    def get_expression_matrix(self) -> np.ndarray:
+        """خواندن ماتریس بیان"""
+        fmt = self.root['X'].attrs['format']
+        
+        if fmt == 'dense':
+            return self.root['X']['data'][:]
+        elif fmt == 'csr':
+            data = self.root['X']['data'][:]
+            indices = self.root['X']['indices'][:]
+            indptr = self.root['X']['indptr'][:]
+            shape = self.root['X'].attrs['shape']
+            
+            sp = sparse.csr_matrix((data, indices, indptr), shape=shape)
+            return sp.toarray()
+    
+    def set_cell_metadata(self, metadata: Dict[str, np.ndarray]):
+        """ذخیره متادیتای سلول‌ها"""
+        for key, values in metadata.items():
+            self.root['obs'].create_dataset(key, data=values, overwrite=True)
+    
+    def set_gene_metadata(self, metadata: Dict[str, np.ndarray]):
+        """ذخیره متادیتای ژن‌ها"""
+        for key, values in metadata.items():
+            self.root['var'].create_dataset(key, data=values, overwrite=True)
+    
+    def add_embedding(self, name: str, data: np.ndarray):
+        """
+        افزودن embedding (مثل PCA, UMAP, t-SNE)
+        
+        Args:
+            name: نام embedding
+            data: ماتریس (cells × dimensions)
+        """
+        compressor = Blosc(cname='zstd', clevel=5)
+        self.root['obsm'].create_dataset(
+            name,
+            data=data.astype('f4'),
+            compressor=compressor,
+            overwrite=True
+        )
+    
+    def add_layer(self, name: str, data: np.ndarray):
+        """افزودن لایه (مثل normalized, scaled)"""
+        compressor = Blosc(cname='zstd', clevel=5, shuffle=Blosc.BITSHUFFLE)
+        
+        n_cells = self.root.attrs['n_cells']
+        n_genes = self.root.attrs['n_genes']
+        chunks = (min(1000, n_cells), n_genes)
+        
+        self.root['layers'].create_dataset(
+            name,
+            data=data.astype('f4'),
+            chunks=chunks,
+            compressor=compressor,
+            overwrite=True
+        )
+    
+    def subset_cells(self, indices: np.ndarray) -> 'GeneExpressionStore':
+        """استخراج زیرمجموعه سلول‌ها"""
+        # ایجاد store جدید
+        new_store = GeneExpressionStore(f'{self.path}_subset', mode='w')
+        
+        # کپی داده
+        X = self.get_expression_matrix()
+        new_store.set_expression_matrix(X[indices])
+        
+        # کپی متادیتا
+        for key in self.root['obs'].keys():
+            data = self.root['obs'][key][:]
+            new_store.root['obs'].create_dataset(key, data=data[indices])
+        
+        # کپی ژن‌ها
+        for key in self.root['var'].keys():
+            new_store.root['var'].create_dataset(
+                key,
+                data=self.root['var'][key][:]
+            )
+        
+        return new_store
+    
+    def calculate_statistics(self) -> Dict:
+        """محاسبه آمار"""
+        X = self.get_expression_matrix()
+        
+        return {
+            'n_cells': X.shape[0],
+            'n_genes': X.shape[1],
+            'sparsity': float(np.sum(X == 0) / X.size),
+            'mean_expression': float(np.mean(X)),
+            'median_expression': float(np.median(X)),
+            'genes_per_cell': float(np.mean(np.sum(X > 0, axis=1))),
+            'cells_per_gene': float(np.mean(np.sum(X > 0, axis=0)))
+        }
+    
+    def info(self):
+        """نمایش اطلاعات"""
+        print(f"Gene Expression Store: {self.path}")
+        print(f"Cells: {self.root.attrs.get('n_cells', 'Unknown')}")
+        print(f"Genes: {self.root.attrs.get('n_genes', 'Unknown')}")
+        print(f"Sparsity: {self.root.attrs.get('sparsity', 'Unknown'):.2%}")
+        print(f"Format: {self.root['X'].attrs.get('format', 'Unknown')}")
+        print(f"\n{self.root.tree()}")
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده
+# ═══════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    # ایجاد store
+    store = GeneExpressionStore('gene_expression.zarr', mode='w')
+    
+    # داده شبیه‌سازی شده (sparse)
+    n_cells = 10000
+    n_genes = 20000
+    
+    # ماتریس sparse
+    data = np.zeros((n_cells, n_genes), dtype='f4')
+    for i in range(n_cells):
+        # هر سلول فقط 500-2000 ژن فعال
+        n_active = np.random.randint(500, 2000)
+        active_genes = np.random.choice(n_genes, n_active, replace=False)
+        data[i, active_genes] = np.random.exponential(2, n_active)
+    
+    store.set_expression_matrix(data)
+    
+    # متادیتای سلول‌ها
+    store.set_cell_metadata({
+        'cell_type': np.random.choice(['T-cell', 'B-cell', 'Macrophage'], n_cells),
+        'batch': np.random.choice(['batch1', 'batch2'], n_cells),
+        'n_genes': np.sum(data > 0, axis=1)
+    })
+    
+    # متادیتای ژن‌ها
+    store.set_gene_metadata({
+        'gene_name': np.array([f'Gene_{i}' for i in range(n_genes)]),
+        'n_cells': np.sum(data > 0, axis=0)
+    })
+    
+    # افزودن PCA embedding
+    pca_embedding = np.random.randn(n_cells, 50).astype('f4')
+    store.add_embedding('X_pca', pca_embedding)
+    
+    # افزودن UMAP embedding
+    umap_embedding = np.random.randn(n_cells, 2).astype('f4')
+    store.add_embedding('X_umap', umap_embedding)
+    
+    # نمایش اطلاعات
+    store.info()
+    
+    # آمار
+    stats = store.calculate_statistics()
+    print(f"\nStatistics: {stats}")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section class="section" id="resources">
+            <div class="section-header">
+                <div class="section-icon">📚</div>
+                <div class="section-title-group">
+                    <div class="section-number">منابع</div>
+                    <h2 class="section-title">منابع و مراجع</h2>
+                    <p class="section-subtitle">منابع یادگیری بیشتر</p>
+                </div>
+            </div>
+
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-icon">📖</div>
+                    <h4>مستندات رسمی</h4>
+                    <p>مستندات کامل Zarr</p>
+                    <a href="https://zarr.readthedocs.io" target="_blank">مشاهده</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">💻</div>
+                    <h4>GitHub</h4>
+                    <p>کد منبع و مثال‌ها</p>
+                    <a href="https://github.com/zarr-developers/zarr-python" target="_blank">مشاهده</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">📊</div>
+                    <h4>Xarray</h4>
+                    <p>ادغام با Xarray</p>
+                    <a href="https://docs.xarray.dev/en/stable/user-guide/io.html#zarr" target="_blank">مشاهده</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">⚡</div>
+                    <h4>Dask</h4>
+                    <p>پردازش موازی</p>
+                    <a href="https://docs.dask.org/en/stable/array-creation.html#zarr" target="_blank">مشاهده</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">🌐</div>
+                    <h4>Pangeo</h4>
+                    <p>اکوسیستم داده‌های بزرگ</p>
+                    <a href="https://pangeo.io" target="_blank">مشاهده</a>
+                </div>
+                
+                <div class="resource-card">
+                    <div class="resource-icon">🗜️</div>
+                    <h4>Numcodecs</h4>
+                    <p>کدک‌های فشرده‌سازی</p>
+                    <a href="https://numcodecs.readthedocs.io" target="_blank">مشاهده</a>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>کتابخانه‌های مرتبط</h4>
+                    <ul>
+                        <li><strong>Xarray:</strong> کار با آرایه‌های برچسب‌دار</li>
+                        <li><strong>Dask:</strong> پردازش موازی و توزیع‌شده</li>
+                        <li><strong>fsspec:</strong> دسترسی به سیستم‌های فایل مختلف</li>
+                        <li><strong>s3fs/gcsfs:</strong> دسترسی به cloud storage</li>
+                        <li><strong>kerchunk:</strong> دسترسی Zarr-like به NetCDF/HDF5</li>
+                        <li><strong>rechunker:</strong> تغییر chunks بهینه</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">📦</div>
+                <span class="logo-text">Zarr Tutorial</span>
+            </div>
+            <p>آموزش جامع ذخیره‌سازی آرایه‌های بزرگ در پایتون</p>
+            <div class="footer-links">
+                <a href="https://zarr.readthedocs.io" target="_blank">Zarr Docs</a>
+                <a href="https://github.com/zarr-developers/zarr-python" target="_blank">GitHub</a>
+                <a href="https://pypi.org/project/zarr/" target="_blank">PyPI</a>
+                <a href="https://pangeo.io" target="_blank">Pangeo</a>
+            </div>
+            <p class="copyright">
+                ساخته شده با ❤️ برای جامعه علم داده ایران
+                <br>
+                © 2024 - تمامی حقوق محفوظ است
+            </p>
+        </div>
+    </footer>
+
+    <!-- Highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    
+    <script>
+        // Initialize Highlight.js
+        document.addEventListener('DOMContentLoaded', function() {
+            hljs.highlightAll();
+        });
+
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span>✓</span> کپی شد!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('خطا در کپی:', err);
+            });
+        }
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Active navigation link
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Navbar background on scroll
+        const nav = document.querySelector('.nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                nav.style.background = 'rgba(10, 10, 15, 0.98)';
+            } else {
+                nav.style.background = 'rgba(10, 10, 15, 0.95)';
+            }
+        });
+    </script>
+</body>
+</html>
