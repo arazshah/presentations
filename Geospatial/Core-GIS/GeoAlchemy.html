@@ -1,0 +1,6277 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع GeoAlchemy2 - کار با داده‌های مکانی در SQLAlchemy</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            --primary: #2ECC71;
+            --primary-dark: #27AE60;
+            --primary-light: #58D68D;
+            --secondary: #3498DB;
+            --accent: #9B59B6;
+            --geo-orange: #E67E22;
+            --geo-red: #E74C3C;
+            --bg-dark: #0a0f0d;
+            --bg-card: #111916;
+            --bg-code: #0d1210;
+            --text-primary: #E8F5E9;
+            --text-secondary: #A5D6A7;
+            --text-muted: #6B8E6B;
+            --border: #1E3A2F;
+            --success: #00E676;
+            --warning: #FFB74D;
+            --error: #FF5252;
+            --info: #40C4FF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 15, 13, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(46, 204, 113, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(52, 152, 219, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(155, 89, 182, 0.1) 0%, transparent 50%);
+        }
+
+        /* Animated map grid */
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(46, 204, 113, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(46, 204, 113, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .hero-shapes {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .geo-shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .geo-shape.polygon {
+            width: 100px;
+            height: 100px;
+            background: var(--primary);
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            top: 15%;
+            left: 10%;
+        }
+
+        .geo-shape.circle {
+            width: 80px;
+            height: 80px;
+            background: var(--secondary);
+            border-radius: 50%;
+            top: 25%;
+            right: 15%;
+            animation-delay: -5s;
+        }
+
+        .geo-shape.line {
+            width: 150px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            bottom: 30%;
+            left: 20%;
+            transform: rotate(-30deg);
+            animation-delay: -3s;
+        }
+
+        .geo-shape.point {
+            width: 20px;
+            height: 20px;
+            background: var(--geo-orange);
+            border-radius: 50%;
+            top: 60%;
+            right: 25%;
+            animation-delay: -7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            text-align: center;
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #000;
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(46, 204, 113, 0.1);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-top: 4rem;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1rem;
+        }
+
+        .feature-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .section-number {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.25rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Headings */
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--primary-light);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--bg-code);
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.python {
+            background: #3776AB;
+            color: #FFD43B;
+        }
+
+        .code-lang-icon.sql {
+            background: #336791;
+            color: white;
+        }
+
+        .code-lang-icon.bash {
+            background: #4EAA25;
+            color: white;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+        }
+
+        .code-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .code-btn.copied {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        /* Info Box */
+        .info-box {
+            display: flex;
+            gap: 1rem;
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+            border: 1px solid;
+        }
+
+        .info-box.tip {
+            background: rgba(46, 204, 113, 0.1);
+            border-color: rgba(46, 204, 113, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(255, 183, 77, 0.1);
+            border-color: rgba(255, 183, 77, 0.3);
+        }
+
+        .info-box.info {
+            background: rgba(64, 196, 255, 0.1);
+            border-color: rgba(64, 196, 255, 0.3);
+        }
+
+        .info-box.danger {
+            background: rgba(255, 82, 82, 0.1);
+            border-color: rgba(255, 82, 82, 0.3);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .info-content ul {
+            margin: 0.5rem 0 0 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .info-content li {
+            margin-bottom: 0.25rem;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: var(--bg-card);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tr:hover {
+            background: rgba(46, 204, 113, 0.05);
+        }
+
+        /* Concept Cards */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .concept-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .concept-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .concept-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .concept-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Geometry Cards */
+        .geometry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .geometry-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .geometry-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.1);
+        }
+
+        .geometry-header {
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .geometry-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .geometry-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .geometry-body {
+            padding: 1.25rem;
+        }
+
+        .geometry-example {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--primary);
+            background: rgba(46, 204, 113, 0.1);
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .geometry-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 6rem 1rem 3rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .section-icon {
+                margin: 0 auto;
+            }
+
+            h3 {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Inline Code */
+        code:not([class*="language-"]) {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--primary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        /* Links */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Architecture Diagram */
+        .architecture-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .arch-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .arch-layer {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .arch-layer.app {
+            background: linear-gradient(135deg, var(--accent), #8E44AD);
+            color: white;
+        }
+
+        .arch-layer.geoalchemy {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #000;
+        }
+
+        .arch-layer.sqlalchemy {
+            background: linear-gradient(135deg, var(--secondary), #2980B9);
+            color: white;
+        }
+
+        .arch-layer.postgis {
+            background: linear-gradient(135deg, var(--geo-orange), #D35400);
+            color: white;
+        }
+
+        .arch-layer.postgres {
+            background: linear-gradient(135deg, #336791, #1A3A5C);
+            color: white;
+        }
+
+        .arch-arrow {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        /* Category Badge */
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .category-badge.spatial {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--primary);
+        }
+
+        .category-badge.query {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--secondary);
+        }
+
+        .category-badge.func {
+            background: rgba(155, 89, 182, 0.2);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <div class="logo-icon">🗺️</div>
+                <span class="logo-text">GeoAlchemy2</span>
+            </a>
+            <div class="nav-links">
+                <a href="#intro" class="nav-link">معرفی</a>
+                <a href="#installation" class="nav-link">نصب</a>
+                <a href="#models" class="nav-link">مدل‌ها</a>
+                <a href="#types" class="nav-link">انواع داده</a>
+                <a href="#queries" class="nav-link">کوئری‌ها</a>
+                <a href="#functions" class="nav-link">توابع</a>
+                <a href="#relationships" class="nav-link">روابط</a>
+                <a href="#raster" class="nav-link">Raster</a>
+                <a href="#advanced" class="nav-link">پیشرفته</a>
+                <a href="#projects" class="nav-link">پروژه‌ها</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-grid"></div>
+        <div class="hero-shapes">
+            <div class="geo-shape polygon"></div>
+            <div class="geo-shape circle"></div>
+            <div class="geo-shape line"></div>
+            <div class="geo-shape point"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🌍</span>
+                <span>PostGIS + SQLAlchemy</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">GeoAlchemy2</span>
+            </h1>
+            <p class="hero-subtitle">
+                کتابخانه قدرتمند پایتون برای کار با داده‌های مکانی در SQLAlchemy
+                - یکپارچه‌سازی PostGIS با ORM پایتون برای توسعه برنامه‌های GIS
+            </p>
+            <div class="hero-buttons">
+                <a href="#intro" class="btn btn-primary">
+                    <span>🚀</span>
+                    شروع یادگیری
+                </a>
+                <a href="https://geoalchemy-2.readthedocs.io" target="_blank" class="btn btn-secondary">
+                    <span>📖</span>
+                    مستندات رسمی
+                </a>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🗃️</div>
+                    <div class="feature-title">ORM مکانی</div>
+                    <div class="feature-desc">مدل‌سازی داده‌های جغرافیایی</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📍</div>
+                    <div class="feature-title">Geometry Types</div>
+                    <div class="feature-desc">Point, Line, Polygon و...</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <div class="feature-title">Spatial Queries</div>
+                    <div class="feature-desc">کوئری‌های مکانی قدرتمند</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-title">Spatial Index</div>
+                    <div class="feature-desc">ایندکس‌های سریع GiST</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖼️</div>
+                    <div class="feature-title">Raster Support</div>
+                    <div class="feature-desc">پشتیبانی از داده‌های رستری</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">🌍</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی GeoAlchemy2</h2>
+                    <p class="section-subtitle">آشنایی با ORM مکانی پایتون</p>
+                </div>
+            </div>
+
+            <h3>🎯 GeoAlchemy2 چیست؟</h3>
+            <p>
+                <strong>GeoAlchemy2</strong> یک افزونه برای <strong>SQLAlchemy</strong> است که امکان کار با
+                داده‌های مکانی (Spatial Data) را در پایتون فراهم می‌کند. این کتابخانه پل ارتباطی بین
+                <strong>PostGIS</strong> (افزونه مکانی PostgreSQL) و اکوسیستم پایتون است.
+            </p>
+
+            <div class="architecture-box">
+                <h4 style="margin-bottom: 1.5rem;">معماری GeoAlchemy2</h4>
+                <div class="arch-layers">
+                    <div class="arch-layer app">🐍 Python Application</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer geoalchemy">🗺️ GeoAlchemy2</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer sqlalchemy">⚙️ SQLAlchemy ORM</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer postgis">📍 PostGIS Extension</div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer postgres">🐘 PostgreSQL Database</div>
+                </div>
+            </div>
+
+            <h3>✨ ویژگی‌های کلیدی</h3>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <div class="concept-icon">🗃️</div>
+                    <div class="concept-title">ORM Integration</div>
+                    <div class="concept-desc">یکپارچگی کامل با SQLAlchemy ORM برای تعریف مدل‌های مکانی</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">📐</div>
+                    <div class="concept-title">Geometry Types</div>
+                    <div class="concept-desc">پشتیبانی از تمام انواع هندسی PostGIS</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🔍</div>
+                    <div class="concept-title">Spatial Functions</div>
+                    <div class="concept-desc">دسترسی به صدها تابع مکانی PostGIS</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">⚡</div>
+                    <div class="concept-title">Spatial Indexing</div>
+                    <div class="concept-desc">ایجاد خودکار ایندکس‌های GiST</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🖼️</div>
+                    <div class="concept-title">Raster Data</div>
+                    <div class="concept-desc">پشتیبانی از داده‌های رستری</div>
+                </div>
+                <div class="concept-card">
+                    <div class="concept-icon">🔄</div>
+                    <div class="concept-title">Format Conversion</div>
+                    <div class="concept-desc">تبدیل بین WKT, WKB, GeoJSON</div>
+                </div>
+            </div>
+
+            <h3>📊 مقایسه با سایر ابزارها</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>GeoAlchemy2</th>
+                            <th>Django GIS</th>
+                            <th>Raw SQL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ORM Support</td>
+                            <td>✅ SQLAlchemy</td>
+                            <td>✅ Django ORM</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td>Framework</td>
+                            <td>Flask, FastAPI, ...</td>
+                            <td>Django Only</td>
+                            <td>Any</td>
+                        </tr>
+                        <tr>
+                            <td>PostGIS Functions</td>
+                            <td>✅ همه</td>
+                            <td>✅ بیشتر</td>
+                            <td>✅ همه</td>
+                        </tr>
+                        <tr>
+                            <td>Raster Support</td>
+                            <td>✅</td>
+                            <td>⚠️ محدود</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Learning Curve</td>
+                            <td>متوسط</td>
+                            <td>آسان</td>
+                            <td>سخت</td>
+                        </tr>
+                        <tr>
+                            <td>Async Support</td>
+                            <td>✅</td>
+                            <td>⚠️ محدود</td>
+                            <td>✅</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>چه زمانی از GeoAlchemy2 استفاده کنیم؟</h4>
+                    <ul>
+                        <li>استفاده از Flask، FastAPI یا سایر فریمورک‌های غیر Django</li>
+                        <li>نیاز به کنترل کامل بر کوئری‌های مکانی</li>
+                        <li>کار با داده‌های رستری</li>
+                        <li>پروژه‌های میکروسرویس</li>
+                        <li>برنامه‌های Async</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Installation -->
+        <section class="section" id="installation">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">نصب و راه‌اندازی</h2>
+                    <p class="section-subtitle">پیش‌نیازها و نصب GeoAlchemy2</p>
+                </div>
+            </div>
+
+            <h3>📋 پیش‌نیازها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">$</div>
+                        <span>Prerequisites</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># 1. نصب PostgreSQL
+# Ubuntu/Debian
+sudo apt-get install postgresql postgresql-contrib
+
+# macOS
+brew install postgresql
+
+# 2. نصب PostGIS
+# Ubuntu/Debian
+sudo apt-get install postgis postgresql-14-postgis-3
+
+# macOS
+brew install postgis
+
+# 3. ایجاد دیتابیس و فعال‌سازی PostGIS
+sudo -u postgres psql
+CREATE DATABASE geodb;
+\c geodb
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_raster;  -- اختیاری برای رستر
+
+# بررسی نسخه PostGIS
+SELECT PostGIS_Version();</code></pre>
+                </div>
+            </div>
+
+            <h3>📦 نصب GeoAlchemy2</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">$</div>
+                        <span>Installation</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># نصب پایه
+pip install geoalchemy2
+
+# نصب با Shapely (توصیه می‌شود)
+pip install geoalchemy2 shapely
+
+# نصب کامل با همه وابستگی‌ها
+pip install geoalchemy2[all]
+
+# برای کار با GeoJSON
+pip install geojson
+
+# برای رستر
+pip install rasterio
+
+# نصب psycopg2 برای اتصال به PostgreSQL
+pip install psycopg2-binary
+
+# یا برای async
+pip install asyncpg</code></pre>
+                </div>
+            </div>
+
+            <h3>📄 فایل requirements.txt</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">$</div>
+                        <span>requirements.txt</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># Core
+sqlalchemy>=2.0.0
+geoalchemy2>=0.14.0
+psycopg2-binary>=2.9.0
+
+# Geometry processing
+shapely>=2.0.0
+pyproj>=3.4.0
+
+# GeoJSON support
+geojson>=3.0.0
+
+# Raster support (optional)
+rasterio>=1.3.0
+
+# Async support (optional)
+asyncpg>=0.28.0
+sqlalchemy[asyncio]>=2.0.0
+
+# Web frameworks
+fastapi>=0.100.0
+flask>=2.3.0
+
+# Utilities
+geopandas>=0.13.0
+pandas>=2.0.0</code></pre>
+                </div>
+            </div>
+
+            <h3>🔧 تنظیمات اتصال</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>database.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات اتصال Sync
+# ═══════════════════════════════════════════════════════════
+
+DATABASE_URL = "postgresql://user:password@localhost:5432/geodb"
+
+# ایجاد engine
+engine = create_engine(
+    DATABASE_URL,
+    echo=True,  # نمایش SQL queries
+    pool_size=5,
+    max_overflow=10
+)
+
+# ایجاد session factory
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+# Base class برای مدل‌ها
+Base = declarative_base()
+
+# Dependency برای FastAPI
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات اتصال Async
+# ═══════════════════════════════════════════════════════════
+
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+
+ASYNC_DATABASE_URL = "postgresql+asyncpg://user:password@localhost:5432/geodb"
+
+async_engine = create_async_engine(
+    ASYNC_DATABASE_URL,
+    echo=True
+)
+
+AsyncSessionLocal = sessionmaker(
+    async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+async def get_async_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+
+
+# ═══════════════════════════════════════════════════════════
+# بررسی اتصال
+# ═══════════════════════════════════════════════════════════
+
+def check_connection():
+    """بررسی اتصال و نسخه PostGIS"""
+    from sqlalchemy import text
+    
+    with engine.connect() as conn:
+        # بررسی PostgreSQL
+        result = conn.execute(text("SELECT version()"))
+        print(f"PostgreSQL: {result.scalar()}")
+        
+        # بررسی PostGIS
+        result = conn.execute(text("SELECT PostGIS_Version()"))
+        print(f"PostGIS: {result.scalar()}")
+        
+        # بررسی SRID‌های موجود
+        result = conn.execute(text(
+            "SELECT COUNT(*) FROM spatial_ref_sys"
+        ))
+        print(f"Available SRIDs: {result.scalar()}")
+
+if __name__ == "__main__":
+    check_connection()</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکات مهم</h4>
+                    <ul>
+                        <li>PostGIS باید قبل از استفاده در دیتابیس فعال شود</li>
+                        <li>برای Raster نیاز به <code>postgis_raster</code> است</li>
+                        <li>SRID پیش‌فرض 4326 (WGS84) است</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Models -->
+        <section class="section" id="models">
+            <div class="section-header">
+                <div class="section-icon">🗃️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">تعریف مدل‌ها</h2>
+                    <p class="section-subtitle">ایجاد مدل‌های مکانی با GeoAlchemy2</p>
+                </div>
+            </div>
+
+            <h3>📍 مدل ساده با Geometry</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>models/basic.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
+from geoalchemy2 import Geometry
+from datetime import datetime
+
+from database import Base
+
+# ═══════════════════════════════════════════════════════════
+# مدل ساده: مکان (Location)
+# ═══════════════════════════════════════════════════════════
+
+class Location(Base):
+    """مدل ساده برای ذخیره نقاط مکانی"""
+    __tablename__ = 'locations'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(String(500))
+    
+    # ستون مکانی - نقطه با SRID 4326 (WGS84)
+    geom = Column(Geometry(geometry_type='POINT', srid=4326))
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<Location(id={self.id}, name='{self.name}')>"
+
+
+# ═══════════════════════════════════════════════════════════
+# مدل با Geometry عمومی
+# ═══════════════════════════════════════════════════════════
+
+class Feature(Base):
+    """مدل با قابلیت ذخیره هر نوع Geometry"""
+    __tablename__ = 'features'
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100))
+    feature_type = Column(String(50))  # point, line, polygon
+    
+    # Geometry عمومی - می‌تواند هر نوعی باشد
+    geom = Column(Geometry(srid=4326))
+    
+    properties = Column(String(1000))  # JSON as string
+
+
+# ═══════════════════════════════════════════════════════════
+# مدل‌های تخصصی برای انواع مختلف
+# ═══════════════════════════════════════════════════════════
+
+class City(Base):
+    """شهر - نقطه"""
+    __tablename__ = 'cities'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    population = Column(Integer)
+    country = Column(String(100))
+    
+    # نقطه مرکزی شهر
+    center = Column(Geometry(geometry_type='POINT', srid=4326))
+
+
+class Road(Base):
+    """جاده - خط"""
+    __tablename__ = 'roads'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    road_type = Column(String(50))  # highway, primary, secondary
+    length_km = Column(Float)
+    
+    # مسیر جاده
+    path = Column(Geometry(geometry_type='LINESTRING', srid=4326))
+
+
+class Park(Base):
+    """پارک - چندضلعی"""
+    __tablename__ = 'parks'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    area_sqm = Column(Float)
+    
+    # محدوده پارک
+    boundary = Column(Geometry(geometry_type='POLYGON', srid=4326))
+
+
+class District(Base):
+    """منطقه - چندضلعی چندتکه"""
+    __tablename__ = 'districts'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    district_code = Column(String(20))
+    
+    # محدوده منطقه (می‌تواند چند تکه باشد)
+    boundary = Column(Geometry(geometry_type='MULTIPOLYGON', srid=4326))</code></pre>
+                </div>
+            </div>
+
+            <h3>🏗️ مدل‌های پیشرفته با Index و Constraint</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>models/advanced.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import Column, Integer, String, Float, Boolean, Index
+from sqlalchemy import event
+from geoalchemy2 import Geometry
+from geoalchemy2.shape import to_shape, from_shape
+from shapely.geometry import Point, mapping
+
+from database import Base
+
+# ═══════════════════════════════════════════════════════════
+# مدل با Spatial Index
+# ═══════════════════════════════════════════════════════════
+
+class Store(Base):
+    """فروشگاه با ایندکس مکانی"""
+    __tablename__ = 'stores'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    address = Column(String(200))
+    store_type = Column(String(50))
+    is_active = Column(Boolean, default=True)
+    
+    # موقعیت فروشگاه
+    location = Column(
+        Geometry(
+            geometry_type='POINT',
+            srid=4326,
+            spatial_index=True  # ایجاد خودکار GiST index
+        ),
+        nullable=False
+    )
+    
+    # ایندکس‌های اضافی
+    __table_args__ = (
+        Index('idx_store_name', 'name'),
+        Index('idx_store_type_active', 'store_type', 'is_active'),
+    )
+    
+    @property
+    def latitude(self):
+        """استخراج عرض جغرافیایی"""
+        if self.location:
+            point = to_shape(self.location)
+            return point.y
+        return None
+    
+    @property
+    def longitude(self):
+        """استخراج طول جغرافیایی"""
+        if self.location:
+            point = to_shape(self.location)
+            return point.x
+        return None
+    
+    @classmethod
+    def create_from_coords(cls, name, lat, lon, **kwargs):
+        """ایجاد فروشگاه از مختصات"""
+        point = Point(lon, lat)
+        return cls(
+            name=name,
+            location=from_shape(point, srid=4326),
+            **kwargs
+        )
+    
+    def to_geojson(self):
+        """تبدیل به GeoJSON Feature"""
+        if self.location:
+            point = to_shape(self.location)
+            return {
+                "type": "Feature",
+                "geometry": mapping(point),
+                "properties": {
+                    "id": self.id,
+                    "name": self.name,
+                    "address": self.address,
+                    "store_type": self.store_type
+                }
+            }
+        return None
+
+
+# ═══════════════════════════════════════════════════════════
+# مدل با Geography (برای محاسبات کروی)
+# ═══════════════════════════════════════════════════════════
+
+from geoalchemy2 import Geography
+
+class Airport(Base):
+    """فرودگاه با Geography برای محاسبات دقیق فاصله"""
+    __tablename__ = 'airports'
+    
+    id = Column(Integer, primary_key=True)
+    code = Column(String(10), unique=True)  # IATA code
+    name = Column(String(200))
+    city = Column(String(100))
+    country = Column(String(100))
+    
+    # استفاده از Geography به جای Geometry
+    # Geography محاسبات را روی سطح کره انجام می‌دهد
+    location = Column(
+        Geography(
+            geometry_type='POINT',
+            srid=4326,
+            spatial_index=True
+        )
+    )
+    
+    elevation_m = Column(Float)
+
+
+# ═══════════════════════════════════════════════════════════
+# مدل با SRID متفاوت
+# ═══════════════════════════════════════════════════════════
+
+class BuildingIran(Base):
+    """ساختمان با سیستم مختصات UTM Zone 39N (ایران)"""
+    __tablename__ = 'buildings_iran'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    building_type = Column(String(50))
+    floors = Column(Integer)
+    area_sqm = Column(Float)
+    
+    # SRID 32639 = UTM Zone 39N (مناسب برای ایران)
+    footprint = Column(
+        Geometry(
+            geometry_type='POLYGON',
+            srid=32639,
+            spatial_index=True
+        )
+    )
+    
+    # نقطه ورودی با WGS84
+    entrance = Column(
+        Geometry(
+            geometry_type='POINT',
+            srid=4326
+        )
+    )
+
+
+# ═══════════════════════════════════════════════════════════
+# مدل با Validation
+# ═══════════════════════════════════════════════════════════
+
+class ValidatedPolygon(Base):
+    """چندضلعی با اعتبارسنجی"""
+    __tablename__ = 'validated_polygons'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    
+    geom = Column(
+        Geometry(
+            geometry_type='POLYGON',
+            srid=4326,
+            from_text='ST_GeomFromText',
+            # اطمینان از valid بودن geometry
+        )
+    )
+
+# Event listener برای validation
+@event.listens_for(ValidatedPolygon, 'before_insert')
+@event.listens_for(ValidatedPolygon, 'before_update')
+def validate_geometry(mapper, connection, target):
+    """اعتبارسنجی geometry قبل از ذخیره"""
+    if target.geom:
+        shape = to_shape(target.geom)
+        if not shape.is_valid:
+            # تلاش برای تعمیر
+            fixed = shape.buffer(0)
+            target.geom = from_shape(fixed, srid=4326)</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 مدل‌ها با روابط</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>models/relationships.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy.orm import relationship
+from geoalchemy2 import Geometry
+
+from database import Base
+
+# ═══════════════════════════════════════════════════════════
+# رابطه One-to-Many
+# ═══════════════════════════════════════════════════════════
+
+class Province(Base):
+    """استان"""
+    __tablename__ = 'provinces'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    code = Column(String(10), unique=True)
+    
+    # محدوده استان
+    boundary = Column(Geometry(geometry_type='MULTIPOLYGON', srid=4326))
+    
+    # رابطه با شهرها
+    cities = relationship("CityInProvince", back_populates="province")
+
+
+class CityInProvince(Base):
+    """شهر در استان"""
+    __tablename__ = 'cities_in_provinces'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    population = Column(Integer)
+    
+    # کلید خارجی
+    province_id = Column(Integer, ForeignKey('provinces.id'))
+    
+    # موقعیت شهر
+    location = Column(Geometry(geometry_type='POINT', srid=4326))
+    
+    # رابطه با استان
+    province = relationship("Province", back_populates="cities")
+
+
+# ═══════════════════════════════════════════════════════════
+# رابطه Many-to-Many
+# ═══════════════════════════════════════════════════════════
+
+# جدول واسط
+route_stops = Table('route_stops',
+    Base.metadata,
+    Column('route_id', Integer, ForeignKey('bus_routes.id'), primary_key=True),
+    Column('stop_id', Integer, ForeignKey('bus_stops.id'), primary_key=True),
+    Column('stop_order', Integer)  # ترتیب ایستگاه در مسیر
+)
+
+
+class BusRoute(Base):
+    """مسیر اتوبوس"""
+    __tablename__ = 'bus_routes'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    route_number = Column(String(20))
+    
+    # مسیر حرکت
+    path = Column(Geometry(geometry_type='LINESTRING', srid=4326))
+    
+    # رابطه با ایستگاه‌ها
+    stops = relationship(
+        "BusStop",
+        secondary=route_stops,
+        back_populates="routes"
+    )
+
+
+class BusStop(Base):
+    """ایستگاه اتوبوس"""
+    __tablename__ = 'bus_stops'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    code = Column(String(20))
+    has_shelter = Column(Boolean, default=False)
+    
+    # موقعیت ایستگاه
+    location = Column(Geometry(geometry_type='POINT', srid=4326))
+    
+    # رابطه با مسیرها
+    routes = relationship(
+        "BusRoute",
+        secondary=route_stops,
+        back_populates="stops"
+    )
+
+
+# ═══════════════════════════════════════════════════════════
+# Self-Referential Relationship
+# ═══════════════════════════════════════════════════════════
+
+class AdminRegion(Base):
+    """منطقه اداری با سلسله مراتب"""
+    __tablename__ = 'admin_regions'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    level = Column(Integer)  # 1=کشور, 2=استان, 3=شهرستان, 4=بخش
+    code = Column(String(20))
+    
+    # رابطه سلسله مراتبی
+    parent_id = Column(Integer, ForeignKey('admin_regions.id'))
+    
+    # محدوده جغرافیایی
+    boundary = Column(Geometry(geometry_type='MULTIPOLYGON', srid=4326))
+    # مرکز
+    center = Column(Geometry(geometry_type='POINT', srid=4326))
+    
+    # روابط
+    parent = relationship("AdminRegion", remote_side=[id], backref="children")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Geometry Types -->
+        <section class="section" id="types">
+            <div class="section-header">
+                <div class="section-icon">📐</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">انواع داده‌های مکانی</h2>
+                    <p class="section-subtitle">Geometry و Geography Types</p>
+                </div>
+            </div>
+
+            <h3>🔷 انواع Geometry</h3>
+            <div class="geometry-grid">
+                <div class="geometry-card">
+                    <div class="geometry-header">
+                        <div class="geometry-icon">📍</div>
+                        <div class="geometry-name">Point</div>
+                    </div>
+                    <div class="geometry-body">
+                        <div class="geometry-example">POINT(51.4 35.7)</div>
+                        <div class="geometry-desc">یک نقطه در فضا - موقعیت فروشگاه، شهر، ایستگاه</div>
+                    </div>
+                </div>
+                
+                <div class="geometry-card">
+                    <div class="geometry-header">
+                        <div class="geometry-icon">📏</div>
+                        <div class="geometry-name">LineString</div>
+                    </div>
+                    <div class="geometry-body">
+                        <div class="geometry-example">LINESTRING(0 0, 1 1, 2 1)</div>
+                        <div class="geometry-desc">خط متصل از چند نقطه - جاده، رودخانه، مسیر</div>
+                    </div>
+                </div>
+                
+                <div class="geometry-card">
+                    <div class="geometry-header">
+                        <div class="geometry-icon">🔷</div>
+                        <div class="geometry-name">Polygon</div>
+                    </div>
+                    <div class="geometry-body">
+                        <div class="geometry-example">POLYGON((0 0, 4 0, 4 4, 0 4, 0 0))</div>
+                        <div class="geometry-desc">چندضلعی بسته - ساختمان، پارک، منطقه</div>
+                    </div>
+                </div>
+                
+                <div class="geometry-card">
+                    <div class="geometry-header">
+                        <div class="geometry-icon">📍📍</div>
+                        <div class="geometry-name">MultiPoint</div>
+                    </div>
+                    <div class="geometry-body">
+                        <div class="geometry-example">MULTIPOINT((0 0), (1 1))</div>
+                        <div class="geometry-desc">مجموعه‌ای از نقاط - شعب یک فروشگاه</div>
+                    </div>
+                </div>
+                
+                <div class="geometry-card">
+                    <div class="geometry-header">
+                        <div class="geometry-icon">📏📏</div>
+                        <div class="geometry-name">MultiLineString</div>
+                    </div>
+                    <div class="geometry-body">
+                        <div class="geometry-example">MULTILINESTRING((0 0, 1 1), (2 2, 3 3))</div>
+                        <div class="geometry-desc">چند خط مجزا - شبکه جاده‌ای</div>
+                    </div>
+                </div>
+                
+                <div class="geometry-card">
+                    <div class="geometry-header">
+                        <div class="geometry-icon">🔷🔷</div>
+                        <div class="geometry-name">MultiPolygon</div>
+                    </div>
+                    <div class="geometry-body">
+                        <div class="geometry-example">MULTIPOLYGON(((0 0, ...)), ((10 10, ...)))</div>
+                        <div class="geometry-desc">چند چندضلعی - کشور با جزایر</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🌍 Geometry vs Geography</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>geometry_vs_geography.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import Column, Integer, String
+from geoalchemy2 import Geometry, Geography
+
+from database import Base
+
+# ═══════════════════════════════════════════════════════════
+# Geometry: محاسبات در صفحه مسطح (Cartesian)
+# ═══════════════════════════════════════════════════════════
+
+class PlaceGeometry(Base):
+    """استفاده از Geometry"""
+    __tablename__ = 'places_geometry'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    
+    # Geometry - واحد: درجه (برای SRID 4326)
+    # محاسبات فاصله در صفحه مسطح
+    location = Column(Geometry(geometry_type='POINT', srid=4326))
+
+
+# ═══════════════════════════════════════════════════════════
+# Geography: محاسبات روی سطح کره (Spherical)
+# ═══════════════════════════════════════════════════════════
+
+class PlaceGeography(Base):
+    """استفاده از Geography"""
+    __tablename__ = 'places_geography'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    
+    # Geography - واحد: متر
+    # محاسبات فاصله روی سطح کره زمین
+    location = Column(Geography(geometry_type='POINT', srid=4326))
+
+
+# ═══════════════════════════════════════════════════════════
+# مقایسه در عمل
+# ═══════════════════════════════════════════════════════════
+
+"""
+تفاوت‌های کلیدی:
+
+1. واحد اندازه‌گیری:
+   - Geometry: واحد SRID (درجه برای 4326)
+   - Geography: همیشه متر
+
+2. دقت:
+   - Geometry: برای مناطق کوچک دقیق‌تر
+   - Geography: برای فواصل بزرگ دقیق‌تر
+
+3. سرعت:
+   - Geometry: سریع‌تر
+   - Geography: کندتر (محاسبات پیچیده‌تر)
+
+4. توابع:
+   - Geometry: همه توابع ST_*
+   - Geography: زیرمجموعه‌ای از توابع
+
+5. ایندکس:
+   - Geometry: GiST (سریع‌تر)
+   - Geography: GiST (کمی کندتر)
+"""
+
+# مثال عملی
+from sqlalchemy import create_engine, func, select
+from sqlalchemy.orm import Session
+
+def compare_distance():
+    """مقایسه محاسبه فاصله"""
+    engine = create_engine("postgresql://user:pass@localhost/geodb")
+    
+    with Session(engine) as session:
+        # فاصله با Geometry (درجه)
+        geom_distance = session.execute(
+            select(func.ST_Distance(
+                func.ST_GeomFromText('POINT(51.4 35.7)', 4326),
+                func.ST_GeomFromText('POINT(51.5 35.8)', 4326)
+            ))
+        ).scalar()
+        print(f"Geometry distance: {geom_distance} degrees")
+        
+        # فاصله با Geography (متر)
+        geog_distance = session.execute(
+            select(func.ST_Distance(
+                func.ST_GeogFromText('POINT(51.4 35.7)'),
+                func.ST_GeogFromText('POINT(51.5 35.8)')
+            ))
+        ).scalar()
+        print(f"Geography distance: {geog_distance} meters")
+        
+        # تبدیل Geometry به متر با ST_DistanceSphere
+        sphere_distance = session.execute(
+            select(func.ST_DistanceSphere(
+                func.ST_GeomFromText('POINT(51.4 35.7)', 4326),
+                func.ST_GeomFromText('POINT(51.5 35.8)', 4326)
+            ))
+        ).scalar()
+        print(f"Sphere distance: {sphere_distance} meters")</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 تبدیل فرمت‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>format_conversion.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from geoalchemy2 import Geometry, WKTElement, WKBElement
+from geoalchemy2.shape import to_shape, from_shape
+from shapely.geometry import Point, LineString, Polygon, mapping, shape
+from shapely import wkt, wkb
+import json
+
+# ═══════════════════════════════════════════════════════════
+# WKT (Well-Known Text)
+# ═══════════════════════════════════════════════════════════
+
+# از WKT به Shapely
+wkt_string = "POINT(51.4 35.7)"
+point = wkt.loads(wkt_string)
+print(f"Shapely Point: {point}")
+
+# از Shapely به WKT
+point = Point(51.4, 35.7)
+wkt_string = point.wkt
+print(f"WKT: {wkt_string}")
+
+# استفاده در GeoAlchemy2
+from geoalchemy2 import WKTElement
+
+# ایجاد WKTElement برای insert
+wkt_elem = WKTElement("POINT(51.4 35.7)", srid=4326)
+
+
+# ═══════════════════════════════════════════════════════════
+# WKB (Well-Known Binary)
+# ═══════════════════════════════════════════════════════════
+
+# از Shapely به WKB
+point = Point(51.4, 35.7)
+wkb_bytes = point.wkb
+wkb_hex = point.wkb_hex
+print(f"WKB Hex: {wkb_hex}")
+
+# از WKB به Shapely
+point_from_wkb = wkb.loads(wkb_bytes)
+
+
+# ═══════════════════════════════════════════════════════════
+# GeoJSON
+# ═══════════════════════════════════════════════════════════
+
+# از Shapely به GeoJSON
+point = Point(51.4, 35.7)
+geojson_dict = mapping(point)
+print(f"GeoJSON: {json.dumps(geojson_dict)}")
+
+# از GeoJSON به Shapely
+geojson = {"type": "Point", "coordinates": [51.4, 35.7]}
+point_from_geojson = shape(geojson)
+
+# GeoJSON Feature
+feature = {
+    "type": "Feature",
+    "geometry": mapping(point),
+    "properties": {
+        "name": "Tehran",
+        "population": 9000000
+    }
+}
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل در ORM
+# ═══════════════════════════════════════════════════════════
+
+from sqlalchemy.orm import Session
+from models import Location
+
+def create_location_from_wkt(session: Session, name: str, wkt_str: str):
+    """ایجاد Location از WKT"""
+    location = Location(
+        name=name,
+        geom=WKTElement(wkt_str, srid=4326)
+    )
+    session.add(location)
+    session.commit()
+    return location
+
+
+def create_location_from_shapely(session: Session, name: str, point: Point):
+    """ایجاد Location از Shapely"""
+    location = Location(
+        name=name,
+        geom=from_shape(point, srid=4326)
+    )
+    session.add(location)
+    session.commit()
+    return location
+
+
+def get_location_as_geojson(session: Session, location_id: int):
+    """دریافت Location به صورت GeoJSON"""
+    location = session.get(Location, location_id)
+    if location and location.geom:
+        shapely_geom = to_shape(location.geom)
+        return {
+            "type": "Feature",
+            "geometry": mapping(shapely_geom),
+            "properties": {
+                "id": location.id,
+                "name": location.name
+            }
+        }
+    return None
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل با توابع PostGIS
+# ═══════════════════════════════════════════════════════════
+
+from sqlalchemy import func, select
+
+def convert_with_postgis(session: Session):
+    """تبدیل با توابع PostGIS"""
+    
+    # WKT به Geometry
+    result = session.execute(
+        select(func.ST_GeomFromText('POINT(51.4 35.7)', 4326))
+    ).scalar()
+    
+    # Geometry به WKT
+    result = session.execute(
+        select(func.ST_AsText(Location.geom))
+    ).scalars().all()
+    
+    # Geometry به GeoJSON
+    result = session.execute(
+        select(func.ST_AsGeoJSON(Location.geom))
+    ).scalars().all()
+    
+    # GeoJSON به Geometry
+    geojson = '{"type":"Point","coordinates":[51.4,35.7]}'
+    result = session.execute(
+        select(func.ST_GeomFromGeoJSON(geojson))
+    ).scalar()
+    
+    # تبدیل SRID
+    result = session.execute(
+        select(func.ST_Transform(Location.geom, 32639))  # به UTM Zone 39N
+    ).scalars().all()
+    
+    return result</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box info">
+                <div class="info-icon">ℹ️</div>
+                <div class="info-content">
+                    <h4>SRID‌های پرکاربرد</h4>
+                    <ul>
+                        <li><strong>4326:</strong> WGS84 - استاندارد GPS (lat/lon)</li>
+                        <li><strong>3857:</strong> Web Mercator - نقشه‌های وب</li>
+                        <li><strong>32639:</strong> UTM Zone 39N - ایران (متر)</li>
+                        <li><strong>2154:</strong> Lambert-93 - فرانسه</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Queries -->
+        <section class="section" id="queries">
+            <div class="section-header">
+                <div class="section-icon">🔍</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">کوئری‌های مکانی</h2>
+                    <p class="section-subtitle">Spatial Queries با GeoAlchemy2</p>
+                </div>
+            </div>
+
+            <h3>📝 عملیات CRUD پایه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>crud_operations.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import create_engine, select, update, delete
+from sqlalchemy.orm import Session
+from geoalchemy2 import WKTElement
+from geoalchemy2.shape import from_shape, to_shape
+from shapely.geometry import Point, Polygon
+from models import Location, Park, Store
+
+engine = create_engine("postgresql://user:pass@localhost/geodb")
+
+# ═══════════════════════════════════════════════════════════
+# CREATE - ایجاد رکورد
+# ═══════════════════════════════════════════════════════════
+
+def create_location(name: str, lat: float, lon: float) -> Location:
+    """ایجاد مکان جدید"""
+    with Session(engine) as session:
+        # روش 1: با WKTElement
+        location = Location(
+            name=name,
+            geom=WKTElement(f'POINT({lon} {lat})', srid=4326)
+        )
+        
+        # روش 2: با Shapely
+        # location = Location(
+        #     name=name,
+        #     geom=from_shape(Point(lon, lat), srid=4326)
+        # )
+        
+        session.add(location)
+        session.commit()
+        session.refresh(location)
+        return location
+
+
+def create_park(name: str, coords: list) -> Park:
+    """ایجاد پارک با چندضلعی"""
+    with Session(engine) as session:
+        polygon = Polygon(coords)
+        park = Park(
+            name=name,
+            boundary=from_shape(polygon, srid=4326),
+            area_sqm=polygon.area * 111000 * 111000  # تخمین مساحت
+        )
+        session.add(park)
+        session.commit()
+        session.refresh(park)
+        return park
+
+
+def bulk_create_locations(locations_data: list):
+    """ایجاد چندین مکان به صورت دسته‌ای"""
+    with Session(engine) as session:
+        locations = [
+            Location(
+                name=data['name'],
+                geom=from_shape(Point(data['lon'], data['lat']), srid=4326)
+            )
+            for data in locations_data
+        ]
+        session.add_all(locations)
+        session.commit()
+
+
+# ═══════════════════════════════════════════════════════════
+# READ - خواندن رکورد
+# ═══════════════════════════════════════════════════════════
+
+def get_location_by_id(location_id: int) -> Location:
+    """دریافت مکان با ID"""
+    with Session(engine) as session:
+        return session.get(Location, location_id)
+
+
+def get_all_locations() -> list:
+    """دریافت همه مکان‌ها"""
+    with Session(engine) as session:
+        result = session.execute(select(Location))
+        return result.scalars().all()
+
+
+def get_location_with_coords(location_id: int) -> dict:
+    """دریافت مکان با مختصات"""
+    with Session(engine) as session:
+        location = session.get(Location, location_id)
+        if location:
+            point = to_shape(location.geom)
+            return {
+                'id': location.id,
+                'name': location.name,
+                'latitude': point.y,
+                'longitude': point.x
+            }
+        return None
+
+
+# ═══════════════════════════════════════════════════════════
+# UPDATE - بروزرسانی رکورد
+# ═══════════════════════════════════════════════════════════
+
+def update_location_position(location_id: int, lat: float, lon: float):
+    """بروزرسانی موقعیت مکان"""
+    with Session(engine) as session:
+        location = session.get(Location, location_id)
+        if location:
+            location.geom = from_shape(Point(lon, lat), srid=4326)
+            session.commit()
+
+
+def update_locations_bulk(updates: list):
+    """بروزرسانی دسته‌ای"""
+    with Session(engine) as session:
+        for upd in updates:
+            session.execute(
+                update(Location)
+                .where(Location.id == upd['id'])
+                .values(
+                    name=upd.get('name'),
+                    geom=from_shape(Point(upd['lon'], upd['lat']), srid=4326)
+                )
+            )
+        session.commit()
+
+
+# ═══════════════════════════════════════════════════════════
+# DELETE - حذف رکورد
+# ═══════════════════════════════════════════════════════════
+
+def delete_location(location_id: int):
+    """حذف مکان"""
+    with Session(engine) as session:
+        location = session.get(Location, location_id)
+        if location:
+            session.delete(location)
+            session.commit()
+
+
+def delete_locations_in_area(polygon_wkt: str):
+    """حذف مکان‌های درون یک محدوده"""
+    from sqlalchemy import func
+    
+    with Session(engine) as session:
+        polygon = func.ST_GeomFromText(polygon_wkt, 4326)
+        session.execute(
+            delete(Location)
+            .where(func.ST_Within(Location.geom, polygon))
+        )
+        session.commit()</code></pre>
+                </div>
+            </div>
+
+            <h3>📍 کوئری‌های فاصله</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>distance_queries.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select, and_
+from sqlalchemy.orm import Session
+from geoalchemy2 import WKTElement
+from models import Store, Location
+
+# ═══════════════════════════════════════════════════════════
+# جستجو در شعاع (Radius Search)
+# ═══════════════════════════════════════════════════════════
+
+def find_stores_within_radius(
+    session: Session,
+    lat: float,
+    lon: float,
+    radius_meters: float
+) -> list:
+    """پیدا کردن فروشگاه‌های نزدیک در شعاع مشخص"""
+    
+    # نقطه مرجع
+    point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+    
+    # ST_DWithin برای Geography (متر)
+    # یا ST_Distance برای Geometry
+    query = select(Store).where(
+        func.ST_DWithin(
+            func.ST_Transform(Store.location, 4326)::func.geography,
+            point::func.geography,
+            radius_meters
+        )
+    )
+    
+    result = session.execute(query)
+    return result.scalars().all()
+
+
+def find_stores_within_radius_simple(
+    session: Session,
+    lat: float,
+    lon: float,
+    radius_meters: float
+) -> list:
+    """روش ساده‌تر با ST_DistanceSphere"""
+    
+    point = func.ST_GeomFromText(f'POINT({lon} {lat})', 4326)
+    
+    query = select(Store).where(
+        func.ST_DistanceSphere(Store.location, point) <= radius_meters
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+# ═══════════════════════════════════════════════════════════
+# نزدیک‌ترین مکان‌ها (K-Nearest Neighbors)
+# ═══════════════════════════════════════════════════════════
+
+def find_nearest_stores(
+    session: Session,
+    lat: float,
+    lon: float,
+    limit: int = 5
+) -> list:
+    """پیدا کردن نزدیک‌ترین فروشگاه‌ها"""
+    
+    point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+    
+    # استفاده از <-> برای KNN با ایندکس GiST
+    query = (
+        select(
+            Store,
+            func.ST_DistanceSphere(Store.location, point).label('distance')
+        )
+        .order_by(Store.location.distance_centroid(point))  # KNN operator
+        .limit(limit)
+    )
+    
+    result = session.execute(query)
+    return [(row.Store, row.distance) for row in result]
+
+
+def find_nearest_with_distance(
+    session: Session,
+    lat: float,
+    lon: float,
+    limit: int = 10
+) -> list:
+    """نزدیک‌ترین با فاصله به متر"""
+    
+    point = func.ST_GeomFromText(f'POINT({lon} {lat})', 4326)
+    
+    distance_expr = func.ST_DistanceSphere(Store.location, point)
+    
+    query = (
+        select(Store, distance_expr.label('distance_m'))
+        .order_by(distance_expr)
+        .limit(limit)
+    )
+    
+    result = session.execute(query)
+    return [
+        {
+            'store': row.Store,
+            'distance_m': row.distance_m,
+            'distance_km': row.distance_m / 1000
+        }
+        for row in result
+    ]
+
+
+# ═══════════════════════════════════════════════════════════
+# فاصله بین دو نقطه
+# ═══════════════════════════════════════════════════════════
+
+def calculate_distance_between_stores(
+    session: Session,
+    store1_id: int,
+    store2_id: int
+) -> float:
+    """محاسبه فاصله بین دو فروشگاه"""
+    
+    store1 = session.get(Store, store1_id)
+    store2 = session.get(Store, store2_id)
+    
+    if store1 and store2:
+        result = session.execute(
+            select(func.ST_DistanceSphere(store1.location, store2.location))
+        )
+        return result.scalar()
+    return None
+
+
+def get_distance_matrix(session: Session, store_ids: list) -> dict:
+    """ماتریس فاصله بین چند فروشگاه"""
+    
+    stores = session.execute(
+        select(Store).where(Store.id.in_(store_ids))
+    ).scalars().all()
+    
+    matrix = {}
+    for s1 in stores:
+        matrix[s1.id] = {}
+        for s2 in stores:
+            if s1.id != s2.id:
+                distance = session.execute(
+                    select(func.ST_DistanceSphere(s1.location, s2.location))
+                ).scalar()
+                matrix[s1.id][s2.id] = distance
+            else:
+                matrix[s1.id][s2.id] = 0
+    
+    return matrix</code></pre>
+                </div>
+            </div>
+
+            <h3>🔷 کوئری‌های محدوده (Bounding Box & Within)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_queries.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select, and_, or_
+from sqlalchemy.orm import Session
+from geoalchemy2 import WKTElement
+from shapely.geometry import box, Polygon
+from geoalchemy2.shape import from_shape
+from models import Store, Park, District
+
+# ═══════════════════════════════════════════════════════════
+# Bounding Box Query
+# ═══════════════════════════════════════════════════════════
+
+def find_stores_in_bbox(
+    session: Session,
+    min_lon: float,
+    min_lat: float,
+    max_lon: float,
+    max_lat: float
+) -> list:
+    """پیدا کردن فروشگاه‌ها در یک مستطیل"""
+    
+    # روش 1: با ST_MakeEnvelope
+    bbox = func.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326)
+    
+    query = select(Store).where(
+        func.ST_Within(Store.location, bbox)
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+def find_stores_in_bbox_optimized(
+    session: Session,
+    min_lon: float,
+    min_lat: float,
+    max_lon: float,
+    max_lat: float
+) -> list:
+    """جستجوی بهینه با && operator"""
+    
+    # && از ایندکس GiST استفاده می‌کند
+    bbox = func.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326)
+    
+    query = select(Store).where(
+        Store.location.intersects(bbox)  # معادل &&
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+# ═══════════════════════════════════════════════════════════
+# Within Polygon Query
+# ═══════════════════════════════════════════════════════════
+
+def find_stores_in_district(
+    session: Session,
+    district_id: int
+) -> list:
+    """پیدا کردن فروشگاه‌های درون یک منطقه"""
+    
+    district = session.get(District, district_id)
+    if not district:
+        return []
+    
+    query = select(Store).where(
+        func.ST_Within(Store.location, district.boundary)
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+def find_stores_in_polygon(
+    session: Session,
+    polygon_coords: list
+) -> list:
+    """پیدا کردن فروشگاه‌ها در چندضلعی دلخواه"""
+    
+    polygon = Polygon(polygon_coords)
+    polygon_geom = from_shape(polygon, srid=4326)
+    
+    query = select(Store).where(
+        func.ST_Within(Store.location, polygon_geom)
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+# ═══════════════════════════════════════════════════════════
+# Intersection Queries
+# ═══════════════════════════════════════════════════════════
+
+def find_parks_intersecting_district(
+    session: Session,
+    district_id: int
+) -> list:
+    """پارک‌هایی که با منطقه تقاطع دارند"""
+    
+    district = session.get(District, district_id)
+    if not district:
+        return []
+    
+    query = select(Park).where(
+        func.ST_Intersects(Park.boundary, district.boundary)
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+def find_overlapping_parks(session: Session) -> list:
+    """پیدا کردن پارک‌های همپوشان"""
+    
+    from sqlalchemy.orm import aliased
+    
+    Park2 = aliased(Park)
+    
+    query = (
+        select(Park, Park2)
+        .where(
+            and_(
+                Park.id < Park2.id,  # جلوگیری از تکرار
+                func.ST_Overlaps(Park.boundary, Park2.boundary)
+            )
+        )
+    )
+    
+    result = session.execute(query)
+    return [(row[0], row[1]) for row in result]
+
+
+# ═══════════════════════════════════════════════════════════
+# Contains & Covers
+# ═══════════════════════════════════════════════════════════
+
+def find_district_containing_point(
+    session: Session,
+    lat: float,
+    lon: float
+) -> District:
+    """پیدا کردن منطقه‌ای که نقطه در آن است"""
+    
+    point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+    
+    query = select(District).where(
+        func.ST_Contains(District.boundary, point)
+    )
+    
+    return session.execute(query).scalar()
+
+
+def find_parks_fully_within_district(
+    session: Session,
+    district_id: int
+) -> list:
+    """پارک‌هایی که کاملاً درون منطقه هستند"""
+    
+    district = session.get(District, district_id)
+    if not district:
+        return []
+    
+    query = select(Park).where(
+        func.ST_Within(Park.boundary, district.boundary)
+    )
+    
+    return session.execute(query).scalars().all()</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 کوئری‌های تجمیعی (Aggregate)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>aggregate_queries.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select, and_
+from sqlalchemy.orm import Session
+from models import Store, Park, District, Location
+
+# ═══════════════════════════════════════════════════════════
+# شمارش و آمار
+# ═══════════════════════════════════════════════════════════
+
+def count_stores_per_district(session: Session) -> list:
+    """تعداد فروشگاه در هر منطقه"""
+    
+    query = (
+        select(
+            District.name,
+            func.count(Store.id).label('store_count')
+        )
+        .join(Store, func.ST_Within(Store.location, District.boundary))
+        .group_by(District.id, District.name)
+        .order_by(func.count(Store.id).desc())
+    )
+    
+    return session.execute(query).all()
+
+
+def get_district_statistics(session: Session, district_id: int) -> dict:
+    """آمار کامل یک منطقه"""
+    
+    district = session.get(District, district_id)
+    if not district:
+        return {}
+    
+    # تعداد فروشگاه‌ها
+    store_count = session.execute(
+        select(func.count(Store.id))
+        .where(func.ST_Within(Store.location, district.boundary))
+    ).scalar()
+    
+    # تعداد پارک‌ها
+    park_count = session.execute(
+        select(func.count(Park.id))
+        .where(func.ST_Intersects(Park.boundary, district.boundary))
+    ).scalar()
+    
+    # مساحت کل پارک‌ها
+    total_park_area = session.execute(
+        select(func.sum(
+            func.ST_Area(
+                func.ST_Intersection(Park.boundary, district.boundary)::func.geography
+            )
+        ))
+        .where(func.ST_Intersects(Park.boundary, district.boundary))
+    ).scalar() or 0
+    
+    return {
+        'district_name': district.name,
+        'store_count': store_count,
+        'park_count': park_count,
+        'total_park_area_sqm': total_park_area
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# Centroid و Extent
+# ═══════════════════════════════════════════════════════════
+
+def get_stores_centroid(session: Session) -> dict:
+    """مرکز هندسی همه فروشگاه‌ها"""
+    
+    result = session.execute(
+        select(
+            func.ST_AsText(func.ST_Centroid(func.ST_Collect(Store.location)))
+        )
+    ).scalar()
+    
+    return {'centroid_wkt': result}
+
+
+def get_stores_extent(session: Session) -> dict:
+    """محدوده کلی فروشگاه‌ها"""
+    
+    result = session.execute(
+        select(func.ST_Extent(Store.location))
+    ).scalar()
+    
+    # نتیجه: BOX(min_x min_y, max_x max_y)
+    return {'extent': str(result)}
+
+
+def get_extent_per_district(session: Session) -> list:
+    """محدوده فروشگاه‌ها در هر منطقه"""
+    
+    query = (
+        select(
+            District.name,
+            func.ST_Extent(Store.location).label('extent'),
+            func.count(Store.id).label('count')
+        )
+        .join(Store, func.ST_Within(Store.location, District.boundary))
+        .group_by(District.id, District.name)
+    )
+    
+    return session.execute(query).all()
+
+
+# ═══════════════════════════════════════════════════════════
+# Union و Collect
+# ═══════════════════════════════════════════════════════════
+
+def merge_all_parks(session: Session):
+    """ادغام همه پارک‌ها در یک Geometry"""
+    
+    result = session.execute(
+        select(func.ST_Union(Park.boundary))
+    ).scalar()
+    
+    return result
+
+
+def collect_district_boundaries(session: Session, district_ids: list):
+    """جمع‌آوری محدوده‌های چند منطقه"""
+    
+    result = session.execute(
+        select(func.ST_Collect(District.boundary))
+        .where(District.id.in_(district_ids))
+    ).scalar()
+    
+    return result
+
+
+# ═══════════════════════════════════════════════════════════
+# Buffer و Convex Hull
+# ═══════════════════════════════════════════════════════════
+
+def get_stores_convex_hull(session: Session) -> str:
+    """پوسته محدب همه فروشگاه‌ها"""
+    
+    result = session.execute(
+        select(func.ST_AsText(
+            func.ST_ConvexHull(func.ST_Collect(Store.location))
+        ))
+    ).scalar()
+    
+    return result
+
+
+def create_service_area(session: Session, store_id: int, radius_m: float):
+    """ایجاد منطقه سرویس‌دهی فروشگاه"""
+    
+    store = session.get(Store, store_id)
+    if not store:
+        return None
+    
+    # Buffer روی Geography برای نتیجه به متر
+    result = session.execute(
+        select(func.ST_AsText(
+            func.ST_Buffer(
+                store.location::func.geography,
+                radius_m
+            )::func.geometry
+        ))
+    ).scalar()
+    
+    return result</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Spatial Functions -->
+        <section class="section" id="functions">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">توابع مکانی PostGIS</h2>
+                    <p class="section-subtitle">ST_* Functions در GeoAlchemy2</p>
+                </div>
+            </div>
+
+            <h3>📏 توابع اندازه‌گیری</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>measurement_functions.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+from models import Park, Road, District
+
+# ═══════════════════════════════════════════════════════════
+# مساحت (Area)
+# ═══════════════════════════════════════════════════════════
+
+def calculate_park_area(session: Session, park_id: int) -> dict:
+    """محاسبه مساحت پارک"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return {}
+    
+    # مساحت با Geometry (واحد SRID - درجه مربع برای 4326)
+    area_degrees = session.execute(
+        select(func.ST_Area(park.boundary))
+    ).scalar()
+    
+    # مساحت با Geography (متر مربع)
+    area_sqm = session.execute(
+        select(func.ST_Area(park.boundary::func.geography))
+    ).scalar()
+    
+    # مساحت با تبدیل به UTM
+    area_utm = session.execute(
+        select(func.ST_Area(func.ST_Transform(park.boundary, 32639)))
+    ).scalar()
+    
+    return {
+        'area_degrees': area_degrees,
+        'area_sqm': area_sqm,
+        'area_hectares': area_sqm / 10000 if area_sqm else 0,
+        'area_sqkm': area_sqm / 1000000 if area_sqm else 0
+    }
+
+
+def get_all_parks_with_area(session: Session) -> list:
+    """همه پارک‌ها با مساحت"""
+    
+    query = select(
+        Park.id,
+        Park.name,
+        func.ST_Area(Park.boundary::func.geography).label('area_sqm')
+    ).order_by(func.ST_Area(Park.boundary::func.geography).desc())
+    
+    return session.execute(query).all()
+
+
+# ═══════════════════════════════════════════════════════════
+# طول (Length)
+# ═══════════════════════════════════════════════════════════
+
+def calculate_road_length(session: Session, road_id: int) -> dict:
+    """محاسبه طول جاده"""
+    
+    road = session.get(Road, road_id)
+    if not road:
+        return {}
+    
+    # طول با Geography (متر)
+    length_m = session.execute(
+        select(func.ST_Length(road.path::func.geography))
+    ).scalar()
+    
+    return {
+        'length_m': length_m,
+        'length_km': length_m / 1000 if length_m else 0
+    }
+
+
+def get_total_road_length_in_district(
+    session: Session,
+    district_id: int
+) -> float:
+    """مجموع طول جاده‌ها در یک منطقه"""
+    
+    district = session.get(District, district_id)
+    if not district:
+        return 0
+    
+    result = session.execute(
+        select(func.sum(
+            func.ST_Length(
+                func.ST_Intersection(Road.path, district.boundary)::func.geography
+            )
+        ))
+        .where(func.ST_Intersects(Road.path, district.boundary))
+    ).scalar()
+    
+    return result or 0
+
+
+# ═══════════════════════════════════════════════════════════
+# محیط (Perimeter)
+# ═══════════════════════════════════════════════════════════
+
+def calculate_park_perimeter(session: Session, park_id: int) -> dict:
+    """محاسبه محیط پارک"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return {}
+    
+    perimeter_m = session.execute(
+        select(func.ST_Perimeter(park.boundary::func.geography))
+    ).scalar()
+    
+    return {
+        'perimeter_m': perimeter_m,
+        'perimeter_km': perimeter_m / 1000 if perimeter_m else 0
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# فاصله (Distance)
+# ═══════════════════════════════════════════════════════════
+
+def distance_functions_demo(session: Session):
+    """نمایش توابع مختلف فاصله"""
+    
+    point1 = func.ST_GeomFromText('POINT(51.4 35.7)', 4326)
+    point2 = func.ST_GeomFromText('POINT(51.5 35.8)', 4326)
+    
+    # ST_Distance: فاصله اقلیدسی (برای Geometry)
+    euclidean = session.execute(
+        select(func.ST_Distance(point1, point2))
+    ).scalar()
+    
+    # ST_DistanceSphere: فاصله کروی (متر)
+    sphere = session.execute(
+        select(func.ST_DistanceSphere(point1, point2))
+    ).scalar()
+    
+    # ST_DistanceSpheroid: فاصله بیضوی دقیق (متر)
+    spheroid = session.execute(
+        select(func.ST_DistanceSpheroid(
+            point1, point2,
+            'SPHEROID["WGS 84",6378137,298.257223563]'
+        ))
+    ).scalar()
+    
+    # ST_Distance با Geography
+    geography_dist = session.execute(
+        select(func.ST_Distance(
+            point1::func.geography,
+            point2::func.geography
+        ))
+    ).scalar()
+    
+    return {
+        'euclidean_degrees': euclidean,
+        'sphere_meters': sphere,
+        'spheroid_meters': spheroid,
+        'geography_meters': geography_dist
+    }</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 توابع تبدیل و ساخت</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>construction_functions.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select
+from sqlalchemy.orm import Session
+from models import Store, Park, Road
+
+# ═══════════════════════════════════════════════════════════
+# Buffer - ایجاد حریم
+# ═══════════════════════════════════════════════════════════
+
+def create_buffer_around_store(
+    session: Session,
+    store_id: int,
+    radius_m: float
+) -> str:
+    """ایجاد Buffer دور فروشگاه"""
+    
+    store = session.get(Store, store_id)
+    if not store:
+        return None
+    
+    # Buffer با Geography (متر)
+    buffer_geom = session.execute(
+        select(func.ST_AsText(
+            func.ST_Buffer(
+                store.location::func.geography,
+                radius_m
+            )
+        ))
+    ).scalar()
+    
+    return buffer_geom
+
+
+def create_road_corridor(
+    session: Session,
+    road_id: int,
+    width_m: float
+) -> str:
+    """ایجاد کریدور جاده"""
+    
+    road = session.get(Road, road_id)
+    if not road:
+        return None
+    
+    # Buffer دوطرفه
+    corridor = session.execute(
+        select(func.ST_AsGeoJSON(
+            func.ST_Buffer(
+                road.path::func.geography,
+                width_m / 2,  # نصف عرض از هر طرف
+                'endcap=round join=round'
+            )
+        ))
+    ).scalar()
+    
+    return corridor
+
+
+# ═══════════════════════════════════════════════════════════
+# Centroid و Point on Surface
+# ═══════════════════════════════════════════════════════════
+
+def get_park_center_points(session: Session, park_id: int) -> dict:
+    """نقاط مرکزی پارک"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return {}
+    
+    # Centroid: مرکز هندسی (ممکن است خارج از چندضلعی باشد)
+    centroid = session.execute(
+        select(func.ST_AsText(func.ST_Centroid(park.boundary)))
+    ).scalar()
+    
+    # Point on Surface: نقطه‌ای که حتماً روی سطح است
+    point_on_surface = session.execute(
+        select(func.ST_AsText(func.ST_PointOnSurface(park.boundary)))
+    ).scalar()
+    
+    return {
+        'centroid': centroid,
+        'point_on_surface': point_on_surface
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# Envelope و Convex Hull
+# ═══════════════════════════════════════════════════════════
+
+def get_park_bounding_shapes(session: Session, park_id: int) -> dict:
+    """اشکال محدودکننده پارک"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return {}
+    
+    # Envelope: مستطیل محیطی (Bounding Box)
+    envelope = session.execute(
+        select(func.ST_AsText(func.ST_Envelope(park.boundary)))
+    ).scalar()
+    
+    # Convex Hull: پوسته محدب
+    convex_hull = session.execute(
+        select(func.ST_AsText(func.ST_ConvexHull(park.boundary)))
+    ).scalar()
+    
+    # Minimum Bounding Circle
+    min_circle = session.execute(
+        select(func.ST_AsText(func.ST_MinimumBoundingCircle(park.boundary)))
+    ).scalar()
+    
+    return {
+        'envelope': envelope,
+        'convex_hull': convex_hull,
+        'minimum_bounding_circle': min_circle
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# Simplify - ساده‌سازی
+# ═══════════════════════════════════════════════════════════
+
+def simplify_park_boundary(
+    session: Session,
+    park_id: int,
+    tolerance: float = 0.0001
+) -> dict:
+    """ساده‌سازی مرز پارک"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return {}
+    
+    # تعداد نقاط اصلی
+    original_points = session.execute(
+        select(func.ST_NPoints(park.boundary))
+    ).scalar()
+    
+    # ساده‌سازی با Douglas-Peucker
+    simplified = session.execute(
+        select(func.ST_Simplify(park.boundary, tolerance))
+    ).scalar()
+    
+    simplified_points = session.execute(
+        select(func.ST_NPoints(func.ST_Simplify(park.boundary, tolerance)))
+    ).scalar()
+    
+    # ساده‌سازی با حفظ توپولوژی
+    simplified_preserve = session.execute(
+        select(func.ST_SimplifyPreserveTopology(park.boundary, tolerance))
+    ).scalar()
+    
+    return {
+        'original_points': original_points,
+        'simplified_points': simplified_points,
+        'reduction_percent': (1 - simplified_points/original_points) * 100
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# Union, Intersection, Difference
+# ═══════════════════════════════════════════════════════════
+
+def spatial_operations_demo(session: Session, park1_id: int, park2_id: int):
+    """عملیات مکانی بین دو پارک"""
+    
+    park1 = session.get(Park, park1_id)
+    park2 = session.get(Park, park2_id)
+    
+    if not park1 or not park2:
+        return {}
+    
+    # Union: اجتماع
+    union_geom = session.execute(
+        select(func.ST_AsText(func.ST_Union(park1.boundary, park2.boundary)))
+    ).scalar()
+    
+    # Intersection: اشتراک
+    intersection_geom = session.execute(
+        select(func.ST_AsText(func.ST_Intersection(park1.boundary, park2.boundary)))
+    ).scalar()
+    
+    # Difference: تفاضل (park1 - park2)
+    difference_geom = session.execute(
+        select(func.ST_AsText(func.ST_Difference(park1.boundary, park2.boundary)))
+    ).scalar()
+    
+    # Symmetric Difference: تفاضل متقارن
+    sym_diff_geom = session.execute(
+        select(func.ST_AsText(func.ST_SymDifference(park1.boundary, park2.boundary)))
+    ).scalar()
+    
+    return {
+        'union': union_geom,
+        'intersection': intersection_geom,
+        'difference': difference_geom,
+        'symmetric_difference': sym_diff_geom
+    }</code></pre>
+                </div>
+            </div>
+
+            <h3>✅ توابع اعتبارسنجی وتحلیل</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>validation_functions.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select, and_
+from sqlalchemy.orm import Session
+from models import Park, District, Road
+
+# ═══════════════════════════════════════════════════════════
+# اعتبارسنجی Geometry
+# ═══════════════════════════════════════════════════════════
+
+def validate_geometry(session: Session, park_id: int) -> dict:
+    """بررسی اعتبار هندسه پارک"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return {}
+    
+    # آیا معتبر است؟
+    is_valid = session.execute(
+        select(func.ST_IsValid(park.boundary))
+    ).scalar()
+    
+    # آیا ساده است؟ (بدون خودتقاطع)
+    is_simple = session.execute(
+        select(func.ST_IsSimple(park.boundary))
+    ).scalar()
+    
+    # آیا بسته است؟
+    is_closed = session.execute(
+        select(func.ST_IsClosed(park.boundary))
+    ).scalar()
+    
+    # دلیل نامعتبر بودن
+    validity_reason = None
+    if not is_valid:
+        validity_reason = session.execute(
+            select(func.ST_IsValidReason(park.boundary))
+        ).scalar()
+    
+    return {
+        'is_valid': is_valid,
+        'is_simple': is_simple,
+        'is_closed': is_closed,
+        'validity_reason': validity_reason
+    }
+
+
+def fix_invalid_geometry(session: Session, park_id: int):
+    """تعمیر هندسه نامعتبر"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return None
+    
+    # روش 1: ST_MakeValid
+    fixed = session.execute(
+        select(func.ST_MakeValid(park.boundary))
+    ).scalar()
+    
+    # روش 2: Buffer(0) - روش قدیمی
+    fixed_buffer = session.execute(
+        select(func.ST_Buffer(park.boundary, 0))
+    ).scalar()
+    
+    return fixed
+
+
+def find_invalid_geometries(session: Session) -> list:
+    """پیدا کردن هندسه‌های نامعتبر"""
+    
+    query = select(
+        Park.id,
+        Park.name,
+        func.ST_IsValidReason(Park.boundary).label('reason')
+    ).where(
+        func.ST_IsValid(Park.boundary) == False
+    )
+    
+    return session.execute(query).all()
+
+
+# ═══════════════════════════════════════════════════════════
+# تحلیل هندسی
+# ═══════════════════════════════════════════════════════════
+
+def analyze_geometry(session: Session, park_id: int) -> dict:
+    """تحلیل کامل هندسه"""
+    
+    park = session.get(Park, park_id)
+    if not park:
+        return {}
+    
+    # نوع هندسه
+    geom_type = session.execute(
+        select(func.ST_GeometryType(park.boundary))
+    ).scalar()
+    
+    # بعد
+    dimension = session.execute(
+        select(func.ST_Dimension(park.boundary))
+    ).scalar()
+    
+    # تعداد نقاط
+    num_points = session.execute(
+        select(func.ST_NPoints(park.boundary))
+    ).scalar()
+    
+    # تعداد حلقه‌ها (برای Polygon)
+    num_rings = session.execute(
+        select(func.ST_NRings(park.boundary))
+    ).scalar()
+    
+    # SRID
+    srid = session.execute(
+        select(func.ST_SRID(park.boundary))
+    ).scalar()
+    
+    # محدوده مختصات
+    bounds = session.execute(
+        select(
+            func.ST_XMin(park.boundary).label('min_x'),
+            func.ST_YMin(park.boundary).label('min_y'),
+            func.ST_XMax(park.boundary).label('max_x'),
+            func.ST_YMax(park.boundary).label('max_y')
+        )
+    ).first()
+    
+    return {
+        'geometry_type': geom_type,
+        'dimension': dimension,
+        'num_points': num_points,
+        'num_rings': num_rings,
+        'srid': srid,
+        'bounds': {
+            'min_x': bounds.min_x,
+            'min_y': bounds.min_y,
+            'max_x': bounds.max_x,
+            'max_y': bounds.max_y
+        }
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# روابط توپولوژیکی
+# ═══════════════════════════════════════════════════════════
+
+def check_spatial_relationships(
+    session: Session,
+    park1_id: int,
+    park2_id: int
+) -> dict:
+    """بررسی روابط مکانی بین دو پارک"""
+    
+    park1 = session.get(Park, park1_id)
+    park2 = session.get(Park, park2_id)
+    
+    if not park1 or not park2:
+        return {}
+    
+    # Equals: برابری
+    equals = session.execute(
+        select(func.ST_Equals(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    # Disjoint: جدا بودن
+    disjoint = session.execute(
+        select(func.ST_Disjoint(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    # Intersects: تقاطع
+    intersects = session.execute(
+        select(func.ST_Intersects(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    # Touches: مماس بودن
+    touches = session.execute(
+        select(func.ST_Touches(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    # Overlaps: همپوشانی
+    overlaps = session.execute(
+        select(func.ST_Overlaps(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    # Contains: شامل بودن
+    contains = session.execute(
+        select(func.ST_Contains(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    # Within: داخل بودن
+    within = session.execute(
+        select(func.ST_Within(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    # Crosses: عبور کردن
+    crosses = session.execute(
+        select(func.ST_Crosses(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    return {
+        'equals': equals,
+        'disjoint': disjoint,
+        'intersects': intersects,
+        'touches': touches,
+        'overlaps': overlaps,
+        'contains': contains,
+        'within': within,
+        'crosses': crosses
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# DE-9IM Matrix
+# ═══════════════════════════════════════════════════════════
+
+def get_de9im_relationship(
+    session: Session,
+    park1_id: int,
+    park2_id: int
+) -> str:
+    """دریافت ماتریس DE-9IM"""
+    
+    park1 = session.get(Park, park1_id)
+    park2 = session.get(Park, park2_id)
+    
+    if not park1 or not park2:
+        return None
+    
+    # ST_Relate: ماتریس کامل روابط
+    matrix = session.execute(
+        select(func.ST_Relate(park1.boundary, park2.boundary))
+    ).scalar()
+    
+    return matrix
+
+
+def check_custom_relationship(
+    session: Session,
+    park1_id: int,
+    park2_id: int,
+    pattern: str
+) -> bool:
+    """بررسی رابطه سفارشی با الگوی DE-9IM"""
+    
+    park1 = session.get(Park, park1_id)
+    park2 = session.get(Park, park2_id)
+    
+    if not park1 or not park2:
+        return False
+    
+    # مثال الگوها:
+    # 'T*F**FFF*' = Contains
+    # 'T*****FF*' = Intersects
+    # 'FF*FF****' = Disjoint
+    
+    result = session.execute(
+        select(func.ST_Relate(park1.boundary, park2.boundary, pattern))
+    ).scalar()
+    
+    return result</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>توابع پرکاربرد PostGIS</h4>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>تابع</th>
+                                    <th>کاربرد</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>ST_Distance</code></td><td>محاسبه فاصله</td></tr>
+                                <tr><td><code>ST_DWithin</code></td><td>بررسی در شعاع</td></tr>
+                                <tr><td><code>ST_Within</code></td><td>داخل بودن</td></tr>
+                                <tr><td><code>ST_Contains</code></td><td>شامل بودن</td></tr>
+                                <tr><td><code>ST_Intersects</code></td><td>تقاطع داشتن</td></tr>
+                                <tr><td><code>ST_Buffer</code></td><td>ایجاد حریم</td></tr>
+                                <tr><td><code>ST_Union</code></td><td>اجتماع</td></tr>
+                                <tr><td><code>ST_Area</code></td><td>مساحت</td></tr>
+                                <tr><td><code>ST_Length</code></td><td>طول</td></tr>
+                                <tr><td><code>ST_Transform</code></td><td>تبدیل SRID</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Relationships -->
+        <section class="section" id="relationships">
+            <div class="section-header">
+                <div class="section-icon">🔗</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">روابط مکانی</h2>
+                    <p class="section-subtitle">Spatial Relationships در GeoAlchemy2</p>
+                </div>
+            </div>
+
+            <h3>🏗️ روابط ORM با Geometry</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_relationships.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import Column, Integer, String, ForeignKey, event
+from sqlalchemy.orm import relationship, Session
+from sqlalchemy import func, select
+from geoalchemy2 import Geometry
+from geoalchemy2.shape import to_shape, from_shape
+from shapely.geometry import Point
+
+from database import Base
+
+# ═══════════════════════════════════════════════════════════
+# مدل‌ها با روابط مکانی
+# ═══════════════════════════════════════════════════════════
+
+class Country(Base):
+    """کشور"""
+    __tablename__ = 'countries'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    iso_code = Column(String(3), unique=True)
+    
+    boundary = Column(Geometry('MULTIPOLYGON', srid=4326))
+    
+    # رابطه با استان‌ها
+    provinces = relationship("Province", back_populates="country")
+    
+    def get_cities_within(self, session):
+        """شهرهای داخل کشور"""
+        return session.execute(
+            select(City).where(
+                func.ST_Within(City.location, self.boundary)
+            )
+        ).scalars().all()
+
+
+class Province(Base):
+    """استان"""
+    __tablename__ = 'provinces'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    code = Column(String(10))
+    
+    country_id = Column(Integer, ForeignKey('countries.id'))
+    
+    boundary = Column(Geometry('MULTIPOLYGON', srid=4326))
+    
+    # روابط
+    country = relationship("Country", back_populates="provinces")
+    cities = relationship("City", back_populates="province")
+    
+    def get_area_sqkm(self, session):
+        """مساحت به کیلومتر مربع"""
+        result = session.execute(
+            select(func.ST_Area(self.boundary::func.geography) / 1000000)
+        ).scalar()
+        return result
+
+
+class City(Base):
+    """شهر"""
+    __tablename__ = 'cities'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    population = Column(Integer)
+    
+    province_id = Column(Integer, ForeignKey('provinces.id'))
+    
+    location = Column(Geometry('POINT', srid=4326))
+    boundary = Column(Geometry('POLYGON', srid=4326))  # محدوده شهر
+    
+    # روابط
+    province = relationship("Province", back_populates="cities")
+    pois = relationship("POI", back_populates="city")
+    
+    @property
+    def latitude(self):
+        if self.location:
+            return to_shape(self.location).y
+        return None
+    
+    @property
+    def longitude(self):
+        if self.location:
+            return to_shape(self.location).x
+        return None
+
+
+class POI(Base):
+    """نقطه علاقه‌مندی"""
+    __tablename__ = 'pois'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(200))
+    category = Column(String(50))
+    
+    city_id = Column(Integer, ForeignKey('cities.id'))
+    
+    location = Column(Geometry('POINT', srid=4326))
+    
+    # روابط
+    city = relationship("City", back_populates="pois")
+
+
+# ═══════════════════════════════════════════════════════════
+# تعیین خودکار رابطه مکانی
+# ═══════════════════════════════════════════════════════════
+
+@event.listens_for(City, 'before_insert')
+@event.listens_for(City, 'before_update')
+def auto_assign_province(mapper, connection, target):
+    """تعیین خودکار استان بر اساس موقعیت"""
+    if target.location and not target.province_id:
+        # پیدا کردن استانی که شهر در آن است
+        result = connection.execute(
+            select(Province.id).where(
+                func.ST_Within(target.location, Province.boundary)
+            )
+        ).first()
+        
+        if result:
+            target.province_id = result[0]
+
+
+@event.listens_for(POI, 'before_insert')
+@event.listens_for(POI, 'before_update')
+def auto_assign_city(mapper, connection, target):
+    """تعیین خودکار شهر بر اساس موقعیت"""
+    if target.location and not target.city_id:
+        result = connection.execute(
+            select(City.id).where(
+                func.ST_Within(target.location, City.boundary)
+            )
+        ).first()
+        
+        if result:
+            target.city_id = result[0]
+
+
+# ═══════════════════════════════════════════════════════════
+# کوئری‌های رابطه‌ای مکانی
+# ═══════════════════════════════════════════════════════════
+
+def get_province_with_most_cities(session: Session):
+    """استان با بیشترین شهر"""
+    
+    query = (
+        select(
+            Province,
+            func.count(City.id).label('city_count')
+        )
+        .join(City, func.ST_Within(City.location, Province.boundary))
+        .group_by(Province.id)
+        .order_by(func.count(City.id).desc())
+        .limit(1)
+    )
+    
+    return session.execute(query).first()
+
+
+def get_nearby_pois(session: Session, city_id: int, radius_km: float):
+    """POI های نزدیک شهر"""
+    
+    city = session.get(City, city_id)
+    if not city:
+        return []
+    
+    query = select(POI).where(
+        func.ST_DWithin(
+            POI.location::func.geography,
+            city.location::func.geography,
+            radius_km * 1000
+        )
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+def get_cities_in_country(session: Session, country_id: int):
+    """شهرهای داخل کشور (بدون نیاز به FK)"""
+    
+    country = session.get(Country, country_id)
+    if not country:
+        return []
+    
+    query = select(City).where(
+        func.ST_Within(City.location, country.boundary)
+    )
+    
+    return session.execute(query).scalars().all()
+
+
+def find_orphan_cities(session: Session):
+    """شهرهایی که در هیچ استانی نیستند"""
+    
+    query = (
+        select(City)
+        .where(
+            ~func.exists(
+                select(Province.id).where(
+                    func.ST_Within(City.location, Province.boundary)
+                )
+            )
+        )
+    )
+    
+    return session.execute(query).scalars().all()</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 Spatial Join</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_join.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select, and_
+from sqlalchemy.orm import Session
+from models import City, Province, District, Store, Park
+
+# ═══════════════════════════════════════════════════════════
+# Spatial Join - اتصال مکانی
+# ═══════════════════════════════════════════════════════════
+
+def spatial_join_cities_provinces(session: Session):
+    """اتصال شهرها به استان‌ها بر اساس موقعیت"""
+    
+    query = (
+        select(
+            City.name.label('city_name'),
+            City.population,
+            Province.name.label('province_name')
+        )
+        .join(Province, func.ST_Within(City.location, Province.boundary))
+        .order_by(Province.name, City.name)
+    )
+    
+    return session.execute(query).all()
+
+
+def spatial_join_stores_districts(session: Session):
+    """اتصال فروشگاه‌ها به مناطق"""
+    
+    query = (
+        select(
+            Store.id,
+            Store.name.label('store_name'),
+            District.name.label('district_name'),
+            District.id.label('district_id')
+        )
+        .join(District, func.ST_Within(Store.location, District.boundary))
+    )
+    
+    return session.execute(query).all()
+
+
+def left_spatial_join(session: Session):
+    """Left Join مکانی - همه فروشگاه‌ها حتی بدون منطقه"""
+    
+    query = (
+        select(
+            Store.id,
+            Store.name.label('store_name'),
+            District.name.label('district_name')
+        )
+        .outerjoin(District, func.ST_Within(Store.location, District.boundary))
+    )
+    
+    return session.execute(query).all()
+
+
+# ═══════════════════════════════════════════════════════════
+# آمار با Spatial Join
+# ═══════════════════════════════════════════════════════════
+
+def count_stores_per_district(session: Session):
+    """تعداد فروشگاه در هر منطقه"""
+    
+    query = (
+        select(
+            District.name,
+            func.count(Store.id).label('store_count')
+        )
+        .outerjoin(Store, func.ST_Within(Store.location, District.boundary))
+        .group_by(District.id, District.name)
+        .order_by(func.count(Store.id).desc())
+    )
+    
+    return session.execute(query).all()
+
+
+def calculate_park_area_per_district(session: Session):
+    """مساحت پارک در هر منطقه"""
+    
+    query = (
+        select(
+            District.name,
+            func.sum(
+                func.ST_Area(
+                    func.ST_Intersection(Park.boundary, District.boundary)::func.geography
+                )
+            ).label('total_park_area_sqm'),
+            func.count(Park.id).label('park_count')
+        )
+        .join(Park, func.ST_Intersects(Park.boundary, District.boundary))
+        .group_by(District.id, District.name)
+    )
+    
+    return session.execute(query).all()
+
+
+# ═══════════════════════════════════════════════════════════
+# Nearest Neighbor Join
+# ═══════════════════════════════════════════════════════════
+
+def find_nearest_park_for_each_store(session: Session):
+    """نزدیک‌ترین پارک برای هر فروشگاه"""
+    
+    from sqlalchemy.orm import aliased
+    from sqlalchemy import literal_column
+    
+    # استفاده از LATERAL join
+    # این روش در PostgreSQL بسیار کارآمد است
+    
+    query = """
+        SELECT 
+            s.id as store_id,
+            s.name as store_name,
+            p.id as park_id,
+            p.name as park_name,
+            ST_Distance(s.location::geography, p.boundary::geography) as distance_m
+        FROM stores s
+        CROSS JOIN LATERAL (
+            SELECT id, name, boundary
+            FROM parks
+            ORDER BY s.location <-> boundary
+            LIMIT 1
+        ) p
+    """
+    
+    from sqlalchemy import text
+    return session.execute(text(query)).all()
+
+
+def find_nearest_store_for_each_city(session: Session):
+    """نزدیک‌ترین فروشگاه برای هر شهر"""
+    
+    query = """
+        SELECT 
+            c.id as city_id,
+            c.name as city_name,
+            s.id as store_id,
+            s.name as store_name,
+            ST_DistanceSphere(c.location, s.location) as distance_m
+        FROM cities c
+        CROSS JOIN LATERAL (
+            SELECT id, name, location
+            FROM stores
+            ORDER BY c.location <-> location
+            LIMIT 1
+        ) s
+    """
+    
+    from sqlalchemy import text
+    return session.execute(text(query)).all()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Raster -->
+        <section class="section" id="raster">
+            <div class="section-header">
+                <div class="section-icon">🖼️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">کار با Raster</h2>
+                    <p class="section-subtitle">پشتیبانی از داده‌های رستری</p>
+                </div>
+            </div>
+
+            <h3>📦 تعریف مدل Raster</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>raster_models.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy.sql import func
+from geoalchemy2 import Raster, Geometry
+
+from database import Base
+
+# ═══════════════════════════════════════════════════════════
+# مدل‌های Raster
+# ═══════════════════════════════════════════════════════════
+
+class ElevationTile(Base):
+    """تایل ارتفاعی (DEM)"""
+    __tablename__ = 'elevation_tiles'
+    
+    id = Column(Integer, primary_key=True)
+    tile_name = Column(String(100))
+    
+    # ستون Raster
+    rast = Column(Raster)
+    
+    # محدوده (برای جستجوی سریع)
+    extent = Column(Geometry('POLYGON', srid=4326))
+    
+    # متادیتا
+    min_elevation = Column(Float)
+    max_elevation = Column(Float)
+    resolution_m = Column(Float)
+    
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class LandCoverTile(Base):
+    """تایل پوشش زمین"""
+    __tablename__ = 'landcover_tiles'
+    
+    id = Column(Integer, primary_key=True)
+    tile_name = Column(String(100))
+    year = Column(Integer)
+    
+    rast = Column(Raster)
+    extent = Column(Geometry('POLYGON', srid=4326))
+
+
+class SatelliteImage(Base):
+    """تصویر ماهواره‌ای"""
+    __tablename__ = 'satellite_images'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(200))
+    satellite = Column(String(50))  # Landsat, Sentinel, etc.
+    acquisition_date = Column(DateTime)
+    cloud_cover_percent = Column(Float)
+    
+    # چند باند
+    rast = Column(Raster)  # می‌تواند چندین باند داشته باشد
+    extent = Column(Geometry('POLYGON', srid=4326))
+
+
+# ═══════════════════════════════════════════════════════════
+# بارگذاری Raster
+# ═══════════════════════════════════════════════════════════
+
+"""
+برای بارگذاری فایل‌های Raster از raster2pgsql استفاده کنید:
+
+# بارگذاری یک فایل GeoTIFF
+raster2pgsql -s 4326 -I -C -M elevation.tif public.elevation_tiles | psql -d geodb
+
+# بارگذاری با tile کردن
+raster2pgsql -s 4326 -I -C -M -t 256x256 large_image.tif public.satellite_images | psql -d geodb
+
+# گزینه‌ها:
+# -s SRID: سیستم مختصات
+# -I: ایجاد ایندکس مکانی
+# -C: ایجاد constraints
+# -M: vacuum analyze
+# -t: اندازه tile
+"""</code></pre>
+                </div>
+            </div>
+
+            <h3>🔍 کوئری‌های Raster</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>raster_queries.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select, text
+from sqlalchemy.orm import Session
+from models import ElevationTile, LandCoverTile
+from geoalchemy2 import WKTElement
+
+# ═══════════════════════════════════════════════════════════
+# دریافت مقدار در یک نقطه
+# ═══════════════════════════════════════════════════════════
+
+def get_elevation_at_point(
+    session: Session,
+    lat: float,
+    lon: float
+) -> float:
+    """دریافت ارتفاع در یک نقطه"""
+    
+    point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+    
+    # ST_Value: مقدار پیکسل در نقطه
+    result = session.execute(
+        select(func.ST_Value(ElevationTile.rast, point))
+        .where(func.ST_Intersects(ElevationTile.rast, point))
+    ).scalar()
+    
+    return result
+
+
+def get_elevation_profile(
+    session: Session,
+    line_wkt: str,
+    num_points: int = 100
+) -> list:
+    """پروفایل ارتفاعی در طول یک خط"""
+    
+    # ایجاد نقاط روی خط
+    query = text("""
+        WITH line AS (
+            SELECT ST_GeomFromText(:line_wkt, 4326) as geom
+        ),
+        points AS (
+            SELECT 
+                generate_series(0, :num_points) as idx,
+                ST_LineInterpolatePoint(
+                    (SELECT geom FROM line),
+                    generate_series(0, :num_points)::float / :num_points
+                ) as point
+        )
+        SELECT 
+            p.idx,
+            ST_X(p.point) as lon,
+            ST_Y(p.point) as lat,
+            ST_Value(e.rast, p.point) as elevation
+        FROM points p
+        LEFT JOIN elevation_tiles e ON ST_Intersects(e.rast, p.point)
+        ORDER BY p.idx
+    """)
+    
+    result = session.execute(
+        query,
+        {'line_wkt': line_wkt, 'num_points': num_points}
+    )
+    
+    return [
+        {'idx': r.idx, 'lon': r.lon, 'lat': r.lat, 'elevation': r.elevation}
+        for r in result
+    ]
+
+
+# ═══════════════════════════════════════════════════════════
+# آمار Raster
+# ═══════════════════════════════════════════════════════════
+
+def get_raster_statistics(session: Session, tile_id: int) -> dict:
+    """آمار یک تایل Raster"""
+    
+    result = session.execute(
+        select(
+            func.ST_SummaryStats(ElevationTile.rast, 1, True)  # باند 1
+        ).where(ElevationTile.id == tile_id)
+    ).scalar()
+    
+    # نتیجه: (count, sum, mean, stddev, min, max)
+    if result:
+        return {
+            'count': result[0],
+            'sum': result[1],
+            'mean': result[2],
+            'stddev': result[3],
+            'min': result[4],
+            'max': result[5]
+        }
+    return {}
+
+
+def get_elevation_stats_in_polygon(
+    session: Session,
+    polygon_wkt: str
+) -> dict:
+    """آمار ارتفاع در یک محدوده"""
+    
+    polygon = func.ST_GeomFromText(polygon_wkt, 4326)
+    
+    # برش Raster با چندضلعی
+    query = select(
+        func.ST_SummaryStats(
+            func.ST_Clip(ElevationTile.rast, polygon),
+            1,
+            True
+        )
+    ).where(
+        func.ST_Intersects(ElevationTile.rast, polygon)
+    )
+    
+    results = session.execute(query).all()
+    
+    # ترکیب آمار از چند تایل
+    total_count = sum(r[0][0] for r in results if r[0])
+    total_sum = sum(r[0][1] for r in results if r[0])
+    all_mins = [r[0][4] for r in results if r[0]]
+    all_maxs = [r[0][5] for r in results if r[0]]
+    
+    return {
+        'count': total_count,
+        'mean': total_sum / total_count if total_count > 0 else None,
+        'min': min(all_mins) if all_mins else None,
+        'max': max(all_maxs) if all_maxs else None
+    }
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل Raster به Vector
+# ═══════════════════════════════════════════════════════════
+
+def raster_to_contours(
+    session: Session,
+    tile_id: int,
+    interval: float = 100
+) -> list:
+    """تبدیل Raster به خطوط تراز"""
+    
+    query = text("""
+        SELECT 
+            (ST_DumpAsPolygons(
+                ST_Reclass(
+                    rast,
+                    1,
+                    CONCAT('[0-', :interval, '):1, [', :interval, '-', :interval*2, '):2'),
+                    '8BUI',
+                    0
+                )
+            )).*
+        FROM elevation_tiles
+        WHERE id = :tile_id
+    """)
+    
+    # روش بهتر با ST_Contour (PostGIS 3.2+)
+    query2 = text("""
+        SELECT 
+            level,
+            ST_AsGeoJSON(geom) as geojson
+        FROM ST_Contour(
+            (SELECT rast FROM elevation_tiles WHERE id = :tile_id),
+            1,  -- band
+            :interval,  -- interval
+            0   -- start value
+        )
+    """)
+    
+    return session.execute(query2, {'tile_id': tile_id, 'interval': interval}).all()
+
+
+def vectorize_landcover(session: Session, tile_id: int) -> list:
+    """تبدیل پوشش زمین به چندضلعی"""
+    
+    query = text("""
+        SELECT 
+            val as landcover_class,
+            ST_AsGeoJSON(geom) as geojson
+        FROM (
+            SELECT (ST_DumpAsPolygons(rast)).*
+            FROM landcover_tiles
+            WHERE id = :tile_id
+        ) as polygons
+    """)
+    
+    return session.execute(query, {'tile_id': tile_id}).all()
+
+
+# ═══════════════════════════════════════════════════════════
+# عملیات Raster
+# ═══════════════════════════════════════════════════════════
+
+def calculate_slope(session: Session, tile_id: int):
+    """محاسبه شیب از DEM"""
+    
+    query = text("""
+        SELECT ST_AsTIFF(
+            ST_Slope(rast, 1, '32BF', 'PERCENT', 1.0)
+        )
+        FROM elevation_tiles
+        WHERE id = :tile_id
+    """)
+    
+    return session.execute(query, {'tile_id': tile_id}).scalar()
+
+
+def calculate_aspect(session: Session, tile_id: int):
+    """محاسبه جهت شیب"""
+    
+    query = text("""
+        SELECT ST_AsTIFF(
+            ST_Aspect(rast, 1, '32BF')
+        )
+        FROM elevation_tiles
+        WHERE id = :tile_id
+    """)
+    
+    return session.execute(query, {'tile_id': tile_id}).scalar()
+
+
+def calculate_hillshade(
+    session: Session,
+    tile_id: int,
+    azimuth: float = 315,
+    altitude: float = 45
+):
+    """محاسبه سایه‌روشن"""
+    
+    query = text("""
+        SELECT ST_AsTIFF(
+            ST_HillShade(rast, 1, '32BF', :azimuth, :altitude)
+        )
+        FROM elevation_tiles
+        WHERE id = :tile_id
+    """)
+    
+    return session.execute(
+        query,
+        {'tile_id': tile_id, 'azimuth': azimuth, 'altitude': altitude}
+    ).scalar()</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکات مهم Raster</h4>
+                    <ul>
+                        <li>برای استفاده از Raster، افزونه <code>postgis_raster</code> باید فعال باشد</li>
+                        <li>فایل‌های بزرگ را با <code>-t</code> به تایل تقسیم کنید</li>
+                        <li>همیشه ایندکس مکانی ایجاد کنید (<code>-I</code>)</li>
+                        <li>برای عملکرد بهتر از <code>out-db</code> استفاده کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Advanced -->
+        <section class="section" id="advanced">
+            <div class="section-header">
+                <div class="section-icon">🚀</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">موضوعات پیشرفته</h2>
+                    <p class="section-subtitle">Async, Indexing, Performance</p>
+                </div>
+            </div>
+
+            <h3>⚡ Async با GeoAlchemy2</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>async_geoalchemy.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import asyncio
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select, func
+from geoalchemy2 import WKTElement
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point
+
+from models import Store, District
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات Async
+# ═══════════════════════════════════════════════════════════
+
+ASYNC_DATABASE_URL = "postgresql+asyncpg://user:pass@localhost/geodb"
+
+async_engine = create_async_engine(
+    ASYNC_DATABASE_URL,
+    echo=True,
+    pool_size=5,
+    max_overflow=10
+)
+
+AsyncSessionLocal = sessionmaker(
+    async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+
+async def get_async_db():
+    """Dependency برای FastAPI"""
+    async with AsyncSessionLocal() as session:
+        yield session
+
+
+# ═══════════════════════════════════════════════════════════
+# عملیات Async
+# ═══════════════════════════════════════════════════════════
+
+async def create_store_async(
+    name: str,
+    lat: float,
+    lon: float
+) -> Store:
+    """ایجاد فروشگاه به صورت async"""
+    
+    async with AsyncSessionLocal() as session:
+        store = Store(
+            name=name,
+            location=from_shape(Point(lon, lat), srid=4326)
+        )
+        session.add(store)
+        await session.commit()
+        await session.refresh(store)
+        return store
+
+
+async def find_stores_in_radius_async(
+    lat: float,
+    lon: float,
+    radius_m: float
+) -> list:
+    """جستجوی فروشگاه در شعاع - async"""
+    
+    async with AsyncSessionLocal() as session:
+        point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+        
+        query = select(Store).where(
+            func.ST_DWithin(
+                Store.location::func.geography,
+                point::func.geography,
+                radius_m
+            )
+        )
+        
+        result = await session.execute(query)
+        return result.scalars().all()
+
+
+async def get_nearest_stores_async(
+    lat: float,
+    lon: float,
+    limit: int = 5
+) -> list:
+    """نزدیک‌ترین فروشگاه‌ها - async"""
+    
+    async with AsyncSessionLocal() as session:
+        point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+        
+        query = (
+            select(
+                Store,
+                func.ST_DistanceSphere(Store.location, point).label('distance')
+            )
+            .order_by(func.ST_DistanceSphere(Store.location, point))
+            .limit(limit)
+        )
+        
+        result = await session.execute(query)
+        return [(row.Store, row.distance) for row in result]
+
+
+async def batch_create_stores_async(stores_data: list):
+    """ایجاد دسته‌ای فروشگاه‌ها"""
+    
+    async with AsyncSessionLocal() as session:
+        stores = [
+            Store(
+                name=data['name'],
+                location=from_shape(Point(data['lon'], data['lat']), srid=4326)
+            )
+            for data in stores_data
+        ]
+        session.add_all(stores)
+        await session.commit()
+
+
+# ═══════════════════════════════════════════════════════════
+# FastAPI Integration
+# ═══════════════════════════════════════════════════════════
+
+from fastapi import FastAPI, Depends, Query
+from pydantic import BaseModel
+from typing import List, Optional
+
+app = FastAPI()
+
+
+class StoreCreate(BaseModel):
+    name: str
+    latitude: float
+    longitude: float
+
+
+class StoreResponse(BaseModel):
+    id: int
+    name: str
+    latitude: float
+    longitude: float
+    distance_m: Optional[float] = None
+    
+    class Config:
+        from_attributes = True
+
+
+@app.post("/stores/", response_model=StoreResponse)
+async def create_store(
+    store: StoreCreate,
+    db: AsyncSession = Depends(get_async_db)
+):
+    """ایجاد فروشگاه جدید"""
+    
+    new_store = Store(
+        name=store.name,
+        location=from_shape(
+            Point(store.longitude, store.latitude),
+            srid=4326
+        )
+    )
+    db.add(new_store)
+    await db.commit()
+    await db.refresh(new_store)
+    
+    return StoreResponse(
+        id=new_store.id,
+        name=new_store.name,
+        latitude=store.latitude,
+        longitude=store.longitude
+    )
+
+
+@app.get("/stores/nearby/", response_model=List[StoreResponse])
+async def get_nearby_stores(
+    lat: float = Query(...),
+    lon: float = Query(...),
+    radius_km: float = Query(default=5),
+    db: AsyncSession = Depends(get_async_db)
+):
+    """فروشگاه‌های نزدیک"""
+    
+    point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+    
+    query = (
+        select(
+            Store,
+            func.ST_DistanceSphere(Store.location, point).label('distance')
+        )
+        .where(
+            func.ST_DWithin(
+                Store.location::func.geography,
+                point::func.geography,
+                radius_km * 1000
+            )
+        )
+        .order_by(func.ST_DistanceSphere(Store.location, point))
+    )
+    
+    result = await db.execute(query)
+    
+    return [
+        StoreResponse(
+            id=row.Store.id,
+            name=row.Store.name,
+            latitude=to_shape(row.Store.location).y,
+            longitude=to_shape(row.Store.location).x,
+            distance_m=row.distance
+        )
+        for row in result
+    ]
+
+
+# ═══════════════════════════════════════════════════════════
+# اجرای همزمان چند کوئری
+# ═══════════════════════════════════════════════════════════
+
+async def parallel_spatial_queries(lat: float, lon: float):
+    """اجرای همزمان چند کوئری مکانی"""
+    
+    tasks = [
+        find_stores_in_radius_async(lat, lon, 1000),
+        find_stores_in_radius_async(lat, lon, 5000),
+        find_stores_in_radius_async(lat, lon, 10000),
+    ]
+    
+    results = await asyncio.gather(*tasks)
+    
+    return {
+        '1km': results[0],
+        '5km': results[1],
+        '10km': results[2]
+    }</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 Spatial Indexing</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_indexing.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import Column, Integer, String, Index, text
+from sqlalchemy.orm import Session
+from geoalchemy2 import Geometry
+
+from database import Base, engine
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد ایندکس مکانی
+# ═══════════════════════════════════════════════════════════
+
+class OptimizedStore(Base):
+    """فروشگاه با ایندکس‌های بهینه"""
+    __tablename__ = 'optimized_stores'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    category = Column(String(50))
+    
+    # Geometry با spatial_index=True
+    location = Column(
+        Geometry(
+            geometry_type='POINT',
+            srid=4326,
+            spatial_index=True  # ایجاد خودکار GiST index
+        )
+    )
+    
+    # ایندکس‌های اضافی
+    __table_args__ = (
+        # ایندکس ترکیبی
+        Index('idx_store_category', 'category'),
+        
+        # ایندکس GiST صریح (اگر spatial_index=False بود)
+        # Index('idx_store_location_gist', 'location', postgresql_using='gist'),
+    )
+
+
+# ایجاد ایندکس‌های سفارشی
+def create_custom_indexes():
+    """ایجاد ایندکس‌های سفارشی"""
+    
+    with engine.connect() as conn:
+        # GiST Index (پیش‌فرض برای Geometry)
+        conn.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_stores_location_gist
+            ON stores USING GIST (location);
+        """))
+        
+        # SP-GiST Index (برای نقاط)
+        conn.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_stores_location_spgist
+            ON stores USING SPGIST (location);
+        """))
+        
+        # BRIN Index (برای داده‌های مرتب شده مکانی)
+        conn.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_stores_location_brin
+            ON stores USING BRIN (location);
+        """))
+        
+        # ایندکس روی Bounding Box
+        conn.execute(text("""
+            CREATE INDEX IF NOT EXISTS idx_parks_boundary_gist
+            ON parks USING GIST (boundary);
+        """))
+        
+        conn.commit()
+
+
+# ═══════════════════════════════════════════════════════════
+# بررسی استفاده از ایندکس
+# ═══════════════════════════════════════════════════════════
+
+def explain_query(session: Session, query_text: str) -> str:
+    """تحلیل اجرای کوئری"""
+    
+    result = session.execute(
+        text(f"EXPLAIN ANALYZE {query_text}")
+    )
+    
+    return "\n".join([row[0] for row in result])
+
+
+def check_index_usage(session: Session):
+    """بررسی استفاده از ایندکس‌ها"""
+    
+    # کوئری که باید از ایندکس استفاده کند
+    query = """
+        SELECT * FROM stores
+        WHERE ST_DWithin(
+            location::geography,
+            ST_SetSRID(ST_MakePoint(51.4, 35.7), 4326)::geography,
+            1000
+        )
+    """
+    
+    explain = explain_query(session, query)
+    print(explain)
+    
+    # باید "Index Scan" یا "Bitmap Index Scan" ببینید
+    return "Index" in explain
+
+
+# ═══════════════════════════════════════════════════════════
+# بهینه‌سازی کوئری‌ها
+# ═══════════════════════════════════════════════════════════
+
+def optimized_radius_search(
+    session: Session,
+    lat: float,
+    lon: float,
+    radius_m: float
+):
+    """جستجوی شعاعی بهینه"""
+    
+    # استفاده از && برای فیلتر اولیه با ایندکس
+    # سپس ST_DWithin برای فیلتر دقیق
+    
+    query = text("""
+        SELECT *
+        FROM stores
+        WHERE location && ST_Expand(
+            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography::geometry,
+            :radius / 111000  -- تبدیل متر به درجه (تقریبی)
+        )
+        AND ST_DWithin(
+            location::geography,
+            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+            :radius
+        )
+    """)
+    
+    return session.execute(
+        query,
+        {'lat': lat, 'lon': lon, 'radius': radius_m}
+    ).all()
+
+
+def optimized_knn_search(
+    session: Session,
+    lat: float,
+    lon: float,
+    limit: int = 10
+):
+    """جستجوی KNN بهینه"""
+    
+    # استفاده از <-> operator که از ایندکس استفاده می‌کند
+    query = text("""
+        SELECT 
+            id, name,
+            ST_DistanceSphere(
+                location,
+                ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)
+            ) as distance
+        FROM stores
+        ORDER BY location <-> ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)
+        LIMIT :limit
+    """)
+    
+    return session.execute(
+        query,
+        {'lat': lat, 'lon': lon, 'limit': limit}
+    ).all()</code></pre>
+                </div>
+            </div>
+
+            <h3>🔧 Performance Tips</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>performance_tips.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from sqlalchemy import func, select, text
+from sqlalchemy.orm import Session
+from models import Store, Park, District
+
+# ═══════════════════════════════════════════════════════════
+# نکات عملکردی
+# ═══════════════════════════════════════════════════════════
+
+"""
+1. همیشه از ایندکس مکانی استفاده کنید
+2. از ST_DWithin به جای ST_Distance < X استفاده کنید
+3. برای KNN از <-> operator استفاده کنید
+4. Geometry های پیچیده را Simplify کنید
+5. از && برای فیلتر اولیه استفاده کنید
+6. SRID مناسب انتخاب کنید
+7. از CLUSTER برای مرتب‌سازی فیزیکی استفاده کنید
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# Clustering داده‌ها
+# ═══════════════════════════════════════════════════════════
+
+def cluster_table_by_location(session: Session, table_name: str):
+    """مرتب‌سازی فیزیکی داده‌ها بر اساس موقعیت"""
+    
+    # ابتدا ایندکس
+    session.execute(text(f"""
+        CREATE INDEX IF NOT EXISTS idx_{table_name}_location_gist
+        ON {table_name} USING GIST (location)
+    """))
+    
+    # سپس cluster
+    session.execute(text(f"""
+        CLUSTER {table_name} USING idx_{table_name}_location_gist
+    """))
+    
+    # و analyze
+    session.execute(text(f"ANALYZE {table_name}"))
+    
+    session.commit()
+
+
+# ═══════════════════════════════════════════════════════════
+# Materialized Views برای کوئری‌های سنگین
+# ═══════════════════════════════════════════════════════════
+
+def create_store_district_view(session: Session):
+    """ایجاد Materialized View برای join مکانی"""
+    
+    session.execute(text("""
+        CREATE MATERIALIZED VIEW IF NOT EXISTS store_districts AS
+        SELECT 
+            s.id as store_id,
+            s.name as store_name,
+            s.location,
+            d.id as district_id,
+            d.name as district_name
+        FROM stores s
+        LEFT JOIN districts d ON ST_Within(s.location, d.boundary)
+        WITH DATA
+    """))
+    
+    # ایندکس روی view
+    session.execute(text("""
+        CREATE INDEX IF NOT EXISTS idx_store_districts_location
+        ON store_districts USING GIST (location)
+    """))
+    
+    session.commit()
+
+
+def refresh_materialized_view(session: Session, view_name: str):
+    """بروزرسانی Materialized View"""
+    
+    session.execute(text(f"REFRESH MATERIALIZED VIEW CONCURRENTLY {view_name}"))
+    session.commit()
+
+
+# ═══════════════════════════════════════════════════════════
+# Partitioning برای داده‌های بزرگ
+# ═══════════════════════════════════════════════════════════
+
+def create_partitioned_table():
+    """ایجاد جدول پارتیشن‌بندی شده"""
+    
+    # پارتیشن بر اساس محدوده جغرافیایی
+    query = """
+        CREATE TABLE IF NOT EXISTS locations_partitioned (
+            id SERIAL,
+            name VARCHAR(100),
+            location GEOMETRY(Point, 4326),
+            PRIMARY KEY (id, location)
+        ) PARTITION BY RANGE (
+            ST_X(location)
+        );
+        
+        -- پارتیشن‌ها بر اساس طول جغرافیایی
+        CREATE TABLE IF NOT EXISTS locations_west 
+            PARTITION OF locations_partitioned
+            FOR VALUES FROM (-180) TO (0);
+            
+        CREATE TABLE IF NOT EXISTS locations_east
+            PARTITION OF locations_partitioned
+            FOR VALUES FROM (0) TO (180);
+    """
+    
+    return query
+
+
+# ═══════════════════════════════════════════════════════════
+# Batch Processing
+# ═══════════════════════════════════════════════════════════
+
+def batch_update_districts(session: Session, batch_size: int = 1000):
+    """بروزرسانی دسته‌ای district_id فروشگاه‌ها"""
+    
+    # شمارش کل
+    total = session.execute(
+        select(func.count(Store.id)).where(Store.district_id == None)
+    ).scalar()
+    
+    offset = 0
+    while offset < total:
+        # بروزرسانی یک دسته
+        session.execute(text("""
+            UPDATE stores s
+            SET district_id = d.id
+            FROM districts d
+            WHERE ST_Within(s.location, d.boundary)
+            AND s.district_id IS NULL
+            AND s.id IN (
+                SELECT id FROM stores 
+                WHERE district_id IS NULL 
+                LIMIT :batch_size
+            )
+        """), {'batch_size': batch_size})
+        
+        session.commit()
+        offset += batch_size
+        print(f"Processed {min(offset, total)}/{total}")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Projects -->
+        <section class="section" id="projects">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دهم</div>
+                    <h2 class="section-title">پروژه‌های عملی</h2>
+                    <p class="section-subtitle">پروژه‌های کامل با GeoAlchemy2</p>
+                </div>
+            </div>
+
+            <h3>🗺️ پروژه ۱: سیستم مکان‌یابی فروشگاه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>store_locator/main.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+سیستم مکان‌یابی فروشگاه با FastAPI و GeoAlchemy2
+"""
+
+from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import func, select, and_
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime
+from geoalchemy2 import Geometry, Geography
+from geoalchemy2.shape import to_shape, from_shape
+from shapely.geometry import Point, mapping
+from pydantic import BaseModel, Field
+from typing import List, Optional
+from datetime import datetime
+import json
+
+# ═══════════════════════════════════════════════════════════
+# Database Setup
+# ═══════════════════════════════════════════════════════════
+
+DATABASE_URL = "postgresql+asyncpg://user:password@localhost:5432/store_locator"
+
+engine = create_async_engine(DATABASE_URL, echo=True)
+AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+Base = declarative_base()
+
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+
+
+# ═══════════════════════════════════════════════════════════
+# Models
+# ═══════════════════════════════════════════════════════════
+
+class Store(Base):
+    __tablename__ = "stores"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(200), nullable=False)
+    address = Column(String(500))
+    phone = Column(String(20))
+    category = Column(String(50))
+    rating = Column(Float, default=0.0)
+    is_active = Column(Boolean, default=True)
+    
+    # موقعیت با Geography برای محاسبات دقیق
+    location = Column(
+        Geography(geometry_type='POINT', srid=4326, spatial_index=True),
+        nullable=False
+    )
+    
+    # ساعات کاری (JSON)
+    working_hours = Column(String(1000))
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+
+
+class District(Base):
+    __tablename__ = "districts"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    code = Column(String(20), unique=True)
+    
+    boundary = Column(
+        Geometry(geometry_type='MULTIPOLYGON', srid=4326, spatial_index=True)
+    )
+
+
+# ═══════════════════════════════════════════════════════════
+# Pydantic Schemas
+# ═══════════════════════════════════════════════════════════
+
+class Coordinates(BaseModel):
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+
+
+class StoreCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    category: Optional[str] = None
+    coordinates: Coordinates
+
+
+class StoreUpdate(BaseModel):
+    name: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    category: Optional[str] = None
+    rating: Optional[float] = None
+    is_active: Optional[bool] = None
+    coordinates: Optional[Coordinates] = None
+
+
+class StoreResponse(BaseModel):
+    id: int
+    name: str
+    address: Optional[str]
+    phone: Optional[str]
+    category: Optional[str]
+    rating: float
+    is_active: bool
+    latitude: float
+    longitude: float
+    distance_m: Optional[float] = None
+    
+    class Config:
+        from_attributes = True
+
+
+class GeoJSONFeature(BaseModel):
+    type: str = "Feature"
+    geometry: dict
+    properties: dict
+
+
+class GeoJSONFeatureCollection(BaseModel):
+    type: str = "FeatureCollection"
+    features: List[GeoJSONFeature]
+
+
+# ═══════════════════════════════════════════════════════════
+# FastAPI App
+# ═══════════════════════════════════════════════════════════
+
+app = FastAPI(
+    title="Store Locator API",
+    description="سیستم مکان‌یابی فروشگاه با GeoAlchemy2",
+    version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+# ═══════════════════════════════════════════════════════════
+# CRUD Endpoints
+# ═══════════════════════════════════════════════════════════
+
+@app.post("/stores/", response_model=StoreResponse, tags=["Stores"])
+async def create_store(store: StoreCreate, db: AsyncSession = Depends(get_db)):
+    """ایجاد فروشگاه جدید"""
+    
+    point = Point(store.coordinates.longitude, store.coordinates.latitude)
+    
+    db_store = Store(
+        name=store.name,
+        address=store.address,
+        phone=store.phone,
+        category=store.category,
+        location=from_shape(point, srid=4326)
+    )
+    
+    db.add(db_store)
+    await db.commit()
+    await db.refresh(db_store)
+    
+    return StoreResponse(
+        id=db_store.id,
+        name=db_store.name,
+        address=db_store.address,
+        phone=db_store.phone,
+        category=db_store.category,
+        rating=db_store.rating,
+        is_active=db_store.is_active,
+        latitude=store.coordinates.latitude,
+        longitude=store.coordinates.longitude
+    )
+
+
+@app.get("/stores/{store_id}", response_model=StoreResponse, tags=["Stores"])
+async def get_store(store_id: int, db: AsyncSession = Depends(get_db)):
+    """دریافت اطلاعات فروشگاه"""
+    
+    result = await db.execute(select(Store).where(Store.id == store_id))
+    store = result.scalar_one_or_none()
+    
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    point = to_shape(store.location)
+    
+    return StoreResponse(
+        id=store.id,
+        name=store.name,
+        address=store.address,
+        phone=store.phone,
+        category=store.category,
+        rating=store.rating,
+        is_active=store.is_active,
+        latitude=point.y,
+        longitude=point.x
+    )
+
+
+@app.put("/stores/{store_id}", response_model=StoreResponse, tags=["Stores"])
+async def update_store(
+    store_id: int,
+    store_update: StoreUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    """بروزرسانی فروشگاه"""
+    
+    result = await db.execute(select(Store).where(Store.id == store_id))
+    store = result.scalar_one_or_none()
+    
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    update_data = store_update.dict(exclude_unset=True)
+    
+    if 'coordinates' in update_data:
+        coords = update_data.pop('coordinates')
+        point = Point(coords['longitude'], coords['latitude'])
+        store.location = from_shape(point, srid=4326)
+    
+    for key, value in update_data.items():
+        setattr(store, key, value)
+    
+    await db.commit()
+    await db.refresh(store)
+    
+    point = to_shape(store.location)
+    
+    return StoreResponse(
+        id=store.id,
+        name=store.name,
+        address=store.address,
+        phone=store.phone,
+        category=store.category,
+        rating=store.rating,
+        is_active=store.is_active,
+        latitude=point.y,
+        longitude=point.x
+    )
+
+
+@app.delete("/stores/{store_id}", tags=["Stores"])
+async def delete_store(store_id: int, db: AsyncSession = Depends(get_db)):
+    """حذف فروشگاه"""
+    
+    result = await db.execute(select(Store).where(Store.id == store_id))
+    store = result.scalar_one_or_none()
+    
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+    
+    await db.delete(store)
+    await db.commit()
+    
+    return {"message": "Store deleted successfully"}
+
+
+# ═══════════════════════════════════════════════════════════
+# Spatial Endpoints
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/stores/nearby/", response_model=List[StoreResponse], tags=["Spatial"])
+async def find_nearby_stores(
+    lat: float = Query(..., ge=-90, le=90, description="عرض جغرافیایی"),
+    lon: float = Query(..., ge=-180, le=180, description="طول جغرافیایی"),
+    radius_km: float = Query(default=5, ge=0.1, le=100, description="شعاع جستجو (کیلومتر)"),
+    category: Optional[str] = Query(default=None, description="دسته‌بندی"),
+    limit: int = Query(default=20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db)
+):
+    """جستجوی فروشگاه‌های نزدیک"""
+    
+    point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+    radius_m = radius_km * 1000
+    
+    # فاصله
+    distance_expr = func.ST_Distance(
+        Store.location,
+        func.ST_GeogFromText(f'POINT({lon} {lat})')
+    )
+    
+    query = (
+        select(Store, distance_expr.label('distance'))
+        .where(
+            and_(
+                func.ST_DWithin(
+                    Store.location,
+                    func.ST_GeogFromText(f'POINT({lon} {lat})'),
+                    radius_m
+                ),
+                Store.is_active == True
+            )
+        )
+        .order_by(distance_expr)
+        .limit(limit)
+    )
+    
+    if category:
+        query = query.where(Store.category == category)
+    
+    result = await db.execute(query)
+    
+    stores = []
+    for row in result:
+        store = row.Store
+        point = to_shape(store.location)
+        stores.append(StoreResponse(
+            id=store.id,
+            name=store.name,
+            address=store.address,
+            phone=store.phone,
+            category=store.category,
+            rating=store.rating,
+            is_active=store.is_active,
+            latitude=point.y,
+            longitude=point.x,
+            distance_m=row.distance
+        ))
+    
+    return stores
+
+
+@app.get("/stores/in-bounds/", response_model=List[StoreResponse], tags=["Spatial"])
+async def find_stores_in_bounds(
+    min_lat: float = Query(..., ge=-90, le=90),
+    min_lon: float = Query(..., ge=-180, le=180),
+    max_lat: float = Query(..., ge=-90, le=90),
+    max_lon: float = Query(..., ge=-180, le=180),
+    category: Optional[str] = None,
+    db: AsyncSession = Depends(get_db)
+):
+    """فروشگاه‌ها در محدوده مستطیلی (برای نقشه)"""
+    
+    bbox = func.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326)
+    
+    query = (
+        select(Store)
+        .where(
+            and_(
+                func.ST_Within(
+                    func.ST_GeomFromWKB(Store.location),
+                    bbox
+                ),
+                Store.is_active == True
+            )
+        )
+    )
+    
+    if category:
+        query = query.where(Store.category == category)
+    
+    result = await db.execute(query)
+    
+    stores = []
+    for store in result.scalars():
+        point = to_shape(store.location)
+        stores.append(StoreResponse(
+            id=store.id,
+            name=store.name,
+            address=store.address,
+            phone=store.phone,
+            category=store.category,
+            rating=store.rating,
+            is_active=store.is_active,
+            latitude=point.y,
+            longitude=point.x
+        ))
+    
+    return stores
+
+
+@app.get("/stores/geojson/", response_model=GeoJSONFeatureCollection, tags=["Spatial"])
+async def get_stores_geojson(
+    min_lat: float = Query(default=-90),
+    min_lon: float = Query(default=-180),
+    max_lat: float = Query(default=90),
+    max_lon: float = Query(default=180),
+    db: AsyncSession = Depends(get_db)
+):
+    """خروجی GeoJSON برای نمایش روی نقشه"""
+    
+    bbox = func.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326)
+    
+    query = (
+        select(Store)
+        .where(
+            and_(
+                func.ST_Within(
+                    func.ST_GeomFromWKB(Store.location),
+                    bbox
+                ),
+                Store.is_active == True
+            )
+        )
+    )
+    
+    result = await db.execute(query)
+    
+    features = []
+    for store in result.scalars():
+        point = to_shape(store.location)
+        features.append(GeoJSONFeature(
+            geometry=mapping(point),
+            properties={
+                "id": store.id,
+                "name": store.name,
+                "address": store.address,
+                "category": store.category,
+                "rating": store.rating
+            }
+        ))
+    
+    return GeoJSONFeatureCollection(features=features)
+
+
+@app.get("/stores/in-district/{district_code}", response_model=List[StoreResponse], tags=["Spatial"])
+async def find_stores_in_district(
+    district_code: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """فروشگاه‌های داخل یک منطقه"""
+    
+    # دریافت منطقه
+    district_result = await db.execute(
+        select(District).where(District.code == district_code)
+    )
+    district = district_result.scalar_one_or_none()
+    
+    if not district:
+        raise HTTPException(status_code=404, detail="District not found")
+    
+    # فروشگاه‌های داخل منطقه
+    query = (
+        select(Store)
+        .where(
+            and_(
+                func.ST_Within(
+                    func.ST_GeomFromWKB(Store.location),
+                    district.boundary
+                ),
+                Store.is_active == True
+            )
+        )
+    )
+    
+    result = await db.execute(query)
+    
+    stores = []
+    for store in result.scalars():
+        point = to_shape(store.location)
+        stores.append(StoreResponse(
+            id=store.id,
+            name=store.name,
+            address=store.address,
+            phone=store.phone,
+            category=store.category,
+            rating=store.rating,
+            is_active=store.is_active,
+            latitude=point.y,
+            longitude=point.x
+        ))
+    
+    return stores
+
+
+# ═══════════════════════════════════════════════════════════
+# Analytics Endpoints
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/analytics/stores-per-district/", tags=["Analytics"])
+async def stores_per_district(db: AsyncSession = Depends(get_db)):
+    """تعداد فروشگاه در هر منطقه"""
+    
+    query = (
+        select(
+            District.name,
+            District.code,
+            func.count(Store.id).label('store_count')
+        )
+        .outerjoin(
+            Store,
+            func.ST_Within(
+                func.ST_GeomFromWKB(Store.location),
+                District.boundary
+            )
+        )
+        .group_by(District.id)
+        .order_by(func.count(Store.id).desc())
+    )
+    
+    result = await db.execute(query)
+    
+    return [
+        {
+            "district_name": row.name,
+            "district_code": row.code,
+            "store_count": row.store_count
+        }
+        for row in result
+    ]
+
+
+@app.get("/analytics/category-distribution/", tags=["Analytics"])
+async def category_distribution(db: AsyncSession = Depends(get_db)):
+    """توزیع فروشگاه‌ها بر اساس دسته‌بندی"""
+    
+    query = (
+        select(
+            Store.category,
+            func.count(Store.id).label('count'),
+            func.avg(Store.rating).label('avg_rating')
+        )
+        .where(Store.is_active == True)
+        .group_by(Store.category)
+        .order_by(func.count(Store.id).desc())
+    )
+    
+    result = await db.execute(query)
+    
+    return [
+        {
+            "category": row.category or "Other",
+            "count": row.count,
+            "avg_rating": round(row.avg_rating, 2) if row.avg_rating else 0
+        }
+        for row in result
+    ]
+
+
+# ═══════════════════════════════════════════════════════════
+# Startup
+# ═══════════════════════════════════════════════════════════
+
+@app.on_event("startup")
+async def startup():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)</code></pre>
+                </div>
+            </div>
+
+            <h3>🚗 پروژه ۲: سیستم مسیریابی ساده</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>routing_system/models.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+سیستم مسیریابی با GeoAlchemy2
+"""
+
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean
+from sqlalchemy.orm import relationship, declarative_base
+from geoalchemy2 import Geometry
+
+Base = declarative_base()
+
+
+class RoadNode(Base):
+    """گره‌های شبکه راه"""
+    __tablename__ = 'road_nodes'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100))
+    node_type = Column(String(50))  # intersection, endpoint, etc.
+    
+    location = Column(
+        Geometry(geometry_type='POINT', srid=4326, spatial_index=True),
+        nullable=False
+    )
+    
+    # یال‌های خروجی
+    outgoing_edges = relationship(
+        "RoadEdge",
+        foreign_keys="RoadEdge.source_id",
+        back_populates="source_node"
+    )
+    
+    # یال‌های ورودی
+    incoming_edges = relationship(
+        "RoadEdge",
+        foreign_keys="RoadEdge.target_id",
+        back_populates="target_node"
+    )
+
+
+class RoadEdge(Base):
+    """یال‌های شبکه راه (جاده‌ها)"""
+    __tablename__ = 'road_edges'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String(200))
+    road_type = Column(String(50))  # highway, primary, secondary, residential
+    
+    source_id = Column(Integer, ForeignKey('road_nodes.id'), nullable=False)
+    target_id = Column(Integer, ForeignKey('road_nodes.id'), nullable=False)
+    
+    # هندسه مسیر
+    geom = Column(
+        Geometry(geometry_type='LINESTRING', srid=4326, spatial_index=True),
+        nullable=False
+    )
+    
+    # ویژگی‌ها
+    length_m = Column(Float)  # طول به متر
+    speed_limit = Column(Integer, default=50)  # سرعت مجاز
+    is_oneway = Column(Boolean, default=False)
+    
+    # هزینه‌ها برای مسیریابی
+    cost = Column(Float)  # هزینه عبور (زمان یا فاصله)
+    reverse_cost = Column(Float)  # هزینه عبور برعکس
+    
+    # روابط
+    source_node = relationship("RoadNode", foreign_keys=[source_id], back_populates="outgoing_edges")
+    target_node = relationship("RoadNode", foreign_keys=[target_id], back_populates="incoming_edges")
+
+
+# ═══════════════════════════════════════════════════════════
+# توابع مسیریابی
+# ═══════════════════════════════════════════════════════════
+
+from sqlalchemy import func, select, text
+from sqlalchemy.orm import Session
+
+
+def find_nearest_node(session: Session, lat: float, lon: float) -> RoadNode:
+    """پیدا کردن نزدیک‌ترین گره"""
+    
+    point = func.ST_SetSRID(func.ST_MakePoint(lon, lat), 4326)
+    
+    query = (
+        select(RoadNode)
+        .order_by(RoadNode.location.distance_centroid(point))
+        .limit(1)
+    )
+    
+    result = session.execute(query)
+    return result.scalar_one_or_none()
+
+
+def find_shortest_path_dijkstra(
+    session: Session,
+    source_id: int,
+    target_id: int
+) -> list:
+    """مسیریابی با الگوریتم Dijkstra (نیاز به pgRouting)"""
+    
+    query = text("""
+        SELECT 
+            seq, node, edge, cost, agg_cost,
+            ST_AsGeoJSON(e.geom) as geojson
+        FROM pgr_dijkstra(
+            'SELECT id, source_id as source, target_id as target, cost, reverse_cost 
+             FROM road_edges',
+            :source_id,
+            :target_id,
+            directed := true
+        ) AS route
+        LEFT JOIN road_edges e ON route.edge = e.id
+        ORDER BY seq
+    """)
+    
+    result = session.execute(query, {'source_id': source_id, 'target_id': target_id})
+    
+    return [
+        {
+            'seq': row.seq,
+            'node': row.node,
+            'edge': row.edge,
+            'cost': row.cost,
+            'agg_cost': row.agg_cost,
+            'geojson': row.geojson
+        }
+        for row in result
+    ]
+
+
+def find_route_between_points(
+    session: Session,
+    start_lat: float,
+    start_lon: float,
+    end_lat: float,
+    end_lon: float
+) -> dict:
+    """مسیریابی بین دو نقطه"""
+    
+    # پیدا کردن نزدیک‌ترین گره‌ها
+    start_node = find_nearest_node(session, start_lat, start_lon)
+    end_node = find_nearest_node(session, end_lat, end_lon)
+    
+    if not start_node or not end_node:
+        return {'error': 'Could not find nearest nodes'}
+    
+    # مسیریابی
+    path = find_shortest_path_dijkstra(session, start_node.id, end_node.id)
+    
+    if not path:
+        return {'error': 'No route found'}
+    
+    # ساخت GeoJSON
+    features = []
+    total_cost = 0
+    
+    for step in path:
+        if step['geojson']:
+            features.append({
+                'type': 'Feature',
+                'geometry': json.loads(step['geojson']),
+                'properties': {
+                    'seq': step['seq'],
+                    'cost': step['cost']
+                }
+            })
+        total_cost = step['agg_cost']
+    
+    return {
+        'type': 'FeatureCollection',
+        'features': features,
+        'properties': {
+            'total_cost': total_cost,
+            'start_node': start_node.id,
+            'end_node': end_node.id
+        }
+    }
+
+
+def calculate_isochrone(
+    session: Session,
+    center_lat: float,
+    center_lon: float,
+    time_minutes: int
+) -> str:
+    """محاسبه ایزوکرون (محدوده دسترسی در زمان مشخص)"""
+    
+    # پیدا کردن نزدیک‌ترین گره
+    center_node = find_nearest_node(session, center_lat, center_lon)
+    
+    if not center_node:
+        return None
+    
+    # تبدیل زمان به هزینه (فرض: هزینه = زمان به دقیقه)
+    max_cost = time_minutes
+    
+    query = text("""
+        WITH reachable AS (
+            SELECT node, agg_cost
+            FROM pgr_drivingDistance(
+                'SELECT id, source_id as source, target_id as target, cost, reverse_cost 
+                 FROM road_edges',
+                :center_id,
+                :max_cost,
+                directed := true
+            )
+        ),
+        node_points AS (
+            SELECT n.location as geom
+            FROM reachable r
+            JOIN road_nodes n ON r.node = n.id
+        )
+        SELECT ST_AsGeoJSON(
+            ST_ConcaveHull(ST_Collect(geom), 0.8)
+        ) as isochrone
+        FROM node_points
+    """)
+    
+    result = session.execute(
+        query,
+        {'center_id': center_node.id, 'max_cost': max_cost}
+    )
+    
+    return result.scalar()</code></pre>
+                </div>
+            </div>
+
+            <h3>🌍 پروژه ۳: سیستم تحلیل مکانی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_analysis/analysis.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+سیستم تحلیل مکانی با GeoAlchemy2
+"""
+
+from sqlalchemy import func, select, and_, case
+from sqlalchemy.orm import Session
+from geoalchemy2 import WKTElement
+from geoalchemy2.shape import to_shape, from_shape
+from shapely.geometry import Point, Polygon, mapping
+from shapely.ops import unary_union
+import json
+from typing import List, Dict, Any
+
+from models import Store, District, Park, Population
+
+
+class SpatialAnalyzer:
+    """کلاس تحلیل مکانی"""
+    
+    def __init__(self, session: Session):
+        self.session = session
+    
+    # ═══════════════════════════════════════════════════════
+    # تحلیل تراکم
+    # ═══════════════════════════════════════════════════════
+    
+    def calculate_density_map(
+        self,
+        grid_size_km: float = 1.0,
+        bounds: tuple = None
+    ) -> List[Dict]:
+        """محاسبه نقشه تراکم فروشگاه‌ها"""
+        
+        # اگر محدوده مشخص نشده، کل داده‌ها
+        if not bounds:
+            extent = self.session.execute(
+                select(func.ST_Extent(Store.location))
+            ).scalar()
+            # Parse extent...
+        
+        min_lon, min_lat, max_lon, max_lat = bounds
+        grid_size_deg = grid_size_km / 111  # تقریب
+        
+        # ایجاد grid
+        query = func.ST_SquareGrid(
+            grid_size_deg,
+            func.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326)
+        )
+        
+        # شمارش در هر سلول
+        density_query = select(
+            func.ST_AsGeoJSON(func.ST_SquareGrid.geom).label('cell_geojson'),
+            func.count(Store.id).label('store_count')
+        ).select_from(
+            func.ST_SquareGrid(
+                grid_size_deg,
+                func.ST_MakeEnvelope(min_lon, min_lat, max_lon, max_lat, 4326)
+            )
+        ).outerjoin(
+            Store,
+            func.ST_Within(Store.location, func.ST_SquareGrid.geom)
+        ).group_by(func.ST_SquareGrid.geom)
+        
+        result = self.session.execute(density_query)
+        
+        return [
+            {
+                'geometry': json.loads(row.cell_geojson),
+                'density': row.store_count
+            }
+            for row in result
+        ]
+    
+    def kernel_density_estimation(
+        self,
+        bandwidth_km: float = 1.0,
+        grid_resolution: int = 100
+    ) -> Dict:
+        """تخمین تراکم کرنل (KDE)"""
+        
+        # دریافت همه نقاط
+        stores = self.session.execute(select(Store)).scalars().all()
+        
+        points = [to_shape(s.location) for s in stores]
+        
+        # محاسبه KDE با scipy
+        from scipy import stats
+        import numpy as np
+        
+        if not points:
+            return {}
+        
+        x = np.array([p.x for p in points])
+        y = np.array([p.y for p in points])
+        
+        # ایجاد grid
+        xmin, xmax = x.min(), x.max()
+        ymin, ymax = y.min(), y.max()
+        
+        xx, yy = np.mgrid[xmin:xmax:complex(grid_resolution), 
+                         ymin:ymax:complex(grid_resolution)]
+        
+        positions = np.vstack([xx.ravel(), yy.ravel()])
+        values = np.vstack([x, y])
+        
+        kernel = stats.gaussian_kde(values, bw_method=bandwidth_km/111)
+        density = np.reshape(kernel(positions).T, xx.shape)
+        
+        return {
+            'grid': {
+                'xmin': xmin, 'xmax': xmax,
+                'ymin': ymin, 'ymax': ymax,
+                'resolution': grid_resolution
+            },
+            'density': density.tolist()
+        }
+    
+    # ═══════════════════════════════════════════════════════
+    # تحلیل همسایگی
+    # ═══════════════════════════════════════════════════════
+    
+    def nearest_neighbor_analysis(self) -> Dict:
+        """تحلیل نزدیک‌ترین همسایه"""
+        
+        # میانگین فاصله تا نزدیک‌ترین همسایه
+        query = text("""
+            WITH nn_distances AS (
+                SELECT 
+                    s1.id,
+                    MIN(ST_DistanceSphere(s1.location::geometry, s2.location::geometry)) as nn_distance
+                FROM stores s1
+                CROSS JOIN stores s2
+                WHERE s1.id != s2.id
+                GROUP BY s1.id
+            )
+            SELECT 
+                COUNT(*) as n,
+                AVG(nn_distance) as mean_nn_distance,
+                STDDEV(nn_distance) as std_nn_distance,
+                MIN(nn_distance) as min_nn_distance,
+                MAX(nn_distance) as max_nn_distance
+            FROM nn_distances
+        """)
+        
+        result = self.session.execute(query).first()
+        
+        # محاسبه شاخص R (Clark-Evans)
+        # R = observed_mean / expected_mean
+        # expected_mean = 1 / (2 * sqrt(density))
+        
+        # محاسبه تراکم
+        extent_result = self.session.execute(
+            select(
+                func.ST_Area(func.ST_ConvexHull(func.ST_Collect(Store.location))::func.geography)
+            )
+        ).scalar()
+        
+        n = result.n
+        area = extent_result
+        density = n / area if area else 0
+        
+        expected_mean = 1 / (2 * (density ** 0.5)) if density > 0 else 0
+        observed_mean = result.mean_nn_distance
+        
+        r_index = observed_mean / expected_mean if expected_mean > 0 else 0
+        
+        # تفسیر:
+        # R < 1: خوشه‌ای (clustered)
+        # R = 1: تصادفی (random)
+        # R > 1: پراکنده (dispersed)
+        
+        pattern = "clustered" if r_index < 0.9 else "dispersed" if r_index > 1.1 else "random"
+        
+        return {
+            'count': n,
+            'mean_nn_distance': observed_mean,
+            'std_nn_distance': result.std_nn_distance,
+            'min_nn_distance': result.min_nn_distance,
+            'max_nn_distance': result.max_nn_distance,
+            'r_index': r_index,
+            'pattern': pattern
+        }
+    
+    # ═══════════════════════════════════════════════════════
+    # تحلیل دسترسی
+    # ═══════════════════════════════════════════════════════
+    
+    def calculate_service_area_coverage(
+        self,
+        service_radius_km: float = 1.0
+    ) -> Dict:
+        """محاسبه پوشش منطقه سرویس‌دهی"""
+        
+        # Buffer دور همه فروشگاه‌ها
+        service_areas = self.session.execute(
+            select(
+                func.ST_Union(
+                    func.ST_Buffer(
+                        Store.location,
+                        service_radius_km * 1000  # متر
+                    )
+                ).label('coverage')
+            )
+        ).scalar()
+        
+        # مساحت پوشش
+        coverage_area = self.session.execute(
+            select(func.ST_Area(service_areas))
+        ).scalar()
+        
+        # مساحت کل منطقه مورد مطالعه
+        total_area = self.session.execute(
+            select(func.ST_Area(func.ST_ConvexHull(func.ST_Collect(Store.location))))
+        ).scalar()
+        
+        coverage_percent = (coverage_area / total_area * 100) if total_area else 0
+        
+        return {
+            'service_radius_km': service_radius_km,
+            'coverage_area_sqkm': coverage_area / 1000000,
+            'total_area_sqkm': total_area / 1000000,
+            'coverage_percent': coverage_percent,
+            'coverage_geojson': self.session.execute(
+                select(func.ST_AsGeoJSON(service_areas))
+            ).scalar()
+        }
+    
+    def find_underserved_areas(
+        self,
+        service_radius_km: float = 1.0,
+        study_area_wkt: str = None
+    ) -> str:
+        """پیدا کردن مناطق بدون پوشش"""
+        
+        # منطقه مطالعه
+        if study_area_wkt:
+            study_area = func.ST_GeomFromText(study_area_wkt, 4326)
+        else:
+            study_area = func.ST_ConvexHull(func.ST_Collect(Store.location))
+        
+        # پوشش فعلی
+        coverage = func.ST_Union(
+            func.ST_Buffer(Store.location, service_radius_km * 1000)
+        )
+        
+        # مناطق بدون پوشش
+        underserved = self.session.execute(
+            select(func.ST_AsGeoJSON(func.ST_Difference(study_area, coverage)))
+        ).scalar()
+        
+        return underserved
+    
+    # ═══════════════════════════════════════════════════════
+    # تحلیل خوشه‌بندی
+    # ═══════════════════════════════════════════════════════
+    
+    def cluster_stores_dbscan(
+        self,
+        eps_km: float = 0.5,
+        min_samples: int = 3
+    ) -> List[Dict]:
+        """خوشه‌بندی فروشگاه‌ها با DBSCAN"""
+        
+        eps_deg = eps_km / 111  # تقریب
+        
+        query = select(
+            Store.id,
+            Store.name,
+            func.ST_ClusterDBSCAN(Store.location, eps_deg, min_samples).over().label('cluster_id'),
+            func.ST_AsGeoJSON(Store.location).label('geojson')
+        )
+        
+        result = self.session.execute(query)
+        
+        clusters = {}
+        for row in result:
+            cluster_id = row.cluster_id if row.cluster_id is not None else -1
+            if cluster_id not in clusters:
+                clusters[cluster_id] = []
+            clusters[cluster_id].append({
+                'id': row.id,
+                'name': row.name,
+                'geometry': json.loads(row.geojson)
+            })
+        
+        return [
+            {
+                'cluster_id': cid,
+                'is_noise': cid == -1,
+                'size': len(stores),
+                'stores': stores
+            }
+            for cid, stores in clusters.items()
+        ]
+    
+    def find_hotspots(self, threshold_count: int = 5, radius_km: float = 1.0) -> List[Dict]:
+        """پیدا کردن نقاط داغ (تمرکز بالا)"""
+        
+        # نقاطی که تعداد زیادی فروشگاه در شعاعشان هست
+        query = select(
+            Store.id,
+            Store.name,
+            func.ST_AsGeoJSON(Store.location).label('geojson'),
+            func.count(Store.id).over(
+                partition_by=func.ST_ClusterWithin(Store.location, radius_km / 111)
+            ).label('neighbor_count')
+        ).where(
+            func.count(Store.id).over(
+                partition_by=func.ST_ClusterWithin(Store.location, radius_km / 111)
+            ) >= threshold_count
+        )
+        
+        result = self.session.execute(query)
+        
+        return [
+            {
+                'id': row.id,
+                'name': row.name,
+                'geometry': json.loads(row.geojson),
+                'neighbor_count': row.neighbor_count
+            }
+            for row in result
+        ]</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>منابع بیشتر</h4>
+                    <ul>
+                        <li><a href="https://geoalchemy-2.readthedocs.io" target="_blank">مستندات رسمی GeoAlchemy2</a></li>
+                        <li><a href="https://postgis.net/docs/" target="_blank">مستندات PostGIS</a></li>
+                        <li><a href="https://docs.sqlalchemy.org" target="_blank">مستندات SQLAlchemy</a></li>
+                        <li><a href="https://shapely.readthedocs.io" target="_blank">مستندات Shapely</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">🗺️</div>
+                <span class="logo-text">GeoAlchemy2</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                آموزش جامع GeoAlchemy2 - ORM مکانی برای پایتون
+            </p>
+            <div class="footer-links">
+                <a href="https://geoalchemy-2.readthedocs.io" target="_blank">مستندات</a>
+                <a href="https://github.com/geoalchemy/geoalchemy2" target="_blank">GitHub</a>
+                <a href="https://pypi.org/project/GeoAlchemy2/" target="_blank">PyPI</a>
+                <a href="https://postgis.net" target="_blank">PostGIS</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای جامعه GIS ایران
+                <br>
+                <a href="https://araz.me" target="_blank">araz.me</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    
+    <script>
+        // Initialize highlight.js
+        hljs.highlightAll();
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✓</span> کپی شد';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            });
+        }
+        
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Active navigation link
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Scroll progress indicator
+        window.addEventListener('scroll', () => {
+            const scrollTop = document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const progress = (scrollTop / scrollHeight) * 100;
+            
+            document.documentElement.style.setProperty('--scroll-progress', `${progress}%`);
+        });
+    </script>
+</body>
+</html>

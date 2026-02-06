@@ -1,0 +1,4387 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع OpenProject | مدیریت پروژه متن‌باز</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            --primary: #1A67A3;
+            --primary-dark: #145082;
+            --primary-light: #2196F3;
+            --secondary: #35C53F;
+            --accent: #FF6B35;
+            --success: #35C53F;
+            --warning: #FFC107;
+            --danger: #E53935;
+            --info: #00BCD4;
+            
+            --bg-primary: #0a0d12;
+            --bg-secondary: #0f1419;
+            --bg-tertiary: #151c24;
+            --bg-card: #121820;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --border-color: #1e293b;
+            --border-light: #334155;
+            
+            --gradient-primary: linear-gradient(135deg, #1A67A3 0%, #35C53F 100%);
+            --gradient-secondary: linear-gradient(135deg, #1A67A3 0%, #00BCD4 100%);
+            --gradient-accent: linear-gradient(135deg, #FF6B35 0%, #FFC107 100%);
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px rgba(26, 103, 163, 0.3);
+            
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .nav-link.active {
+            color: var(--primary-light);
+            background: rgba(26, 103, 163, 0.15);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(26, 103, 163, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(53, 197, 63, 0.1) 0%, transparent 50%);
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(26, 103, 163, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(26, 103, 163, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(26, 103, 163, 0.15);
+            border: 1px solid rgba(26, 103, 163, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Project Board Illustration */
+        .project-illustration {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .kanban-column {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            min-height: 200px;
+        }
+
+        .kanban-header {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.75rem;
+            text-align: center;
+        }
+
+        .kanban-header.backlog { background: rgba(100, 116, 139, 0.3); }
+        .kanban-header.todo { background: rgba(33, 150, 243, 0.3); }
+        .kanban-header.progress { background: rgba(255, 193, 7, 0.3); }
+        .kanban-header.done { background: rgba(53, 197, 63, 0.3); }
+
+        .kanban-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .kanban-card-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .kanban-card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .section-title-group {
+            flex: 1;
+        }
+
+        .section-number {
+            font-size: 0.85rem;
+            color: var(--primary-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Content Styles */
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--primary-light);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.bash {
+            background: #4EAA25;
+            color: white;
+        }
+
+        .code-lang-icon.yaml {
+            background: #CB171E;
+            color: white;
+        }
+
+        .code-lang-icon.docker {
+            background: #2496ED;
+            color: white;
+        }
+
+        .code-lang-icon.nginx {
+            background: #009639;
+            color: white;
+        }
+
+        .code-lang-icon.sql {
+            background: #336791;
+            color: white;
+        }
+
+        .code-lang-icon.config {
+            background: #6B7280;
+            color: white;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.875rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: inherit;
+        }
+
+        .code-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .code-btn.copied {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            background: transparent;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Inline Code */
+        code:not([class*="language-"]) {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875em;
+            color: var(--primary-light);
+            border: 1px solid var(--border-color);
+            direction: ltr;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip {
+            background: rgba(53, 197, 63, 0.1);
+            border: 1px solid rgba(53, 197, 63, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .info-box.info {
+            background: rgba(26, 103, 163, 0.1);
+            border: 1px solid rgba(26, 103, 163, 0.3);
+        }
+
+        .info-box.danger {
+            background: rgba(229, 57, 53, 0.1);
+            border: 1px solid rgba(229, 57, 53, 0.3);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .info-content ul {
+            margin: 0.5rem 0 0 1rem;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Feature List */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-text strong {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-item {
+            margin: 0;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .toc-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .toc-number {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        /* Screenshot Placeholder */
+        .screenshot {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 2rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .screenshot-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .screenshot-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Steps */
+        .steps {
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Comparison Table */
+        .comparison-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-free {
+            background: rgba(53, 197, 63, 0.2);
+            color: var(--success);
+        }
+
+        .badge-paid {
+            background: rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-enterprise {
+            background: rgba(26, 103, 163, 0.2);
+            color: var(--primary-light);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .copyright a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .hero {
+                padding: 4rem 1.5rem;
+            }
+            
+            .kanban-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .hero-stats {
+                gap: 2rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .section-icon {
+                margin: 0 auto;
+            }
+            
+            .main {
+                padding: 2rem 1rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+            
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .step-number {
+                margin: 0 auto;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Print */
+        @media print {
+            .header, .nav, .code-actions, .footer {
+                display: none;
+            }
+            
+            .hero {
+                padding: 2rem;
+            }
+            
+            .code-block {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">📋</div>
+                <div>
+                    <div class="logo-text">OpenProject</div>
+                    <div class="logo-subtitle">مدیریت پروژه متن‌باز</div>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="#intro" class="nav-link active">معرفی</a>
+                <a href="#install" class="nav-link">نصب</a>
+                <a href="#basics" class="nav-link">مبانی</a>
+                <a href="#projects" class="nav-link">پروژه‌ها</a>
+                <a href="#workpackages" class="nav-link">وظایف</a>
+                <a href="#agile" class="nav-link">Agile</a>
+                <a href="#time" class="nav-link">زمان‌بندی</a>
+                <a href="#team" class="nav-link">تیم</a>
+                <a href="#advanced" class="nav-link">پیشرفته</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🚀</span>
+                <span>نسخه 14.x | متن‌باز و رایگان</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">OpenProject</span>
+            </h1>
+            <p class="hero-description">
+                قدرتمندترین نرم‌افزار متن‌باز مدیریت پروژه.
+                از Scrum و Kanban تا Gantt Chart و مدیریت منابع، همه در یک پلتفرم.
+            </p>
+            
+            <!-- Project Board Illustration -->
+            <div class="project-illustration">
+                <div class="kanban-board">
+                    <div class="kanban-column">
+                        <div class="kanban-header backlog">📥 Backlog</div>
+                        <div class="kanban-card">
+                            <div class="kanban-card-title">طراحی UI</div>
+                            <div class="kanban-card-meta">
+                                <span>🏷️ طراحی</span>
+                                <span>👤 علی</span>
+                            </div>
+                        </div>
+                        <div class="kanban-card">
+                            <div class="kanban-card-title">مستندسازی API</div>
+                            <div class="kanban-card-meta">
+                                <span>🏷️ مستند</span>
+                                <span>👤 سارا</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kanban-column">
+                        <div class="kanban-header todo">📝 To Do</div>
+                        <div class="kanban-card">
+                            <div class="kanban-card-title">پیاده‌سازی Login</div>
+                            <div class="kanban-card-meta">
+                                <span>🏷️ Backend</span>
+                                <span>👤 رضا</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kanban-column">
+                        <div class="kanban-header progress">🔄 In Progress</div>
+                        <div class="kanban-card">
+                            <div class="kanban-card-title">تست یکپارچگی</div>
+                            <div class="kanban-card-meta">
+                                <span>🏷️ QA</span>
+                                <span>👤 مریم</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="kanban-column">
+                        <div class="kanban-header done">✅ Done</div>
+                        <div class="kanban-card">
+                            <div class="kanban-card-title">راه‌اندازی سرور</div>
+                            <div class="kanban-card-meta">
+                                <span>🏷️ DevOps</span>
+                                <span>👤 امیر</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">۶M+</div>
+                    <div class="stat-label">کاربر فعال</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۱۰۰%</div>
+                    <div class="stat-label">متن‌باز</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۴۰+</div>
+                    <div class="stat-label">زبان پشتیبانی</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2 class="toc-title">📚 فهرست مطالب</h2>
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <a href="#intro" class="toc-link">
+                        <span class="toc-number">۱</span>
+                        معرفی OpenProject
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#install" class="toc-link">
+                        <span class="toc-number">۲</span>
+                        نصب و راه‌اندازی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#basics" class="toc-link">
+                        <span class="toc-number">۳</span>
+                        مبانی و رابط کاربری
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#projects" class="toc-link">
+                        <span class="toc-number">۴</span>
+                        مدیریت پروژه‌ها
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#workpackages" class="toc-link">
+                        <span class="toc-number">۵</span>
+                        Work Packages و وظایف
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#agile" class="toc-link">
+                        <span class="toc-number">۶</span>
+                        Agile و Scrum
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#time" class="toc-link">
+                        <span class="toc-number">۷</span>
+                        زمان‌بندی و Gantt
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#team" class="toc-link">
+                        <span class="toc-number">۸</span>
+                        مدیریت تیم
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#advanced" class="toc-link">
+                        <span class="toc-number">۹</span>
+                        تنظیمات پیشرفته
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی OpenProject</h2>
+                    <p class="section-subtitle">آشنایی با نرم‌افزار مدیریت پروژه متن‌باز</p>
+                </div>
+            </div>
+
+            <h3>🎯 OpenProject چیست؟</h3>
+            <p>
+                <strong>OpenProject</strong> یک نرم‌افزار مدیریت پروژه متن‌باز و قدرتمند است که توسط شرکت آلمانی 
+                OpenProject GmbH توسعه داده شده است. این نرم‌افزار ترکیبی کامل از ابزارهای مدیریت پروژه کلاسیک 
+                و متدولوژی‌های Agile را ارائه می‌دهد و جایگزین مناسبی برای ابزارهای تجاری مانند 
+                Jira، Microsoft Project و Asana است.
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🆓</div>
+                    <h4 class="card-title">متن‌باز و رایگان</h4>
+                    <p class="card-description">
+                        نسخه Community کاملاً رایگان است و می‌توانید روی سرور خود نصب کنید.
+                        کد منبع در GitHub در دسترس است.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h4 class="card-title">Gantt Chart پیشرفته</h4>
+                    <p class="card-description">
+                        نمودار گانت تعاملی با قابلیت drag & drop، وابستگی‌ها و مسیر بحرانی.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏃</div>
+                    <h4 class="card-title">پشتیبانی از Agile</h4>
+                    <p class="card-description">
+                        Scrum Board، Kanban، Backlog Management و Sprint Planning کامل.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⏱️</div>
+                    <h4 class="card-title">ردیابی زمان</h4>
+                    <p class="card-description">
+                        ثبت زمان صرف شده، گزارش‌گیری و مدیریت هزینه پروژه.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📁</div>
+                    <h4 class="card-title">مدیریت اسناد</h4>
+                    <p class="card-description">
+                        آپلود فایل، Wiki داخلی و یکپارچگی با Nextcloud.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔗</div>
+                    <h4 class="card-title">یکپارچگی‌ها</h4>
+                    <p class="card-description">
+                        اتصال به Git، GitHub، GitLab، Slack و بسیاری ابزارهای دیگر.
+                    </p>
+                </div>
+            </div>
+
+            <h3>📊 مقایسه نسخه‌ها</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>Community (رایگان)</th>
+                            <th>Basic</th>
+                            <th>Professional</th>
+                            <th>Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>مدیریت پروژه</td>
+                            <td><span class="comparison-badge badge-free">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-enterprise">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Gantt Chart</td>
+                            <td><span class="comparison-badge badge-free">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-enterprise">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Agile Boards</td>
+                            <td><span class="comparison-badge badge-free">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-enterprise">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Time Tracking</td>
+                            <td><span class="comparison-badge badge-free">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-enterprise">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Team Planner</td>
+                            <td>-</td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-enterprise">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Baseline Comparison</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><span class="comparison-badge badge-paid">✓</span></td>
+                            <td><span class="comparison-badge badge-enterprise">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>LDAP/SSO</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><span class="comparison-badge badge-enterprise">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>پشتیبانی</td>
+                            <td>Community</td>
+                            <td>Email</td>
+                            <td>Priority</td>
+                            <td>۲۴/۷</td>
+                        </tr>
+                        <tr>
+                            <td>قیمت (ماهانه)</td>
+                            <td><strong>رایگان</strong></td>
+                            <td>€4.99/کاربر</td>
+                            <td>€9.99/کاربر</td>
+                            <td>تماس</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🆚 مقایسه با رقبا</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>OpenProject</th>
+                            <th>Jira</th>
+                            <th>Asana</th>
+                            <th>MS Project</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>متن‌باز</td>
+                            <td>✅</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td>Self-hosted</td>
+                            <td>✅</td>
+                            <td>✅ (Data Center)</td>
+                            <td>❌</td>
+                            <td>✅</td>
+                        </tr>
+                        <tr>
+                            <td>Gantt Chart</td>
+                            <td>✅ عالی</td>
+                            <td>⚠️ پلاگین</td>
+                            <td>✅ خوب</td>
+                            <td>✅ عالی</td>
+                        </tr>
+                        <tr>
+                            <td>Agile/Scrum</td>
+                            <td>✅ عالی</td>
+                            <td>✅ عالی</td>
+                            <td>✅ خوب</td>
+                            <td>⚠️ محدود</td>
+                        </tr>
+                        <tr>
+                            <td>نسخه رایگان</td>
+                            <td>✅ کامل</td>
+                            <td>⚠️ ۱۰ کاربر</td>
+                            <td>⚠️ محدود</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td>حریم خصوصی داده</td>
+                            <td>✅ کامل</td>
+                            <td>⚠️ Cloud</td>
+                            <td>⚠️ Cloud</td>
+                            <td>✅</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>چرا OpenProject؟</h4>
+                    <p>
+                        اگر به دنبال یک راه‌حل مدیریت پروژه هستید که:
+                    </p>
+                    <ul>
+                        <li>داده‌هایتان روی سرور خودتان باشد (GDPR Compliant)</li>
+                        <li>هزینه لایسنس نداشته باشد</li>
+                        <li>قابلیت سفارشی‌سازی داشته باشد</li>
+                        <li>هم Waterfall و هم Agile را پشتیبانی کند</li>
+                    </ul>
+                    <p>OpenProject بهترین انتخاب است!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Installation -->
+        <section class="section" id="install">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">نصب و راه‌اندازی</h2>
+                    <p class="section-subtitle">روش‌های مختلف نصب OpenProject</p>
+                </div>
+            </div>
+
+            <h3>🐳 نصب با Docker (توصیه شده)</h3>
+            <p>
+                ساده‌ترین و سریع‌ترین روش نصب OpenProject استفاده از Docker است.
+                این روش برای محیط‌های توسعه و تولید مناسب است.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon yaml">YML</div>
+                        <span>docker-compose.yml</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml">version: "3.8"
+
+services:
+  openproject:
+    image: openproject/openproject:14
+    container_name: openproject
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      # تنظیمات پایگاه داده
+      OPENPROJECT_HTTPS: "false"
+      OPENPROJECT_HOST__NAME: "localhost:8080"
+      OPENPROJECT_SECRET_KEY_BASE: "your-secret-key-here-min-64-chars"
+      
+      # تنظیمات ایمیل (اختیاری)
+      EMAIL_DELIVERY_METHOD: "smtp"
+      SMTP_ADDRESS: "smtp.gmail.com"
+      SMTP_PORT: 587
+      SMTP_DOMAIN: "gmail.com"
+      SMTP_AUTHENTICATION: "plain"
+      SMTP_USER_NAME: "your-email@gmail.com"
+      SMTP_PASSWORD: "your-app-password"
+      SMTP_ENABLE_STARTTLS_AUTO: "true"
+      
+      # تنظیمات زبان
+      OPENPROJECT_DEFAULT__LANGUAGE: "fa"
+      
+    volumes:
+      - openproject_data:/var/openproject/assets
+      - openproject_pgdata:/var/openproject/pgdata
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health_checks/default"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  openproject_data:
+  openproject_pgdata:</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>اجرای Docker</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ایجاد پوشه پروژه
+mkdir openproject && cd openproject
+
+# ایجاد فایل docker-compose.yml
+# (محتوای بالا را در این فایل قرار دهید)
+
+# تولید کلید امنیتی
+openssl rand -hex 64
+
+# اجرا
+docker-compose up -d
+
+# بررسی وضعیت
+docker-compose ps
+docker-compose logs -f
+
+# دسترسی به OpenProject
+# http://localhost:8080
+# نام کاربری: admin
+# رمز عبور: admin</code></pre>
+                </div>
+            </div>
+
+            <h3>🖥️ نصب روی Ubuntu/Debian</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>install_ubuntu.sh</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# نصب OpenProject روی Ubuntu 22.04/24.04
+
+# ═══════════════════════════════════════════════════════════
+# 1. اضافه کردن مخزن OpenProject
+# ═══════════════════════════════════════════════════════════
+
+# نصب پیش‌نیازها
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+
+# اضافه کردن کلید GPG
+curl -fsSL https://dl.packager.io/srv/opf/openproject/key | \
+  sudo gpg --dearmor -o /etc/apt/keyrings/openproject.gpg
+
+# اضافه کردن مخزن
+echo "deb [signed-by=/etc/apt/keyrings/openproject.gpg] \
+  https://dl.packager.io/srv/deb/opf/openproject/stable/14/ubuntu 22.04 main" | \
+  sudo tee /etc/apt/sources.list.d/openproject.list
+
+# ═══════════════════════════════════════════════════════════
+# 2. نصب OpenProject
+# ═══════════════════════════════════════════════════════════
+
+sudo apt-get update
+sudo apt-get install -y openproject
+
+# ═══════════════════════════════════════════════════════════
+# 3. پیکربندی
+# ═══════════════════════════════════════════════════════════
+
+# اجرای ویزارد پیکربندی
+sudo openproject configure
+
+# این ویزارد سوالاتی درباره موارد زیر می‌پرسد:
+# - PostgreSQL (نصب خودکار یا استفاده از موجود)
+# - Apache/Nginx (نصب و پیکربندی وب سرور)
+# - SSL (Let's Encrypt یا گواهی سفارشی)
+# - Hostname
+# - Email settings
+
+# ═══════════════════════════════════════════════════════════
+# 4. مدیریت سرویس
+# ═══════════════════════════════════════════════════════════
+
+# شروع سرویس
+sudo systemctl start openproject
+
+# فعال‌سازی در بوت
+sudo systemctl enable openproject
+
+# بررسی وضعیت
+sudo systemctl status openproject
+
+# مشاهده لاگ‌ها
+sudo journalctl -u openproject -f
+
+# ═══════════════════════════════════════════════════════════
+# 5. دستورات مفید
+# ═══════════════════════════════════════════════════════════
+
+# ری‌استارت
+sudo openproject restart
+
+# پیکربندی مجدد
+sudo openproject reconfigure
+
+# بروزرسانی
+sudo apt-get update && sudo apt-get upgrade openproject
+
+# بکاپ
+sudo openproject backup
+
+# بازیابی
+sudo openproject restore /path/to/backup.tar.gz</code></pre>
+                </div>
+            </div>
+
+            <h3>🔧 نصب با Kubernetes (Helm)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>kubernetes_install.sh</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># اضافه کردن Helm repository
+helm repo add openproject https://charts.openproject.org
+helm repo update
+
+# نصب با تنظیمات پیش‌فرض
+helm install openproject openproject/openproject
+
+# نصب با تنظیمات سفارشی
+helm install openproject openproject/openproject \
+  --set persistence.enabled=true \
+  --set persistence.size=10Gi \
+  --set ingress.enabled=true \
+  --set ingress.hostname=openproject.example.com \
+  --set postgresql.enabled=true
+
+# یا با فایل values
+helm install openproject openproject/openproject -f values.yaml</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon yaml">YML</div>
+                        <span>values.yaml</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml"># Kubernetes Helm Values
+replicaCount: 2
+
+image:
+  repository: openproject/openproject
+  tag: "14"
+  pullPolicy: IfNotPresent
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: openproject.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: openproject-tls
+      hosts:
+        - openproject.example.com
+
+persistence:
+  enabled: true
+  storageClass: "standard"
+  size: 20Gi
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "secure-password"
+    database: openproject
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
+  limits:
+    memory: "4Gi"
+    cpu: "2000m"
+
+environment:
+  OPENPROJECT_HTTPS: "true"
+  OPENPROJECT_DEFAULT__LANGUAGE: "fa"</code></pre>
+                </div>
+            </div>
+
+            <h3>🔒 پیکربندی SSL با Nginx</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon nginx">NG</div>
+                        <span>nginx.conf</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-nginx"># /etc/nginx/sites-available/openproject
+
+upstream openproject {
+    server 127.0.0.1:8080;
+}
+
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name openproject.example.com;
+    return 301 https://$server_name$request_uri;
+}
+
+# HTTPS Server
+server {
+    listen 443 ssl http2;
+    server_name openproject.example.com;
+
+    # SSL Configuration
+    ssl_certificate /etc/letsencrypt/live/openproject.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/openproject.example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+
+    # Logging
+    access_log /var/log/nginx/openproject_access.log;
+    error_log /var/log/nginx/openproject_error.log;
+
+    # Client body size for file uploads
+    client_max_body_size 100M;
+
+    location / {
+        proxy_pass http://openproject;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        proxy_connect_timeout 90;
+        proxy_send_timeout 90;
+        proxy_read_timeout 90;
+        proxy_buffering off;
+        proxy_request_buffering off;
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکات مهم پس از نصب</h4>
+                    <ul>
+                        <li><strong>رمز عبور admin را تغییر دهید:</strong> اولین کار پس از ورود!</li>
+                        <li><strong>بکاپ خودکار:</strong> حتماً بکاپ روزانه تنظیم کنید</li>
+                        <li><strong>SSL:</strong> در محیط تولید حتماً از HTTPS استفاده کنید</li>
+                        <li><strong>فایروال:</strong> فقط پورت‌های ضروری را باز بگذارید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Basics -->
+        <section class="section" id="basics">
+            <div class="section-header">
+                <div class="section-icon">🖥️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">مبانی و رابط کاربری</h2>
+                    <p class="section-subtitle">آشنایی با محیط OpenProject</p>
+                </div>
+            </div>
+
+            <h3>🏠 صفحه اصلی (Home)</h3>
+            <p>
+                پس از ورود به OpenProject، با داشبورد اصلی مواجه می‌شوید که شامل بخش‌های زیر است:
+            </p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">
+                        <strong>داشبورد شخصی</strong>
+                        نمای کلی از وظایف، پروژه‌ها و فعالیت‌های اخیر شما
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📁</div>
+                    <div class="feature-text">
+                        <strong>لیست پروژه‌ها</strong>
+                        دسترسی سریع به تمام پروژه‌هایی که عضو آن‌ها هستید
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔔</div>
+                    <div class="feature-text">
+                        <strong>اعلان‌ها</strong>
+                        نوتیفیکیشن‌های مربوط به تغییرات و به‌روزرسانی‌ها
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-text">
+                        <strong>تقویم</strong>
+                        مشاهده وظایف و رویدادها در قالب تقویم
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">⏰</div>
+                    <div class="feature-text">
+                        <strong>My Spent Time</strong>
+                        زمان‌های ثبت شده توسط شما
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📋</div>
+                    <div class="feature-text">
+                        <strong>Work Packages</strong>
+                        وظایف اختصاص داده شده به شما
+                    </div>
+                </div>
+            </div>
+
+            <h3>📂 ساختار منوی اصلی</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>منو</th>
+                            <th>توضیح</th>
+                            <th>دسترسی سریع</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>🏠 Home</strong></td>
+                            <td>داشبورد شخصی و نمای کلی</td>
+                            <td>کلیک روی لوگو</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📁 Projects</strong></td>
+                            <td>لیست و مدیریت پروژه‌ها</td>
+                            <td>منوی بالا</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📋 Work Packages</strong></td>
+                            <td>مدیریت وظایف و تسک‌ها</td>
+                            <td>داخل هر پروژه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📊 Boards</strong></td>
+                            <td>Kanban و Scrum boards</td>
+                            <td>داخل هر پروژه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📅 Calendar</strong></td>
+                            <td>تقویم پروژه</td>
+                            <td>داخل هر پروژه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📈 Gantt</strong></td>
+                            <td>نمودار گانت</td>
+                            <td>داخل هر پروژه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>📄 Wiki</strong></td>
+                            <td>مستندات پروژه</td>
+                            <td>داخل هر پروژه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>⚙️ Administration</strong></td>
+                            <td>تنظیمات سیستم (فقط ادمین)</td>
+                            <td>آواتار > Administration</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>👤 تنظیمات پروفایل</h3>
+            <p>
+                برای دسترسی به تنظیمات شخصی، روی آواتار خود در گوشه بالا کلیک کنید:
+            </p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">۱</div>
+                    <div class="step-content">
+                        <h4 class="step-title">My Account</h4>
+                        <p class="step-description">
+                            تغییر نام، ایمیل، رمز عبور و تصویر پروفایل.
+                            همچنین می‌توانید زبان و منطقه زمانی را تنظیم کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۲</div>
+                    <div class="step-content">
+                        <h4 class="step-title">Notifications</h4>
+                        <p class="step-description">
+                            تنظیم نحوه دریافت اعلان‌ها: ایمیل فوری، خلاصه روزانه یا هفتگی.
+                            می‌توانید برای هر پروژه تنظیمات جداگانه داشته باشید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۳</div>
+                    <div class="step-content">
+                        <h4 class="step-title">Access Tokens</h4>
+                        <p class="step-description">
+                            ایجاد API tokens برای دسترسی برنامه‌نویسی به OpenProject.
+                            مناسب برای یکپارچگی با ابزارهای دیگر.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔍 جستجوی سراسری</h3>
+            <p>
+                با فشردن <code>/</code> یا کلیک روی آیکون جستجو، می‌توانید در کل سیستم جستجو کنید:
+            </p>
+
+            <div class="info-box info">
+                <div class="info-icon">🔍</div>
+                <div class="info-content">
+                    <h4>نکات جستجو</h4>
+                    <ul>
+                        <li><strong>جستجوی عمومی:</strong> عبارت مورد نظر را تایپ کنید</li>
+                        <li><strong>جستجوی شماره:</strong> <code>#123</code> برای یافتن Work Package شماره ۱۲۳</li>
+                        <li><strong>فیلتر پروژه:</strong> <code>project:نام-پروژه</code></li>
+                        <li><strong>فیلتر نوع:</strong> <code>type:Task</code> یا <code>type:Bug</code></li>
+                        <li><strong>فیلتر وضعیت:</strong> <code>status:open</code> یا <code>status:closed</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>⌨️ میانبرهای کیبورد</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>میانبر</th>
+                            <th>عملکرد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/</code></td>
+                            <td>باز کردن جستجو</td>
+                        </tr>
+                        <tr>
+                            <td><code>g</code> + <code>h</code></td>
+                            <td>رفتن به Home</td>
+                        </tr>
+                        <tr>
+                            <td><code>g</code> + <code>p</code></td>
+                            <td>رفتن به Projects</td>
+                        </tr>
+                        <tr>
+                            <td><code>g</code> + <code>w</code></td>
+                            <td>رفتن به Work Packages</td>
+                        </tr>
+                        <tr>
+                            <td><code>n</code></td>
+                            <td>ایجاد Work Package جدید</td>
+                        </tr>
+                        <tr>
+                            <td><code>?</code></td>
+                            <td>نمایش راهنمای میانبرها</td>
+                        </tr>
+                        <tr>
+                            <td><code>Esc</code></td>
+                            <td>بستن پنجره‌های باز</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Projects -->
+        <section class="section" id="projects">
+            <div class="section-header">
+                <div class="section-icon">📁</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">مدیریت پروژه‌ها</h2>
+                    <p class="section-subtitle">ایجاد و مدیریت پروژه‌ها</p>
+                </div>
+            </div>
+
+            <h3>➕ ایجاد پروژه جدید</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">۱</div>
+                    <div class="step-content">
+                        <h4 class="step-title">انتخاب New Project</h4>
+                        <p class="step-description">
+                            از منوی Projects، روی دکمه <strong>+ Project</strong> کلیک کنید.
+                            یا از صفحه Home، گزینه Create new project را انتخاب کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۲</div>
+                    <div class="step-content">
+                        <h4 class="step-title">اطلاعات پایه</h4>
+                        <p class="step-description">
+                            <strong>Name:</strong> نام پروژه (الزامی)<br>
+                            <strong>Identifier:</strong> شناسه یکتا (برای URL)<br>
+                            <strong>Description:</strong> توضیحات پروژه<br>
+                            <strong>Public:</strong> آیا پروژه عمومی باشد؟
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۳</div>
+                    <div class="step-content">
+                        <h4 class="step-title">انتخاب قالب (اختیاری)</h4>
+                        <p class="step-description">
+                            می‌توانید از قالب‌های آماده استفاده کنید:
+                            <strong>Scrum</strong>، <strong>Kanban</strong>، <strong>Basic</strong> یا قالب سفارشی.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۴</div>
+                    <div class="step-content">
+                        <h4 class="step-title">فعال‌سازی ماژول‌ها</h4>
+                        <p class="step-description">
+                            ماژول‌های مورد نیاز را فعال کنید:
+                            Work Packages، Gantt، Wiki، Calendar، Boards و...
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>⚙️ تنظیمات پروژه</h3>
+            <p>
+                پس از ایجاد پروژه، از منوی <strong>Project Settings</strong> می‌توانید تنظیمات زیر را انجام دهید:
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📝</div>
+                    <h4 class="card-title">General</h4>
+                    <p class="card-description">
+                        تغییر نام، توضیحات، وضعیت پروژه و تنظیمات عمومی.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🧩</div>
+                    <h4 class="card-title">Modules</h4>
+                    <p class="card-description">
+                        فعال/غیرفعال کردن ماژول‌های مختلف مانند Wiki، Calendar، Boards.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📋</div>
+                    <h4 class="card-title">Work Package Types</h4>
+                    <p class="card-description">
+                        انتخاب انواع Work Package قابل استفاده در پروژه (Task, Bug, Feature, Epic).
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🏷️</div>
+                    <h4 class="card-title">Categories</h4>
+                    <p class="card-description">
+                        تعریف دسته‌بندی برای Work Packages (Backend, Frontend, DevOps).
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎯</div>
+                    <h4 class="card-title">Versions</h4>
+                    <p class="card-description">
+                        تعریف نسخه‌ها و Milestones پروژه (v1.0, v2.0, Sprint 1).
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <h4 class="card-title">Members</h4>
+                    <p class="card-description">
+                        اضافه کردن اعضا و تعیین نقش‌ها (Manager, Developer, Viewer).
+                    </p>
+                </div>
+            </div>
+
+            <h3>📊 ساختار سلسله‌مراتبی</h3>
+            <p>
+                OpenProject از ساختار سلسله‌مراتبی پروژه‌ها پشتیبانی می‌کند:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">TXT</div>
+                        <span>Project Hierarchy</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">🏢 شرکت (Parent Project)
+├── 📁 محصول A (Sub-project)
+│   ├── 📋 Sprint 1
+│   ├── 📋 Sprint 2
+│   └── 📋 Sprint 3
+├── 📁 محصول B (Sub-project)
+│   ├── 📋 فاز طراحی
+│   ├── 📋 فاز توسعه
+│   └── 📋 فاز تست
+└── 📁 زیرساخت (Sub-project)
+    ├── 📋 سرورها
+    └── 📋 شبکه</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>مزایای ساختار سلسله‌مراتبی</h4>
+                    <ul>
+                        <li><strong>ارث‌بری اعضا:</strong> اعضای پروژه والد به زیرپروژه‌ها دسترسی دارند</li>
+                        <li><strong>گزارش‌گیری متمرکز:</strong> مشاهده وضعیت کل سازمان از یک نقطه</li>
+                        <li><strong>مدیریت منابع:</strong> تخصیص منابع بین پروژه‌های مختلف</li>
+                        <li><strong>Cross-project queries:</strong> جستجو در چند پروژه همزمان</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>📋 قالب‌های پروژه</h3>
+            <p>
+                می‌توانید از پروژه‌های موجود به عنوان قالب استفاده کنید:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">📋</div>
+                        <span>ایجاد قالب پروژه</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">1. یک پروژه نمونه با تنظیمات مورد نظر ایجاد کنید
+2. Work Package Types مورد نیاز را فعال کنید
+3. Categories و Versions را تعریف کنید
+4. Boards و Views دلخواه را بسازید
+5. Wiki pages اولیه را ایجاد کنید
+
+سپس:
+Administration → Projects → Templates
+پروژه را به عنوان Template علامت‌گذاری کنید
+
+هنگام ایجاد پروژه جدید:
+- گزینه "Copy from template" را انتخاب کنید
+- قالب مورد نظر را انتخاب کنید
+- تنظیمات کپی شده را بررسی و تأیید کنید</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Work Packages -->
+        <section class="section" id="workpackages">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">Work Packages و وظایف</h2>
+                    <p class="section-subtitle">مدیریت تسک‌ها و وظایف</p>
+                </div>
+            </div>
+
+            <h3>📦 Work Package چیست؟</h3>
+            <p>
+                <strong>Work Package</strong> واحد اصلی کار در OpenProject است. هر چیزی که باید انجام شود 
+                (تسک، باگ، فیچر، Epic و...) یک Work Package است. این مفهوم معادل Issue در Jira یا 
+                Task در Asana است.
+            </p>
+
+            <h4>انواع Work Package</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع</th>
+                            <th>آیکون</th>
+                            <th>کاربرد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Task</strong></td>
+                            <td>📝</td>
+                            <td>وظایف عمومی و کارهای روزمره</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bug</strong></td>
+                            <td>🐛</td>
+                            <td>گزارش خطا و مشکلات نرم‌افزاری</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Feature</strong></td>
+                            <td>⭐</td>
+                            <td>قابلیت‌های جدید</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Epic</strong></td>
+                            <td>🎯</td>
+                            <td>کارهای بزرگ که شامل چندین Task می‌شوند</td>
+                        </tr>
+                        <tr>
+                            <td><strong>User Story</strong></td>
+                            <td>📖</td>
+                            <td>نیازمندی از دید کاربر (Agile)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Milestone</strong></td>
+                            <td>🏁</td>
+                            <td>نقاط عطف پروژه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phase</strong></td>
+                            <td>📅</td>
+                            <td>فازهای پروژه</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>➕ ایجاد Work Package</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">📋</div>
+                        <span>فیلدهای Work Package</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+فیلدهای اصلی (Required)
+═══════════════════════════════════════════════════════════
+• Subject (عنوان): توضیح کوتاه و واضح از کار
+• Type: نوع Work Package (Task, Bug, Feature, ...)
+• Status: وضعیت فعلی (New, In Progress, Done, ...)
+
+═══════════════════════════════════════════════════════════
+فیلدهای مهم (Recommended)
+═══════════════════════════════════════════════════════════
+• Assignee: مسئول انجام کار
+• Priority: اولویت (Low, Normal, High, Urgent)
+• Start Date: تاریخ شروع
+• Due Date: تاریخ سررسید
+• Estimated Time: زمان تخمینی
+• Progress %: درصد پیشرفت
+
+═══════════════════════════════════════════════════════════
+فیلدهای تکمیلی (Optional)
+═══════════════════════════════════════════════════════════
+• Description: توضیحات کامل (Markdown پشتیبانی می‌شود)
+• Category: دسته‌بندی
+• Version: نسخه/Sprint مربوطه
+• Parent: Work Package والد (برای سلسله‌مراتب)
+• Related Work Packages: ارتباط با سایر WPها
+• Attachments: فایل‌های پیوست
+• Watchers: افرادی که می‌خواهند تغییرات را دنبال کنند
+• Custom Fields: فیلدهای سفارشی</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 وضعیت‌ها و گردش کار</h3>
+            <p>
+                هر Work Package یک وضعیت (Status) دارد که نشان‌دهنده مرحله فعلی کار است:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">🔄</div>
+                        <span>Default Workflow</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">┌─────────┐    ┌─────────────┐    ┌─────────────┐    ┌────────┐
+│   New   │───▶│ In Progress │───▶│   Testing   │───▶│  Done  │
+└─────────┘    └─────────────┘    └─────────────┘    └────────┘
+     │                │                  │                │
+     │                ▼                  │                │
+     │         ┌───────────┐             │                │
+     └────────▶│  On Hold  │◀────────────┘                │
+               └───────────┘                              │
+                     │                                    │
+                     ▼                                    │
+               ┌───────────┐                              │
+               │ Rejected  │◀─────────────────────────────┘
+               └───────────┘
+
+وضعیت‌های رایج:
+• New: تازه ایجاد شده
+• In Specification: در حال تعریف نیازمندی
+• In Progress: در حال انجام
+• On Hold: متوقف شده
+• Testing: در حال تست
+• Ready for Review: آماده بررسی
+• Done/Closed: تکمیل شده
+• Rejected: رد شده</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 روابط بین Work Packages</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع رابطه</th>
+                            <th>توضیح</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Parent/Child</strong></td>
+                            <td>رابطه والد-فرزند</td>
+                            <td>Epic شامل چند Task</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relates to</strong></td>
+                            <td>ارتباط عمومی</td>
+                            <td>دو تسک مرتبط</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Blocks</strong></td>
+                            <td>مسدود کننده</td>
+                            <td>Task A باید قبل از Task B تمام شود</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Blocked by</strong></td>
+                            <td>مسدود شده توسط</td>
+                            <td>Task B منتظر Task A است</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Duplicates</strong></td>
+                            <td>تکراری</td>
+                            <td>این باگ قبلاً گزارش شده</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Follows</strong></td>
+                            <td>دنبال می‌کند</td>
+                            <td>شروع Task B پس از پایان Task A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Precedes</strong></td>
+                            <td>قبل از</td>
+                            <td>Task A قبل از Task B است</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🔍 فیلتر و جستجوی پیشرفته</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">🔍</div>
+                        <span>Filter Examples</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+فیلترهای پرکاربرد
+═══════════════════════════════════════════════════════════
+
+1. وظایف من که هنوز تمام نشده:
+   Assignee = [current user]
+   Status = open
+
+2. باگ‌های با اولویت بالا:
+   Type = Bug
+   Priority = High, Urgent
+   Status = open
+
+3. کارهای عقب‌افتاده:
+   Due Date < today
+   Status = open
+
+4. کارهای این هفته:
+   Due Date = this week
+   
+5. کارهای بدون مسئول:
+   Assignee = none
+   Status = open
+
+6. کارهای یک Sprint خاص:
+   Version = "Sprint 5"
+
+7. کارهای تغییر یافته امروز:
+   Updated on = today
+
+═══════════════════════════════════════════════════════════
+ذخیره فیلترها
+═══════════════════════════════════════════════════════════
+پس از اعمال فیلتر:
+1. روی "Save" کلیک کنید
+2. نام فیلتر را وارد کنید
+3. Public/Private بودن را انتخاب کنید
+4. فیلتر در منوی کناری ذخیره می‌شود</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات کاربردی</h4>
+                    <ul>
+                        <li><strong>عنوان واضح:</strong> عنوان باید کار را به طور کامل توضیح دهد</li>
+                        <li><strong>یک مسئول:</strong> هر کار فقط یک مسئول داشته باشد</li>
+                        <li><strong>تخمین زمان:</strong> همیشه زمان تخمینی را وارد کنید</li>
+                        <li><strong>بروزرسانی وضعیت:</strong> وضعیت را به‌روز نگه دارید</li>
+                        <li><strong>کامنت:</strong> پیشرفت و موانع را در کامنت‌ها ثبت کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Agile -->
+        <section class="section" id="agile">
+            <div class="section-header">
+                <div class="section-icon">🏃</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">Agile و Scrum</h2>
+                    <p class="section-subtitle">مدیریت چابک پروژه</p>
+                </div>
+            </div>
+
+            <h3>📊 Boards</h3>
+            <p>
+                OpenProject دو نوع Board اصلی ارائه می‌دهد:
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📋</div>
+                    <h4 class="card-title">Basic Board</h4>
+                    <p class="card-description">
+                        بورد ساده با ستون‌های سفارشی. مناسب برای Kanban و گردش کار ساده.
+                        می‌توانید ستون‌ها را بر اساس Status، Assignee یا Version تنظیم کنید.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎯</div>
+                    <h4 class="card-title">Action Board</h4>
+                    <p class="card-description">
+                        بورد پیشرفته که با جابجایی کارت‌ها، فیلد مربوطه به‌روز می‌شود.
+                        مثلاً با کشیدن کارت به ستون "Done"، وضعیت تغییر می‌کند.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🎯 ایجاد Kanban Board</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">۱</div>
+                    <div class="step-content">
+                        <h4 class="step-title">ایجاد Board جدید</h4>
+                        <p class="step-description">
+                            از منوی پروژه، <strong>Boards</strong> را انتخاب کنید.
+                            سپس <strong>+ Board</strong> را کلیک کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۲</div>
+                    <div class="step-content">
+                        <h4 class="step-title">انتخاب نوع Board</h4>
+                        <p class="step-description">
+                            <strong>Action Board</strong> را انتخاب کنید و فیلد <strong>Status</strong> 
+                            را به عنوان معیار ستون‌ها انتخاب کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۳</div>
+                    <div class="step-content">
+                        <h4 class="step-title">اضافه کردن ستون‌ها</h4>
+                        <p class="step-description">
+                            ستون‌های مورد نیاز را اضافه کنید:
+                            <strong>Backlog → To Do → In Progress → Review → Done</strong>
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۴</div>
+                    <div class="step-content">
+                        <h4 class="step-title">تنظیم فیلترها</h4>
+                        <p class="step-description">
+                            فیلترهای Board را تنظیم کنید. مثلاً فقط کارهای Sprint فعلی نمایش داده شوند.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🏃 Scrum با OpenProject</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">🏃</div>
+                        <span>Scrum Workflow</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+چرخه Scrum در OpenProject
+═══════════════════════════════════════════════════════════
+
+1️⃣ Product Backlog
+   └── ایجاد User Stories و Features
+   └── اولویت‌بندی با Drag & Drop
+   └── تخمین با Story Points (Custom Field)
+
+2️⃣ Sprint Planning
+   └── ایجاد Version جدید به نام Sprint
+   └── انتخاب آیتم‌ها از Backlog
+   └── اختصاص به Sprint (Version)
+   └── تعیین Sprint Goal
+
+3️⃣ Sprint Execution
+   └── استفاده از Sprint Board
+   └── Daily Standup با بررسی Board
+   └── بروزرسانی وضعیت کارها
+   └── ثبت زمان صرف شده
+
+4️⃣ Sprint Review
+   └── بررسی کارهای Done
+   └── Demo به Stakeholders
+   └── جمع‌آوری فیدبک
+
+5️⃣ Sprint Retrospective
+   └── ثبت در Wiki
+   └── What went well?
+   └── What to improve?
+   └── Action items برای Sprint بعد
+
+═══════════════════════════════════════════════════════════
+تنظیمات Scrum
+═══════════════════════════════════════════════════════════
+
+Project Settings → Work Package Types:
+  ✓ User Story
+  ✓ Task
+  ✓ Bug
+  ✓ Epic
+
+Custom Fields (Administration):
+  • Story Points (Integer)
+  • Sprint Goal (Text)
+  • Acceptance Criteria (Long Text)</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 Backlog Management</h3>
+            <p>
+                برای مدیریت Backlog می‌توانید از ویوی لیست با فیلترهای خاص استفاده کنید:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">📊</div>
+                        <span>Backlog View Setup</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+ایجاد Backlog View
+═══════════════════════════════════════════════════════════
+
+1. به Work Packages بروید
+2. فیلترها را اعمال کنید:
+   • Version = none (بدون Sprint)
+   • Status = open
+   • Type = User Story, Feature, Bug
+
+3. ستون‌ها را تنظیم کنید:
+   • ID
+   • Type
+   • Subject
+   • Priority
+   • Story Points
+   • Assignee
+
+4. مرتب‌سازی:
+   • Priority (Descending)
+   • Created on (Ascending)
+
+5. ذخیره به عنوان "Product Backlog"
+
+═══════════════════════════════════════════════════════════
+Sprint Backlog View
+═══════════════════════════════════════════════════════════
+
+فیلترها:
+   • Version = "Sprint X"
+   • Status = open
+
+گروه‌بندی:
+   • By Status یا By Assignee</code></pre>
+                </div>
+            </div>
+
+            <h3>📈 Burndown Chart</h3>
+            <p>
+                نمودار Burndown پیشرفت Sprint را نشان می‌دهد. برای مشاهده:
+            </p>
+
+            <div class="info-box info">
+                <div class="info-icon">📈</div>
+                <div class="info-content">
+                    <h4>مشاهده Burndown</h4>
+                    <ul>
+                        <li>به <strong>Work Packages</strong> بروید</li>
+                        <li>فیلتر Sprint مورد نظر را اعمال کنید</li>
+                        <li>از منوی <strong>...</strong> گزینه <strong>Show graph</strong> را انتخاب کنید</li>
+                        <li>نوع نمودار را انتخاب کنید</li>
+                    </ul>
+                    <p>
+                        <strong>نکته:</strong> برای Burndown دقیق، حتماً Estimated Time را برای همه 
+                        Work Packages وارد کنید.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Time & Gantt -->
+        <section class="section" id="time">
+            <div class="section-header">
+                <div class="section-icon">📅</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">زمان‌بندی و Gantt</h2>
+                    <p class="section-subtitle">نمودار گانت و ردیابی زمان</p>
+                </div>
+            </div>
+
+            <h3>📊 نمودار گانت</h3>
+            <p>
+                نمودار گانت یکی از قدرتمندترین ابزارهای OpenProject است که امکان برنامه‌ریزی 
+                بصری پروژه را فراهم می‌کند.
+            </p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-text">
+                        <strong>زمان‌بندی بصری</strong>
+                        مشاهده و تغییر تاریخ‌ها با Drag & Drop
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔗</div>
+                    <div class="feature-text">
+                        <strong>وابستگی‌ها</strong>
+                        تعریف روابط Finish-to-Start و سایر انواع
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-text">
+                        <strong>مسیر بحرانی</strong>
+                        نمایش Critical Path پروژه
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-text">
+                        <strong>درصد پیشرفت</strong>
+                        نمایش بصری پیشرفت هر کار
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🏁</div>
+                    <div class="feature-text">
+                        <strong>Milestones</strong>
+                        نقاط عطف به شکل لوزی نمایش داده می‌شوند
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📁</div>
+                    <div class="feature-text">
+                        <strong>سلسله‌مراتب</strong>
+                        نمایش ساختار Parent/Child
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔧 کار با نمودار گانت</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">📊</div>
+                        <span>Gantt Chart Operations</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+عملیات اصلی
+═══════════════════════════════════════════════════════════
+
+📅 تغییر تاریخ:
+   • کشیدن نوار به چپ/راست: تغییر تاریخ شروع و پایان
+   • کشیدن لبه‌ها: تغییر مدت زمان
+   • دابل کلیک: باز کردن جزئیات
+
+🔗 ایجاد وابستگی:
+   • روی دایره انتهای نوار کلیک کنید
+   • به نوار مقصد بکشید
+   • نوع وابستگی را انتخاب کنید
+
+📊 زوم:
+   • Day / Week / Month / Quarter / Year
+   • اسکرول با ماوس برای حرکت
+
+🎨 رنگ‌بندی:
+   • بر اساس Type
+   • بر اساس Priority
+   • بر اساس Status
+   • بر اساس Assignee
+
+═══════════════════════════════════════════════════════════
+انواع وابستگی
+═══════════════════════════════════════════════════════════
+
+FS (Finish-to-Start): پیش‌فرض
+   Task A ──────┐
+                └──▶ Task B ──────
+
+FF (Finish-to-Finish):
+   Task A ──────┐
+   Task B ──────┘
+
+SS (Start-to-Start):
+   ┌── Task A ──────
+   └── Task B ──────
+
+SF (Start-to-Finish): نادر
+   ┌── Task A ──────
+   Task B ──────┘
+
+═══════════════════════════════════════════════════════════
+Lag Time (تأخیر)
+═══════════════════════════════════════════════════════════
+
+Task A ──────┐
+             │ +2 days
+             └──▶ Task B ──────
+
+وابستگی با ۲ روز تأخیر:
+Task B دو روز پس از پایان Task A شروع می‌شود</code></pre>
+                </div>
+            </div>
+
+            <h3>⏱️ ردیابی زمان (Time Tracking)</h3>
+            <p>
+                OpenProject امکان ثبت زمان صرف شده روی هر Work Package را فراهم می‌کند:
+            </p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">۱</div>
+                    <div class="step-content">
+                        <h4 class="step-title">ثبت زمان از Work Package</h4>
+                        <p class="step-description">
+                            Work Package را باز کنید → تب <strong>Activity</strong> → 
+                            <strong>Log time</strong> را کلیک کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۲</div>
+                    <div class="step-content">
+                        <h4 class="step-title">ثبت زمان از My Page</h4>
+                        <p class="step-description">
+                            در صفحه Home، ویجت <strong>My spent time</strong> را اضافه کنید 
+                            و مستقیماً زمان ثبت کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۳</div>
+                    <div class="step-content">
+                        <h4 class="step-title">گزارش زمان</h4>
+                        <p class="step-description">
+                            از منوی <strong>Time and costs</strong> می‌توانید گزارش‌های 
+                            متنوعی بر اساس پروژه، کاربر، تاریخ و... تهیه کنید.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">⏱️</div>
+                        <span>Time Entry Fields</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+فیلدهای ثبت زمان
+═══════════════════════════════════════════════════════════
+
+• Date: تاریخ انجام کار
+• Hours: ساعت صرف شده (مثلاً 2.5)
+• Work Package: کار مربوطه
+• Activity: نوع فعالیت
+  - Development
+  - Design
+  - Testing
+  - Documentation
+  - Meeting
+  - Support
+• Comment: توضیحات (اختیاری)
+
+═══════════════════════════════════════════════════════════
+گزارش‌گیری
+═══════════════════════════════════════════════════════════
+
+Time and costs → Time entries
+
+فیلترها:
+• تاریخ (این هفته، این ماه، سفارشی)
+• پروژه
+• کاربر
+• نوع فعالیت
+
+گروه‌بندی:
+• بر اساس پروژه
+• بر اساس کاربر
+• بر اساس Work Package
+• بر اساس روز/هفته/ماه
+
+خروجی:
+• CSV Export
+• PDF Report</code></pre>
+                </div>
+            </div>
+
+            <h3>💰 مدیریت هزینه</h3>
+            <p>
+                با فعال کردن ماژول <strong>Budgets</strong> می‌توانید هزینه‌های پروژه را مدیریت کنید:
+            </p>
+
+            <div class="info-box info">
+                <div class="info-icon">💰</div>
+                <div class="info-content">
+                    <h4>قابلیت‌های مدیریت هزینه</h4>
+                    <ul>
+                        <li><strong>تعریف بودجه:</strong> بودجه کل پروژه و بودجه هر فاز</li>
+                        <li><strong>نرخ ساعتی:</strong> تعریف نرخ برای هر کاربر یا نقش</li>
+                        <li><strong>محاسبه خودکار:</strong> هزینه بر اساس زمان ثبت شده</li>
+                        <li><strong>هزینه‌های مستقیم:</strong> ثبت هزینه‌های غیر نیروی انسانی</li>
+                        <li><strong>گزارش مقایسه:</strong> بودجه vs هزینه واقعی</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Team -->
+        <section class="section" id="team">
+            <div class="section-header">
+                <div class="section-icon">👥</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">مدیریت تیم</h2>
+                    <p class="section-subtitle">کاربران، نقش‌ها و دسترسی‌ها</p>
+                </div>
+            </div>
+
+            <h3>👤 مدیریت کاربران</h3>
+            <p>
+                مدیریت کاربران از بخش <strong>Administration → Users and permissions → Users</strong> انجام می‌شود.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">👤</div>
+                        <span>User Management</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+ایجاد کاربر جدید
+═══════════════════════════════════════════════════════════
+
+Administration → Users → + User
+
+فیلدهای اجباری:
+• Login: نام کاربری (یکتا)
+• First name: نام
+• Last name: نام خانوادگی
+• Email: ایمیل (یکتا)
+
+فیلدهای اختیاری:
+• Admin: آیا ادمین سیستم باشد؟
+• Language: زبان رابط کاربری
+• Time zone: منطقه زمانی
+• Notification settings: تنظیمات اعلان
+
+═══════════════════════════════════════════════════════════
+وضعیت کاربر
+═══════════════════════════════════════════════════════════
+
+• Active: کاربر فعال
+• Registered: ثبت‌نام کرده اما ایمیل تأیید نشده
+• Invited: دعوت شده اما هنوز فعال نشده
+• Locked: قفل شده (نمی‌تواند وارد شود)
+
+═══════════════════════════════════════════════════════════
+دعوت کاربران
+═══════════════════════════════════════════════════════════
+
+روش 1: ایجاد مستقیم
+  → ایمیل فعال‌سازی ارسال می‌شود
+
+روش 2: دعوت از پروژه
+  → Project Settings → Members → + Member
+  → ایمیل فرد را وارد کنید
+  → نقش را انتخاب کنید
+  → Send invitation</code></pre>
+                </div>
+            </div>
+
+            <h3>🎭 نقش‌ها (Roles)</h3>
+            <p>
+                نقش‌ها تعیین می‌کنند هر کاربر چه کارهایی می‌تواند انجام دهد.
+            </p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نقش پیش‌فرض</th>
+                            <th>توضیح</th>
+                            <th>دسترسی‌های اصلی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Project Admin</strong></td>
+                            <td>مدیر پروژه</td>
+                            <td>همه دسترسی‌ها در پروژه</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Member</strong></td>
+                            <td>عضو تیم</td>
+                            <td>ایجاد/ویرایش Work Packages، ثبت زمان</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Reader</strong></td>
+                            <td>بیننده</td>
+                            <td>فقط مشاهده، بدون ویرایش</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Non-member</strong></td>
+                            <td>غیرعضو</td>
+                            <td>دسترسی به پروژه‌های عمومی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Anonymous</strong></td>
+                            <td>ناشناس</td>
+                            <td>کاربران لاگین نکرده</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🔐 ایجاد نقش سفارشی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">🔐</div>
+                        <span>Custom Role Example</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+نقش: Developer
+═══════════════════════════════════════════════════════════
+
+Administration → Users and permissions → Roles → + Role
+
+Name: Developer
+Assignable: ✓ (قابل انتخاب در پروژه‌ها)
+
+دسترسی‌های Work Packages:
+  ✓ View work packages
+  ✓Add work packages
+  ✓ Edit work packages
+  ✓ Add notes (comments)
+  ✓ Edit own work packages
+  ✗ Delete work packages
+  ✓ Manage work package relations
+  ✓ Move work packages
+
+دسترسی‌های Time Tracking:
+  ✓ Log time
+  ✓ View own time entries
+  ✓ Edit own time entries
+  ✗ View all time entries
+  ✗ Edit all time entries
+
+دسترسی‌های پروژه:
+  ✓ View project
+  ✗ Edit project
+  ✗ Manage members
+  ✓ View wiki
+  ✓ Edit wiki pages
+
+دسترسی‌های Board:
+  ✓ View boards
+  ✗ Manage boards
+
+═══════════════════════════════════════════════════════════
+نقش: QA Tester
+═══════════════════════════════════════════════════════════
+
+دسترسی‌های خاص:
+  ✓ View work packages
+  ✓ Add work packages (برای گزارش باگ)
+  ✓ Edit own work packages
+  ✓ Change status (برای تغییر به Testing/Verified)
+  ✗ Delete work packages
+  ✓ Add notes
+
+═══════════════════════════════════════════════════════════
+نقش: Product Owner
+═══════════════════════════════════════════════════════════
+
+دسترسی‌های خاص:
+  ✓ View work packages
+  ✓ Add work packages
+  ✓ Edit work packages
+  ✓ Manage versions (برای Sprint planning)
+  ✓ Manage categories
+  ✗ Delete work packages
+  ✓ View time entries (برای گزارش‌گیری)</code></pre>
+                </div>
+            </div>
+
+            <h3>👥 گروه‌ها (Groups)</h3>
+            <p>
+                گروه‌ها برای مدیریت آسان‌تر کاربران و اختصاص دسترسی‌های مشترک استفاده می‌شوند.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">👥</div>
+                        <span>Group Management</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+ایجاد گروه
+═══════════════════════════════════════════════════════════
+
+Administration → Users and permissions → Groups → + Group
+
+مثال گروه‌ها:
+• Backend Team
+• Frontend Team
+• DevOps Team
+• QA Team
+• Management
+
+═══════════════════════════════════════════════════════════
+مزایای استفاده از گروه
+═══════════════════════════════════════════════════════════
+
+1. اضافه کردن به پروژه:
+   به جای اضافه کردن ۱۰ نفر یک به یک،
+   فقط گروه را اضافه کنید.
+
+2. تغییر نقش:
+   با تغییر نقش گروه، نقش همه اعضا تغییر می‌کند.
+
+3. اختصاص Work Package:
+   می‌توانید یک WP را به گروه اختصاص دهید.
+
+4. Watchers:
+   گروه را به عنوان Watcher اضافه کنید.
+
+═══════════════════════════════════════════════════════════
+اضافه کردن گروه به پروژه
+═══════════════════════════════════════════════════════════
+
+Project Settings → Members → + Member
+→ گروه مورد نظر را انتخاب کنید
+→ نقش را تعیین کنید
+→ Add</code></pre>
+                </div>
+            </div>
+
+            <h3>📧 تنظیمات اعلان‌ها</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع اعلان</th>
+                            <th>توضیح</th>
+                            <th>تنظیم پیش‌فرض</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Involved</strong></td>
+                            <td>وقتی در کاری شرکت دارید</td>
+                            <td>✅ فعال</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Assignee</strong></td>
+                            <td>وقتی کاری به شما اختصاص داده می‌شود</td>
+                            <td>✅ فعال</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Responsible</strong></td>
+                            <td>وقتی مسئول کاری هستید</td>
+                            <td>✅ فعال</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Watched</strong></td>
+                            <td>کارهایی که Watch کرده‌اید</td>
+                            <td>✅ فعال</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mentioned</strong></td>
+                            <td>وقتی در کامنت منشن می‌شوید</td>
+                            <td>✅ فعال</td>
+                        </tr>
+                        <tr>
+                            <td><strong>All</strong></td>
+                            <td>همه تغییرات پروژه</td>
+                            <td>❌ غیرفعال</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>بهترین روش‌ها برای مدیریت تیم</h4>
+                    <ul>
+                        <li><strong>اصل حداقل دسترسی:</strong> فقط دسترسی‌های لازم را بدهید</li>
+                        <li><strong>استفاده از گروه‌ها:</strong> مدیریت آسان‌تر و یکپارچه‌تر</li>
+                        <li><strong>نقش‌های سفارشی:</strong> برای نیازهای خاص سازمان</li>
+                        <li><strong>بررسی دوره‌ای:</strong> دسترسی‌ها را مرتب بررسی کنید</li>
+                        <li><strong>مستندسازی:</strong> نقش‌ها و مسئولیت‌ها را مستند کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Advanced -->
+        <section class="section" id="advanced">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">تنظیمات پیشرفته</h2>
+                    <p class="section-subtitle">سفارشی‌سازی، API و یکپارچگی</p>
+                </div>
+            </div>
+
+            <h3>🎨 فیلدهای سفارشی (Custom Fields)</h3>
+            <p>
+                فیلدهای سفارشی به شما امکان می‌دهند اطلاعات اضافی مورد نیاز سازمان را ذخیره کنید.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">🎨</div>
+                        <span>Custom Fields</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+ایجاد Custom Field
+═══════════════════════════════════════════════════════════
+
+Administration → Custom fields → + Custom field
+
+انواع فیلد:
+• Text: متن کوتاه
+• Long text: متن بلند (با Markdown)
+• Integer: عدد صحیح
+• Float: عدد اعشاری
+• List: لیست انتخابی
+• Boolean: بله/خیر
+• Date: تاریخ
+• User: انتخاب کاربر
+• Version: انتخاب نسخه
+
+═══════════════════════════════════════════════════════════
+مثال: Story Points
+═══════════════════════════════════════════════════════════
+
+Name: Story Points
+Type: Integer
+Format: Work packages
+Required: No
+Visible: Yes
+Searchable: Yes
+Used as filter: Yes
+
+For types:
+  ✓ User Story
+  ✓ Feature
+  ✓ Bug
+
+For projects:
+  ✓ All projects
+  یا پروژه‌های خاص
+
+═══════════════════════════════════════════════════════════
+مثال: Environment
+═══════════════════════════════════════════════════════════
+
+Name: Environment
+Type: List
+Possible values:
+  - Development
+  - Staging
+  - Production
+  - All
+Allow multi-select: Yes
+Default value: Development
+
+For types:
+  ✓ Bug
+  ✓ Task
+
+═══════════════════════════════════════════════════════════
+مثال: Customer
+═══════════════════════════════════════════════════════════
+
+Name: Customer
+Type: Text
+Format: Projects
+Required: No
+Visible: Yes
+
+این فیلد در سطح پروژه تعریف می‌شود
+و نام مشتری مربوط به پروژه را ذخیره می‌کند.</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 Workflow سفارشی</h3>
+            <p>
+                می‌توانید تعیین کنید هر نقش از چه وضعیت‌هایی به چه وضعیت‌هایی می‌تواند تغییر دهد.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">🔄</div>
+                        <span>Workflow Configuration</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+تنظیم Workflow
+═══════════════════════════════════════════════════════════
+
+Administration → Work packages → Workflow
+
+1. نوع Work Package را انتخاب کنید (مثلاً Bug)
+2. نقش را انتخاب کنید (مثلاً Developer)
+3. ماتریس انتقال وضعیت را تنظیم کنید
+
+═══════════════════════════════════════════════════════════
+مثال: Workflow برای Bug
+═══════════════════════════════════════════════════════════
+
+نقش: Developer
+                    │ New │ In Progress │ Resolved │ Closed │ Rejected │
+─────────────────────────────────────────────────────────────────────────
+From: New           │  -  │     ✓       │    ✗     │   ✗    │    ✓     │
+From: In Progress   │  ✓  │     -       │    ✓     │   ✗    │    ✓     │
+From: Resolved      │  ✗  │     ✓       │    -     │   ✗    │    ✗     │
+From: Closed        │  ✗  │     ✗       │    ✗     │   -    │    ✗     │
+From: Rejected      │  ✓  │     ✗       │    ✗     │   ✗    │    -     │
+
+نقش: QA Tester
+                    │ New │ In Progress │ Resolved │ Closed │ Rejected │
+─────────────────────────────────────────────────────────────────────────
+From: New           │  -  │     ✗       │    ✗     │   ✗    │    ✗     │
+From: In Progress   │  ✗  │     -       │    ✗     │   ✗    │    ✗     │
+From: Resolved      │  ✗  │     ✓       │    -     │   ✓    │    ✗     │
+From: Closed        │  ✗  │     ✗       │    ✗     │   -    │    ✗    │
+
+نقش: Project Admin
+   همه انتقال‌ها مجاز است ✓</code></pre>
+                </div>
+            </div>
+
+            <h3>🔌 API و یکپارچگی</h3>
+            <p>
+                OpenProject یک API کامل REST ارائه می‌دهد که امکان یکپارچگی با سایر ابزارها را فراهم می‌کند.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>API Examples</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# OpenProject API Examples
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات
+# ═══════════════════════════════════════════════════════════
+
+BASE_URL="https://openproject.example.com/api/v3"
+API_KEY="your-api-key-here"
+
+# ═══════════════════════════════════════════════════════════
+# دریافت لیست پروژه‌ها
+# ═══════════════════════════════════════════════════════════
+
+curl -s -u "apikey:${API_KEY}" \
+  "${BASE_URL}/projects" | jq '.elements[] | {id, name}'
+
+# ═══════════════════════════════════════════════════════════
+# دریافت Work Packages یک پروژه
+# ═══════════════════════════════════════════════════════════
+
+PROJECT_ID=1
+
+curl -s -u "apikey:${API_KEY}" \
+  "${BASE_URL}/projects/${PROJECT_ID}/work_packages" | jq '.elements[] | {id, subject, status}'
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد Work Package جدید
+# ═══════════════════════════════════════════════════════════
+
+curl -X POST -u "apikey:${API_KEY}" \
+  -H "Content-Type: application/json" \
+  "${BASE_URL}/projects/${PROJECT_ID}/work_packages" \
+  -d '{
+    "subject": "New Task from API",
+    "description": {
+      "format": "markdown",
+      "raw": "This task was created via API"
+    },
+    "_links": {
+      "type": { "href": "/api/v3/types/1" },
+      "status": { "href": "/api/v3/statuses/1" },
+      "priority": { "href": "/api/v3/priorities/2" }
+    }
+  }'
+
+# ═══════════════════════════════════════════════════════════
+# بروزرسانی Work Package
+# ═══════════════════════════════════════════════════════════
+
+WP_ID=123
+
+curl -X PATCH -u "apikey:${API_KEY}" \
+  -H "Content-Type: application/json" \
+  "${BASE_URL}/work_packages/${WP_ID}" \
+  -d '{
+    "subject": "Updated Subject",
+    "lockVersion": 1,
+    "_links": {
+      "status": { "href": "/api/v3/statuses/2" }
+    }
+  }'
+
+# ═══════════════════════════════════════════════════════════
+# ثبت زمان
+# ═══════════════════════════════════════════════════════════
+
+curl -X POST -u "apikey:${API_KEY}" \
+  -H "Content-Type: application/json" \
+  "${BASE_URL}/time_entries" \
+  -d '{
+    "hours": "PT2H30M",
+    "comment": { "raw": "Worked on feature implementation" },
+    "spentOn": "2024-01-15",
+    "_links": {
+      "project": { "href": "/api/v3/projects/1" },
+      "workPackage": { "href": "/api/v3/work_packages/123" },
+      "activity": { "href": "/api/v3/time_entries/activities/1" }
+    }
+  }'</code></pre>
+                </div>
+            </div>
+
+            <h3>🐍 Python Client</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon" style="background: #3776AB; color: white;">PY</div>
+                        <span>openproject_client.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+OpenProject Python Client
+کلاینت پایتون برای کار با API اوپن‌پروجکت
+"""
+
+import requests
+from typing import Optional, List, Dict, Any
+from dataclasses import dataclass
+from datetime import date
+
+
+@dataclass
+class WorkPackage:
+    """مدل Work Package"""
+    id: int
+    subject: str
+    status: str
+    assignee: Optional[str] = None
+    due_date: Optional[date] = None
+    progress: int = 0
+
+
+class OpenProjectClient:
+    """کلاینت برای ارتباط با OpenProject API"""
+    
+    def __init__(self, base_url: str, api_key: str):
+        self.base_url = base_url.rstrip('/') + '/api/v3'
+        self.session = requests.Session()
+        self.session.auth = ('apikey', api_key)
+        self.session.headers.update({
+            'Content-Type': 'application/json'
+        })
+    
+    def get_projects(self) -> List[Dict[str, Any]]:
+        """دریافت لیست پروژه‌ها"""
+        response = self.session.get(f'{self.base_url}/projects')
+        response.raise_for_status()
+        return response.json()['_embedded']['elements']
+    
+    def get_project(self, project_id: int) -> Dict[str, Any]:
+        """دریافت جزئیات یک پروژه"""
+        response = self.session.get(f'{self.base_url}/projects/{project_id}')
+        response.raise_for_status()
+        return response.json()
+    
+    def get_work_packages(
+        self, 
+        project_id: int, 
+        filters: Optional[List[Dict]] = None
+    ) -> List[Dict[str, Any]]:
+        """دریافت Work Packages یک پروژه"""
+        params = {}
+        if filters:
+            params['filters'] = str(filters)
+        
+        response = self.session.get(
+            f'{self.base_url}/projects/{project_id}/work_packages',
+            params=params
+        )
+        response.raise_for_status()
+        return response.json()['_embedded']['elements']
+    
+    def create_work_package(
+        self,
+        project_id: int,
+        subject: str,
+        type_id: int = 1,
+        description: str = "",
+        assignee_id: Optional[int] = None,
+        priority_id: int = 2
+    ) -> Dict[str, Any]:
+        """ایجاد Work Package جدید"""
+        data = {
+            "subject": subject,
+            "description": {
+                "format": "markdown",
+                "raw": description
+            },
+            "_links": {
+                "type": {"href": f"/api/v3/types/{type_id}"},
+                "priority": {"href": f"/api/v3/priorities/{priority_id}"}
+            }
+        }
+        
+        if assignee_id:
+            data["_links"]["assignee"] = {
+                "href": f"/api/v3/users/{assignee_id}"
+            }
+        
+        response = self.session.post(
+            f'{self.base_url}/projects/{project_id}/work_packages',
+            json=data
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def update_work_package(
+        self,
+        wp_id: int,
+        lock_version: int,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """بروزرسانی Work Package"""
+        data = {"lockVersion": lock_version}
+        data.update(kwargs)
+        
+        response = self.session.patch(
+            f'{self.base_url}/work_packages/{wp_id}',
+            json=data
+        )
+        response.raise_for_status()
+        return response.json()
+    
+    def log_time(
+        self,
+        work_package_id: int,
+        hours: float,
+        activity_id: int,
+        spent_on: date,
+        comment: str = ""
+    ) -> Dict[str, Any]:
+        """ثبت زمان"""
+        # تبدیل ساعت به فرمت ISO 8601 duration
+        hours_int = int(hours)
+        minutes = int((hours - hours_int) * 60)
+        duration = f"PT{hours_int}H{minutes}M"
+        
+        data = {
+            "hours": duration,
+            "spentOn": spent_on.isoformat(),
+            "comment": {"raw": comment},
+            "_links": {
+                "workPackage": {
+                    "href": f"/api/v3/work_packages/{work_package_id}"
+                },
+                "activity": {
+                    "href": f"/api/v3/time_entries/activities/{activity_id}"
+                }
+            }
+        }
+        
+        response = self.session.post(
+            f'{self.base_url}/time_entries',
+            json=data
+        )
+        response.raise_for_status()
+        return response.json()
+
+
+# ═══════════════════════════════════════════════════════════
+# مثال استفاده
+# ═══════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    # ایجاد کلاینت
+    client = OpenProjectClient(
+        base_url="https://openproject.example.com",
+        api_key="your-api-key"
+    )
+    
+    # دریافت پروژه‌ها
+    projects = client.get_projects()
+    for project in projects:
+        print(f"📁 {project['name']} (ID: {project['id']})")
+    
+    # دریافت Work Packages
+    work_packages = client.get_work_packages(project_id=1)
+    for wp in work_packages:
+        print(f"📋 #{wp['id']}: {wp['subject']}")
+    
+    # ایجاد Work Package جدید
+    new_wp = client.create_work_package(
+        project_id=1,
+        subject="Task created from Python",
+        description="This task was created using Python API client",
+        type_id=1,
+        priority_id=2
+    )
+    print(f"✅ Created: #{new_wp['id']}")
+    
+    # ثبت زمان
+    from datetime import date
+    time_entry = client.log_time(
+        work_package_id=new_wp['id'],
+        hours=2.5,
+        activity_id=1,
+        spent_on=date.today(),
+        comment="Worked on implementation"
+    )
+    print(f"⏱️ Logged: {time_entry['hours']}")</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 یکپارچگی با ابزارهای دیگر</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🐙</div>
+                    <h4 class="card-title">GitHub/GitLab</h4>
+                    <p class="card-description">
+                        اتصال مخازن Git، نمایش commits و pull requests در Work Packages.
+                        با استفاده از شماره WP در commit message ارتباط برقرار کنید.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💬</div>
+                    <h4 class="card-title">Slack/Mattermost</h4>
+                    <p class="card-description">
+                        دریافت نوتیفیکیشن‌ها در کانال‌های تیمی.
+                        ایجاد Work Package از طریق Slash commands.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">☁️</div>
+                    <h4 class="card-title">Nextcloud</h4>
+                    <p class="card-description">
+                        یکپارچگی با Nextcloud برای مدیریت فایل‌ها و اسناد پروژه.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📧</div>
+                    <h4 class="card-title">Email Integration</h4>
+                    <p class="card-description">
+                        ایجاد Work Package از طریق ایمیل.
+                        پاسخ به ایمیل برای افزودن کامنت.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🔒 احراز هویت پیشرفته</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">🔒</div>
+                        <span>Authentication Options</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+روش‌های احراز هویت
+═══════════════════════════════════════════════════════════
+
+1. Local Authentication (پیش‌فرض)
+   - ذخیره کاربران در دیتابیس OpenProject
+   - مدیریت رمز عبور داخلی
+
+2. LDAP / Active Directory
+   - اتصال به LDAP سازمان
+   - Sync خودکار کاربران
+   - Single Sign-On
+
+3. SAML 2.0
+   - اتصال به Identity Providers
+   - پشتیبانی از Okta, Azure AD, Google Workspace
+
+4. OpenID Connect
+   - اتصال به OAuth 2.0 providers
+   - پشتیبانی از Keycloak, Auth0
+
+═══════════════════════════════════════════════════════════
+تنظیم LDAP
+═══════════════════════════════════════════════════════════
+
+Administration → Authentication → LDAP authentication
+
+Name: Company LDAP
+Host: ldap.company.com
+Port: 389 (یا 636 برای LDAPS)
+Account: cn=admin,dc=company,dc=com
+Password: ********
+Base DN: ou=users,dc=company,dc=com
+
+LDAP filter: (objectClass=person)
+
+Attributes:
+  Login: uid
+  First name: givenName
+  Last name: sn
+  Email: mail
+
+On-the-fly user creation: ✓
+  کاربران جدید به صورت خودکار ایجاد می‌شوند
+
+═══════════════════════════════════════════════════════════
+Two-Factor Authentication (2FA)
+═══════════════════════════════════════════════════════════
+
+Administration → Authentication → Two-factor authentication
+
+Options:
+  ✓ TOTP (Google Authenticator, Authy)
+  ✓ WebAuthn (Security Keys, Fingerprint)
+  
+Enforcement:
+  - Optional: کاربران می‌توانند فعال کنند
+  - Required for admins: اجباری برای ادمین‌ها
+  - Required for all: اجباری برای همه</code></pre>
+                </div>
+            </div>
+
+            <h3>💾 پشتیبان‌گیری و بازیابی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>backup_restore.sh</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# OpenProject Backup & Restore Scripts
+
+# ═══════════════════════════════════════════════════════════
+# پشتیبان‌گیری (Packaged Installation)
+# ═══════════════════════════════════════════════════════════
+
+# بکاپ کامل
+sudo openproject run backup
+
+# بکاپ با مسیر سفارشی
+sudo openproject run backup /path/to/backup/directory
+
+# بکاپ شامل:
+# - دیتابیس PostgreSQL
+# - فایل‌های آپلود شده
+# - تنظیمات
+
+# ═══════════════════════════════════════════════════════════
+# پشتیبان‌گیری (Docker)
+# ═══════════════════════════════════════════════════════════
+
+# بکاپ دیتابیس
+docker exec openproject backup
+
+# یا به صورت دستی
+docker exec openproject pg_dump -U postgres openproject > backup.sql
+
+# بکاپ volumes
+docker run --rm \
+  -v openproject_data:/data \
+  -v $(pwd):/backup \
+  alpine tar czf /backup/openproject_data.tar.gz /data
+
+docker run --rm \
+  -v openproject_pgdata:/data \
+  -v $(pwd):/backup \
+  alpine tar czf /backup/openproject_pgdata.tar.gz /data
+
+# ═══════════════════════════════════════════════════════════
+# بازیابی (Packaged Installation)
+# ═══════════════════════════════════════════════════════════
+
+# لیست بکاپ‌ها
+ls -la /var/db/openproject/backup/
+
+# بازیابی
+sudo openproject run restore /path/to/backup.tar.gz
+
+# ═══════════════════════════════════════════════════════════
+# بازیابی (Docker)
+# ═══════════════════════════════════════════════════════════
+
+# توقف کانتینر
+docker-compose down
+
+# بازیابی volumes
+docker run --rm \
+  -v openproject_data:/data \
+  -v $(pwd):/backup \
+  alpine sh -c "cd /data && tar xzf /backup/openproject_data.tar.gz --strip 1"
+
+docker run --rm \
+  -v openproject_pgdata:/data \
+  -v $(pwd):/backup \
+  alpine sh -c "cd /data && tar xzf /backup/openproject_pgdata.tar.gz --strip 1"
+
+# شروع مجدد
+docker-compose up -d
+
+# ═══════════════════════════════════════════════════════════
+# بکاپ خودکار با Cron
+# ═══════════════════════════════════════════════════════════
+
+# ویرایش crontab
+sudo crontab -e
+
+# بکاپ روزانه ساعت 2 شب
+0 2 * * * /usr/bin/openproject run backup >> /var/log/openproject-backup.log 2>&1
+
+# نگهداری 30 روز اخیر
+0 3 * * * find /var/db/openproject/backup -type f -mtime +30 -delete</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکات مهم پشتیبان‌گیری</h4>
+                    <ul>
+                        <li><strong>تست بازیابی:</strong> حتماً بکاپ‌ها را تست کنید</li>
+                        <li><strong>ذخیره خارجی:</strong> بکاپ‌ها را در سرور دیگر نگه دارید</li>
+                        <li><strong>رمزنگاری:</strong> بکاپ‌های حساس را رمزنگاری کنید</li>
+                        <li><strong>مستندسازی:</strong> روند بازیابی را مستند کنید</li>
+                        <li><strong>هشدار:</strong> در صورت شکست بکاپ، اعلان تنظیم کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Best Practices -->
+        <section class="section" id="bestpractices">
+            <div class="section-header">
+                <div class="section-icon">✨</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دهم</div>
+                    <h2 class="section-title">بهترین روش‌ها</h2>
+                    <p class="section-subtitle">نکات و توصیه‌های کاربردی</p>
+                </div>
+            </div>
+
+            <h3>📋 ساختار پروژه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">📋</div>
+                        <span>Project Structure Best Practices</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+ساختار پیشنهادی برای سازمان
+═══════════════════════════════════════════════════════════
+
+🏢 Organization (Parent)
+│
+├── 📁 Department A
+│   ├── 📋 Project A1
+│   └── 📋 Project A2
+│
+├── 📁 Department B
+│   ├── 📋 Project B1
+│   └── 📋 Project B2
+│
+└── 📁 Shared Resources
+    ├── 📋 Templates
+    └── 📋 Documentation
+
+═══════════════════════════════════════════════════════════
+نام‌گذاری پروژه‌ها
+═══════════════════════════════════════════════════════════
+
+✅ خوب:
+  - 2024-Q1-Website-Redesign
+  - Client-ABC-Mobile-App
+  - Internal-HR-System
+
+❌ بد:
+  - Project1
+  - New Project
+  - test
+
+═══════════════════════════════════════════════════════════
+ماژول‌های پیشنهادی
+═══════════════════════════════════════════════════════════
+
+پروژه توسعه نرم‌افزار:
+  ✓ Work packages
+  ✓ Gantt chart
+  ✓ Boards
+  ✓ Wiki
+  ✓ Time tracking
+  ✓ Repository (Git)
+
+پروژه مدیریتی:
+  ✓ Work packages
+  ✓ Gantt chart
+  ✓ Calendar
+  ✓ Wiki
+  ✓ Meetings
+  ✗ Repository</code></pre>
+                </div>
+            </div>
+
+            <h3>📝 نوشتن Work Package خوب</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">✅</div>
+                    <h4 class="card-title">عنوان واضح</h4>
+                    <p class="card-description">
+                        <strong>خوب:</strong> "پیاده‌سازی فرم ثبت‌نام کاربر با اعتبارسنجی ایمیل"<br>
+                        <strong>بد:</strong> "فرم ثبت‌نام"
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📄</div>
+                    <h4 class="card-title">توضیحات کامل</h4>
+                    <p class="card-description">
+                        شامل: هدف، معیارهای پذیرش، محدودیت‌ها و منابع مرتبط.
+                        از Markdown برای فرمت‌بندی استفاده کنید.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⏱️</div>
+                    <h4 class="card-title">تخمین واقع‌بینانه</h4>
+                    <p class="card-description">
+                        زمان تخمینی را بر اساس تجربه وارد کنید.
+                        کارهای بزرگ را به کارهای کوچکتر تقسیم کنید.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔗</div>
+                    <h4 class="card-title">روابط مشخص</h4>
+                    <p class="card-description">
+                        وابستگی‌ها و ارتباطات را تعریف کنید.
+                        از ساختار Parent/Child استفاده کنید.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🏃 نکات Agile</h3>
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>بهترین روش‌های Scrum در OpenProject</h4>
+                    <ul>
+                        <li><strong>Sprint Planning:</strong> از Version برای هر Sprint استفاده کنید</li>
+                        <li><strong>Daily Standup:</strong> Board را روی صفحه نمایش دهید</li>
+                        <li><strong>Backlog Refinement:</strong> Story Points را قبل از Sprint وارد کنید</li>
+                        <li><strong>Sprint Review:</strong> کارهای Done را فیلتر و نمایش دهید</li>
+                        <li><strong>Retrospective:</strong> Action items را به عنوان Task ثبت کنید</li>
+                        <li><strong>WIP Limit:</strong> تعداد کارهای In Progress را محدود کنید</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>📊 گزارش‌گیری موثر</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">📊</div>
+                        <span>Useful Saved Filters</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+فیلترهای پیشنهادی برای ذخیره
+═══════════════════════════════════════════════════════════
+
+📋 My Open Tasks
+   Assignee = [current user]
+   Status = open
+   Sort: Priority DESC, Due date ASC
+
+⚠️ Overdue Tasks
+   Due date < today
+   Status = open
+   Sort: Due date ASC
+
+🔥 High Priority Open
+   Priority = High, Urgent
+   Status = open
+   Sort: Due date ASC
+
+📅 Due This Week
+   Due date = this week
+   Status = open
+   Group by: Assignee
+
+🐛 Open Bugs
+   Type = Bug
+   Status = open
+   Sort: Priority DESC
+
+✅ Recently Closed
+   Status = closed
+   Updated on = last 7 days
+   Sort: Updated DESC
+
+📊 Sprint Progress
+   Version = [current sprint]
+   Group by: Status
+
+👤 Unassigned Tasks
+   Assignee = none
+   Status = open</code></pre>
+                </div>
+            </div>
+
+            <h3>🔐 امنیت</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>توصیه</th>
+                            <th>توضیح</th>
+                            <th>اولویت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>HTTPS</strong></td>
+                            <td>همیشه از SSL/TLS استفاده کنید</td>
+                            <td>🔴 بحرانی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رمز عبور قوی</strong></td>
+                            <td>سیاست رمز عبور قوی تنظیم کنید</td>
+                            <td>🔴 بحرانی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2FA</strong></td>
+                            <td>احراز هویت دو مرحله‌ای فعال کنید</td>
+                            <td>🟠 بالا</td>
+                        </tr>
+                        <tr>
+                            <td><strong>بروزرسانی</strong></td>
+                            <td>OpenProject را به‌روز نگه دارید</td>
+                            <td>🟠 بالا</td>
+                        </tr>
+                        <tr>
+                            <td><strong>بکاپ</strong></td>
+                            <td>بکاپ منظم و تست بازیابی</td>
+                            <td>🟠 بالا</td>
+                        </tr>
+                        <tr>
+                            <td><strong>حداقل دسترسی</strong></td>
+                            <td>فقط دسترسی‌های لازم را بدهید</td>
+                            <td>🟡 متوسط</td>
+                        </tr>
+                        <tr>
+                            <td><strong>لاگ‌ها</strong></td>
+                            <td>لاگ‌ها را مانیتور کنید</td>
+                            <td>🟡 متوسط</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="section" id="reference">
+            <div class="section-header">
+                <div class="section-icon">📚</div>
+                <div class="section-title-group">
+                    <div class="section-number">پیوست</div>
+                    <h2 class="section-title">مرجع سریع</h2>
+                    <p class="section-subtitle">دستورات و لینک‌های مفید</p>
+                </div>
+            </div>
+
+            <h3>⌨️ دستورات CLI</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>CLI Commands</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# Packaged Installation Commands
+# ═══════════════════════════════════════════════════════════
+
+# مدیریت سرویس
+sudo openproject start
+sudo openproject stop
+sudo openproject restart
+sudo openproject status
+
+# پیکربندی
+sudo openproject configure
+sudo openproject reconfigure
+
+# بکاپ و بازیابی
+sudo openproject run backup
+sudo openproject run restore /path/to/backup.tar.gz
+
+# کنسول Rails
+sudo openproject run console
+
+# اجرای rake tasks
+sudo openproject run rake db:migrate
+sudo openproject run rake assets:precompile
+
+# لاگ‌ها
+sudo openproject logs
+sudo openproject logs -f  # follow
+
+# ═══════════════════════════════════════════════════════════
+# Docker Commands
+# ═══════════════════════════════════════════════════════════
+
+# مدیریت کانتینر
+docker-compose up -d
+docker-compose down
+docker-compose restart
+docker-compose logs -f
+
+# کنسول Rails
+docker exec -it openproject bundle exec rails console
+
+# بکاپ
+docker exec openproject backup
+
+# Shell access
+docker exec -it openproject bash</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 لینک‌های مفید</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📖</div>
+                    <h4 class="card-title">مستندات رسمی</h4>
+                    <p class="card-description">
+                        <a href="https://www.openproject.org/docs/" target="_blank">openproject.org/docs</a>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐙</div>
+                    <h4 class="card-title">GitHub</h4>
+                    <p class="card-description">
+                        <a href="https://github.com/opf/openproject" target="_blank">github.com/opf/openproject</a>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💬</div>
+                    <h4 class="card-title">Community Forum</h4>
+                    <p class="card-description">
+                        <a href="https://community.openproject.org/" target="_blank">community.openproject.org</a>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📺</div>
+                    <h4 class="card-title">YouTube</h4>
+                    <p class="card-description">
+                        <a href="https://www.youtube.com/@OpenProjectCommunity" target="_blank">آموزش‌های ویدیویی</a>
+                    </p>
+                </div>
+            </div>
+
+            <h3>📋 چک‌لیست راه‌اندازی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon config">✅</div>
+                        <span>Setup Checklist</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+چک‌لیست راه‌اندازی OpenProject
+═══════════════════════════════════════════════════════════
+
+□ نصب و پیکربندی اولیه
+  □ نصب OpenProject
+  □ تنظیم SSL/HTTPS
+  □ تغییر رمز عبور admin
+  □ تنظیم ایمیل
+
+□ تنظیمات سیستم
+  □ تنظیم زبان پیش‌فرض
+  □ تنظیم منطقه زمانی
+  □ تعریف Work Package Types
+  □ تعریف Statuses و Workflow
+  □ ایجاد Custom Fields
+
+□ مدیریت کاربران
+  □ ایجاد نقش‌های سفارشی
+  □ ایجاد گروه‌ها
+  □ دعوت کاربران
+  □ تنظیم دسترسی‌ها
+
+□ ایجاد پروژه اول
+  □ ایجاد پروژه
+  □ فعال‌سازی ماژول‌ها
+  □ اضافه کردن اعضا
+  □ تعریف Versions/Sprints
+  □ ایجاد Boards
+
+□ امنیت و نگهداری
+  □ فعال‌سازی 2FA
+  □ تنظیم بکاپ خودکار
+  □ تست بازیابی
+  □ تنظیم مانیتورینگ
+
+□ آموزش تیم
+  □ جلسه معرفی
+  □ آموزش کاربران
+  □ مستندسازی فرآیندها</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">📋</div>
+                <span class="logo-text" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">OpenProject</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                آموزش جامع OpenProject - مدیریت پروژه متن‌باز
+            </p>
+            <div class="footer-links">
+                <a href="https://www.openproject.org/" target="_blank">وبسایت رسمی</a>
+                <a href="https://www.openproject.org/docs/" target="_blank">مستندات</a>
+                <a href="https://github.com/opf/openproject" target="_blank">GitHub</a>
+                <a href="https://community.openproject.org/" target="_blank">انجمن</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای جامعه متن‌باز ایران
+                <br>
+                <a href="https://araz.me" target="_blank">araz.me</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/nginx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    
+    <script>
+        // Initialize highlight.js
+        hljs.highlightAll();
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✓</span> کپی شد';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            }).catch(err => {
+                console.error('خطا در کپی:', err);
+            });
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Active navigation link on scroll
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        function updateActiveNav() {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', updateActiveNav);
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.card, .code-block, .info-box, .step').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+        
+        // Kanban card animation
+        document.querySelectorAll('.kanban-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

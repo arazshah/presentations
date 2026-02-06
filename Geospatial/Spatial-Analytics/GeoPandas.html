@@ -1,0 +1,4679 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع GeoPandas | تحلیل داده‌های مکانی با پایتون</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            --primary: #2E7D32;
+            --primary-dark: #1B5E20;
+            --primary-light: #4CAF50;
+            --secondary: #FF9800;
+            --accent: #00ACC1;
+            --earth: #8D6E63;
+            --water: #0288D1;
+            --forest: #388E3C;
+            
+            --bg-primary: #0a0f0a;
+            --bg-secondary: #0f150f;
+            --bg-tertiary: #151f15;
+            --bg-card: #121a12;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a8c5a8;
+            --text-muted: #5a7a5a;
+            
+            --border-color: #1e3a1e;
+            --border-light: #2a4a2a;
+            
+            --gradient-primary: linear-gradient(135deg, #2E7D32 0%, #00ACC1 100%);
+            --gradient-earth: linear-gradient(135deg, #8D6E63 0%, #4CAF50 100%);
+            --gradient-map: linear-gradient(135deg, #1B5E20 0%, #0288D1 50%, #2E7D32 100%);
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px rgba(46, 125, 50, 0.3);
+            
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .nav-link.active {
+            color: var(--primary-light);
+            background: rgba(46, 125, 50, 0.15);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(46, 125, 50, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 172, 193, 0.1) 0%, transparent 50%);
+        }
+
+        /* Map Grid Pattern */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(46, 125, 50, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(46, 125, 50, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(46, 125, 50, 0.15);
+            border: 1px solid rgba(46, 125, 50, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Map Illustration */
+        .map-illustration {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .map-svg {
+            width: 100%;
+            height: 200px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .section-title-group {
+            flex: 1;
+        }
+
+        .section-number {
+            font-size: 0.85rem;
+            color: var(--primary-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Content Styles */
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--primary-light);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.python {
+            background: linear-gradient(135deg, #3776AB, #FFD43B);
+            color: white;
+        }
+
+        .code-lang-icon.bash {
+            background: #4EAA25;
+            color: white;
+        }
+
+        .code-lang-icon.output {
+            background: var(--primary);
+            color: white;
+        }
+
+        .code-lang-icon.geo {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.875rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: inherit;
+        }
+
+        .code-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .code-btn.copied {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            color: white;
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            background: transparent;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Inline Code */
+        code:not([class*="language-"]) {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875em;
+            color: var(--primary-light);
+            border: 1px solid var(--border-color);
+            direction: ltr;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip {
+            background: rgba(46, 125, 50, 0.1);
+            border: 1px solid rgba(46, 125, 50, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .info-box.info {
+            background: rgba(2, 136, 209, 0.1);
+            border: 1px solid rgba(2, 136, 209, 0.3);
+        }
+
+        .info-box.geo {
+            background: rgba(0, 172, 193, 0.1);
+            border: 1px solid rgba(0, 172, 193, 0.3);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .info-content ul {
+            margin: 0.5rem 0 0 1rem;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        td code {
+            font-size: 0.85rem;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-item {
+            margin: 0;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .toc-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .toc-number {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        /* Geometry Icons */
+        .geom-icons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+
+        .geom-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            min-width: 100px;
+        }
+
+        .geom-icon svg {
+            width: 50px;
+            height: 50px;
+        }
+
+        .geom-icon span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .copyright a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .hero {
+                padding: 4rem 1.5rem;
+            }
+            
+            .hero-stats {
+                gap: 2rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .section-icon {
+                margin: 0 auto;
+            }
+            
+            .main {
+                padding: 2rem 1rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+            
+            .code-body {
+                padding: 1rem;
+            }
+            
+            .code-body code {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Print */
+        @media print {
+            .header, .nav, .code-actions, .footer {
+                display: none;
+            }
+            
+            .hero {
+                padding: 2rem;
+            }
+            
+            .code-block {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">🌍</div>
+                <div>
+                    <div class="logo-text">GeoPandas</div>
+                    <div class="logo-subtitle">تحلیل داده‌های مکانی</div>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="#intro" class="nav-link active">معرفی</a>
+                <a href="#basics" class="nav-link">مبانی</a>
+                <a href="#io" class="nav-link">ورودی/خروجی</a>
+                <a href="#operations" class="nav-link">عملیات</a>
+                <a href="#spatial" class="nav-link">تحلیل مکانی</a>
+                <a href="#visualization" class="nav-link">نقشه‌سازی</a>
+                <a href="#advanced" class="nav-link">پیشرفته</a>
+                <a href="#projects" class="nav-link">پروژه‌ها</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🗺️</span>
+                <span>نسخه 0.14+ | بروزرسانی ۱۴۰۴</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">GeoPandas</span>
+            </h1>
+            <p class="hero-description">
+                قدرتمندترین کتابخانه پایتون برای کار با داده‌های جغرافیایی و مکانی.
+                ترکیب قدرت Pandas با قابلیت‌های GIS برای تحلیل، پردازش و تجسم داده‌های مکانی.
+            </p>
+            
+            <!-- Map Illustration -->
+            <div class="map-illustration">
+                <svg class="map-svg" viewBox="0 0 400 150">
+                    <!-- Background Grid -->
+                    <defs>
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2E7D32" stroke-opacity="0.1" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)"/>
+                    
+                    <!-- Polygon (Region) -->
+                    <polygon points="50,30 120,20 150,50 140,100 80,110 40,80" 
+                             fill="#4CAF50" fill-opacity="0.3" stroke="#4CAF50" stroke-width="2"/>
+                    
+                    <!-- LineString (Road) -->
+                    <path d="M 160,40 Q 200,60 240,45 T 320,70" 
+                          fill="none" stroke="#FF9800" stroke-width="3" stroke-linecap="round"/>
+                    
+                    <!-- Points (Cities) -->
+                    <circle cx="80" cy="60" r="8" fill="#00ACC1"/>
+                    <circle cx="200" cy="55" r="6" fill="#00ACC1"/>
+                    <circle cx="280" cy="60" r="6" fill="#00ACC1"/>
+                    <circle cx="350" cy="80" r="8" fill="#00ACC1"/>
+                    
+                    <!-- MultiPolygon -->
+                    <polygon points="300,100 340,95 360,120 330,140 290,130" 
+                             fill="#8D6E63" fill-opacity="0.4" stroke="#8D6E63" stroke-width="2"/>
+                    <polygon points="320,90 350,85 365,105 340,110" 
+                             fill="#8D6E63" fill-opacity="0.4" stroke="#8D6E63" stroke-width="2"/>
+                    
+                    <!-- Labels -->
+                    <text x="80" y="85" fill="#a8c5a8" font-size="10" text-anchor="middle">Polygon</text>
+                    <text x="240" y="30" fill="#a8c5a8" font-size="10" text-anchor="middle">LineString</text>
+                    <text x="350" y="60" fill="#a8c5a8" font-size="10" text-anchor="middle">Point</text>
+                </svg>
+            </div>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">۱۵M+</div>
+                    <div class="stat-label">دانلود ماهانه</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۴K+</div>
+                    <div class="stat-label">ستاره GitHub</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۱۰۰+</div>
+                    <div class="stat-label">فرمت پشتیبانی</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2 class="toc-title">📚 فهرست مطالب</h2>
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <a href="#intro" class="toc-link">
+                        <span class="toc-number">۱</span>
+                        معرفی GeoPandas
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#basics" class="toc-link">
+                        <span class="toc-number">۲</span>
+                        مبانی و ساختار داده
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#io" class="toc-link">
+                        <span class="toc-number">۳</span>
+                        خواندن و نوشتن داده
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#operations" class="toc-link">
+                        <span class="toc-number">۴</span>
+                        عملیات هندسی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#spatial" class="toc-link">
+                        <span class="toc-number">۵</span>
+                        تحلیل مکانی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#visualization" class="toc-link">
+                        <span class="toc-number">۶</span>
+                        نقشه‌سازی و تجسم
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#advanced" class="toc-link">
+                        <span class="toc-number">۷</span>
+                        موضوعات پیشرفته
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#projects" class="toc-link">
+                        <span class="toc-number">۸</span>
+                        پروژه‌های عملی
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">🌍</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی GeoPandas</h2>
+                    <p class="section-subtitle">آشنایی با کتابخانه تحلیل داده‌های مکانی</p>
+                </div>
+            </div>
+
+            <h3>🎯 GeoPandas چیست؟</h3>
+            <p>
+                <strong>GeoPandas</strong> یک کتابخانه متن‌باز پایتون است که قابلیت‌های کار با داده‌های 
+                جغرافیایی (Geospatial) را به Pandas اضافه می‌کند. این کتابخانه امکان خواندن، نوشتن، 
+                تحلیل و تجسم داده‌های مکانی را با سادگی Pandas فراهم می‌کند.
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h4 class="card-title">مبتنی بر Pandas</h4>
+                    <p class="card-description">
+                        GeoDataFrame یک DataFrame با ستون هندسی است. همه متدهای Pandas کار می‌کنند.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔷</div>
+                    <h4 class="card-title">Shapely برای هندسه</h4>
+                    <p class="card-description">
+                        استفاده از Shapely برای عملیات هندسی مانند buffer، intersection و union.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📁</div>
+                    <h4 class="card-title">Fiona برای I/O</h4>
+                    <p class="card-description">
+                        پشتیبانی از ۱۰۰+ فرمت فایل شامل Shapefile، GeoJSON، GPKG و...
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🗺️</div>
+                    <h4 class="card-title">PyProj برای CRS</h4>
+                    <p class="card-description">
+                        مدیریت سیستم‌های مختصات و تبدیل بین آن‌ها با دقت بالا.
+                    </p>
+                </div>
+            </div>
+
+            <h3>⚙️ نصب GeoPandas</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>Installation</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># روش توصیه شده: با conda
+conda install -c conda-forge geopandas
+
+# با pip (نیاز به نصب وابستگی‌ها دارد)
+pip install geopandas
+
+# نصب کامل با همه وابستگی‌ها
+pip install geopandas pyproj shapely fiona rtree pygeos
+
+# برای نقشه‌سازی پیشرفته
+pip install matplotlib mapclassify contextily folium
+
+# بررسی نصب
+python -c "import geopandas; print(geopandas.__version__)"</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکته مهم برای نصب</h4>
+                    <p>
+                        GeoPandas وابستگی‌های سیستمی دارد (GDAL, GEOS, PROJ). نصب با <code>conda</code> 
+                        این وابستگی‌ها را خودکار مدیریت می‌کند. برای pip، ممکن است نیاز به نصب دستی داشته باشید.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🚀 اولین برنامه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>hello_geopandas.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point, Polygon
+import matplotlib.pyplot as plt
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد GeoDataFrame از نقاط
+# ═══════════════════════════════════════════════════════════
+
+# داده‌های شهرهای ایران
+cities_data = {
+    'city': ['تهران', 'اصفهان', 'شیراز', 'تبریز', 'مشهد'],
+    'population': [8700000, 2000000, 1600000, 1600000, 3000000],
+    'latitude': [35.6892, 32.6546, 29.5918, 38.0800, 36.2605],
+    'longitude': [51.3890, 51.6680, 52.5837, 46.2919, 59.6168]
+}
+
+# ایجاد هندسه از مختصات
+geometry = [Point(lon, lat) for lon, lat in 
+            zip(cities_data['longitude'], cities_data['latitude'])]
+
+# ایجاد GeoDataFrame
+gdf = gpd.GeoDataFrame(
+    cities_data, 
+    geometry=geometry,
+    crs="EPSG:4326"  # WGS84
+)
+
+print(gdf)
+print(f"\nنوع: {type(gdf)}")
+print(f"\nCRS: {gdf.crs}")
+
+
+# ═══════════════════════════════════════════════════════════
+# نمایش روی نقشه
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# رسم نقاط با اندازه متناسب با جمعیت
+gdf.plot(
+    ax=ax,
+    column='population',
+    cmap='YlOrRd',
+    markersize=gdf['population'] / 50000,
+    legend=True,
+    legend_kwds={'label': 'جمعیت'}
+)
+
+# افزودن برچسب شهرها
+for idx, row in gdf.iterrows():
+    ax.annotate(
+        row['city'],
+        xy=(row.geometry.x, row.geometry.y),
+        xytext=(5, 5),
+        textcoords='offset points',
+        fontsize=10,
+        fontfamily='Vazirmatn'
+    )
+
+ax.set_title('شهرهای بزرگ ایران', fontsize=14, fontfamily='Vazirmatn')
+ax.set_xlabel('طول جغرافیایی')
+ax.set_ylabel('عرض جغرافیایی')
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>📐 انواع هندسه (Geometry Types)</h3>
+            <div class="geom-icons">
+                <div class="geom-icon">
+                    <svg viewBox="0 0 50 50">
+                        <circle cx="25" cy="25" r="8" fill="#00ACC1"/>
+                    </svg>
+                    <span>Point</span>
+                </div>
+                <div class="geom-icon">
+                    <svg viewBox="0 0 50 50">
+                        <circle cx="15" cy="25" r="5" fill="#00ACC1"/>
+                        <circle cx="35" cy="15" r="5" fill="#00ACC1"/>
+                        <circle cx="35" cy="35" r="5" fill="#00ACC1"/>
+                    </svg>
+                    <span>MultiPoint</span>
+                </div>
+                <div class="geom-icon">
+                    <svg viewBox="0 0 50 50">
+                        <path d="M 10,40 Q 25,10 40,30" fill="none" stroke="#FF9800" stroke-width="3"/>
+                    </svg>
+                    <span>LineString</span>
+                </div>
+                <div class="geom-icon">
+                    <svg viewBox="0 0 50 50">
+                        <polygon points="25,5 45,20 40,45 10,45 5,20" fill="#4CAF50" fill-opacity="0.5" stroke="#4CAF50" stroke-width="2"/>
+                    </svg>
+                    <span>Polygon</span>
+                </div>
+                <div class="geom-icon">
+                    <svg viewBox="0 0 50 50">
+                        <polygon points="10,10 25,5 30,20 15,25" fill="#8D6E63" fill-opacity="0.5" stroke="#8D6E63" stroke-width="2"/>
+                        <polygon points="25,30 40,25 45,40 30,45" fill="#8D6E63" fill-opacity="0.5" stroke="#8D6E63" stroke-width="2"/>
+                    </svg>
+                    <span>MultiPolygon</span>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>geometry_types.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from shapely.geometry import (
+    Point, MultiPoint,
+    LineString, MultiLineString,
+    Polygon, MultiPolygon,
+    GeometryCollection
+)
+
+# ═══════════════════════════════════════════════════════════
+# Point - نقطه
+# ═══════════════════════════════════════════════════════════
+
+point = Point(51.3890, 35.6892)  # (x, y) یا (longitude, latitude)
+point_3d = Point(51.3890, 35.6892, 1200)  # با ارتفاع
+
+print(f"مختصات: {point.x}, {point.y}")
+print(f"نوع: {point.geom_type}")
+
+
+# ═══════════════════════════════════════════════════════════
+# LineString - خط
+# ═══════════════════════════════════════════════════════════
+
+line = LineString([
+    (51.3890, 35.6892),  # تهران
+    (51.6680, 32.6546),  # اصفهان
+    (52.5837, 29.5918)   # شیراز
+])
+
+print(f"طول: {line.length}")
+print(f"تعداد نقاط: {len(line.coords)}")
+
+
+# ═══════════════════════════════════════════════════════════
+# Polygon - چندضلعی
+# ═══════════════════════════════════════════════════════════
+
+# چندضلعی ساده
+polygon = Polygon([
+    (51.0, 35.5),
+    (51.5, 35.5),
+    (51.5, 36.0),
+    (51.0, 36.0),
+    (51.0, 35.5)  # بسته شدن
+])
+
+# چندضلعی با سوراخ
+polygon_with_hole = Polygon(
+    shell=[(0, 0), (10, 0), (10, 10), (0, 10), (0, 0)],  # حاشیه بیرونی
+    holes=[[(2, 2), (8, 2), (8, 8), (2, 8), (2, 2)]]     # سوراخ
+)
+
+print(f"مساحت: {polygon.area}")
+print(f"محیط: {polygon.length}")
+print(f"مرکز: {polygon.centroid}")
+
+
+# ═══════════════════════════════════════════════════════════
+# Multi Geometries
+# ═══════════════════════════════════════════════════════════
+
+# چند نقطه
+multi_point = MultiPoint([
+    Point(51.3890, 35.6892),
+    Point(51.6680, 32.6546),
+    Point(52.5837, 29.5918)
+])
+
+# چند خط
+multi_line = MultiLineString([
+    [(0, 0), (1, 1)],
+    [(2, 2), (3, 3)]
+])
+
+# چند چندضلعی
+multi_polygon = MultiPolygon([
+    Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]),
+    Polygon([(2, 2), (3, 2), (3, 3), (2, 3)])
+])
+
+
+# ═══════════════════════════════════════════════════════════
+# GeometryCollection - مجموعه هندسی
+# ═══════════════════════════════════════════════════════════
+
+collection = GeometryCollection([
+    Point(0, 0),
+    LineString([(0, 0), (1, 1)]),
+    Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
+])
+
+print(f"تعداد هندسه‌ها: {len(collection.geoms)}")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Basics -->
+        <section class="section" id="basics">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">مبانی و ساختار داده</h2>
+                    <p class="section-subtitle">GeoDataFrame و GeoSeries</p>
+                </div>
+            </div>
+
+            <h3>🗂️ GeoDataFrame</h3>
+            <p>
+                <code>GeoDataFrame</code> ساختار داده اصلی GeoPandas است که از <code>pandas.DataFrame</code> 
+                ارث‌بری می‌کند و یک ستون هندسی (<code>geometry</code>) به آن اضافه شده است.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>geodataframe_basics.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import pandas as pd
+from shapely.geometry import Point, Polygon
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد GeoDataFrame از صفر
+# ═══════════════════════════════════════════════════════════
+
+# روش 1: از دیکشنری
+data = {
+    'name': ['تهران', 'اصفهان', 'شیراز'],
+    'population': [8700000, 2000000, 1600000],
+    'geometry': [
+        Point(51.3890, 35.6892),
+        Point(51.6680, 32.6546),
+        Point(52.5837, 29.5918)
+    ]
+}
+gdf = gpd.GeoDataFrame(data, crs="EPSG:4326")
+
+
+# روش 2: از DataFrame موجود
+df = pd.DataFrame({
+    'name': ['A', 'B', 'C'],
+    'lat': [35.0, 36.0, 37.0],
+    'lon': [51.0, 52.0, 53.0]
+})
+
+gdf = gpd.GeoDataFrame(
+    df,
+    geometry=gpd.points_from_xy(df['lon'], df['lat']),
+    crs="EPSG:4326"
+)
+
+
+# روش 3: از لیست هندسه‌ها
+geometries = [
+    Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]),
+    Polygon([(1, 0), (2, 0), (2, 1), (1, 1)]),
+    Polygon([(0, 1), (1, 1), (1, 2), (0, 2)])
+]
+gdf = gpd.GeoDataFrame({'id': [1, 2, 3]}, geometry=geometries, crs="EPSG:4326")
+
+
+# ═══════════════════════════════════════════════════════════
+# ویژگی‌های GeoDataFrame
+# ═══════════════════════════════════════════════════════════
+
+print("اطلاعات کلی:")
+print(gdf.info())
+
+print("\nستون هندسی فعال:")
+print(gdf.geometry.name)  # 'geometry'
+
+print("\nنوع هندسه‌ها:")
+print(gdf.geom_type)
+
+print("\nسیستم مختصات:")
+print(gdf.crs)
+
+print("\nمحدوده مکانی (bounds):")
+print(gdf.total_bounds)  # [minx, miny, maxx, maxy]
+
+print("\nمحدوده هر هندسه:")
+print(gdf.bounds)
+
+
+# ═══════════════════════════════════════════════════════════
+# دسترسی به داده‌ها
+# ═══════════════════════════════════════════════════════════
+
+# مثل Pandas
+print(gdf['name'])
+print(gdf.loc[0])
+print(gdf.iloc[0:2])
+
+# دسترسی به هندسه
+print(gdf.geometry)
+print(gdf.geometry[0])  # اولین هندسه
+
+# فیلتر کردن
+large_cities = gdf[gdf['population'] > 2000000]
+
+
+# ═══════════════════════════════════════════════════════════
+# افزودن ستون جدید
+# ═══════════════════════════════════════════════════════════
+
+# ستون معمولی
+gdf['area_km2'] = gdf.geometry.area / 1_000_000
+
+# ستون هندسی جدید
+gdf['centroid'] = gdf.geometry.centroid
+gdf['buffer_1km'] = gdf.geometry.buffer(0.01)  # تقریبی
+
+
+# ═══════════════════════════════════════════════════════════
+# تغییر ستون هندسی فعال
+# ═══════════════════════════════════════════════════════════
+
+# اگر چند ستون هندسی دارید
+gdf = gdf.set_geometry('buffer_1km')
+print(f"ستون هندسی فعال: {gdf.geometry.name}")
+
+# برگشت به geometry اصلی
+gdf = gdf.set_geometry('geometry')</code></pre>
+                </div>
+            </div>
+
+            <h3>📍 GeoSeries</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>geoseries.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point, Polygon
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد GeoSeries
+# ═══════════════════════════════════════════════════════════
+
+# از لیست هندسه‌ها
+gs = gpd.GeoSeries([
+    Point(0, 0),
+    Point(1, 1),
+    Point(2, 2)
+], crs="EPSG:4326")
+
+print(gs)
+print(f"\nCRS: {gs.crs}")
+
+
+# ═══════════════════════════════════════════════════════════
+# ویژگی‌های GeoSeries
+# ═══════════════════════════════════════════════════════════
+
+polygons = gpd.GeoSeries([
+    Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]),
+    Polygon([(1, 1), (2, 1), (2, 2), (1, 2)]),
+    Polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+])
+
+print("مساحت‌ها:")
+print(polygons.area)
+
+print("\nمحیط‌ها:")
+print(polygons.length)
+
+print("\nمراکز:")
+print(polygons.centroid)
+
+print("\nمحدوده‌ها:")
+print(polygons.bounds)
+
+print("\nآیا معتبر هستند:")
+print(polygons.is_valid)
+
+print("\nآیا خالی هستند:")
+print(polygons.is_empty)
+
+print("\nآیا ساده هستند:")
+print(polygons.is_simple)
+
+
+# ═══════════════════════════════════════════════════════════
+# عملیات روی GeoSeries
+# ═══════════════════════════════════════════════════════════
+
+# Buffer
+buffered = polygons.buffer(0.5)
+
+# Simplify
+simplified = polygons.simplify(tolerance=0.1)
+
+# Convex Hull
+hulls = polygons.convex_hull
+
+# Envelope (Bounding Box)
+envelopes = polygons.envelope
+
+# Union همه
+union_all = polygons.unary_union
+print(f"\nUnion: {union_all}")</code></pre>
+                </div>
+            </div>
+
+            <h3>🌐 سیستم مختصات (CRS)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>crs_management.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point
+
+# ═══════════════════════════════════════════════════════════
+# سیستم‌های مختصات رایج
+# ═══════════════════════════════════════════════════════════
+
+"""
+EPSG:4326  - WGS84 (GPS) - جغرافیایی (درجه)
+EPSG:3857  - Web Mercator - برای نقشه‌های وب
+EPSG:32639 - UTM Zone 39N - برای ایران (متر)
+EPSG:32640 - UTM Zone 40N - برای شرق ایران (متر)
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیم CRS
+# ═══════════════════════════════════════════════════════════
+
+# هنگام ایجاد
+gdf = gpd.GeoDataFrame(
+    {'name': ['تهران']},
+    geometry=[Point(51.3890, 35.6892)],
+    crs="EPSG:4326"
+)
+
+# یا بعداً (فقط تنظیم، بدون تبدیل)
+gdf = gdf.set_crs("EPSG:4326")
+
+# اگر CRS ندارد و می‌خواهید تنظیم کنید
+gdf = gdf.set_crs("EPSG:4326", allow_override=True)
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل CRS (Reprojection)
+# ═══════════════════════════════════════════════════════════
+
+# تبدیل به UTM برای محاسبات دقیق
+gdf_utm = gdf.to_crs("EPSG:32639")
+
+print(f"CRS اصلی: {gdf.crs}")
+print(f"CRS جدید: {gdf_utm.crs}")
+
+# مختصات قبل و بعد
+print(f"\nمختصات WGS84: {gdf.geometry[0]}")
+print(f"مختصات UTM: {gdf_utm.geometry[0]}")
+
+
+# ═══════════════════════════════════════════════════════════
+# اهمیت CRS در محاسبات
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد چندضلعی
+from shapely.geometry import Polygon
+
+polygon = Polygon([
+    (51.0, 35.0),
+    (52.0, 35.0),
+    (52.0, 36.0),
+    (51.0, 36.0)
+])
+
+gdf = gpd.GeoDataFrame(geometry=[polygon], crs="EPSG:4326")
+
+# مساحت در WGS84 (درجه مربع - بی‌معنی!)
+print(f"مساحت در WGS84: {gdf.area[0]:.6f} درجه مربع")
+
+# تبدیل به UTM برای مساحت دقیق
+gdf_utm = gdf.to_crs("EPSG:32639")
+area_km2 = gdf_utm.area[0] / 1_000_000
+print(f"مساحت در UTM: {area_km2:.2f} کیلومتر مربع")
+
+
+# ═══════════════════════════════════════════════════════════
+# بررسی و دریافت اطلاعات CRS
+# ═══════════════════════════════════════════════════════════
+
+crs = gdf.crs
+
+print(f"نام: {crs.name}")
+print(f"کد EPSG: {crs.to_epsg()}")
+print(f"واحد: {crs.axis_info[0].unit_name}")
+print(f"جغرافیایی است: {crs.is_geographic}")
+print(f"تصویری است: {crs.is_projected}")
+
+# WKT کامل
+print(f"\nWKT:\n{crs.to_wkt(pretty=True)}")</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box geo">
+                <div class="info-icon">🌐</div>
+                <div class="info-content">
+                    <h4>انتخاب CRS مناسب برای ایران</h4>
+                    <ul>
+                        <li><strong>EPSG:4326</strong> - برای ذخیره و تبادل داده</li>
+                        <li><strong>EPSG:32639</strong> - UTM Zone 39N برای غرب و مرکز ایران</li>
+                        <li><strong>EPSG:32640</strong> - UTM Zone 40N برای شرق ایران</li>
+                        <li><strong>EPSG:2059</strong> - سیستم مختصات ملی ایران (Iran National Grid)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: I/O -->
+        <section class="section" id="io">
+            <div class="section-header">
+                <div class="section-icon">📁</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">خواندن و نوشتن داده</h2>
+                    <p class="section-subtitle">کار با فرمت‌های مختلف فایل</p>
+                </div>
+            </div>
+
+            <h3>📖 خواندن داده‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>reading_data.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+
+# ═══════════════════════════════════════════════════════════
+# Shapefile (.shp)
+# ═══════════════════════════════════════════════════════════
+
+gdf = gpd.read_file("data/iran_provinces.shp")
+
+# با encoding خاص
+gdf = gpd.read_file("data/iran_provinces.shp", encoding='utf-8')
+
+
+# ═══════════════════════════════════════════════════════════
+# GeoJSON
+# ═══════════════════════════════════════════════════════════
+
+gdf = gpd.read_file("data/cities.geojson")
+
+# از URL
+gdf = gpd.read_file("https://example.com/data.geojson")
+
+# از string
+geojson_str = '''
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [51.389, 35.689]},
+            "properties": {"name": "تهران"}
+        }
+    ]
+}
+'''
+import json
+gdf = gpd.GeoDataFrame.from_features(json.loads(geojson_str)['features'])
+
+
+# ═══════════════════════════════════════════════════════════
+# GeoPackage (.gpkg)
+# ═══════════════════════════════════════════════════════════
+
+gdf = gpd.read_file("data/iran.gpkg")
+
+# خواندن لایه خاص
+gdf = gpd.read_file("data/iran.gpkg", layer="provinces")
+
+# لیست لایه‌ها
+import fiona
+layers = fiona.listlayers("data/iran.gpkg")
+print(f"لایه‌ها: {layers}")
+
+
+# ═══════════════════════════════════════════════════════════
+# KML / KMZ
+# ═══════════════════════════════════════════════════════════
+
+# نیاز به فعال‌سازی driver
+gpd.io.file.fiona.drvsupport.supported_drivers['KML'] = 'rw'
+gdf = gpd.read_file("data/places.kml", driver='KML')
+
+
+# ═══════════════════════════════════════════════════════════
+# PostGIS Database
+# ═══════════════════════════════════════════════════════════
+
+from sqlalchemy import create_engine
+
+engine = create_engine("postgresql://user:password@localhost:5432/gisdb")
+
+# خواندن کل جدول
+gdf = gpd.read_postgis("SELECT * FROM provinces", engine, geom_col='geom')
+
+# با query
+sql = """
+    SELECT name, population, geom 
+    FROM cities 
+    WHERE population > 1000000
+"""
+gdf = gpd.read_postgis(sql, engine, geom_col='geom')
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن با فیلتر (bbox)
+# ═══════════════════════════════════════════════════════════
+
+# فقط داده‌های داخل محدوده
+bbox = (50, 34, 53, 37)  # (minx, miny, maxx, maxy)
+gdf = gpd.read_file("data/iran.gpkg", bbox=bbox)
+
+# با mask (هندسه دلخواه)
+from shapely.geometry import box
+mask = box(50, 34, 53, 37)
+gdf = gpd.read_file("data/iran.gpkg", mask=mask)
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن ستون‌های خاص
+# ═══════════════════════════════════════════════════════════
+
+# فقط ستون‌های مورد نیاز (سریع‌تر)
+gdf = gpd.read_file(
+    "data/large_file.gpkg",
+    columns=['name', 'population']  # geometry همیشه خوانده می‌شود
+)
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن تعداد محدود
+# ═══════════════════════════════════════════════════════════
+
+gdf = gpd.read_file("data/large_file.gpkg", rows=100)</code></pre>
+                </div>
+            </div>
+
+            <h3>💾 نوشتن داده‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>writing_data.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+
+# ═══════════════════════════════════════════════════════════
+# Shapefile
+# ═══════════════════════════════════════════════════════════
+
+gdf.to_file("output/provinces.shp")
+
+# با encoding
+gdf.to_file("output/provinces.shp", encoding='utf-8')
+
+
+# ═══════════════════════════════════════════════════════════
+# GeoJSON
+# ═══════════════════════════════════════════════════════════
+
+gdf.to_file("output/data.geojson", driver='GeoJSON')
+
+# به string
+geojson_str = gdf.to_json()
+
+# با indent
+geojson_str = gdf.to_json(indent=2)
+
+
+# ═══════════════════════════════════════════════════════════
+# GeoPackage (توصیه شده)
+# ═══════════════════════════════════════════════════════════
+
+gdf.to_file("output/data.gpkg", driver='GPKG')
+
+# با نام لایه
+gdf.to_file("output/data.gpkg", layer='provinces', driver='GPKG')
+
+# افزودن لایه جدید به فایل موجود
+gdf2.to_file("output/data.gpkg", layer='cities', driver='GPKG')
+
+
+# ═══════════════════════════════════════════════════════════
+# PostGIS
+# ═══════════════════════════════════════════════════════════
+
+from sqlalchemy import create_engine
+
+engine = create_engine("postgresql://user:password@localhost:5432/gisdb")
+
+gdf.to_postgis(
+    name='provinces',
+    con=engine,
+    if_exists='replace',  # 'fail', 'replace', 'append'
+    index=False
+)
+
+
+# ═══════════════════════════════════════════════════════════
+# CSV با WKT
+# ═══════════════════════════════════════════════════════════
+
+# تبدیل geometry به WKT
+gdf_copy = gdf.copy()
+gdf_copy['geometry_wkt'] = gdf_copy.geometry.to_wkt()
+gdf_copy.drop(columns=['geometry']).to_csv("output/data.csv", index=False)
+
+
+# ═══════════════════════════════════════════════════════════
+# Parquet (سریع و فشرده)
+# ═══════════════════════════════════════════════════════════
+
+# نیاز به pyarrow
+gdf.to_parquet("output/data.parquet")
+
+# خواندن
+gdf = gpd.read_parquet("output/data.parquet")
+
+
+# ═══════════════════════════════════════════════════════════
+# فرمت‌های دیگر
+# ═══════════════════════════════════════════════════════════
+
+# KML
+gdf.to_file("output/data.kml", driver='KML')
+
+# GML
+gdf.to_file("output/data.gml", driver='GML')
+
+# MapInfo TAB
+gdf.to_file("output/data.tab", driver='MapInfo File')</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 تبدیل از/به Pandas</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>pandas_conversion.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+from shapely import wkt
+
+# ═══════════════════════════════════════════════════════════
+# DataFrame به GeoDataFrame
+# ═══════════════════════════════════════════════════════════
+
+# روش 1: از ستون‌های lat/lon
+df = pd.DataFrame({
+    'name': ['تهران', 'اصفهان', 'شیراز'],
+    'lat': [35.6892, 32.6546, 29.5918],
+    'lon': [51.3890, 51.6680, 52.5837]
+})
+
+gdf = gpd.GeoDataFrame(
+    df,
+    geometry=gpd.points_from_xy(df['lon'], df['lat']),
+    crs="EPSG:4326"
+)
+
+
+# روش 2: از ستون WKT
+df = pd.DataFrame({
+    'name': ['تهران', 'محدوده'],
+    'wkt': [
+        'POINT (51.389 35.689)',
+        'POLYGON ((51 35, 52 35, 52 36, 51 36, 51 35))'
+    ]
+})
+
+df['geometry'] = df['wkt'].apply(wkt.loads)
+gdf = gpd.GeoDataFrame(df, geometry='geometry', crs="EPSG:4326")
+
+
+# روش 3: از ستون GeoJSON
+df = pd.DataFrame({
+    'name': ['تهران'],
+    'geojson': ['{"type": "Point", "coordinates": [51.389, 35.689]}']
+})
+
+from shapely.geometry import shape
+import json
+
+df['geometry'] = df['geojson'].apply(lambda x: shape(json.loads(x)))
+gdf = gpd.GeoDataFrame(df, geometry='geometry', crs="EPSG:4326")
+
+
+# ═══════════════════════════════════════════════════════════
+# GeoDataFrame به DataFrame
+# ═══════════════════════════════════════════════════════════
+
+# حذف ستون هندسی
+df = pd.DataFrame(gdf.drop(columns=['geometry']))
+
+# با حفظ WKT
+df = gdf.copy()
+df['wkt'] = df.geometry.to_wkt()
+df = pd.DataFrame(df.drop(columns=['geometry']))
+
+# با حفظ مختصات (برای نقاط)
+df = gdf.copy()
+df['lon'] = df.geometry.x
+df['lat'] = df.geometry.y
+df = pd.DataFrame(df.drop(columns=['geometry']))</code></pre>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>فرمت</th>
+                            <th>پسوند</th>
+                            <th>مزایا</th>
+                            <th>معایب</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GeoPackage</strong></td>
+                            <td><code>.gpkg</code></td>
+                            <td>چند لایه، استاندارد OGC، فشرده</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GeoJSON</strong></td>
+                            <td><code>.geojson</code></td>
+                            <td>خوانا، وب‌محور، ساده</td>
+                            <td>حجم بالا، فقط WGS84</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shapefile</strong></td>
+                            <td><code>.shp</code></td>
+                            <td>سازگاری بالا</td>
+                            <td>چند فایل، محدودیت نام ستون</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Parquet</strong></td>
+                            <td><code>.parquet</code></td>
+                            <td>سریع، فشرده، برای Big Data</td>
+                            <td>نیاز به pyarrow</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FlatGeobuf</strong></td>
+                            <td><code>.fgb</code></td>
+                            <td>بسیار سریع، streaming</td>
+                            <td>جدید، پشتیبانی محدود</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Geometric Operations -->
+        <section class="section" id="operations">
+            <div class="section-header">
+                <div class="section-icon">🔷</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">عملیات هندسی</h2>
+                    <p class="section-subtitle">Buffer, Simplify, Overlay و ...</p>
+                </div>
+            </div>
+
+            <h3>⭕ Buffer (حریم)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>buffer_operations.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point, LineString
+import matplotlib.pyplot as plt
+
+# ═══════════════════════════════════════════════════════════
+# Buffer ساده
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد نقاط
+points = gpd.GeoDataFrame(
+    {'name': ['A', 'B', 'C']},
+    geometry=[Point(0, 0), Point(2, 2), Point(4, 0)],
+    crs="EPSG:32639"  # UTM برای واحد متر
+)
+
+# Buffer 500 متری
+buffered = points.copy()
+buffered['geometry'] = points.buffer(500)
+
+# نمایش
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+points.plot(ax=axes[0], color='red', markersize=50)
+axes[0].set_title('نقاط اصلی')
+
+buffered.plot(ax=axes[1], alpha=0.5, edgecolor='black')
+points.plot(ax=axes[1], color='red', markersize=50)
+axes[1].set_title('Buffer 500 متری')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Buffer با پارامترهای مختلف
+# ═══════════════════════════════════════════════════════════
+
+line = gpd.GeoDataFrame(
+    geometry=[LineString([(0, 0), (5, 5), (10, 0)])],
+    crs="EPSG:32639"
+)
+
+# Buffer دو طرفه (پیش‌فرض)
+buffer_both = line.buffer(1)
+
+# Buffer یک طرفه (چپ)
+buffer_left = line.buffer(1, single_sided=True)
+
+# Buffer یک طرفه (راست)
+buffer_right = line.buffer(-1, single_sided=True)
+
+# تعداد segments (دقت دایره)
+buffer_smooth = line.buffer(1, resolution=64)  # پیش‌فرض 16
+buffer_rough = line.buffer(1, resolution=4)
+
+# نوع انتها (cap_style)
+# 1=round, 2=flat, 3=square
+buffer_flat = line.buffer(1, cap_style=2)
+buffer_square = line.buffer(1, cap_style=3)
+
+# نوع اتصال (join_style)
+# 1=round, 2=mitre, 3=bevel
+buffer_mitre = line.buffer(1, join_style=2)
+buffer_bevel = line.buffer(1, join_style=3)
+
+
+# ═══════════════════════════════════════════════════════════
+# Buffer با فاصله متفاوت برای هر سطر
+# ═══════════════════════════════════════════════════════════
+
+gdf = gpd.GeoDataFrame({
+    'name': ['کوچک', 'متوسط', 'بزرگ'],
+    'buffer_distance': [100, 500, 1000]
+}, geometry=[Point(0, 0), Point(3000, 0), Point(6000, 0)], crs="EPSG:32639")
+
+# Buffer با فاصله متفاوت
+gdf['buffered'] = gdf.apply(
+    lambda row: row.geometry.buffer(row['buffer_distance']), 
+    axis=1
+)
+gdf = gdf.set_geometry('buffered')</code></pre>
+                </div>
+            </div>
+
+            <h3>📐 Simplify (ساده‌سازی)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>simplify.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import matplotlib.pyplot as plt
+
+# خواندن داده با جزئیات زیاد
+gdf = gpd.read_file("data/iran_detailed.gpkg")
+
+print(f"تعداد نقاط اصلی: {gdf.geometry.apply(lambda g: len(g.exterior.coords)).sum()}")
+
+# ═══════════════════════════════════════════════════════════
+# Simplify با tolerance مختلف
+# ═══════════════════════════════════════════════════════════
+
+# ساده‌سازی خفیف
+gdf_simple_1 = gdf.copy()
+gdf_simple_1['geometry'] = gdf.simplify(tolerance=0.01)
+
+# ساده‌سازی متوسط
+gdf_simple_2 = gdf.copy()
+gdf_simple_2['geometry'] = gdf.simplify(tolerance=0.05)
+
+# ساده‌سازی شدید
+gdf_simple_3 = gdf.copy()
+gdf_simple_3['geometry'] = gdf.simplify(tolerance=0.1)
+
+# مقایسه
+fig, axes = plt.subplots(2, 2, figsize=(12, 12))
+
+gdf.plot(ax=axes[0, 0], edgecolor='black', facecolor='lightblue')
+axes[0, 0].set_title('اصلی')
+
+gdf_simple_1.plot(ax=axes[0, 1], edgecolor='black', facecolor='lightgreen')
+axes[0, 1].set_title('tolerance=0.01')
+
+gdf_simple_2.plot(ax=axes[1, 0], edgecolor='black', facecolor='lightyellow')
+axes[1, 0].set_title('tolerance=0.05')
+
+gdf_simple_3.plot(ax=axes[1, 1], edgecolor='black', facecolor='lightcoral')
+axes[1, 1].set_title('tolerance=0.1')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# حفظ توپولوژی
+# ═══════════════════════════════════════════════════════════
+
+# preserve_topology=True (پیش‌فرض) - جلوگیری از خودتقاطع
+gdf_topo = gdf.simplify(tolerance=0.05, preserve_topology=True)
+
+# preserve_topology=False - سریع‌تر ولی ممکن است مشکل ایجاد کند
+gdf_no_topo = gdf.simplify(tolerance=0.05, preserve_topology=False)</code></pre>
+                </div>
+            </div>
+
+            <h3>🔀 Overlay (همپوشانی)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>overlay_operations.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Polygon, box
+import matplotlib.pyplot as plt
+
+# ایجاد دو لایه
+layer1 = gpd.GeoDataFrame({
+    'id': [1, 2],
+    'name': ['A', 'B']
+}, geometry=[
+    box(0, 0, 4, 4),
+    box(3, 3, 7, 7)
+], crs="EPSG:32639")
+
+layer2 = gpd.GeoDataFrame({
+    'id': [1, 2],
+    'type': ['X', 'Y']
+}, geometry=[
+    box(2, 0, 6, 3),
+    box(1, 4, 5, 8)
+], crs="EPSG:32639")
+
+
+# ═══════════════════════════════════════════════════════════
+# Intersection (اشتراک)
+# ═══════════════════════════════════════════════════════════
+
+intersection = gpd.overlay(layer1, layer2, how='intersection')
+print("Intersection:")
+print(intersection)
+
+
+# ═══════════════════════════════════════════════════════════
+# Union (اجتماع)
+# ═══════════════════════════════════════════════════════════
+
+union = gpd.overlay(layer1, layer2, how='union')
+print("\nUnion:")
+print(union)
+
+
+# ═══════════════════════════════════════════════════════════
+# Difference (تفاضل)
+# ═══════════════════════════════════════════════════════════
+
+# layer1 - layer2
+difference = gpd.overlay(layer1, layer2, how='difference')
+print("\nDifference (layer1 - layer2):")
+print(difference)
+
+
+# ═══════════════════════════════════════════════════════════
+# Symmetric Difference (تفاضل متقارن)
+# ═══════════════════════════════════════════════════════════
+
+sym_diff = gpd.overlay(layer1, layer2, how='symmetric_difference')
+print("\nSymmetric Difference:")
+print(sym_diff)
+
+
+# ═══════════════════════════════════════════════════════════
+# Identity
+# ═══════════════════════════════════════════════════════════
+
+identity = gpd.overlay(layer1, layer2, how='identity')
+print("\nIdentity:")
+print(identity)
+
+
+# ═══════════════════════════════════════════════════════════
+# نمایش نتایج
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+
+# لایه‌های اصلی
+ax = axes[0, 0]
+layer1.plot(ax=ax, alpha=0.5, color='blue', edgecolor='black')
+layer2.plot(ax=ax, alpha=0.5, color='red', edgecolor='black')
+ax.set_title('لایه‌های اصلی')
+
+# Intersection
+axes[0, 1].set_title('Intersection')
+if not intersection.empty:
+    intersection.plot(ax=axes[0, 1], alpha=0.7, cmap='Set2', edgecolor='black')
+
+# Union
+axes[0, 2].set_title('Union')
+union.plot(ax=axes[0, 2], alpha=0.7, cmap='Set3', edgecolor='black')
+
+# Difference
+axes[1, 0].set_title('Difference')
+if not difference.empty:
+    difference.plot(ax=axes[1, 0], alpha=0.7, color='green', edgecolor='black')
+
+# Symmetric Difference
+axes[1, 1].set_title('Symmetric Difference')
+sym_diff.plot(ax=axes[1, 1], alpha=0.7, cmap='Pastel1', edgecolor='black')
+
+# Identity
+axes[1, 2].set_title('Identity')
+identity.plot(ax=axes[1, 2], alpha=0.7, cmap='Pastel2', edgecolor='black')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 Dissolve (ادغام)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>dissolve.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import box
+
+# ایجاد داده نمونه - شهرستان‌ها
+counties = gpd.GeoDataFrame({
+    'name': ['شهرستان ۱', 'شهرستان ۲', 'شهرستان ۳', 'شهرستان ۴'],
+    'province': ['استان الف', 'استان الف', 'استان ب', 'استان ب'],
+    'population': [100000, 150000, 200000, 80000],
+    'area_km2': [1000, 1500, 2000, 800]
+}, geometry=[
+    box(0, 0, 2, 2),
+    box(2, 0, 4, 2),
+    box(0, 2, 2, 4),
+    box(2, 2, 4, 4)
+], crs="EPSG:32639")
+
+
+# ═══════════════════════════════════════════════════════════
+# Dissolve بر اساس استان
+# ═══════════════════════════════════════════════════════════
+
+provinces = counties.dissolve(by='province')
+print("Dissolve ساده:")
+print(provinces)
+
+
+# ═══════════════════════════════════════════════════════════
+# Dissolve با تجمیع آماری
+# ═══════════════════════════════════════════════════════════
+
+provinces = counties.dissolve(
+    by='province',
+    aggfunc={
+        'population': 'sum',
+        'area_km2': 'sum',
+        'name': 'count'  # تعداد شهرستان‌ها
+    }
+)
+provinces = provinces.rename(columns={'name': 'county_count'})
+print("\nDissolve با تجمیع:")
+print(provinces)
+
+
+# ═══════════════════════════════════════════════════════════
+# Dissolve همه به یک
+# ═══════════════════════════════════════════════════════════
+
+# ادغام همه به یک هندسه
+all_merged = counties.dissolve()
+print(f"\nتعداد هندسه بعد از dissolve کامل: {len(all_merged)}")
+
+
+# ═══════════════════════════════════════════════════════════
+# Dissolve با aggfunc‌های مختلف
+# ═══════════════════════════════════════════════════════════
+
+result = counties.dissolve(
+    by='province',
+    aggfunc={
+        'population': ['sum', 'mean', 'max'],
+        'area_km2': 'sum'
+    }
+)
+print("\nDissolve با چند تابع تجمیع:")
+print(result)</code></pre>
+                </div>
+            </div>
+
+            <h3>✂️ Clip (برش)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>clip.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import box, Polygon
+
+# داده‌های نمونه
+roads = gpd.read_file("data/roads.gpkg")
+study_area = gpd.read_file("data/study_area.gpkg")
+
+# ═══════════════════════════════════════════════════════════
+# Clip با GeoDataFrame
+# ═══════════════════════════════════════════════════════════
+
+clipped = gpd.clip(roads, study_area)
+
+
+# ═══════════════════════════════════════════════════════════
+# Clip با هندسه
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد محدوده برش
+clip_box = box(50, 34, 53, 37)
+clipped = gpd.clip(roads, clip_box)
+
+
+# ═══════════════════════════════════════════════════════════
+# Clip با چندضلعی سفارشی
+# ═══════════════════════════════════════════════════════════
+
+custom_polygon = Polygon([
+    (51.0, 35.5),
+    (51.5, 35.3),
+    (52.0, 35.7),
+    (51.8, 36.2),
+    (51.2, 36.0)
+])
+
+clipped = gpd.clip(roads, custom_polygon)
+
+
+# ═══════════════════════════════════════════════════════════
+# نمایش
+# ═══════════════════════════════════════════════════════════
+
+import matplotlib.pyplot as plt
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# قبل از clip
+roads.plot(ax=axes[0], color='blue', linewidth=0.5)
+study_area.boundary.plot(ax=axes[0], color='red', linewidth=2)
+axes[0].set_title('قبل از Clip')
+
+# بعد از clip
+clipped.plot(ax=axes[1], color='blue', linewidth=0.5)
+study_area.boundary.plot(ax=axes[1], color='red', linewidth=2)
+axes[1].set_title('بعد از Clip')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Spatial Analysis -->
+        <section class="section" id="spatial">
+            <div class="section-header">
+                <div class="section-icon">📍</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">تحلیل مکانی</h2>
+                    <p class="section-subtitle">Spatial Joins, Queries و Analysis</p>
+                </div>
+            </div>
+
+            <h3>🔍 روابط مکانی (Spatial Predicates)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_predicates.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point, Polygon, box
+
+# ایجاد داده‌های نمونه
+polygon = Polygon([(0, 0), (4, 0), (4, 4), (0, 4)])
+points = gpd.GeoDataFrame({
+    'name': ['داخل', 'روی مرز', 'بیرون']
+}, geometry=[
+    Point(2, 2),    # داخل
+    Point(4, 2),    # روی مرز
+    Point(5, 5)     # بیرون
+])
+
+poly_gdf = gpd.GeoDataFrame(geometry=[polygon])
+
+
+# ═══════════════════════════════════════════════════════════
+# within - داخل بودن
+# ═══════════════════════════════════════════════════════════
+
+within_mask = points.within(polygon)
+print("within:")
+print(within_mask)
+# True, False, False
+
+points_within = points[points.within(polygon)]
+
+
+# ═══════════════════════════════════════════════════════════
+# contains - شامل بودن
+# ═══════════════════════════════════════════════════════════
+
+contains_mask = poly_gdf.contains(points.geometry[0])
+print(f"\nآیا چندضلعی شامل نقطه اول است: {contains_mask[0]}")
+
+
+# ═══════════════════════════════════════════════════════════
+# intersects - تقاطع داشتن
+# ═══════════════════════════════════════════════════════════
+
+intersects_mask = points.intersects(polygon)
+print("\nintersects:")
+print(intersects_mask)
+# True, True, False
+
+
+# ═══════════════════════════════════════════════════════════
+# touches - مماس بودن
+# ═══════════════════════════════════════════════════════════
+
+touches_mask = points.touches(polygon)
+print("\ntouches:")
+print(touches_mask)
+# False, True, False
+
+
+# ═══════════════════════════════════════════════════════════
+# overlaps - همپوشانی
+# ═══════════════════════════════════════════════════════════
+
+poly1 = box(0, 0, 3, 3)
+poly2 = box(2, 2, 5, 5)
+
+gdf1 = gpd.GeoDataFrame(geometry=[poly1])
+gdf2 = gpd.GeoDataFrame(geometry=[poly2])
+
+print(f"\nآیا همپوشانی دارند: {gdf1.overlaps(poly2)[0]}")
+
+
+# ═══════════════════════════════════════════════════════════
+# crosses - عبور کردن
+# ═══════════════════════════════════════════════════════════
+
+from shapely.geometry import LineString
+
+line = LineString([(0, 2), (5, 2)])
+print(f"\nآیا خط از چندضلعی عبور می‌کند: {line.crosses(polygon)}")
+
+
+# ═══════════════════════════════════════════════════════════
+# disjoint - جدا بودن
+# ═══════════════════════════════════════════════════════════
+
+disjoint_mask = points.disjoint(polygon)
+print("\ndisjoint:")
+print(disjoint_mask)
+# False, False, True
+
+
+# ═══════════════════════════════════════════════════════════
+# جدول روابط مکانی
+# ═══════════════════════════════════════════════════════════
+
+"""
+┌─────────────┬───────────────────────────────────────────┐
+│   Predicate │ توضیح                                     │
+├─────────────┼───────────────────────────────────────────┤
+│ within      │ A کاملاً داخل B است                       │
+│ contains    │ A شامل B است (معکوس within)              │
+│ intersects  │ A و B حداقل یک نقطه مشترک دارند          │
+│ touches     │ A و B فقط در مرز مشترک هستند             │
+│ overlaps    │ A و B همپوشانی دارند (نه کامل)           │
+│ crosses     │ A از B عبور می‌کند                        │
+│ disjoint    │ A و B هیچ نقطه مشترکی ندارند             │
+│ equals      │ A و B دقیقاً یکسان هستند                  │
+│ covers      │ A شامل B است (شامل مرز)                  │
+│ covered_by  │ A توسط B پوشانده شده                     │
+└─────────────┴───────────────────────────────────────────┘
+"""</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 Spatial Join</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_join.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point, box
+
+# ایجاد داده‌های نمونه
+# نقاط (شهرها)
+cities = gpd.GeoDataFrame({
+    'city': ['تهران', 'کرج', 'قم', 'اصفهان'],
+    'population': [8700000, 1600000, 1200000, 2000000]
+}, geometry=[
+    Point(51.4, 35.7),
+    Point(51.0, 35.8),
+    Point(50.9, 34.6),
+    Point(51.7, 32.7)
+], crs="EPSG:4326")
+
+# چندضلعی‌ها (استان‌ها)
+provinces = gpd.GeoDataFrame({
+    'province': ['تهران', 'قم', 'اصفهان'],
+    'area_km2': [13000, 11000, 107000]
+}, geometry=[
+    box(50.5, 35.2, 52.0, 36.5),
+    box(50.0, 34.0, 51.5, 35.2),
+    box(50.5, 31.5, 53.5, 34.0)
+], crs="EPSG:4326")
+
+
+# ═══════════════════════════════════════════════════════════
+# sjoin - Spatial Join
+# ═══════════════════════════════════════════════════════════
+
+# نقاط داخل چندضلعی‌ها
+joined = gpd.sjoin(cities, provinces, how='inner', predicate='within')
+print("Spatial Join (inner, within):")
+print(joined)
+
+
+# ═══════════════════════════════════════════════════════════
+# انواع how
+# ═══════════════════════════════════════════════════════════
+
+# inner: فقط تطابق‌ها
+joined_inner = gpd.sjoin(cities, provinces, how='inner', predicate='within')
+
+# left: همه سطرهای چپ + تطابق‌ها
+joined_left = gpd.sjoin(cities, provinces, how='left', predicate='within')
+
+# right: همه سطرهای راست + تطابق‌ها
+joined_right = gpd.sjoin(cities, provinces, how='right', predicate='within')
+
+
+# ═══════════════════════════════════════════════════════════
+# انواع predicate
+# ═══════════════════════════════════════════════════════════
+
+# intersects (پیش‌فرض)
+joined = gpd.sjoin(cities, provinces, predicate='intersects')
+
+# within
+joined = gpd.sjoin(cities, provinces, predicate='within')
+
+# contains
+joined = gpd.sjoin(provinces, cities, predicate='contains')
+
+
+# ═══════════════════════════════════════════════════════════
+# sjoin_nearest - نزدیک‌ترین
+# ═══════════════════════════════════════════════════════════
+
+# پیدا کردن نزدیک‌ترین استان برای هر شهر
+nearest = gpd.sjoin_nearest(
+    cities, 
+    provinces,
+    how='left',
+    distance_col='distance'  # فاصله در ستون جدید
+)
+print("\nNearest Join:")
+print(nearest)
+
+# با حداکثر فاصله
+nearest_limited = gpd.sjoin_nearest(
+    cities,
+    provinces,
+    how='left',
+    max_distance=1.0,  # حداکثر 1 درجه
+    distance_col='distance'
+)
+
+
+# ═══════════════════════════════════════════════════════════
+# شمارش نقاط در هر چندضلعی
+# ═══════════════════════════════════════════════════════════
+
+# روش 1: با sjoin و groupby
+joined = gpd.sjoin(cities, provinces, predicate='within')
+counts = joined.groupby('province').size().reset_index(name='city_count')
+provinces_with_counts = provinces.merge(counts, on='province', how='left')
+provinces_with_counts['city_count'] = provinces_with_counts['city_count'].fillna(0)
+
+# روش 2: با جمع جمعیت
+pop_sum = joined.groupby('province')['population'].sum().reset_index()
+provinces_with_pop = provinces.merge(pop_sum, on='province', how='left')</code></pre>
+                </div>
+            </div>
+
+            <h3>📏 محاسبات فاصله و مساحت</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>distance_area.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# محاسبه فاصله
+# ═══════════════════════════════════════════════════════════
+
+cities = gpd.GeoDataFrame({
+    'city': ['تهران', 'اصفهان', 'شیراز']
+}, geometry=[
+    Point(51.4, 35.7),
+    Point(51.7, 32.7),
+    Point(52.5, 29.6)
+], crs="EPSG:4326")
+
+# تبدیل به UTM برای فاصله به متر
+cities_utm = cities.to_crs("EPSG:32639")
+
+# فاصله از یک نقطه
+tehran = cities_utm.geometry[0]
+cities_utm['distance_from_tehran'] = cities_utm.distance(tehran)
+cities_utm['distance_km'] = cities_utm['distance_from_tehran'] / 1000
+
+print("فاصله از تهران:")
+print(cities_utm[['city', 'distance_km']])
+
+
+# ═══════════════════════════════════════════════════════════
+# ماتریس فاصله
+# ═══════════════════════════════════════════════════════════
+
+n = len(cities_utm)
+distance_matrix = np.zeros((n, n))
+
+for i in range(n):
+    for j in range(n):
+        distance_matrix[i, j] = cities_utm.geometry[i].distance(cities_utm.geometry[j])
+
+# تبدیل به کیلومتر
+distance_matrix_km = distance_matrix / 1000
+
+print("\nماتریس فاصله (کیلومتر):")
+print(distance_matrix_km)
+
+
+# ═══════════════════════════════════════════════════════════
+# نزدیک‌ترین فاصله به لایه دیگر
+# ═══════════════════════════════════════════════════════════
+
+# فاصله هر شهر تا نزدیک‌ترین جاده
+roads = gpd.read_file("data/roads.gpkg").to_crs("EPSG:32639")
+
+# Union همه جاده‌ها
+all_roads = roads.unary_union
+
+cities_utm['distance_to_road'] = cities_utm.geometry.apply(
+    lambda point: point.distance(all_roads)
+)
+
+
+# ═══════════════════════════════════════════════════════════
+# محاسبه مساحت
+# ═══════════════════════════════════════════════════════════
+
+provinces = gpd.read_file("data/provinces.gpkg")
+
+# در CRS جغرافیایی (نادرست!)
+print(f"مساحت در WGS84: {provinces.area}")  # درجه مربع!
+
+# تبدیل به UTM
+provinces_utm = provinces.to_crs("EPSG:32639")
+provinces_utm['area_m2'] = provinces_utm.area
+provinces_utm['area_km2'] = provinces_utm.area / 1_000_000
+provinces_utm['area_ha'] = provinces_utm.area / 10_000
+
+print("\nمساحت استان‌ها:")
+print(provinces_utm[['name', 'area_km2']])
+
+
+# ═══════════════════════════════════════════════════════════
+# محاسبه طول
+# ═══════════════════════════════════════════════════════════
+
+roads_utm = roads.to_crs("EPSG:32639")
+roads_utm['length_m'] = roads_utm.length
+roads_utm['length_km'] = roads_utm.length / 1000
+
+total_length = roads_utm['length_km'].sum()
+print(f"\nطول کل جاده‌ها: {total_length:.2f} کیلومتر")
+
+
+# ═══════════════════════════════════════════════════════════
+# محاسبه محیط
+# ═══════════════════════════════════════════════════════════
+
+provinces_utm['perimeter_m'] = provinces_utm.geometry.length
+provinces_utm['perimeter_km'] = provinces_utm.geometry.length / 1000</code></pre>
+                </div>
+            </div>
+
+            <h3>🎯 پرس‌وجوی مکانی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spatial_queries.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from shapely.geometry import Point, box
+
+# ═══════════════════════════════════════════════════════════
+# فیلتر بر اساس محدوده (Bounding Box)
+# ═══════════════════════════════════════════════════════════
+
+cities = gpd.read_file("data/cities.gpkg")
+
+# تعریف محدوده
+bbox = box(50, 34, 53, 37)
+
+# فیلتر
+cities_in_bbox = cities[cities.intersects(bbox)]
+
+# یا با cx (سریع‌تر با spatial index)
+cities_in_bbox = cities.cx[50:53, 34:37]
+
+
+# ═══════════════════════════════════════════════════════════
+# فیلتر بر اساس فاصله
+# ═══════════════════════════════════════════════════════════
+
+# شهرهای نزدیک تهران (در شعاع 100 کیلومتر)
+tehran = Point(51.4, 35.7)
+
+cities_utm = cities.to_crs("EPSG:32639")
+tehran_utm = gpd.GeoSeries([tehran], crs="EPSG:4326").to_crs("EPSG:32639")[0]
+
+# فاصله
+cities_utm['distance'] = cities_utm.distance(tehran_utm)
+
+# فیلتر
+nearby_cities = cities_utm[cities_utm['distance'] < 100000]  # 100 کیلومتر
+
+
+# ═══════════════════════════════════════════════════════════
+# فیلتر با چندضلعی سفارشی
+# ═══════════════════════════════════════════════════════════
+
+study_area = gpd.read_file("data/study_area.gpkg")
+study_polygon = study_area.geometry[0]
+
+# شهرهای داخل محدوده مطالعه
+cities_in_study = cities[cities.within(study_polygon)]
+
+
+# ═══════════════════════════════════════════════════════════
+# ترکیب فیلتر مکانی و توصیفی
+# ═══════════════════════════════════════════════════════════
+
+# شهرهای بزرگ (جمعیت > 1 میلیون) در محدوده
+large_cities_in_area = cities[
+    (cities['population'] > 1000000) & 
+    (cities.within(study_polygon))
+]
+
+
+# ═══════════════════════════════════════════════════════════
+# K نزدیک‌ترین همسایه
+# ═══════════════════════════════════════════════════════════
+
+from scipy.spatial import cKDTree
+import numpy as np
+
+# تبدیل به آرایه مختصات
+coords = np.array(list(zip(cities_utm.geometry.x, cities_utm.geometry.y)))
+
+# ساخت KDTree
+tree = cKDTree(coords)
+
+# پیدا کردن 5 نزدیک‌ترین برای هر نقطه
+distances, indices = tree.query(coords, k=5)
+
+# افزودن به DataFrame
+cities_utm['nearest_5'] = [list(idx[1:]) for idx in indices]  # بدون خودش
+cities_utm['nearest_5_distances'] = [list(dist[1:]) for dist in distances]
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از Spatial Index
+# ═══════════════════════════════════════════════════════════
+
+# GeoPandas به صورت خودکار spatial index می‌سازد
+print(f"Spatial Index: {cities.sindex}")
+
+# استفاده برای query سریع
+possible_matches_idx = list(cities.sindex.intersection(bbox.bounds))
+possible_matches = cities.iloc[possible_matches_idx]
+
+# فیلتر دقیق
+precise_matches = possible_matches[possible_matches.intersects(bbox)]</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Visualization -->
+        <section class="section" id="visualization">
+            <div class="section-header">
+                <div class="section-icon">🗺️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">نقشه‌سازی و تجسم</h2>
+                    <p class="section-subtitle">Matplotlib, Folium و نقشه‌های تعاملی</p>
+                </div>
+            </div>
+
+            <h3>📊 نقشه‌سازی با Matplotlib</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>matplotlib_maps.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import numpy as np
+
+# خواندن داده
+provinces = gpd.read_file("data/iran_provinces.gpkg")
+cities = gpd.read_file("data/iran_cities.gpkg")
+
+# ═══════════════════════════════════════════════════════════
+# نقشه ساده
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 10))
+provinces.plot(ax=ax, edgecolor='black', facecolor='lightblue')
+ax.set_title('نقشه استان‌های ایران', fontsize=14)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نقشه کروپلت (Choropleth)
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 10))
+
+provinces.plot(
+    ax=ax,
+    column='population',      # ستون برای رنگ‌بندی
+    cmap='YlOrRd',           # نقشه رنگ
+    legend=True,             # نمایش legend
+    legend_kwds={
+        'label': 'جمعیت',
+        'orientation': 'horizontal',
+        'shrink': 0.5
+    },
+    edgecolor='black',
+    linewidth=0.5
+)
+
+ax.set_title('جمعیت استان‌های ایران', fontsize=14)
+ax.axis('off')
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# طبقه‌بندی داده‌ها
+# ═══════════════════════════════════════════════════════════
+
+import mapclassify
+
+fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+
+# Natural Breaks (Jenks)
+provinces.plot(
+    ax=axes[0, 0],
+    column='population',
+    scheme='NaturalBreaks',
+    k=5,
+    cmap='Blues',
+    legend=True,
+    edgecolor='black'
+)
+axes[0, 0].set_title('Natural Breaks')
+
+# Quantiles
+provinces.plot(
+    ax=axes[0, 1],
+    column='population',
+    scheme='Quantiles',
+    k=5,
+    cmap='Greens',
+    legend=True,
+    edgecolor='black'
+)
+axes[0, 1].set_title('Quantiles')
+
+# Equal Interval
+provinces.plot(
+    ax=axes[1, 0],
+    column='population',
+    scheme='EqualInterval',
+    k=5,
+    cmap='Oranges',
+    legend=True,
+    edgecolor='black'
+)
+axes[1, 0].set_title('Equal Interval')
+
+# Fisher Jenks
+provinces.plot(
+    ax=axes[1, 1],
+    column='population',
+    scheme='FisherJenks',
+    k=5,
+    cmap='Reds',
+    legend=True,
+    edgecolor='black'
+)
+axes[1, 1].set_title('Fisher Jenks')
+
+for ax in axes.flat:
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# چند لایه روی هم
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 10))
+
+# لایه 1: استان‌ها
+provinces.plot(
+    ax=ax,
+    color='lightgray',
+    edgecolor='white',
+    linewidth=0.5
+)
+
+# لایه 2: شهرها (با اندازه متناسب)
+cities.plot(
+    ax=ax,
+    color='red',
+    markersize=cities['population'] / 100000,
+    alpha=0.7
+)
+
+# لایه 3: مراکز استان
+capitals = cities[cities['is_capital'] == True]
+capitals.plot(
+    ax=ax,
+    color='blue',
+    marker='*',
+    markersize=100
+)
+
+ax.set_title('شهرها و استان‌های ایران', fontsize=14)
+ax.axis('off')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# افزودن برچسب
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(14, 12))
+
+provinces.plot(ax=ax, color='lightyellow', edgecolor='black')
+
+# افزودن برچسب برای هر استان
+for idx, row in provinces.iterrows():
+    centroid = row.geometry.centroid
+    ax.annotate(
+        text=row['name'],
+        xy=(centroid.x, centroid.y),
+        ha='center',
+        va='center',
+        fontsize=8,
+        fontweight='bold'
+    )
+
+ax.set_title('نقشه استان‌های ایران با برچسب', fontsize=14)
+ax.axis('off')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نقشه رنگ سفارشی
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد colormap سفارشی
+colors = ['#f7fcf5', '#e5f5e0', '#c7e9c0', '#a1d99b', '#74c476', 
+          '#41ab5d', '#238b45', '#006d2c', '#00441b']
+custom_cmap = LinearSegmentedColormap.from_list('custom_green', colors)
+
+fig, ax = plt.subplots(figsize=(12, 10))
+provinces.plot(
+    ax=ax,
+    column='population',
+    cmap=custom_cmap,
+    legend=True,
+    edgecolor='black'
+)
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🗺️ نقشه پایه با Contextily</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>contextily_basemap.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import matplotlib.pyplot as plt
+import contextily as ctx
+
+# خواندن داده
+cities = gpd.read_file("data/iran_cities.gpkg")
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل به Web Mercator (الزامی برای contextily)
+# ═══════════════════════════════════════════════════════════
+
+cities_wm = cities.to_crs(epsg=3857)
+
+
+# ═══════════════════════════════════════════════════════════
+# نقشه با پس‌زمینه OpenStreetMap
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 10))
+
+cities_wm.plot(
+    ax=ax,
+    color='red',
+    markersize=50,
+    alpha=0.7
+)
+
+# افزودن نقشه پایه
+ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
+
+ax.set_title('شهرهای ایران روی نقشه OpenStreetMap', fontsize=14)
+ax.axis('off')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# انواع نقشه‌های پایه
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(16, 14))
+
+providers = [
+    (ctx.providers.OpenStreetMap.Mapnik, 'OpenStreetMap'),
+    (ctx.providers.CartoDB.Positron, 'CartoDB Positron'),
+    (ctx.providers.CartoDB.DarkMatter, 'CartoDB Dark'),
+    (ctx.providers.Esri.WorldImagery, 'Esri Satellite')
+]
+
+for ax, (provider, title) in zip(axes.flat, providers):
+    cities_wm.plot(ax=ax, color='red', markersize=30, alpha=0.8)
+    ctx.add_basemap(ax, source=provider)
+    ax.set_title(title)
+    ax.axis('off')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیم zoom و کیفیت
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 10))
+
+cities_wm.plot(ax=ax, color='red', markersize=50)
+
+ctx.add_basemap(
+    ax,
+    source=ctx.providers.OpenStreetMap.Mapnik,
+    zoom=6,           # سطح zoom
+    attribution=''    # حذف attribution
+)
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره نقشه پایه برای استفاده آفلاین
+# ═══════════════════════════════════════════════════════════
+
+# دریافت bounds
+west, south, east, north = cities_wm.total_bounds
+
+# دانلود و ذخیره
+img, ext = ctx.bounds2img(west, south, east, north, zoom=8)
+
+# استفاده از تصویر ذخیره شده
+fig, ax = plt.subplots(figsize=(12, 10))
+ax.imshow(img, extent=ext)
+cities_wm.plot(ax=ax, color='red', markersize=50)
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🌐 نقشه تعاملی با Folium</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>folium_maps.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import folium
+from folium.plugins import MarkerCluster, HeatMap
+
+# خواندن داده
+provinces = gpd.read_file("data/iran_provinces.gpkg")
+cities = gpd.read_file("data/iran_cities.gpkg")
+
+# اطمینان از CRS صحیح
+provinces = provinces.to_crs(epsg=4326)
+cities = cities.to_crs(epsg=4326)
+
+
+# ═══════════════════════════════════════════════════════════
+# نقشه ساده
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد نقشه با مرکز ایران
+m = folium.Map(
+    location=[32.4279, 53.6880],  # مرکز ایران
+    zoom_start=5,
+    tiles='OpenStreetMap'
+)
+
+# افزودن لایه استان‌ها
+folium.GeoJson(
+    provinces,
+    name='استان‌ها',
+    style_function=lambda x: {
+        'fillColor': 'lightblue',
+        'color': 'black',
+        'weight': 1,
+        'fillOpacity': 0.5
+    }
+).add_to(m)
+
+# ذخیره
+m.save('iran_simple.html')
+
+
+# ═══════════════════════════════════════════════════════════
+# نقشه کروپلت تعاملی
+# ═══════════════════════════════════════════════════════════
+
+m = folium.Map(location=[32.4279, 53.6880], zoom_start=5)
+
+folium.Choropleth(
+    geo_data=provinces,
+    name='جمعیت',
+    data=provinces,
+    columns=['name', 'population'],
+    key_on='feature.properties.name',
+    fill_color='YlOrRd',
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    legend_name='جمعیت استان‌ها'
+).add_to(m)
+
+folium.LayerControl().add_to(m)
+m.save('iran_choropleth.html')
+
+
+# ═══════════════════════════════════════════════════════════
+# مارکرها با Popup
+# ═══════════════════════════════════════════════════════════
+
+m = folium.Map(location=[32.4279, 53.6880], zoom_start=5)
+
+for idx, row in cities.iterrows():
+    popup_html = f"""
+    <div style="font-family: Vazirmatn; direction: rtl;">
+        <h4>{row['name']}</h4>
+        <p>جمعیت: {row['population']:,}</p>
+        <p>استان: {row['province']}</p>
+    </div>
+    """
+    
+    folium.Marker(
+        location=[row.geometry.y, row.geometry.x],
+        popup=folium.Popup(popup_html, max_width=300),
+        tooltip=row['name'],
+        icon=folium.Icon(color='red', icon='info-sign')
+    ).add_to(m)
+
+m.save('iran_markers.html')
+
+
+# ═══════════════════════════════════════════════════════════
+# Marker Cluster
+# ═══════════════════════════════════════════════════════════
+
+m = folium.Map(location=[32.4279, 53.6880], zoom_start=5)
+
+marker_cluster = MarkerCluster().add_to(m)
+
+for idx, row in cities.iterrows():
+    folium.Marker(
+        location=[row.geometry.y, row.geometry.x],
+        popup=row['name']
+    ).add_to(marker_cluster)
+
+m.save('iran_cluster.html')
+
+
+# ═══════════════════════════════════════════════════════════
+# نقشه حرارتی (Heatmap)
+# ═══════════════════════════════════════════════════════════
+
+m = folium.Map(location=[32.4279, 53.6880], zoom_start=5)
+
+# داده‌های حرارتی
+heat_data = [
+    [row.geometry.y, row.geometry.x, row['population']] 
+    for idx, row in cities.iterrows()
+]
+
+HeatMap(
+    heat_data,
+    min_opacity=0.4,
+    radius=25,
+    blur=15
+).add_to(m)
+
+m.save('iran_heatmap.html')
+
+
+# ═══════════════════════════════════════════════════════════
+# استایل پیشرفته با توابع
+# ═══════════════════════════════════════════════════════════
+
+def style_function(feature):
+    population = feature['properties']['population']
+    if population > 5000000:
+        return {'fillColor': '#d73027', 'fillOpacity': 0.7}
+    elif population > 2000000:
+        return {'fillColor': '#fc8d59', 'fillOpacity': 0.7}
+    elif population > 1000000:
+        return {'fillColor': '#fee08b', 'fillOpacity': 0.7}
+    else:
+        return {'fillColor': '#91cf60', 'fillOpacity': 0.7}
+
+def highlight_function(feature):
+    return {
+        'fillColor': '#000000',
+        'fillOpacity': 0.5,
+        'weight': 3
+    }
+
+m = folium.Map(location=[32.4279, 53.6880], zoom_start=5)
+
+folium.GeoJson(
+    provinces,
+    style_function=style_function,
+    highlight_function=highlight_function,
+    tooltip=folium.GeoJsonTooltip(
+        fields=['name', 'population'],
+        aliases=['استان:', 'جمعیت:'],
+        localize=True
+    )
+).add_to(m)
+
+m.save('iran_styled.html')</code></pre>
+                </div>
+            </div>
+
+            <h3>📈 نمودارهای ترکیبی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>combined_charts.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import matplotlib.pyplot as plt
+import numpy as np
+
+provinces = gpd.read_file("data/iran_provinces.gpkg")
+
+# ═══════════════════════════════════════════════════════════
+# نقشه + نمودار میله‌ای
+# ═══════════════════════════════════════════════════════════
+
+fig = plt.figure(figsize=(16, 8))
+
+# نقشه
+ax1 = fig.add_subplot(1, 2, 1)
+provinces.plot(
+    ax=ax1,
+    column='population',
+    cmap='YlOrRd',
+    legend=True,
+    edgecolor='black'
+)
+ax1.set_title('نقشه جمعیت استان‌ها')
+ax1.axis('off')
+
+# نمودار میله‌ای
+ax2 = fig.add_subplot(1, 2, 2)
+top_10 = provinces.nlargest(10, 'population')
+ax2.barh(top_10['name'], top_10['population'] / 1_000_000, color='coral')
+ax2.set_xlabel('جمعیت (میلیون نفر)')
+ax2.set_title('۱۰ استان پرجمعیت')
+ax2.invert_yaxis()
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نقشه + نمودار دایره‌ای
+# ═══════════════════════════════════════════════════════════
+
+fig = plt.figure(figsize=(16, 8))
+
+# نقشه
+ax1 = fig.add_subplot(1, 2, 1)
+provinces.plot(ax=ax1, column='region', cmap='Set3', legend=True, edgecolor='black')
+ax1.set_title('مناطق ایران')
+ax1.axis('off')
+
+# نمودار دایره‌ای
+ax2 = fig.add_subplot(1, 2, 2)
+region_pop = provinces.groupby('region')['population'].sum()
+ax2.pie(region_pop, labels=region_pop.index, autopct='%1.1f%%', colors=plt.cm.Set3.colors)
+ax2.set_title('توزیع جمعیت بر اساس منطقه')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# داشبورد چند نقشه‌ای
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(16, 14))
+
+# نقشه 1: جمعیت
+provinces.plot(ax=axes[0, 0], column='population', cmap='Blues', 
+               legend=True, edgecolor='white')
+axes[0, 0].set_title('جمعیت')
+axes[0, 0].axis('off')
+
+# نقشه 2: مساحت
+provinces.plot(ax=axes[0, 1], column='area_km2', cmap='Greens', 
+               legend=True, edgecolor='white')
+axes[0, 1].set_title('مساحت')
+axes[0, 1].axis('off')
+
+# نقشه 3: تراکم جمعیت
+provinces['density'] = provinces['population'] / provinces['area_km2']
+provinces.plot(ax=axes[1, 0], column='density', cmap='Reds', 
+               legend=True, edgecolor='white')
+axes[1, 0].set_title('تراکم جمعیت')
+axes[1, 0].axis('off')
+
+# نقشه 4: GDP
+provinces.plot(ax=axes[1, 1], column='gdp', cmap='Purples', 
+               legend=True, edgecolor='white')
+axes[1, 1].set_title('تولید ناخالص')
+axes[1, 1].axis('off')
+
+plt.suptitle('داشبورد آماری استان‌های ایران', fontsize=16, fontweight='bold')
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Advanced Topics -->
+        <section class="section" id="advanced">
+            <div class="section-header">
+                <div class="section-icon">⚡</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">موضوعات پیشرفته</h2>
+                    <p class="section-subtitle">بهینه‌سازی، Geocoding و Raster</p>
+                </div>
+            </div>
+
+            <h3>🚀 بهینه‌سازی عملکرد</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>performance.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import pandas as pd
+from shapely.geometry import Point
+import numpy as np
+from tqdm import tqdm
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از Spatial Index
+# ═══════════════════════════════════════════════════════════
+
+polygons = gpd.read_file("data/large_polygons.gpkg")
+points = gpd.read_file("data/many_points.gpkg")
+
+# روش کند (بدون index)
+def slow_spatial_join(points, polygons):
+    results = []
+    for idx, point in points.iterrows():
+        for pidx, polygon in polygons.iterrows():
+            if point.geometry.within(polygon.geometry):
+                results.append({'point_id': idx, 'polygon_id': pidx})
+    return pd.DataFrame(results)
+
+# روش سریع (با spatial index)
+def fast_spatial_join(points, polygons):
+    # GeoPandas خودکار از sindex استفاده می‌کند
+    return gpd.sjoin(points, polygons, predicate='within')
+
+# مقایسه زمان
+import time
+
+start = time.time()
+result_fast = fast_spatial_join(points, polygons)
+print(f"زمان با sjoin: {time.time() - start:.2f} ثانیه")
+
+
+# ═══════════════════════════════════════════════════════════
+# پردازش دسته‌ای (Chunked Processing)
+# ═══════════════════════════════════════════════════════════
+
+def process_large_file(filepath, chunksize=10000):
+    """پردازش فایل بزرگ به صورت chunk"""
+    
+    # شمارش کل
+    total = sum(1 for _ in gpd.read_file(filepath, rows=1).iterrows())
+    
+    results = []
+    
+    for i in tqdm(range(0, total, chunksize)):
+        chunk = gpd.read_file(filepath, rows=slice(i, i + chunksize))
+        
+        # پردازش chunk
+        chunk['area'] = chunk.geometry.area
+        chunk['centroid'] = chunk.geometry.centroid
+        
+        results.append(chunk)
+    
+    return gpd.GeoDataFrame(pd.concat(results, ignore_index=True))
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از PyGEOS (سریع‌تر)
+# ═══════════════════════════════════════════════════════════
+
+# GeoPandas 0.10+ به صورت خودکار از PyGEOS استفاده می‌کند
+import geopandas
+print(f"PyGEOS فعال: {geopandas.options.use_pygeos}")
+
+# فعال‌سازی دستی
+geopandas.options.use_pygeos = True
+
+
+# ═══════════════════════════════════════════════════════════
+# Vectorized Operations
+# ═══════════════════════════════════════════════════════════
+
+# کند: استفاده از apply
+gdf['area'] = gdf.geometry.apply(lambda g: g.area)
+
+# سریع: استفاده از property
+gdf['area'] = gdf.geometry.area
+
+# کند: loop
+for idx, row in gdf.iterrows():
+    gdf.loc[idx, 'buffer'] = row.geometry.buffer(100)
+
+# سریع: vectorized
+gdf['buffer'] = gdf.geometry.buffer(100)
+
+
+# ═══════════════════════════════════════════════════════════
+# کاهش حافظه
+# ═══════════════════════════════════════════════════════════
+
+# بررسی مصرف حافظه
+print(f"حافظه: {gdf.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+
+# ساده‌سازی هندسه
+gdf['geometry'] = gdf.geometry.simplify(tolerance=10)
+
+# حذف ستون‌های غیرضروری
+gdf = gdf[['id', 'name', 'geometry']]
+
+# تبدیل نوع داده
+gdf['id'] = gdf['id'].astype('int32')
+gdf['name'] = gdf['name'].astype('category')
+
+print(f"حافظه بعد از بهینه‌سازی: {gdf.memory_usage(deep=True).sum() / 1024**2:.2f} MB")</code></pre>
+                </div>
+            </div>
+
+            <h3>📍 Geocoding</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>geocoding.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+import pandas as pd
+from tqdm import tqdm
+
+# ═══════════════════════════════════════════════════════════
+# Geocoding با geopy
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد geocoder
+geolocator = Nominatim(user_agent="my_app")
+
+# یک آدرس
+location = geolocator.geocode("میدان آزادی، تهران، ایران")
+print(f"آدرس: {location.address}")
+print(f"مختصات: {location.latitude}, {location.longitude}")
+
+
+# ═══════════════════════════════════════════════════════════
+# Geocoding دسته‌ای با rate limiting
+# ═══════════════════════════════════════════════════════════
+
+addresses = [
+    "میدان آزادی، تهران",
+    "میدان نقش جهان، اصفهان",
+    "حافظیه، شیراز",
+    "برج میلاد، تهران"
+]
+
+# Rate limiter (1 درخواست در ثانیه)
+geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
+
+# Geocoding با progress bar
+results = []
+for address in tqdm(addresses, desc="Geocoding"):
+    try:
+        location = geocode(address)
+        if location:
+            results.append({
+                'address': address,
+                'lat': location.latitude,
+                'lon': location.longitude,
+                'full_address': location.address
+            })
+        else:
+            results.append({
+                'address': address,
+                'lat': None,
+                'lon': None,
+                'full_address': None
+            })
+    except Exception as e:
+        print(f"خطا برای {address}: {e}")
+
+# تبدیل به GeoDataFrame
+df = pd.DataFrame(results)
+gdf = gpd.GeoDataFrame(
+    df,
+    geometry=gpd.points_from_xy(df['lon'], df['lat']),
+    crs="EPSG:4326"
+)
+
+
+# ═══════════════════════════════════════════════════════════
+# Reverse Geocoding
+# ═══════════════════════════════════════════════════════════
+
+# از مختصات به آدرس
+location = geolocator.reverse("35.6892, 51.3890")
+print(f"آدرس: {location.address}")
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از geopandas.tools.geocode
+# ═══════════════════════════════════════════════════════════
+
+from geopandas.tools import geocode
+
+# Geocoding مستقیم
+gdf = geocode(
+    addresses,
+    provider='nominatim',
+    user_agent='my_app'
+)
+print(gdf)</code></pre>
+                </div>
+            </div>
+
+            <h3>🖼️ کار با Raster</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>raster_vector.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import rasterio
+from rasterio.mask import mask
+from rasterstats import zonal_stats
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# خواندن Raster با rasterio
+# ═══════════════════════════════════════════════════════════
+
+with rasterio.open("data/dem.tif") as src:
+    print(f"CRS: {src.crs}")
+    print(f"ابعاد: {src.width} x {src.height}")
+    print(f"تعداد باند: {src.count}")
+    print(f"Bounds: {src.bounds}")
+    
+    # خواندن داده
+    elevation = src.read(1)
+    print(f"حداقل ارتفاع: {elevation.min()}")
+    print(f"حداکثر ارتفاع: {elevation.max()}")
+
+
+# ═══════════════════════════════════════════════════════════
+# برش Raster با Vector (Clip)
+# ═══════════════════════════════════════════════════════════
+
+# خواندن محدوده برش
+study_area = gpd.read_file("data/study_area.gpkg")
+
+# اطمینان از CRS یکسان
+with rasterio.open("data/dem.tif") as src:
+    study_area = study_area.to_crs(src.crs)
+    
+    # برش
+    out_image, out_transform = mask(
+        src,
+        study_area.geometry,
+        crop=True
+    )
+    
+    # ذخیره
+    out_meta = src.meta.copy()
+    out_meta.update({
+        "height": out_image.shape[1],
+        "width": out_image.shape[2],
+        "transform": out_transform
+    })
+    
+    with rasterio.open("data/dem_clipped.tif", "w", **out_meta) as dest:
+        dest.write(out_image)
+
+
+# ═══════════════════════════════════════════════════════════
+# آمار منطقه‌ای (Zonal Statistics)
+# ═══════════════════════════════════════════════════════════
+
+provinces = gpd.read_file("data/iran_provinces.gpkg")
+
+# محاسبه آمار ارتفاع برای هر استان
+stats = zonal_stats(
+    provinces,
+    "data/dem.tif",
+    stats=['min', 'max', 'mean', 'std', 'count']
+)
+
+# افزودن به GeoDataFrame
+provinces['elev_min'] = [s['min'] for s in stats]
+provinces['elev_max'] = [s['max'] for s in stats]
+provinces['elev_mean'] = [s['mean'] for s in stats]
+provinces['elev_std'] = [s['std'] for s in stats]
+
+print(provinces[['name', 'elev_min', 'elev_max', 'elev_mean']])
+
+
+# ═══════════════════════════════════════════════════════════
+# استخراج مقادیر Raster در نقاط
+# ═══════════════════════════════════════════════════════════
+
+cities = gpd.read_file("data/iran_cities.gpkg")
+
+# استخراج ارتفاع برای هر شهر
+with rasterio.open("data/dem.tif") as src:
+    # تبدیل CRS
+    cities_proj = cities.to_crs(src.crs)
+    
+    # استخراج مختصات
+    coords = [(point.x, point.y) for point in cities_proj.geometry]
+    
+    # نمونه‌برداری
+    elevations = [val[0] for val in src.sample(coords)]
+    
+    cities['elevation'] = elevations
+
+print(cities[['name', 'elevation']])</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 تحلیل شبکه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>network_analysis.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import geopandas as gpd
+import networkx as nx
+from shapely.geometry import Point, LineString
+import momepy
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد گراف از خطوط
+# ═══════════════════════════════════════════════════════════
+
+roads = gpd.read_file("data/roads.gpkg")
+
+# تبدیل به گراف با momepy
+G = momepy.gdf_to_nx(roads, approach='primal')
+
+print(f"تعداد گره‌ها: {G.number_of_nodes()}")
+print(f"تعداد یال‌ها: {G.number_of_edges()}")
+
+
+# ═══════════════════════════════════════════════════════════
+# کوتاه‌ترین مسیر
+# ═══════════════════════════════════════════════════════════
+
+# پیدا کردن نزدیک‌ترین گره به یک نقطه
+def find_nearest_node(G, point):
+    nodes = list(G.nodes())
+    distances = [Point(n).distance(point) for n in nodes]
+    return nodes[distances.index(min(distances))]
+
+# نقاط مبدا و مقصد
+origin = Point(51.4, 35.7)  # تهران
+destination = Point(51.7, 32.7)  # اصفهان
+
+# پیدا کردن گره‌های نزدیک
+origin_node = find_nearest_node(G, origin)
+dest_node = find_nearest_node(G, destination)
+
+# کوتاه‌ترین مسیر
+try:
+    path = nx.shortest_path(G, origin_node, dest_node, weight='mm_len')
+    path_length = nx.shortest_path_length(G, origin_node, dest_node, weight='mm_len')
+    print(f"طول مسیر: {path_length / 1000:.2f} کیلومتر")
+except nx.NetworkXNoPath:
+    print("مسیری وجود ندارد")
+
+
+# ═══════════════════════════════════════════════════════════
+# تحلیل مرکزیت
+# ═══════════════════════════════════════════════════════════
+
+# Betweenness centrality
+betweenness = nx.betweenness_centrality(G, weight='mm_len')
+
+# Closeness centrality
+closeness = nx.closeness_centrality(G, distance='mm_len')
+
+# افزودن به گراف
+nx.set_node_attributes(G, betweenness, 'betweenness')
+nx.set_node_attributes(G, closeness, 'closeness')
+
+
+# ═══════════════════════════════════════════════════════════
+# تبدیل گراف به GeoDataFrame
+# ═══════════════════════════════════════════════════════════
+
+# گره‌ها
+nodes_gdf = momepy.nx_to_gdf(G, points=True, lines=False)
+
+# یال‌ها
+edges_gdf = momepy.nx_to_gdf(G, points=False, lines=True)
+
+# نمایش
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(12, 10))
+edges_gdf.plot(ax=ax, color='gray', linewidth=0.5)
+nodes_gdf.plot(ax=ax, column='betweenness', cmap='hot', markersize=5)
+plt.title('مرکزیت بینابینی شبکه جاده‌ای')
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Projects -->
+        <section class="section" id="projects">
+            <div class="section-header">
+                <div class="section-icon">🏗️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">پروژه‌های عملی</h2>
+                    <p class="section-subtitle">مثال‌های کاربردی از دنیای واقعی</p>
+                </div>
+            </div>
+
+            <h3>🏪 تحلیل مکان‌یابی فروشگاه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>store_location_analysis.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پروژه: تحلیل مکان‌یابی بهینه فروشگاه جدید
+هدف: پیدا کردن بهترین مکان برای افتتاح فروشگاه جدید
+"""
+
+import geopandas as gpd
+import pandas as pd
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
+import numpy as np
+
+class StoreLocationAnalyzer:
+    """تحلیلگر مکان‌یابی فروشگاه"""
+    
+    def __init__(self, city_boundary, existing_stores, population_data):
+        self.city = city_boundary
+        self.stores = existing_stores
+        self.population = population_data
+        
+        # تبدیل به UTM برای محاسبات دقیق
+        self.crs_utm = "EPSG:32639"
+        self.city_utm = self.city.to_crs(self.crs_utm)
+        self.stores_utm = self.stores.to_crs(self.crs_utm)
+        self.population_utm = self.population.to_crs(self.crs_utm)
+    
+    def calculate_store_coverage(self, radius_m=1000):
+        """محاسبه پوشش فروشگاه‌های موجود"""
+        
+        # Buffer فروشگاه‌ها
+        self.stores_utm['coverage'] = self.stores_utm.buffer(radius_m)
+        
+        # Union همه پوشش‌ها
+        total_coverage = self.stores_utm['coverage'].unary_union
+        
+        # محاسبه درصد پوشش
+        city_area = self.city_utm.area.sum()
+        coverage_area = total_coverage.area
+        coverage_percent = (coverage_area / city_area) * 100
+        
+        print(f"درصد پوشش فعلی: {coverage_percent:.1f}%")
+        
+        return total_coverage
+    
+    def find_underserved_areas(self, radius_m=1000):
+        """پیدا کردن مناطق بدون پوشش"""
+        
+        coverage = self.calculate_store_coverage(radius_m)
+        city_polygon = self.city_utm.unary_union
+        
+        # مناطق بدون پوشش
+        underserved = city_polygon.difference(coverage)
+        
+        return gpd.GeoDataFrame(geometry=[underserved], crs=self.crs_utm)
+    
+    def calculate_demand_score(self, grid_size=500):
+        """محاسبه امتیاز تقاضا برای هر سلول"""
+        
+        # ایجاد گرید
+        bounds = self.city_utm.total_bounds
+        x_coords = np.arange(bounds[0], bounds[2], grid_size)
+        y_coords = np.arange(bounds[1], bounds[3], grid_size)
+        
+        grid_cells = []
+        for x in x_coords:
+            for y in y_coords:
+                cell = Point(x + grid_size/2, y + grid_size/2).buffer(grid_size/2, cap_style=3)
+                grid_cells.append(cell)
+        
+        grid = gpd.GeoDataFrame(geometry=grid_cells, crs=self.crs_utm)
+        
+        # فیلتر سلول‌های داخل شهر
+        grid = grid[grid.intersects(self.city_utm.unary_union)]
+        
+        # محاسبه جمعیت هر سلول
+        joined = gpd.sjoin(self.population_utm, grid, predicate='within')
+        pop_per_cell = joined.groupby('index_right')['population'].sum()
+        grid['population'] = grid.index.map(pop_per_cell).fillna(0)
+        
+        # محاسبه فاصله از نزدیک‌ترین فروشگاه
+        grid['centroid'] = grid.geometry.centroid
+        stores_union = self.stores_utm.unary_union
+        grid['distance_to_store'] = grid['centroid'].distance(stores_union)
+        
+        # محاسبه امتیاز (جمعیت بالا + فاصله زیاد = امتیاز بالا)
+        grid['demand_score'] = (
+            grid['population'] / grid['population'].max() * 0.6 +
+            grid['distance_to_store'] / grid['distance_to_store'].max() * 0.4
+        )
+        
+        return grid
+    
+    def find_best_locations(self, n=5, grid_size=500):
+        """پیدا کردن بهترین مکان‌ها"""
+        
+        grid = self.calculate_demand_score(grid_size)
+        
+        # مرتب‌سازی بر اساس امتیاز
+        best = grid.nlargest(n, 'demand_score')
+        
+        # تبدیل به نقطه
+        best['geometry'] = best['centroid']
+        
+        return best[['geometry', 'population', 'distance_to_store', 'demand_score']]
+    
+    def visualize_analysis(self):
+        """نمایش نتایج تحلیل"""
+        
+        fig, axes = plt.subplots(2, 2, figsize=(16, 14))
+        
+        # نقشه 1: فروشگاه‌های موجود و پوشش
+        ax1 = axes[0, 0]
+        self.city_utm.plot(ax=ax1, color='lightgray', edgecolor='black')
+        coverage = self.stores_utm.buffer(1000)
+        gpd.GeoSeries(coverage).plot(ax=ax1, alpha=0.3, color='blue')
+        self.stores_utm.plot(ax=ax1, color='red', markersize=100, marker='*')
+        ax1.set_title('فروشگاه‌های موجود و پوشش 1 کیلومتری')
+        
+        # نقشه 2: تراکم جمعیت
+        ax2 = axes[0, 1]
+        self.population_utm.plot(ax=ax2, column='population', cmap='YlOrRd', legend=True)
+        self.city_utm.boundary.plot(ax=ax2, color='black')
+        ax2.set_title('تراکم جمعیت')
+        
+        # نقشه 3: امتیاز تقاضا
+        ax3 = axes[1, 0]
+        grid = self.calculate_demand_score()
+        grid.plot(ax=ax3, column='demand_score', cmap='RdYlGn', legend=True)
+        self.stores_utm.plot(ax=ax3, color='black', markersize=50)
+        ax3.set_title('امتیاز تقاضا')
+        
+        # نقشه 4: بهترین مکان‌ها
+        ax4 = axes[1, 1]
+        self.city_utm.plot(ax=ax4, color='lightgray', edgecolor='black')
+        self.stores_utm.plot(ax=ax4, color='blue', markersize=100, marker='o', label='موجود')
+        best = self.find_best_locations(5)
+        best.plot(ax=ax4, color='green', markersize=200, marker='*', label='پیشنهادی')
+        ax4.legend()
+        ax4.set_title('بهترین مکان‌های پیشنهادی')
+        
+        for ax in axes.flat:
+            ax.axis('off')
+        
+        plt.tight_layout()
+        plt.savefig('store_location_analysis.png', dpi=300, bbox_inches='tight')
+        plt.show()
+
+
+# استفاده
+def main():
+    # بارگذاری داده‌ها
+    city = gpd.read_file("data/tehran_boundary.gpkg")
+    stores = gpd.read_file("data/existing_stores.gpkg")
+    population = gpd.read_file("data/population_blocks.gpkg")
+    
+    # تحلیل
+    analyzer = StoreLocationAnalyzer(city, stores, population)
+    
+    # پیدا کردن بهترین مکان‌ها
+    best_locations = analyzer.find_best_locations(n=5)
+    print("\nبهترین مکان‌های پیشنهادی:")
+    print(best_locations)
+    
+    # نمایش
+    analyzer.visualize_analysis()
+    
+    # ذخیره نتایج
+    best_locations.to_file("output/best_store_locations.gpkg", driver='GPKG')
+
+# main()</code></pre>
+                </div>
+            </div>
+
+            <h3>🌊 تحلیل سیلاب</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>flood_analysis.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پروژه: تحلیل ریسک سیلاب
+هدف: شناسایی مناطق در معرض خطر و تخمین خسارت
+"""
+
+import geopandas as gpd
+import pandas as pd
+import numpy as np
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
+from rasterstats import zonal_stats
+
+class FloodRiskAnalyzer:
+    """تحلیلگر ریسک سیلاب"""
+    
+    def __init__(self, dem_path, rivers, buildings, flood_zone):
+        self.dem_path = dem_path
+        self.rivers = rivers
+        self.buildings = buildings
+        self.flood_zone = flood_zone
+        
+        # CRS یکسان
+        self.crs = self.buildings.crs
+        self.rivers = self.rivers.to_crs(self.crs)
+        self.flood_zone = self.flood_zone.to_crs(self.crs)
+    
+    def calculate_elevation_stats(self):
+        """محاسبه آمار ارتفاعی ساختمان‌ها"""
+        
+        stats = zonal_stats(
+            self.buildings,
+            self.dem_path,
+            stats=['min', 'mean']
+        )
+        
+        self.buildings['elevation_min'] = [s['min'] for s in stats]
+        self.buildings['elevation_mean'] = [s['mean'] for s in stats]
+        
+        return self.buildings
+    
+    def calculate_distance_to_river(self):
+        """محاسبه فاصله تا رودخانه"""
+        
+        rivers_union = self.rivers.unary_union
+        self.buildings['distance_to_river'] = self.buildings.geometry.centroid.distance(rivers_union)
+        
+        return self.buildings
+    
+    def identify_at_risk_buildings(self):
+        """شناسایی ساختمان‌های در معرض خطر"""
+        
+        # ساختمان‌های داخل منطقه سیل‌گیر
+        flood_polygon = self.flood_zone.unary_union
+        self.buildings['in_flood_zone'] = self.buildings.intersects(flood_polygon)
+        
+        # محاسبه ارتفاع و فاصله
+        self.calculate_elevation_stats()
+        self.calculate_distance_to_river()
+        
+        # محاسبه امتیاز ریسک
+        # فاکتورها: در منطقه سیل‌گیر، ارتفاع پایین، نزدیک به رودخانه
+        self.buildings['risk_score'] = 0.0
+        
+        # در منطقه سیل‌گیر
+        self.buildings.loc[self.buildings['in_flood_zone'], 'risk_score'] += 40
+        
+        # ارتفاع پایین (نرمال‌سازی معکوس)
+        elev_normalized = 1 - (self.buildings['elevation_min'] - self.buildings['elevation_min'].min()) / \
+                              (self.buildings['elevation_min'].max() - self.buildings['elevation_min'].min())
+        self.buildings['risk_score'] += elev_normalized * 30
+        
+        # فاصله کم از رودخانه
+        dist_normalized = 1 - (self.buildings['distance_to_river'] - self.buildings['distance_to_river'].min()) / \
+                              (self.buildings['distance_to_river'].max() - self.buildings['distance_to_river'].min())
+        self.buildings['risk_score'] += dist_normalized * 30
+        
+        # طبقه‌بندی ریسک
+        self.buildings['risk_level'] = pd.cut(
+            self.buildings['risk_score'],
+            bins=[0, 30, 50, 70, 100],
+            labels=['کم', 'متوسط', 'بالا', 'بسیار بالا']
+        )
+        
+        return self.buildings
+    
+    def estimate_damage(self, price_per_sqm=50000000):
+        """تخمین خسارت احتمالی"""
+        
+        at_risk = self.buildings[self.buildings['in_flood_zone']].copy()
+        
+        # محاسبه مساحت
+        at_risk['area_sqm'] = at_risk.geometry.area
+        
+        # تخمین خسارت (فرض: 30% ارزش ملک)
+        at_risk['estimated_damage'] = at_risk['area_sqm'] * price_per_sqm * 0.3
+        
+        total_damage = at_risk['estimated_damage'].sum()
+        
+        print(f"تعداد ساختمان در معرض خطر: {len(at_risk)}")
+        print(f"کل خسارت تخمینی: {total_damage/1e9:.2f} میلیارد تومان")
+        
+        return at_risk
+    
+    def generate_report(self):
+        """تولید گزارش"""
+        
+        self.identify_at_risk_buildings()
+        
+        report = {
+            'total_buildings': len(self.buildings),
+            'buildings_in_flood_zone': self.buildings['in_flood_zone'].sum(),
+            'risk_distribution': self.buildings['risk_level'].value_counts().to_dict(),
+            'average_risk_score': self.buildings['risk_score'].mean()
+        }
+        
+        return report
+    
+    def visualize(self):
+        """نمایش نتایج"""
+        
+        fig, axes = plt.subplots(2, 2, figsize=(16, 14))
+        
+        # نقشه 1: منطقه سیل‌گیر و رودخانه
+        ax1 = axes[0, 0]
+        self.flood_zone.plot(ax=ax1, color='lightblue', alpha=0.5, label='منطقه سیل‌گیر')
+        self.rivers.plot(ax=ax1, color='blue', linewidth=2, label='رودخانه')
+        self.buildings.plot(ax=ax1, color='gray', alpha=0.5)
+        ax1.set_title('منطقه سیل‌گیر و رودخانه')
+        ax1.legend()
+        
+        # نقشه 2: ساختمان‌های در معرض خطر
+        ax2 = axes[0, 1]
+        self.buildings[~self.buildings['in_flood_zone']].plot(ax=ax2, color='green', alpha=0.5, label='امن')
+        self.buildings[self.buildings['in_flood_zone']].plot(ax=ax2, color='red', alpha=0.7, label='در معرض خطر')
+        ax2.set_title('ساختمان‌های در معرض خطر')
+        ax2.legend()
+        
+        # نقشه 3: امتیاز ریسک
+        ax3 = axes[1, 0]
+        self.buildings.plot(ax=ax3, column='risk_score', cmap='RdYlGn_r', legend=True)
+        ax3.set_title('امتیاز ریسک')
+        
+        # نقشه 4: سطح ریسک
+        ax4 = axes[1, 1]
+        colors = {'کم': 'green', 'متوسط': 'yellow', 'بالا': 'orange', 'بسیار بالا': 'red'}
+        for level, color in colors.items():
+            subset = self.buildings[self.buildings['risk_level'] == level]
+            if len(subset) > 0:
+                subset.plot(ax=ax4, color=color, label=level, alpha=0.7)
+        ax4.set_title('سطح ریسک')
+        ax4.legend()
+        
+        for ax in axes.flat:
+            ax.axis('off')
+        
+        plt.tight_layout()
+        plt.savefig('flood_risk_analysis.png', dpi=300, bbox_inches='tight')
+        plt.show()
+
+
+# استفاده
+def main():
+    # بارگذاری داده‌ها
+    rivers = gpd.read_file("data/rivers.gpkg")
+    buildings = gpd.read_file("data/buildings.gpkg")
+    flood_zone = gpd.read_file("data/flood_zone.gpkg")
+    
+    # تحلیل
+    analyzer = FloodRiskAnalyzer(
+        dem_path="data/dem.tif",
+        rivers=rivers,
+        buildings=buildings,
+        flood_zone=flood_zone
+    )
+    
+    # گزارش
+    report = analyzer.generate_report()
+    print("\n📊 گزارش تحلیل ریسک سیلاب:")
+    print(f"  کل ساختمان‌ها: {report['total_buildings']}")
+    print(f"  در معرض خطر: {report['buildings_in_flood_zone']}")
+    print(f"  میانگین امتیاز ریسک: {report['average_risk_score']:.1f}")
+    
+    # تخمین خسارت
+    analyzer.estimate_damage()
+    
+    # نمایش
+    analyzer.visualize()
+    
+    # ذخیره نتایج
+    analyzer.buildings.to_file("output/flood_risk_buildings.gpkg", driver='GPKG')
+
+# main()</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات مهم برای پروژه‌های واقعی</h4>
+                    <ul>
+                        <li><strong>CRS:</strong> همیشه از CRS مناسب برای منطقه مورد مطالعه استفاده کنید</li>
+                        <li><strong>اعتبارسنجی:</strong> داده‌های ورودی را قبل از تحلیل بررسی کنید</li>
+                        <li><strong>مستندسازی:</strong> همه مراحل و فرضیات را مستند کنید</li>
+                        <li><strong>تست:</strong> نتایج را با داده‌های واقعی مقایسه کنید</li>
+                        <li><strong>بهینه‌سازی:</strong> برای داده‌های بزرگ از spatial index استفاده کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="section" id="reference">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <div class="section-title-group">
+                    <div class="section-number">پیوست</div>
+                    <h2 class="section-title">مرجع سریع</h2>
+                    <p class="section-subtitle">GeoPandas Cheat Sheet</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>عملیات</th>
+                            <th>کد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>خواندن فایل</td>
+                            <td><code>gpd.read_file("data.gpkg")</code></td>
+                        </tr>
+                        <tr>
+                            <td>نوشتن فایل</td>
+                            <td><code>gdf.to_file("output.gpkg")</code></td>
+                        </tr>
+                        <tr>
+                            <td>تبدیل CRS</td>
+                            <td><code>gdf.to_crs("EPSG:32639")</code></td>
+                        </tr>
+                        <tr>
+                            <td>Buffer</td>
+                            <td><code>gdf.buffer(1000)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Spatial Join</td>
+                            <td><code>gpd.sjoin(gdf1, gdf2, predicate='within')</code></td>
+                        </tr>
+                        <tr>
+                            <td>Overlay</td>
+                            <td><code>gpd.overlay(gdf1, gdf2, how='intersection')</code></td>
+                        </tr>
+                        <tr>
+                            <td>Dissolve</td>
+                            <td><code>gdf.dissolve(by='column')</code></td>
+                        </tr>
+                        <tr>
+                            <td>Clip</td>
+                            <td><code>gpd.clip(gdf, mask)</code></td>
+                        </tr>
+                        <tr>
+                            <td>مساحت</td>
+                            <td><code>gdf.area</code></td>
+                        </tr>
+                        <tr>
+                            <td>طول</td>
+                            <td><code>gdf.length</code></td>
+                        </tr>
+                        <tr>
+                            <td>مرکز</td>
+                            <td><code>gdf.centroid</code></td>
+                        </tr>
+                        <tr>
+                            <td>نمایش</td>
+                            <td><code>gdf.plot(column='col', cmap='YlOrRd')</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">🌍</div>
+                <span class="logo-text" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">GeoPandas</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                آموزش جامع GeoPandas - تحلیل داده‌های مکانی با پایتون
+            </p>
+            <div class="footer-links">
+                <a href="https://geopandas.org/" target="_blank">مستندات رسمی</a>
+                <a href="https://github.com/geopandas/geopandas" target="_blank">GitHub</a>
+                <a href="https://pypi.org/project/geopandas/" target="_blank">PyPI</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای جامعه GIS ایران
+                <br>
+                <a href="https://araz.me" target="_blank">araz.me</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    
+    <script>
+        // Initialize highlight.js
+        hljs.highlightAll();
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✓</span> کپی شد';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            }).catch(err => {
+                console.error('خطا در کپی:', err);
+            });
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Active navigation link on scroll
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        function updateActiveNav() {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', updateActiveNav);
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.card, .code-block, .info-box').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+        
+        // Map SVG animation
+        function animateMapSVG() {
+            const points = document.querySelectorAll('.map-svg circle');
+            const lines = document.querySelectorAll('.map-svg path');
+            const polygons = document.querySelectorAll('.map-svg polygon');
+            
+            // Pulse animation for points
+            points.forEach((point, index) => {
+                setInterval(() => {
+                    point.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        point.style.transform = 'scale(1)';
+                    }, 300);
+                }, 2000 + index * 500);
+            });
+        }
+        
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            animateMapSVG();
+        });
+        
+        // Print-friendly
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('.code-block').forEach(block => {
+                block.style.breakInside = 'avoid';
+            });
+        });
+    </script>
+</body>
+</html>

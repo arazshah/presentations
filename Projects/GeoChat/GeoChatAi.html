@@ -1,0 +1,2522 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoChat AI - نقشه مسیر توسعه</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e1e2e;
+            --darker: #181825;
+            --light: #cdd6f4;
+            --muted: #6c7086;
+            --surface: #313244;
+            --surface-light: #45475a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 50%, #ec4899 100%);
+            padding: 60px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .logo span {
+            background: linear-gradient(to right, #fff, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .header-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .meta-item {
+            background: rgba(255,255,255,0.15);
+            padding: 10px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            font-size: 0.9rem;
+        }
+
+        /* Navigation */
+        .nav {
+            background: var(--dark);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--surface);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            color: var(--light);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link:hover {
+            background: var(--surface);
+            color: var(--primary);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Section Styles */
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--surface);
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        /* Overview Cards */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .overview-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid var(--surface-light);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .overview-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .overview-card p {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .overview-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-right: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            padding-right: 50px;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            right: -40px;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: var(--dark);
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        .timeline-marker.completed {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .timeline-marker.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+        }
+
+        .timeline-content {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timeline-date {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .timeline-description {
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        /* Sprint Cards */
+        .sprint-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .sprint-card {
+            background: var(--darker);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .sprint-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: var(--secondary);
+        }
+
+        .task-list {
+            list-style: none;
+        }
+
+        .task-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--surface);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        .task-list li:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--muted);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .task-checkbox.done {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .task-checkbox.done::after {
+            content: '✓';
+            color: white;
+            font-size: 0.7rem;
+        }
+
+        /* Tech Stack */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .tech-category {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid var(--surface-light);
+        }
+
+        .tech-category h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--surface-light);
+        }
+
+        .tech-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: var(--darker);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+
+        .tech-item:hover {
+            transform: translateX(-5px);
+        }
+
+        .tech-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .tech-info h4 {
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+
+        .tech-info p {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            direction: ltr;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        .arch-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            min-width: 800px;
+            padding: 20px 0;
+        }
+
+        .arch-box {
+            background: var(--darker);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            min-width: 140px;
+            transition: all 0.3s;
+        }
+
+        .arch-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .arch-box.frontend { border-color: #3b82f6; }
+        .arch-box.backend { border-color: #10b981; }
+        .arch-box.ai { border-color: #8b5cf6; }
+        .arch-box.database { border-color: #f59e0b; }
+
+        .arch-box-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .arch-box-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .arch-box-tech {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .arch-arrow {
+            font-size: 1.5rem;
+            color: var(--muted);
+        }
+
+        /* Milestones */
+        .milestone-track {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 40px 0;
+            overflow-x: auto;
+        }
+
+        .milestone-track::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--surface);
+            transform: translateY(-50%);
+        }
+
+        .milestone {
+            position: relative;
+            text-align: center;
+            min-width: 150px;
+            padding: 0 10px;
+        }
+
+        .milestone-dot {
+            width: 40px;
+            height: 40px;
+            background: var(--surface);
+            border: 3px solid var(--muted);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .milestone.completed .milestone-dot {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .milestone.active .milestone-dot {
+            background: var(--primary);
+            border-color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .milestone-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .milestone-date {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* Risk Matrix */
+        .risk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .risk-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            border-right: 4px solid;
+        }
+
+        .risk-card.high { border-color: var(--danger); }
+        .risk-card.medium { border-color: var(--accent); }
+        .risk-card.low { border-color: var(--secondary); }
+
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .risk-level {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .risk-card.high .risk-level { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .risk-card.medium .risk-level { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
+        .risk-card.low .risk-level { background: rgba(16, 185, 129, 0.2); color: var(--secondary); }
+
+        .risk-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .risk-mitigation {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        /* Team Structure */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .team-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid var(--surface-light);
+        }
+
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .team-role {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .team-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .skill-tag {
+            background: var(--darker);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Checklist */
+        .checklist-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .checklist-category {
+            margin-bottom: 25px;
+        }
+
+        .checklist-category h4 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--surface-light);
+        }
+
+        .checklist-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--darker);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--muted);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .check-icon.done {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        /* KPI Dashboard */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .kpi-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .kpi-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kpi-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: var(--darker);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid var(--surface);
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .footer-text {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+
+            .timeline {
+                padding-right: 30px;
+            }
+
+            .timeline::before {
+                right: 10px;
+            }
+
+            .timeline-item {
+                padding-right: 40px;
+            }
+
+            .timeline-marker {
+                right: -30px;
+                width: 24px;
+                height: 24px;
+                font-size: 0.7rem;
+            }
+
+            .arch-flow {
+                flex-direction: column;
+                min-width: auto;
+            }
+
+            .arch-arrow {
+                transform: rotate(90deg);
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .nav {
+                display: none;
+            }
+
+            .header {
+                background: #6366f1;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🗺️ <span>GeoChat AI</span></div>
+            <p class="tagline">نقشه مسیر توسعه - از ایده تا محصول</p>
+            <div class="header-meta">
+                <span class="meta-item">📅 شروع: بهمن ۱۴۰۴</span>
+                <span class="meta-item">⏱️ مدت: ۱۲ هفته</span>
+                <span class="meta-item">👥 تیم: Solo Founder</span>
+                <span class="meta-item">🎯 هدف: MVP Launch</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="#overview" class="nav-link">📊 نمای کلی</a>
+            <a href="#architecture" class="nav-link">🏗️ معماری</a>
+            <a href="#phases" class="nav-link">📅 فازها</a>
+            <a href="#tech-stack" class="nav-link">⚙️ تکنولوژی</a>
+            <a href="#milestones" class="nav-link">🎯 مایلستون</a>
+            <a href="#risks" class="nav-link">⚠️ ریسک‌ها</a>
+            <a href="#checklist" class="nav-link">✅ چک‌لیست</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Overview Section -->
+        <section id="overview" class="section">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div>
+                    <h2 class="section-title">نمای کلی پروژه</h2>
+                    <p class="section-subtitle">خلاصه‌ای از اهداف، محدوده و معیارهای موفقیت</p>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-container">
+                <div class="progress-header">
+                    <span>پیشرفت کلی پروژه</span>
+                    <span>0% (شروع نشده)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3>🎯 هدف پروژه</h3>
+                    <p>ساخت سیستمی که کاربران غیرمتخصص بتوانند با زبان طبیعی، داده‌های مکانی را تحلیل و روی نقشه نمایش دهند.</p>
+                </div>
+                <div class="overview-card">
+                    <h3>👥 کاربران هدف</h3>
+                    <p>روزنامه‌نگاران داده، تحلیلگران بازار، محققان، برنامه‌ریزان شهری و هر کسی که نیاز به نقشه دارد.</p>
+                </div>
+                <div class="overview-card">
+                    <h3>💡 ارزش پیشنهادی</h3>
+                    <p>حذف پیچیدگی ابزارهای GIS با رابط چت. فقط بنویس چه می‌خواهی، نقشه آماده می‌شود!</p>
+                </div>
+                <div class="overview-card">
+                    <h3>📈 معیار موفقیت MVP</h3>
+                    <p>۱۰۰ کاربر فعال، ۵۰۰ نقشه ساخته شده، زمان پاسخ‌دهی کمتر از ۵ ثانیه</p>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">12</div>
+                    <div class="kpi-label">هفته تا MVP</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🏃</div>
+                    <div class="kpi-value">6</div>
+                    <div class="kpi-label">اسپرینت</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">📋</div>
+                    <div class="kpi-value">45</div>
+                    <div class="kpi-label">تسک اصلی</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">⭐</div>
+                    <div class="kpi-value">89</div>
+                    <div class="kpi-label">Story Points</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">⏰</div>
+                    <div class="kpi-value">240</div>
+                    <div class="kpi-label">ساعت تخمینی</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="architecture" class="section">
+            <div class="section-header">
+                <div class="section-icon">🏗️</div>
+                <div>
+                    <h2 class="section-title">معماری سیستم</h2>
+                    <p class="section-subtitle">نمای کلی از اجزای سیستم و جریان داده</p>
+                </div>
+            </div>
+
+            <div class="architecture">
+                <h3 style="text-align: center; margin-bottom: 30px;">جریان پردازش Query</h3>
+                <div class="arch-flow">
+                    <div class="arch-box frontend">
+                        <div class="arch-box-icon">👤</div>
+                        <div class="arch-box-title">کاربر</div>
+                        <div class="arch-box-tech">Browser</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box frontend">
+                        <div class="arch-box-icon">💬</div>
+                        <div class="arch-box-title">Chat UI</div>
+                        <div class="arch-box-tech">Next.js + React</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box backend">
+                        <div class="arch-box-icon">⚡</div>
+                        <div class="arch-box-title">API Server</div>
+                        <div class="arch-box-tech">FastAPI</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box ai">
+                        <div class="arch-box-icon">🤖</div>
+                        <div class="arch-box-title">Claude AI</div>
+                        <div class="arch-box-tech">MCP Protocol</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box database">
+                        <div class="arch-box-icon">🗄️</div>
+                        <div class="arch-box-title">ClickHouse</div>
+                        <div class="arch-box-tech">Spatial DB</div>
+                    </div>
+                    <div class="arch-arrow">→</div>
+                    <div class="arch-box frontend">
+                        <div class="arch-box-icon">🗺️</div>
+                        <div class="arch-box-title">Map View</div>
+                        <div class="arch-box-tech">Deck.gl</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 40px; padding: 20px; background: var(--darker); border-radius: 12px;">
+                    <h4 style="margin-bottom: 15px;">📝 توضیح جریان:</h4>
+                    <ol style="padding-right: 20px; color: var(--muted); line-height: 2;">
+                        <li>کاربر query را به زبان طبیعی وارد می‌کند: <code style="background: var(--surface); padding: 2px 8px; border-radius: 4px;">"نمایش کافه‌های تهران با امتیاز بالای ۴"</code></li>
+                        <li>Frontend درخواست را به Backend ارسال می‌کند (WebSocket)</li>
+                        <li>Backend از Claude AI برای تبدیل متن به Spatial Intent استفاده می‌کند</li>
+                        <li>Query بهینه‌شده به ClickHouse ارسال و داده‌های مکانی استخراج می‌شود</li>
+                        <li>داده‌ها به فرمت FlatGeobuf تبدیل و Stream می‌شوند</li>
+                        <li>Deck.gl داده‌ها را روی نقشه Render می‌کند</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Phases Section -->
+        <section id="phases" class="section">
+            <div class="section-header">
+                <div class="section-icon">📅</div>
+                <div>
+                    <h2 class="section-title">فازهای توسعه</h2>
+                    <p class="section-subtitle">برنامه زمان‌بندی شده برای رسیدن به MVP</p>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <!-- Phase 0 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker active">0</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">⚙️ فاز صفر: آماده‌سازی</div>
+                            <span class="timeline-date">هفته ۱</span>
+                        </div>
+                        <p class="timeline-description">راه‌اندازی محیط توسعه، ابزارها و ساختار پروژه</p>
+                        <div class="sprint-grid">
+                            <div class="sprint-card">
+                                <h4>🔧 Setup محیط</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> نصب Node.js 20 LTS</li>
+                                    <li><span class="task-checkbox"></span> نصب Python 3.12</li>
+                                    <li><span class="task-checkbox"></span> نصب Docker Desktop</li>
+                                    <li><span class="task-checkbox"></span> تنظیم VS Code</li>
+                                    <li><span class="task-checkbox"></span> ایجاد GitHub Repository</li>
+                                </ul>
+                            </div>
+                            <div class="sprint-card">
+                                <h4>📁 ساختار پروژه</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> راه‌اندازی Turborepo</li>
+                                    <li><span class="task-checkbox"></span> ایجاد apps/web (Next.js)</li>
+                                    <li><span class="task-checkbox"></span> ایجاد apps/api (FastAPI)</li>
+                                    <li><span class="task-checkbox"></span> تنظیم ESLint + Prettier</li>
+                                    <li><span class="task-checkbox"></span> تنظیم TypeScript</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 1 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">1</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">💬 فاز یک: Chat Interface</div>
+                            <span class="timeline-date">هفته ۲-۳</span>
+                        </div>
+                        <p class="timeline-description">ساخت رابط کاربری چت و اتصال به Claude API</p>
+                        <div class="sprint-grid">
+                            <div class="sprint-card">
+                                <h4>🎨 UI Components</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> نصب shadcn/ui</li>
+                                    <li><span class="task-checkbox"></span> ChatContainer Component</li>
+                                    <li><span class="task-checkbox"></span> MessageList Component</li>
+                                    <li><span class="task-checkbox"></span> TextInput با auto-resize</li>
+                                    <li><span class="task-checkbox"></span> Loading States</li>
+                                    <li><span class="task-checkbox"></span> Dark Mode Support</li>
+                                </ul>
+                            </div>
+                            <div class="sprint-card">
+                                <h4>🤖 MCP Server</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> راه‌اندازی FastAPI</li>
+                                    <li><span class="task-checkbox"></span> نصب Anthropic SDK</li>
+                                    <li><span class="task-checkbox"></span> پیاده‌سازی /health endpoint</li>
+                                    <li><span class="task-checkbox"></span> پیاده‌سازی /api/mcp/parse</li>
+                                    <li><span class="task-checkbox"></span> System Prompt Design</li>
+                                    <li><span class="task-checkbox"></span> Error Handling</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">2</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">🗺️ فاز دو: Map Visualization</div>
+                            <span class="timeline-date">هفته ۴-۵</span>
+                        </div>
+                        <p class="timeline-description">پیاده‌سازی نمایش نقشه با Deck.gl و MapLibre</p>
+                        <div class="sprint-grid">
+                            <div class="sprint-card">
+                                <h4>🗺️ Map Setup</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> نصب Deck.gl + MapLibre</li>
+                                    <li><span class="task-checkbox"></span> Base Map Rendering</li>
+                                    <li><span class="task-checkbox"></span> Viewport Controls</li>
+                                    <li><span class="task-checkbox"></span> ScatterplotLayer</li>
+                                    <li><span class="task-checkbox"></span> GeoJsonLayer</li>
+                                    <li><span class="task-checkbox"></span> PathLayer</li>
+                                </ul>
+                            </div>
+                            <div class="sprint-card">
+                                <h4>🎯 Interactions</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> Tooltip on Hover</li>
+                                    <li><span class="task-checkbox"></span> Click to Select</li>
+                                    <li><span class="task-checkbox"></span> Zoom Controls</li>
+                                    <li><span class="task-checkbox"></span> Layer Toggle</li>
+                                    <li><span class="task-checkbox"></span> Legend Component</li>
+                                    <li><span class="task-checkbox"></span> Export to PNG</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">3</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">🗄️ فاز سه: Database & Data Pipeline</div>
+                            <span class="timeline-date">هفته ۶-۷</span>
+                        </div>
+                        <p class="timeline-description">راه‌اندازی ClickHouse و Pipeline داده‌های مکانی</p>
+                        <div class="sprint-grid">
+                            <div class="sprint-card">
+                                <h4>🗄️ ClickHouse</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> Docker Setup</li>
+                                    <li><span class="task-checkbox"></span> Spatial Tables Schema</li>
+                                    <li><span class="task-checkbox"></span> Sample Data (100K)</li>
+                                    <li><span class="task-checkbox"></span> Spatial Indexes</li>
+                                    <li><span class="task-checkbox"></span> Query Optimization</li>
+                                    <li><span class="task-checkbox"></span> Performance Testing</li>
+                                </ul>
+                            </div>
+                            <div class="sprint-card">
+                                <h4>📦 FlatGeobuf Pipeline</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> ClickHouse → GeoDataFrame</li>
+                                    <li><span class="task-checkbox"></span> GeoDataFrame → FlatGeobuf</li>
+                                    <li><span class="task-checkbox"></span> HTTP Streaming</li>
+                                    <li><span class="task-checkbox"></span> BBox Filtering</li>
+                                    <li><span class="task-checkbox"></span> Frontend Decoder</li>
+                                    <li><span class="task-checkbox"></span> Progressive Loading</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 4 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">4</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">🔗 فاز چهار: Integration</div>
+                            <span class="timeline-date">هفته ۸-۹</span>
+                        </div>
+                        <p class="timeline-description">اتصال تمام اجزا و تست End-to-End</p>
+                        <div class="sprint-grid">
+                            <div class="sprint-card">
+                                <h4>🔗 Integration</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> Chat → MCP Connection</li>
+                                    <li><span class="task-checkbox"></span> MCP → ClickHouse Query</li>
+                                    <li><span class="task-checkbox"></span> Data → Map Rendering</li>
+                                    <li><span class="task-checkbox"></span> WebSocket Setup</li>
+                                    <li><span class="task-checkbox"></span> Real-time Updates</li>
+                                    <li><span class="task-checkbox"></span> Error Boundaries</li>
+                                </ul>
+                            </div>
+                            <div class="sprint-card">
+                                <h4>🧪 Testing</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> Unit Tests (Jest)</li>
+                                    <li><span class="task-checkbox"></span> Integration Tests</li>
+                                    <li><span class="task-checkbox"></span> E2E Tests (Playwright)</li>
+                                    <li><span class="task-checkbox"></span> Performance Tests</li>
+                                    <li><span class="task-checkbox"></span> Load Testing</li>
+                                    <li><span class="task-checkbox"></span> Security Audit</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 5 -->
+                <div class="timeline-item">
+                    <div class="timeline-marker">5</div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <div class="timeline-title">🚀 فاز پنج: Polish & Launch</div>
+                            <span class="timeline-date">هفته ۱۰-۱۲</span>
+                        </div>
+                        <p class="timeline-description">بهینه‌سازی، مستندات و آماده‌سازی برای لانچ</p>
+                        <div class="sprint-grid">
+                            <div class="sprint-card">
+                                <h4>✨ Polish</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> UI/UX Refinements</li>
+                                    <li><span class="task-checkbox"></span> Performance Optimization</li>
+                                    <li><span class="task-checkbox"></span> Mobile Responsive</li>
+                                    <li><span class="task-checkbox"></span> Accessibility (a11y)</li>
+                                    <li><span class="task-checkbox"></span> Error Messages</li>
+                                    <li><span class="task-checkbox"></span> Loading States</li>
+                                </ul>
+                            </div>
+                            <div class="sprint-card">
+                                <h4>🚀 Launch</h4>
+                                <ul class="task-list">
+                                    <li><span class="task-checkbox"></span> Deploy to Production</li>
+                                    <li><span class="task-checkbox"></span> Domain Setup</li>
+                                    <li><span class="task-checkbox"></span> SSL Certificate</li>
+                                    <li><span class="task-checkbox"></span> Monitoring (Sentry)</li>
+                                    <li><span class="task-checkbox"></span> Analytics (Mixpanel)</li>
+                                    <li><span class="task-checkbox"></span> Landing Page</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack Section -->
+        <section id="tech-stack" class="section">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div>
+                    <h2 class="section-title">تکنولوژی‌های مورد استفاده</h2>
+                    <p class="section-subtitle">Stack فنی پروژه به تفکیک لایه‌ها</p>
+                </div>
+            </div>
+
+            <div class="tech-grid">
+                <!-- Frontend -->
+                <div class="tech-category">
+                    <h3>🎨 Frontend</h3>
+                    <div class="tech-item">
+                        <div class="tech-icon">⚛️</div>
+                        <div class="tech-info">
+                            <h4>Next.js 14</h4>
+                            <p>React Framework با App Router</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📘</div>
+                        <div class="tech-info">
+                            <h4>TypeScript</h4>
+                            <p>Type Safety و Developer Experience</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🎨</div>
+                        <div class="tech-info">
+                            <h4>Tailwind CSS</h4>
+                            <p>Utility-first CSS Framework</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🧩</div>
+                        <div class="tech-info">
+                            <h4>shadcn/ui</h4>
+                            <p>Accessible UI Components</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🐻</div>
+                        <div class="tech-info">
+                            <h4>Zustand</h4>
+                            <p>Lightweight State Management</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map & Visualization -->
+                <div class="tech-category">
+                    <h3>🗺️ نقشه و Visualization</h3>
+                    <div class="tech-item">
+                        <div class="tech-icon">🌐</div>
+                        <div class="tech-info">
+                            <h4>Deck.gl</h4>
+                            <p>WebGL Visualization Framework</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🗺️</div>
+                        <div class="tech-info">
+                            <h4>MapLibre GL</h4>
+                            <p>Open-source Map Rendering</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📦</div>
+                        <div class="tech-info">
+                            <h4>FlatGeobuf</h4>
+                            <p>Efficient Spatial Data Format</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📐</div>
+                        <div class="tech-info">
+                            <h4>Turf.js</h4>
+                            <p>Spatial Analysis در Browser</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backend -->
+                <div class="tech-category">
+                    <h3>⚡ Backend</h3>
+                    <div class="tech-item">
+                        <div class="tech-icon">🐍</div>
+                        <div class="tech-info">
+                            <h4>Python 3.12</h4>
+                            <p>زبان اصلی Backend</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">⚡</div>
+                        <div class="tech-info">
+                            <h4>FastAPI</h4>
+                            <p>High-performance API Framework</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📋</div>
+                        <div class="tech-info">
+                            <h4>Pydantic</h4>
+                            <p>Data Validation</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🔄</div>
+                        <div class="tech-info">
+                            <h4>Redis</h4>
+                            <p>Caching & Session</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI/ML -->
+                <div class="tech-category">
+                    <h3>🤖 AI/ML</h3>
+                    <div class="tech-item">
+                        <div class="tech-icon">🧠</div>
+                        <div class="tech-info">
+                            <h4>Claude API</h4>
+                            <p>Anthropic LLM</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🔌</div>
+                        <div class="tech-info">
+                            <h4>MCP Protocol</h4>
+                            <p>Model Context Protocol</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📝</div>
+                        <div class="tech-info">
+                            <h4>Prompt Engineering</h4>
+                            <p>Spatial Query Parsing</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database -->
+                <div class="tech-category">
+                    <h3>🗄️ Database</h3>
+                    <div class="tech-item">
+                        <div class="tech-icon">🏠</div>
+                        <div class="tech-info">
+                            <h4>ClickHouse</h4>
+                            <p>OLAP Database برای Spatial Data</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🐘</div>
+                        <div class="tech-info">
+                            <h4>PostgreSQL</h4>
+                            <p>User Data & Authentication</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🐼</div>
+                        <div class="tech-info">
+                            <h4>GeoPandas</h4>
+                            <p>Spatial Data Processing</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DevOps -->
+                <div class="tech-category">
+                    <h3>🔧 DevOps</h3>
+                    <div class="tech-item">
+                        <div class="tech-icon">🐳</div>
+                        <div class="tech-info">
+                            <h4>Docker</h4>
+                            <p>Containerization</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">▲</div>
+                        <div class="tech-info">
+                            <h4>Vercel</h4>
+                            <p>Frontend Hosting</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">🔄</div>
+                        <div class="tech-info">
+                            <h4>GitHub Actions</h4>
+                            <p>CI/CD Pipeline</p>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">📊</div>
+                        <div class="tech-info">
+                            <h4>Sentry</h4>
+                            <p>Error Monitoring</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Milestones Section -->
+        <section id="milestones" class="section">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <div>
+                    <h2 class="section-title">مایلستون‌های کلیدی</h2>
+                    <p class="section-subtitle">نقاط عطف مهم در مسیر توسعه</p>
+                </div>
+            </div>
+
+            <div class="milestone-track">
+                <div class="milestone active">
+                    <div class="milestone-dot">🚀</div>
+                    <div class="milestone-title">شروع پروژه</div>
+                    <div class="milestone-date">هفته ۱</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot">💬</div>
+                    <div class="milestone-title">Chat MVP</div>
+                    <div class="milestone-date">هفته ۳</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot">🗺️</div>
+                    <div class="milestone-title">Map Render</div>
+                    <div class="milestone-date">هفته ۵</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot">🔗</div>
+                    <div class="milestone-title">Full Integration</div>
+                    <div class="milestone-date">هفته ۸</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot">🧪</div>
+                    <div class="milestone-title">Beta Testing</div>
+                    <div class="milestone-date">هفته ۱۰</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot">🎉</div>
+                    <div class="milestone-title">MVP Launch</div>
+                    <div class="milestone-date">هفته ۱۲</div>
+                </div>
+            </div>
+
+            <!-- Milestone Details -->
+            <div class="overview-grid" style="margin-top: 40px;">
+                <div class="overview-card">
+                    <h3>💬 Chat MVP (هفته ۳)</h3>
+                    <p>کاربر می‌تواند query بنویسد و پاسخ از Claude دریافت کند. Spatial Intent به درستی parse می‌شود.</p>
+                    <div class="value" style="font-size: 1rem; color: var(--secondary);">✓ معیار: ۱۰ query موفق</div>
+                </div>
+                <div class="overview-card">
+                    <h3>🗺️ Map Render (هفته ۵)</h3>
+                    <p>نقشه تعاملی با Deck.gl نمایش داده می‌شود. لایه‌های Point و Polygon کار می‌کنند.</p>
+                    <div class="value" style="font-size: 1rem; color: var(--secondary);">✓ معیار: 10K feature render</div>
+                </div>
+                <div class="overview-card">
+                    <h3>🔗 Full Integration (هفته ۸)</h3>
+                    <p>تمام اجزا به هم متصل هستند. از Query تا نمایش نقشه کار می‌کند.</p>
+                    <div class="value" style="font-size: 1rem; color: var(--secondary);">✓ معیار: E2E flow &lt; 5s</div>
+                </div>
+                <div class="overview-card">
+                    <h3>🎉 MVP Launch (هفته ۱۲)</h3>
+                    <p>محصول در Production است. کاربران واقعی می‌توانند استفاده کنند.</p>
+                    <div class="value" style="font-size: 1rem; color: var(--secondary);">✓ معیار: ۱۰۰ کاربر فعال</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Risks Section -->
+        <section id="risks" class="section">
+            <div class="section-header">
+                <div class="section-icon">⚠️</div>
+                <div>
+                    <h2 class="section-title">ریسک‌ها و راه‌حل‌ها</h2>
+                    <p class="section-subtitle">شناسایی و مدیریت ریسک‌های پروژه</p>
+                </div>
+            </div>
+
+            <div class="risk-grid">
+                <div class="risk-card high">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🔴 هزینه Claude API</h4>
+                        <span class="risk-level">بالا</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> پیاده‌سازی caching قوی با Redis، استفاده از prompt کوتاه‌تر، محدودیت روزانه برای کاربران رایگان
+                    </p>
+                </div>
+                <div class="risk-card high">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🔴 Learning Curve تیم</h4>
+                        <span class="risk-level">بالا</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> اختصاص زمان برای یادگیری در Sprint اول، استفاده از documentation و tutorial‌ها
+                    </p>
+                </div>
+                <div class="risk-card medium">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🟠 Performance با داده‌های بزرگ</h4>
+                        <span class="risk-level">متوسط</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> استفاده از FlatGeobuf برای streaming، محدودیت تعداد features، پیاده‌سازی pagination و clustering
+                    </p>
+                </div>
+                <div class="risk-card medium">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🟠 دقت Claude در Parsing</h4>
+                        <span class="risk-level">متوسط</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> طراحی System Prompt دقیق، Few-shot examples، امکان اصلاح دستی توسط کاربر
+                    </p>
+                </div>
+                <div class="risk-card medium">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🟠 تأخیر در Timeline</h4>
+                        <span class="risk-level">متوسط</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> Buffer time در هر Sprint، اولویت‌بندی سخت‌گیرانه، حذف features غیرضروری
+                    </p>
+                </div>
+                <div class="risk-card low">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🟢 تغییرات API خارجی</h4>
+                        <span class="risk-level">پایین</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> استفاده از Abstraction Layer، پین کردن نسخه‌ها، مانیتورینگ changelog‌ها
+                    </p>
+                </div>
+                <div class="risk-card low">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🟢 مشکلات Browser Compatibility</h4>
+                        <span class="risk-level">پایین</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> تست روی مرورگرهای اصلی، استفاده از polyfills، graceful degradation
+                    </p>
+                </div>
+                <div class="risk-card high">
+                    <div class="risk-header">
+                        <h4 class="risk-title">🔴 کیفیت داده‌های مکانی</h4>
+                        <span class="risk-level">بالا</span>
+                    </div>
+                    <p class="risk-mitigation">
+                        <strong>راه‌حل:</strong> شروع با دیتاست‌های معتبر (OSM)، پیاده‌سازی data validation، نمایش metadata به کاربر
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section id="team" class="section">
+            <div class="section-header">
+                <div class="section-icon">👥</div>
+                <div>
+                    <h2 class="section-title">نقش‌ها و مسئولیت‌ها</h2>
+                    <p class="section-subtitle">ساختار تیم و تقسیم وظایف (Solo Founder Mode)</p>
+                </div>
+            </div>
+
+            <div class="team-grid">
+                <div class="team-card">
+                    <div class="team-avatar">👨‍💻</div>
+                    <div class="team-role">Full-Stack Developer</div>
+                    <p style="color: var(--muted); font-size: 0.9rem;">شما (Solo Founder)</p>
+                    <div class="team-skills">
+                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">GIS</span>
+                        <span class="skill-tag">FastAPI</span>
+                        <span class="skill-tag">Deck.gl</span>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">🤖</div>
+                    <div class="team-role">AI Assistant</div>
+                    <p style="color: var(--muted); font-size: 0.9rem;">Claude (Pair Programming)</p>
+                    <div class="team-skills">
+                        <span class="skill-tag">Code Review</span>
+                        <span class="skill-tag">Debugging</span>
+                        <span class="skill-tag">Documentation</span>
+                        <span class="skill-tag">Architecture</span>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">🎨</div>
+                    <div class="team-role">UI/UX (خودت)</div>
+                    <p style="color: var(--muted); font-size: 0.9rem;">با کمک shadcn/ui</p>
+                    <div class="team-skills">
+                        <span class="skill-tag">Figma</span>
+                        <span class="skill-tag">Tailwind</span>
+                        <span class="skill-tag">Components</span>
+                    </div>
+                </div>
+                <div class="team-card">
+                    <div class="team-avatar">🔮</div>
+                    <div class="team-role">Co-Founder (آینده)</div>
+                    <p style="color: var(--muted); font-size: 0.9rem;">بعد از MVP</p>
+                    <div class="team-skills">
+                        <span class="skill-tag">Marketing</span>
+                        <span class="skill-tag">Sales</span>
+                        <span class="skill-tag">Business</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checklist Section -->
+        <section id="checklist" class="section">
+            <div class="section-header">
+                <div class="section-icon">✅</div>
+                <div>
+                    <h2 class="section-title">چک‌لیست آمادگی</h2>
+                    <p class="section-subtitle">لیست کامل موارد مورد نیاز قبل از شروع هر فاز</p>
+                </div>
+            </div>
+
+            <div class="checklist-section">
+                <!-- Pre-Development -->
+                <div class="checklist-category">
+                    <h4>🚀 قبل از شروع توسعه</h4>
+                    <div class="checklist-items">
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>ثبت‌نام در Anthropic Console</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>دریافت API Key از Claude</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>ایجاد حساب GitHub</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>ایجاد حساب Vercel</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>خرید دامنه geochat.ai</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>راه‌اندازی Focalboard</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>نصب Docker Desktop</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>نصب VS Code + Extensions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Development Tools -->
+                <div class="checklist-category">
+                    <h4>🔧 ابزارهای توسعه</h4>
+                    <div class="checklist-items">
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Node.js 20 LTS</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Python 3.12</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>pnpm (Package Manager)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Poetry (Python)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Git + Git LFS</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Postman / Insomnia</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>DBeaver (DB Client)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>QGIS (برای تست داده)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VS Code Extensions -->
+                <div class="checklist-category">
+                    <h4>📦 VS Code Extensions</h4>
+                    <div class="checklist-items">
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>ESLint</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Prettier</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Python Extension</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Tailwind CSS IntelliSense</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>GitLens</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Thunder Client</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Docker Extension</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>GitHub Copilot</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documentation -->
+                <div class="checklist-category">
+                    <h4>📚 مستندات برای مطالعه</h4>
+                    <div class="checklist-items">
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Deck.gl Documentation</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>MCP Protocol Spec</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>ClickHouse Spatial Docs</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>FlatGeobuf Specification</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>FastAPI Tutorial</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Next.js 14 App Router</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Anthropic API Docs</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>shadcn/ui Components</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pre-Launch -->
+                <div class="checklist-category">
+                    <h4>🚀 قبل از Launch</h4>
+                    <div class="checklist-items">
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>تست E2E کامل</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Performance Audit</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Security Review</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Accessibility Check</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Error Monitoring Setup</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Analytics Setup</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Backup Strategy</span>
+                        </div>
+                        <div class="checklist-item">
+                            <span class="check-icon"></span>
+                            <span>Landing Page Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sprint Details Section -->
+        <section id="sprints" class="section">
+            <div class="section-header">
+                <div class="section-icon">🏃</div>
+                <div>
+                    <h2 class="section-title">جزئیات اسپرینت‌ها</h2>
+                    <p class="section-subtitle">برنامه‌ریزی دقیق هر اسپرینت دو هفته‌ای</p>
+                </div>
+            </div>
+
+            <!-- Sprint 1 -->
+            <div class="timeline-content" style="margin-bottom: 30px;">
+                <div class="timeline-header">
+                    <div class="timeline-title">🏃 Sprint 1: Foundation</div>
+                    <span class="timeline-date">هفته ۱-۲ | 23 SP</span>
+                </div>
+                <p class="timeline-description">راه‌اندازی محیط توسعه و ساختار پروژه</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--secondary); margin-bottom: 10px;">📊 Capacity</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">40-60 ساعت</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--secondary); margin-bottom: 10px;">🎯 Story Points</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">23 SP</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--secondary); margin-bottom: 10px;">✅ Goal</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">Dev Environment + Project Structure</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--secondary); margin-bottom: 10px;">📦 Deliverables</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">Working Monorepo + Basic Chat UI</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 15px; background: var(--darker); border-radius: 10px; border-right: 3px solid var(--primary);">
+                    <h5 style="margin-bottom: 10px;">📋 Daily Breakdown</h5>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 0.85rem;">
+                        <div><strong>Day 1:</strong> Node.js, Python, Docker</div>
+                        <div><strong>Day 2:</strong> Turborepo, Next.js</div>
+                        <div><strong>Day 3:</strong> FastAPI, TypeScript</div>
+                        <div><strong>Day 4:</strong> shadcn/ui Setup</div>
+                        <div><strong>Day 5:</strong> Chat Components</div>
+                        <div><strong>Day 6:</strong> Message List</div>
+                        <div><strong>Day 7:</strong> Input Area</div>
+                        <div><strong>Day 8:</strong> State Management</div>
+                        <div><strong>Day 9:</strong> Styling & Polish</div>
+                        <div><strong>Day 10:</strong> Testing & Review</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sprint 2 -->
+            <div class="timeline-content" style="margin-bottom: 30px;">
+                <div class="timeline-header">
+                    <div class="timeline-title">🏃 Sprint 2: AI Integration</div>
+                    <span class="timeline-date">هفته ۳-۴ | 21 SP</span>
+                </div>
+                <p class="timeline-description">اتصال به Claude API و پیاده‌سازی MCP</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--accent); margin-bottom: 10px;">📊 Capacity</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">40-60 ساعت</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--accent); margin-bottom: 10px;">🎯 Story Points</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">21 SP</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--accent); margin-bottom: 10px;">✅ Goal</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">Working Claude Integration</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: var(--accent); margin-bottom: 10px;">📦 Deliverables</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">MCP Server + Spatial Intent Parsing</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sprint 3 -->
+            <div class="timeline-content" style="margin-bottom: 30px;">
+                <div class="timeline-header">
+                    <div class="timeline-title">🏃 Sprint 3: Map Visualization</div>
+                    <span class="timeline-date">هفته ۵-۶ | 18 SP</span>
+                </div>
+                <p class="timeline-description">پیاده‌سازی Deck.gl و نمایش نقشه</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #3b82f6; margin-bottom: 10px;">📊 Capacity</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">40-60 ساعت</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #3b82f6; margin-bottom: 10px;">🎯 Story Points</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">18 SP</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #3b82f6; margin-bottom: 10px;">✅ Goal</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">Interactive Map with Layers</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #3b82f6; margin-bottom: 10px;">📦 Deliverables</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">Deck.gl + MapLibre + Interactions</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sprint 4 -->
+            <div class="timeline-content" style="margin-bottom: 30px;">
+                <div class="timeline-header">
+                    <div class="timeline-title">🏃 Sprint 4: Database & Pipeline</div>
+                    <span class="timeline-date">هفته ۷-۸ | 16 SP</span>
+                </div>
+                <p class="timeline-description">راه‌اندازی ClickHouse و Data Pipeline</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #f59e0b; margin-bottom: 10px;">📊 Capacity</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">40-60 ساعت</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #f59e0b; margin-bottom: 10px;">🎯 Story Points</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">16 SP</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #f59e0b; margin-bottom: 10px;">✅ Goal</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">Fast Spatial Queries</p>
+                    </div>
+                    <div style="background: var(--darker); padding: 15px; border-radius: 10px;">
+                        <h5 style="color: #f59e0b; margin-bottom: 10px;">📦 Deliverables</h5>
+                        <p style="font-size: 0.85rem; color: var(--muted);">ClickHouse + FlatGeobuf Pipeline</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sprint 5 -->
+            <div class="timeline-content" style="margin-bottom: 30px;">
+                <div class="timeline-header">
+                    <div class="timeline-title">🏃 Sprint 5: Integration & Testing</div>
+                    <span class="timeline-date">هفته ۹-۱۰ | 13 SP</span>
+                </div>
+                <p class="timeline-description">اتصال تمام اجزا و تست جامع</p>
+            </div>
+
+            <!-- Sprint 6 -->
+            <div class="timeline-content">
+                <div class="timeline-header">
+                    <div class="timeline-title">🏃 Sprint 6: Launch Preparation</div>
+                    <span class="timeline-date">هفته ۱۱-۱۲ | 8 SP</span>
+                </div>
+                <p class="timeline-description">بهینه‌سازی نهایی و آماده‌سازی برای Production</p>
+            </div>
+        </section>
+
+        <!-- API Endpoints Section -->
+        <section id="api" class="section">
+            <div class="section-header">
+                <div class="section-icon">🔌</div>
+                <div>
+                    <h2 class="section-title">API Endpoints</h2>
+                    <p class="section-subtitle">لیست endpoint‌های اصلی سیستم</p>
+                </div>
+            </div>
+
+            <div class="tech-grid">
+                <div class="tech-category">
+                    <h3>🤖 MCP Endpoints</h3>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--secondary);">POST /api/mcp/parse</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">تبدیل متن به Spatial Intent</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--secondary);">POST /api/mcp/refine</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">اصلاح و بهبود query</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--secondary);">GET /api/mcp/suggestions</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">پیشنهاد query‌های مشابه</p>
+                    </div>
+                </div>
+
+                <div class="tech-category">
+                    <h3>🗺️ Spatial Endpoints</h3>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--accent);">POST /api/spatial/query</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">اجرای Spatial Query</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--accent);">GET /api/spatial/features</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">دریافت Features (FlatGeobuf)</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--accent);">GET /api/spatial/bbox</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">Features در محدوده BBox</p>
+                    </div>
+                </div>
+
+                <div class="tech-category">
+                    <h3>👤 User Endpoints</h3>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: #3b82f6;">POST /api/auth/register</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">ثبت‌نام کاربر</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: #3b82f6;">POST /api/auth/login</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">ورود کاربر</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: #3b82f6;">GET /api/maps</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">لیست نقشه‌های کاربر</p>
+                    </div>
+                </div>
+
+                <div class="tech-category">
+                    <h3>⚙️ System Endpoints</h3>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--secondary);">GET /health</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">Health Check</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--secondary);">GET /metrics</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">Prometheus Metrics</p>
+                    </div>
+                    <div class="tech-item" style="flex-direction: column; align-items: flex-start;">
+                        <code style="background: var(--surface); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; color: var(--secondary);">WS /ws/chat</code>
+                        <p style="font-size: 0.8rem; color: var(--muted);">WebSocket برای Real-time</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- File Structure Section -->
+        <section id="structure" class="section">
+            <div class="section-header">
+                <div class="section-icon">📁</div>
+                <div>
+                    <h2 class="section-title">ساختار پروژه</h2>
+                    <p class="section-subtitle">Monorepo Structure با Turborepo</p>
+                </div>
+            </div>
+
+            <div class="architecture" style="font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.8;">
+<pre style="color: var(--light); overflow-x: auto;">
+geochat-ai/
+├── 📁 apps/
+│   ├── 📁 web/                      # Next.js Frontend
+│   │   ├── 📁 app/
+│   │   │   ├── 📄 layout.tsx
+│   │   │   ├── 📄 page.tsx
+│   │   │   ├── 📁 chat/
+│   │   │   │   └── 📄 page.tsx
+│   │   │   └── 📁 api/
+│   │   │       └── 📁 [...]/
+│   │   ├── 📁 components/
+│   │   │   ├── 📁 chat/
+│   │   │   │   ├── 📄 ChatContainer.tsx
+│   │   │   │   ├── 📄 MessageList.tsx
+│   │   │   │   ├── 📄 UserMessage.tsx
+│   │   │   │   ├── 📄 AssistantMessage.tsx
+│   │   │   │   └── 📄 InputArea.tsx
+│   │   │   ├── 📁 map/
+│   │   │   │   ├── 📄 MapView.tsx
+│   │   │   │   ├── 📄 LayerControl.tsx
+│   │   │   │   ├── 📄 Legend.tsx
+│   │   │   │   └── 📄 Tooltip.tsx
+│   │   │   └── 📁 ui/
+│   │   │       └── 📄 [...shadcn components]
+│   │   ├── 📁 lib/
+│   │   │   ├── 📄 api.ts
+│   │   │   ├── 📄 websocket.ts
+│   │   │   └── 📄 utils.ts
+│   │   ├── 📁 stores/
+│   │   │   ├── 📄 chatStore.ts
+│   │   │   └── 📄 mapStore.ts
+│   │   ├── 📄 package.json
+│   │   └── 📄 tailwind.config.ts
+│   │
+│   └── 📁 api/                      # FastAPI Backend
+│       ├── 📁 app/
+│       │   ├── 📄 main.py
+│       │   ├── 📁 routers/
+│       │   │   ├── 📄 mcp.py
+│       │   │   ├── 📄 spatial.py
+│       │   │   ├── 📄 auth.py
+│       │   │   └── 📄 maps.py
+│       │   ├── 📁 services/
+│       │   │   ├── 📄 claude_service.py
+│       │   │   ├── 📄 spatial_service.py
+│       │   │   └── 📄 flatgeobuf_service.py
+│       │   ├── 📁 models/
+│       │   │   ├── 📄 spatial_intent.py
+│       │   │   ├── 📄 user.py
+│       │   │   └── 📄 map.py
+│       │   ├── 📁 db/
+│       │   │   ├── 📄 clickhouse.py
+│       │   │   └── 📄 postgres.py
+│       │   └── 📁 core/
+│       │       ├── 📄 config.py
+│       │       └── 📄 security.py
+│       ├── 📄 pyproject.toml
+│       └── 📄 Dockerfile
+│
+├── 📁 packages/
+│   ├── 📁 types/                    # Shared TypeScript Types
+│   │   ├── 📄 spatial.ts
+│   │   ├── 📄 chat.ts
+│   │   └── 📄 index.ts
+│   └── 📁 config/                   # Shared Configs
+│       ├── 📄 eslint.js
+│       └── 📄 tsconfig.json
+│
+├── 📁 docker/
+│   ├── 📄 docker-compose.yml
+│   ├── 📄 docker-compose.dev.yml
+│   └── 📁 clickhouse/
+│       └── 📄 init.sql
+│
+├── 📁 docs/
+│   ├── 📄 architecture.md
+│   ├── 📄 api.md
+│   └── 📄 deployment.md
+│
+├── 📄 turbo.json
+├── 📄 package.json
+├── 📄 pnpm-workspace.yaml
+├── 📄 .gitignore
+├── 📄 .env.example
+└── 📄 README.md
+</pre>
+            </div>
+        </section>
+
+        <!-- Cost Estimation Section -->
+        <section id="costs" class="section">
+            <div class="section-header">
+                <div class="section-icon">💰</div>
+                <div>
+                    <h2 class="section-title">تخمین هزینه‌ها</h2>
+                    <p class="section-subtitle">هزینه‌های ماهانه در فازهای مختلف</p>
+                </div>
+            </div>
+
+            <div class="tech-grid">
+                <div class="tech-category">
+                    <h3>🔨 فاز توسعه (ماه ۱-۳)</h3>
+                    <table style="width: 100%; font-size: 0.9rem;">
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Domain</td>
+                            <td style="text-align: left; color: var(--accent);">$15</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Claude API (Dev)</td>
+                            <td style="text-align: left; color: var(--accent);">$50</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Vercel (Free)</td>
+                            <td style="text-align: left; color: var(--secondary);">$0</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">GitHub (Free)</td>
+                            <td style="text-align: left; color: var(--secondary);">$0</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; font-weight: bold;">مجموع</td>
+                            <td style="text-align: left; color: var(--primary); font-weight: bold;">~$65/mo</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="tech-category">
+                    <h3>🚀 فاز Launch (ماه ۴-۶)</h3>
+                    <table style="width: 100%; font-size: 0.9rem;">
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Domain</td>
+                            <td style="text-align: left; color: var(--accent);">$15</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Claude API</td>
+                            <td style="text-align: left; color: var(--accent);">$300</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Vercel Pro</td>
+                            <td style="text-align: left; color: var(--accent);">$20</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">AWS/GCP</td>
+                            <td style="text-align: left; color: var(--accent);">$100</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Monitoring</td>
+                            <td style="text-align: left; color: var(--accent);">$30</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; font-weight: bold;">مجموع</td>
+                            <td style="text-align: left; color: var(--primary); font-weight: bold;">~$465/mo</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="tech-category">
+                    <h3>📈 فاز رشد (ماه ۷+)</h3>
+                    <table style="width: 100%; font-size: 0.9rem;">
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Domain</td>
+                            <td style="text-align: left; color: var(--accent);">$15</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Claude API</td>
+                            <td style="text-align: left; color: var(--accent);">$1,500</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Vercel Pro</td>
+                            <td style="text-align: left; color: var(--accent);">$20</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">AWS/GCP</td>
+                            <td style="text-align: left; color: var(--accent);">$500</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--surface-light);">
+                            <td style="padding: 10px 0;">Tools & Services</td>
+                            <td style="text-align: left; color: var(--accent);">$200</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; font-weight: bold;">مجموع</td>
+                            <td style="text-align: left; color: var(--primary); font-weight: bold;">~$2,235/mo</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start Section -->
+        <section id="quickstart" class="section">
+            <div class="section-header">
+                <div class="section-icon">⚡</div>
+                <div>
+                    <h2 class="section-title">شروع سریع</h2>
+                    <p class="section-subtitle">دستورات اولیه برای راه‌اندازی پروژه</p>
+                </div>
+            </div>
+
+            <div class="architecture">
+                <div style="margin-bottom: 30px;">
+                    <h4 style="margin-bottom: 15px; color: var(--secondary);">1️⃣ Clone و نصب Dependencies</h4>
+                    <pre style="background: var(--darker); padding: 15px; border-radius: 8px; overflow-x: auto;"><code style="color: var(--light);"># Clone repository
+git clone https://github.com/yourusername/geochat-ai.git
+cd geochat-ai
+
+# Install dependencies
+pnpm install
+
+# Setup environment
+cp .env.example .env.local</code></pre>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <h4 style="margin-bottom: 15px; color: var(--secondary);">2️⃣ راه‌اندازی Database</h4>
+                    <pre style="background: var(--darker); padding: 15px; border-radius: 8px; overflow-x: auto;"><code style="color: var(--light);"># Start Docker containers
+docker-compose up -d
+
+# Verify ClickHouse
+docker exec -it clickhouse clickhouse-client
+
+# Load sample data
+python scripts/load_sample_data.py</code></pre>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <h4 style="margin-bottom: 15px; color: var(--secondary);">3️⃣ اجرای Development Server</h4>
+                    <pre style="background: var(--darker); padding: 15px; border-radius: 8px; overflow-x: auto;"><code style="color: var(--light);"># Start all services
+pnpm dev
+
+# Or separately:
+pnpm --filter web dev      # Frontend: http://localhost:3000
+pnpm --filter api dev      # Backend:  http://localhost:8000</code></pre>
+                </div>
+
+                <div>
+                    <h4 style="margin-bottom: 15px; color: var(--secondary);">4️⃣ تست اولین Query</h4>
+                    <pre style="background: var(--darker); padding: 15px; border-radius: 8px; overflow-x: auto;"><code style="color: var(--light);"># Test MCP endpoint
+curl -X POST http://localhost:8000/api/mcp/parse \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Show cafes in Tehran"}'
+
+# Expected response:
+{
+  "intent": "spatial_query",
+  "entity_type": "cafe",
+  "location": "Tehran",
+  "filters": []
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Success Metrics Section -->
+        <section id="metrics" class="section">
+            <div class="section-header">
+                <div class="section-icon">📈</div>
+                <div>
+                    <h2 class="section-title">معیارهای موفقیت</h2>
+                    <p class="section-subtitle">KPIها برای ارزیابی پیشرفت پروژه</p>
+                </div>
+            </div>
+
+            <div class="overview-grid">
+                <div class="overview-card">
+                    <h3>⚡ Performance</h3>
+                    <ul style="color: var(--muted); font-size: 0.9rem; padding-right: 20px; margin-top: 10px;">
+                        <li>Query Response: &lt; 3 ثانیه</li>
+                        <li>Map Render: &lt; 2 ثانیه</li>
+                        <li>Time to First Byte: &lt; 200ms</li>
+                        <li>Lighthouse Score: &gt; 90</li>
+                    </ul>
+                </div>
+                <div class="overview-card">
+                    <h3>👥 User Metrics</h3>
+                    <ul style="color: var(--muted); font-size: 0.9rem; padding-right: 20px; margin-top: 10px;">
+                        <li>MVP Launch: ۱۰۰ کاربر</li>
+                        <li>Month 3: ۵۰۰ کاربر</li>
+                        <li>Month 6: ۲,۰۰۰ کاربر</li>
+                        <li>D7 Retention: &gt; 40%</li>
+                    </ul>
+                </div>
+                <div class="overview-card">
+                    <h3>🗺️ Product Metrics</h3>
+                    <ul style="color: var(--muted); font-size: 0.9rem; padding-right: 20px; margin-top: 10px;">
+                        <li>Maps Created/Week: ۵۰۰+</li>
+                        <li>Query Success Rate: &gt; 85%</li>
+                        <li>Avg Maps/User: 2.5</li>
+                        <li>Feature Adoption: &gt; 60%</li>
+                    </ul>
+                </div>
+                <div class="overview-card">
+                    <h3>💰 Business Metrics</h3>
+                    <ul style="color: var(--muted); font-size: 0.9rem; padding-right: 20px; margin-top: 10px;">
+                        <li>Month 6 MRR: $5,000</li>
+                        <li>Conversion Rate: &gt; 5%</li>
+                        <li>Churn Rate: &lt; 10%</li>
+                        <li>CAC: &lt; $50</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">🗺️ GeoChat AI</div>
+            <p class="footer-text">
+                نقشه مسیر توسعه | نسخه ۱.۰
+                <br>
+                آخرین بروزرسانی: بهمن ۱۴۰۴
+                <br><br>
+                ساخته شده با ❤️ برای دموکراتیزه کردن GIS
+            </p>
+            <div style="margin-top: 20px; display: flex; justify-content: center; gap: 15px;">
+                <span style="background: var(--surface); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem;">📧 contact@geochat.ai</span>
+                <span style="background: var(--surface); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem;">🐙 github.com/geochat-ai</span>
+                <span style="background: var(--surface); padding: 8px 15px; border-radius: 20px; font-size: 0.8rem;">🐦 @geochat_ai</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add active state to nav on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.background = '';
+                link.style.color = '';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.background = 'var(--surface)';
+                    link.style.color = 'var(--primary)';
+                }
+            });
+        });
+
+        // Interactive checkboxes
+        document.querySelectorAll('.task-checkbox, .check-icon').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('done');
+                
+                // Save to localStorage
+                const index = Array.from(document.querySelectorAll('.task-checkbox, .check-icon')).indexOf(this);
+                const checked = JSON.parse(localStorage.getItem('geochat-checklist') || '{}');
+                checked[index] = this.classList.contains('done');
+                localStorage.setItem('geochat-checklist', JSON.stringify(checked));
+            });
+        });
+
+        // Load saved checkboxes
+        window.addEventListener('load', function() {
+            const checked = JSON.parse(localStorage.getItem('geochat-checklist') || '{}');
+            document.querySelectorAll('.task-checkbox, .check-icon').forEach((checkbox, index) => {
+                if (checked[index]) {
+                    checkbox.classList.add('done');
+                }
+            });
+
+            // Update progress bar
+            updateProgress();
+        });
+
+        function updateProgress() {
+            const total = document.querySelectorAll('.task-checkbox, .check-icon').length;
+            const done = document.querySelectorAll('.task-checkbox.done, .check-icon.done').length;
+            const percentage = Math.round((done / total) * 100);
+            
+            const progressFill = document.querySelector('.progress-fill');
+            const progressText = document.querySelector('.progress-header span:last-child');
+            
+            if (progressFill) {
+                progressFill.style.width = percentage + '%';
+            }
+            if (progressText) {
+                progressText.textContent = percentage + '% (' + done + '/' + total + ' تسک)';
+            }
+        }
+
+        // Update progress when checkbox changes
+        document.querySelectorAll('.task-checkbox, .check-icon').forEach(checkbox => {
+            checkbox.addEventListener('click', updateProgress);
+        });
+
+        // Print functionality
+        function printRoadmap() {
+            window.print();
+        }
+
+        // Console welcome message
+        console.log('%c🗺️ GeoChat AI Development Roadmap', 'font-size: 20px; font-weight: bold; color: #6366f1;');
+        console.log('%cBuilding the future of conversational GIS', 'font-size: 14px; color: #888;');
+    </script>
+</body>
+</html>

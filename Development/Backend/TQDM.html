@@ -1,0 +1,4137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع TQDM | Progress Bar در پایتون</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --primary-light: #81C784;
+            --secondary: #FF9800;
+            --secondary-dark: #F57C00;
+            --accent: #00BCD4;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --error: #F44336;
+            --info: #2196F3;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #141414;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            
+            --border-color: #2a2a2a;
+            --border-light: #333333;
+            
+            --gradient-primary: linear-gradient(135deg, #4CAF50 0%, #00BCD4 100%);
+            --gradient-secondary: linear-gradient(135deg, #FF9800 0%, #F44336 100%);
+            --gradient-dark: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px rgba(76, 175, 80, 0.3);
+            
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            background: var(--gradient-dark);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234CAF50' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Progress Bar Demo */
+        .progress-demo {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar-container {
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-sm);
+            width: 0%;
+            animation: progressAnimation 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        @keyframes progressAnimation {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 100%; }
+        }
+
+        .progress-text {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary-light);
+            font-size: 0.9rem;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .section-title-group {
+            flex: 1;
+        }
+
+        .section-number {
+            font-size: 0.85rem;
+            color: var(--primary-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Content Styles */
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--primary-light);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.python {
+            background: linear-gradient(135deg, #3776AB, #FFD43B);
+            color: white;
+        }
+
+        .code-lang-icon.bash {
+            background: #4EAA25;
+            color: white;
+        }
+
+        .code-lang-icon.output {
+            background: var(--primary);
+            color: white;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.875rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: inherit;
+        }
+
+        .code-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .code-btn.copied {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            background: transparent;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Inline Code */
+        code:not([class*="language-"]) {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875em;
+            color: var(--primary);
+            border: 1px solid var(--border-color);
+            direction: ltr;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip {
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .info-box.info {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        .info-box.danger {
+            background: rgba(244, 67, 54, 0.1);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .info-content ul {
+            margin: 0.5rem 0 0 1rem;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        td code {
+            font-size: 0.85rem;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-item {
+            margin: 0;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .toc-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .toc-number {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        /* Parameter Box */
+        .param-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .param-name {
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .param-type {
+            color: var(--secondary);
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+
+        .param-desc {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .copyright a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .hero {
+                padding: 4rem 1.5rem;
+            }
+            
+            .hero-stats {
+                gap: 2rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .section-icon {
+                margin: 0 auto;
+            }
+            
+            .main {
+                padding: 2rem 1rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+            
+            .code-body {
+                padding: 1rem;
+            }
+            
+            .code-body code {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* Print */
+        @media print {
+            .header, .nav, .code-actions, .footer {
+                display: none;
+            }
+            
+            .hero {
+                padding: 2rem;
+            }
+            
+            .code-block {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">▓</div>
+                <div>
+                    <div class="logo-text">TQDM</div>
+                    <div class="logo-subtitle">Progress Bar برای پایتون</div>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="#intro" class="nav-link active">معرفی</a>
+                <a href="#basics" class="nav-link">مبانی</a>
+                <a href="#customize" class="nav-link">سفارشی‌سازی</a>
+                <a href="#advanced" class="nav-link">پیشرفته</a>
+                <a href="#integrations" class="nav-link">یکپارچه‌سازی</a>
+                <a href="#examples" class="nav-link">پروژه‌ها</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>📊</span>
+                <span>نسخه 4.66+ | بروزرسانی ۱۴۰۴</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">TQDM</span>
+            </h1>
+            <p class="hero-description">
+                سریع‌ترین و قابل انعطاف‌ترین کتابخانه Progress Bar برای پایتون و CLI
+                با پشتیبانی از حلقه‌ها، pandas، async و موارد دیگر
+            </p>
+            
+            <!-- Progress Bar Demo -->
+            <div class="progress-demo">
+                <div class="progress-bar-container">
+                    <div class="progress-bar">Processing...</div>
+                </div>
+                <div class="progress-text">
+                    100%|████████████████████| 1000/1000 [00:10&lt;00:00, 98.5it/s]
+                </div>
+            </div>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">۱۵۰M+</div>
+                    <div class="stat-label">دانلود ماهانه</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۲۸K+</div>
+                    <div class="stat-label">ستاره GitHub</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۱۰+</div>
+                    <div class="stat-label">سال توسعه</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2 class="toc-title">📚 فهرست مطالب</h2>
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <a href="#intro" class="toc-link">
+                        <span class="toc-number">۱</span>
+                        معرفی TQDM
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#basics" class="toc-link">
+                        <span class="toc-number">۲</span>
+                        شروع سریع
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#customize" class="toc-link">
+                        <span class="toc-number">۳</span>
+                        سفارشی‌سازی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#advanced" class="toc-link">
+                        <span class="toc-number">۴</span>
+                        استفاده پیشرفته
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#integrations" class="toc-link">
+                        <span class="toc-number">۵</span>
+                        یکپارچه‌سازی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#examples" class="toc-link">
+                        <span class="toc-number">۶</span>
+                        پروژه‌های عملی
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی TQDM</h2>
+                    <p class="section-subtitle">آشنایی با Progress Bar هوشمند پایتون</p>
+                </div>
+            </div>
+
+            <h3>🎯 TQDM چیست؟</h3>
+            <p>
+                <strong>TQDM</strong> (مخفف "taqaddum" به معنای "پیشرفت" در عربی: تقدّم) یک کتابخانه پایتون برای نمایش 
+                progress bar است که به شما امکان می‌دهد پیشرفت حلقه‌ها، دانلودها، پردازش‌ها و هر عملیات تکراری 
+                دیگری را به صورت بصری مشاهده کنید.
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h4 class="card-title">سرعت بالا</h4>
+                    <p class="card-description">
+                        کمترین overhead (حدود 60ns در هر تکرار) - تقریباً بدون تأثیر بر عملکرد کد شما.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎨</div>
+                    <h4 class="card-title">انعطاف‌پذیر</h4>
+                    <p class="card-description">
+                        سفارشی‌سازی کامل ظاهر، رنگ، فرمت و اطلاعات نمایشی progress bar.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔗</div>
+                    <h4 class="card-title">یکپارچه‌سازی آسان</h4>
+                    <p class="card-description">
+                        سازگاری با pandas, asyncio, multiprocessing, Jupyter و بسیاری دیگر.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📱</div>
+                    <h4 class="card-title">چندسکویی</h4>
+                    <p class="card-description">
+                        کار در ترمینال، Jupyter Notebook، GUI و حتی Discord/Telegram.
+                    </p>
+                </div>
+            </div>
+
+            <h3>⚙️ نصب TQDM</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>Installation</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># نصب اصلی با pip
+pip install tqdm
+
+# نصب با امکانات اضافی
+pip install "tqdm[notebook]"    # برای Jupyter
+pip install "tqdm[telegram]"    # برای Telegram bot
+pip install "tqdm[discord]"     # برای Discord bot
+
+# نصب همه امکانات
+pip install "tqdm[dev]"
+
+# با conda
+conda install -c conda-forge tqdm
+
+# بررسی نسخه
+python -c "import tqdm; print(tqdm.__version__)"</code></pre>
+                </div>
+            </div>
+
+            <h3>🖥️ اولین Progress Bar</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>hello_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# ساده‌ترین استفاده
+for i in tqdm(range(100)):
+    time.sleep(0.01)  # شبیه‌سازی کار
+
+# خروجی:
+# 100%|██████████████████████████| 100/100 [00:01<00:00, 98.52it/s]</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon output">OUT</div>
+                        <span>Output Explained</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ساختار خروجی TQDM:
+# 
+# 100%|██████████████████████████| 100/100 [00:01<00:00, 98.52it/s]
+#  │    │                          │   │     │     │      │
+#  │    │                          │   │     │     │      └── سرعت (items per second)
+#  │    │                          │   │     │     └── زمان باقیمانده تخمینی
+#  │    │                          │   │     └── زمان سپری شده
+#  │    │                          │   └── کل items
+#  │    │                          └── items پردازش شده
+#  │    └── نوار پیشرفت
+#  └── درصد پیشرفت</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکته</h4>
+                    <p>
+                        TQDM به صورت خودکار اندازه ترمینال را تشخیص داده و progress bar را متناسب با آن تنظیم می‌کند.
+                        در Jupyter Notebook نیز به صورت خودکار از widget گرافیکی استفاده می‌کند.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Basics -->
+        <section class="section" id="basics">
+            <div class="section-header">
+                <div class="section-icon">🚀</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">شروع سریع</h2>
+                    <p class="section-subtitle">روش‌های مختلف استفاده از TQDM</p>
+                </div>
+            </div>
+
+            <h3>📝 روش‌های اصلی استفاده</h3>
+
+            <h4>۱. استفاده با range</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>tqdm_range.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm, trange
+import time
+
+# روش 1: tqdm روی range
+for i in tqdm(range(100)):
+    time.sleep(0.01)
+
+# روش 2: استفاده از trange (میانبر)
+for i in trange(100):
+    time.sleep(0.01)
+
+# هر دو یکسان هستند:
+# trange(n) == tqdm(range(n))</code></pre>
+                </div>
+            </div>
+
+            <h4>۲. استفاده با لیست و iterable</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>tqdm_iterables.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# با لیست
+fruits = ["سیب", "موز", "پرتقال", "انگور", "کیوی"]
+for fruit in tqdm(fruits, desc="پردازش میوه‌ها"):
+    time.sleep(0.5)
+    print(f"\n  پردازش: {fruit}")
+
+# با دیکشنری
+data = {"a": 1, "b": 2, "c": 3, "d": 4}
+for key in tqdm(data.keys(), desc="پردازش کلیدها"):
+    time.sleep(0.3)
+
+# با set
+numbers = {1, 2, 3, 4, 5}
+for num in tqdm(numbers, desc="اعداد"):
+    time.sleep(0.2)
+
+# با string
+text = "Hello World"
+for char in tqdm(text, desc="کاراکترها"):
+    time.sleep(0.1)
+
+# با generator (نیاز به total)
+def my_generator(n):
+    for i in range(n):
+        yield i
+
+for item in tqdm(my_generator(100), total=100, desc="Generator"):
+    time.sleep(0.01)</code></pre>
+                </div>
+            </div>
+
+            <h4>۳. استفاده دستی (Manual)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>tqdm_manual.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# ═══════════════════════════════════════════════════════════
+# روش دستی - کنترل کامل
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد progress bar
+pbar = tqdm(total=100, desc="پردازش دستی")
+
+for i in range(10):
+    time.sleep(0.1)
+    pbar.update(10)  # افزایش 10 واحد
+
+pbar.close()  # بستن progress bar
+
+
+# ═══════════════════════════════════════════════════════════
+# با context manager (توصیه شده)
+# ═══════════════════════════════════════════════════════════
+
+with tqdm(total=100, desc="با Context Manager") as pbar:
+    for i in range(10):
+        time.sleep(0.1)
+        pbar.update(10)
+# خودکار بسته می‌شود
+
+
+# ═══════════════════════════════════════════════════════════
+# بروزرسانی با مقادیر متفاوت
+# ═══════════════════════════════════════════════════════════
+
+with tqdm(total=1000, desc="دانلود", unit="B", unit_scale=True) as pbar:
+    chunks = [100, 250, 300, 150, 200]  # اندازه‌های متفاوت
+    for chunk in chunks:
+        time.sleep(0.2)
+        pbar.update(chunk)
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیم مستقیم مقدار (نه افزایش)
+# ═══════════════════════════════════════════════════════════
+
+with tqdm(total=100, desc="تنظیم مستقیم") as pbar:
+    for i in [25, 50, 75, 100]:
+        time.sleep(0.3)
+        pbar.n = i      # تنظیم مستقیم
+        pbar.refresh()  # بروزرسانی نمایش</code></pre>
+                </div>
+            </div>
+
+            <h4>۴. استفاده با فایل‌ها</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>tqdm_files.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import os
+
+# ═══════════════════════════════════════════════════════════
+# خواندن فایل با progress
+# ═══════════════════════════════════════════════════════════
+
+def read_file_with_progress(filepath):
+    file_size = os.path.getsize(filepath)
+    
+    with tqdm(total=file_size, unit='B', unit_scale=True, 
+              desc=f"خواندن {os.path.basename(filepath)}") as pbar:
+        with open(filepath, 'rb') as f:
+            while True:
+                chunk = f.read(1024)  # خواندن 1KB
+                if not chunk:
+                    break
+                pbar.update(len(chunk))
+                # پردازش chunk...
+
+# read_file_with_progress("large_file.txt")
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن خط به خط
+# ═══════════════════════════════════════════════════════════
+
+def process_lines(filepath):
+    # ابتدا تعداد خطوط را بشمارید
+    with open(filepath, 'r', encoding='utf-8') as f:
+        total_lines = sum(1 for _ in f)
+    
+    # سپس با progress پردازش کنید
+    with open(filepath, 'r', encoding='utf-8') as f:
+        for line in tqdm(f, total=total_lines, desc="پردازش خطوط"):
+            # پردازش هر خط
+            pass
+
+
+# ═══════════════════════════════════════════════════════════
+# پردازش چند فایل
+# ═══════════════════════════════════════════════════════════
+
+import glob
+
+def process_multiple_files(pattern):
+    files = glob.glob(pattern)
+    
+    for filepath in tqdm(files, desc="فایل‌ها"):
+        # پردازش هر فایل
+        pass
+
+# process_multiple_files("data/*.csv")</code></pre>
+                </div>
+            </div>
+
+            <h3>📋 پارامترهای اصلی</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>پارامتر</th>
+                            <th>نوع</th>
+                            <th>پیش‌فرض</th>
+                            <th>توضیح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>iterable</code></td>
+                            <td>iterable</td>
+                            <td>-</td>
+                            <td>آیتم‌های قابل پیمایش</td>
+                        </tr>
+                        <tr>
+                            <td><code>desc</code></td>
+                            <td>str</td>
+                            <td>None</td>
+                            <td>توضیح/برچسب progress bar</td>
+                        </tr>
+                        <tr>
+                            <td><code>total</code></td>
+                            <td>int/float</td>
+                            <td>len(iterable)</td>
+                            <td>تعداد کل آیتم‌ها</td>
+                        </tr>
+                        <tr>
+                            <td><code>leave</code></td>
+                            <td>bool</td>
+                            <td>True</td>
+                            <td>باقی ماندن بعد از اتمام</td>
+                        </tr>
+                        <tr>
+                            <td><code>ncols</code></td>
+                            <td>int</td>
+                            <td>auto</td>
+                            <td>عرض progress bar</td>
+                        </tr>
+                        <tr>
+                            <td><code>unit</code></td>
+                            <td>str</td>
+                            <td>"it"</td>
+                            <td>واحد اندازه‌گیری</td>
+                        </tr>
+                        <tr>
+                            <td><code>unit_scale</code></td>
+                            <td>bool</td>
+                            <td>False</td>
+                            <td>مقیاس‌بندی خودکار (K, M, G)</td>
+                        </tr>
+                        <tr>
+                            <td><code>disable</code></td>
+                            <td>bool</td>
+                            <td>False</td>
+                            <td>غیرفعال کردن نمایش</td>
+                        </tr>
+                        <tr>
+                            <td><code>position</code></td>
+                            <td>int</td>
+                            <td>auto</td>
+                            <td>موقعیت در چند progress bar</td>
+                        </tr>
+                        <tr>
+                            <td><code>colour</code></td>
+                            <td>str</td>
+                            <td>None</td>
+                            <td>رنگ progress bar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 3: Customization -->
+        <section class="section" id="customize">
+            <div class="section-header">
+                <div class="section-icon">🎨</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">سفارشی‌سازی</h2>
+                    <p class="section-subtitle">تنظیم ظاهر و رفتار Progress Bar</p>
+                </div>
+            </div>
+
+            <h3>🏷️ توضیحات و برچسب‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>descriptions.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# ═══════════════════════════════════════════════════════════
+# توضیح ثابت
+# ═══════════════════════════════════════════════════════════
+
+for i in tqdm(range(100), desc="پردازش داده‌ها"):
+    time.sleep(0.01)
+# پردازش داده‌ها: 100%|████████████| 100/100
+
+
+# ═══════════════════════════════════════════════════════════
+# توضیح پویا (Dynamic description)
+# ═══════════════════════════════════════════════════════════
+
+files = ["file1.txt", "file2.csv", "file3.json"]
+
+with tqdm(files, desc="Starting") as pbar:
+    for file in pbar:
+        pbar.set_description(f"پردازش {file}")
+        time.sleep(0.5)
+
+
+# ═══════════════════════════════════════════════════════════
+# پیشوند و پسوند (Prefix & Postfix)
+# ═══════════════════════════════════════════════════════════
+
+with tqdm(range(100), desc="Training") as pbar:
+    for epoch in pbar:
+        # شبیه‌سازی training
+        loss = 1.0 / (epoch + 1)
+        accuracy = epoch / 100
+        
+        # نمایش در سمت راست
+        pbar.set_postfix({
+            'loss': f'{loss:.4f}',
+            'acc': f'{accuracy:.2%}'
+        })
+        time.sleep(0.05)
+
+# خروجی:
+# Training: 100%|████████| 100/100 [00:05<00:00, loss=0.0100, acc=99.00%]
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از set_postfix_str برای متن ساده
+# ═══════════════════════════════════════════════════════════
+
+with tqdm(range(50)) as pbar:
+    for i in pbar:
+        status = "در حال پردازش..." if i < 40 else "تقریباً تمام شد!"
+        pbar.set_postfix_str(status)
+        time.sleep(0.05)</code></pre>
+                </div>
+            </div>
+
+            <h3>📏 واحدها و مقیاس</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>units_scale.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# ═══════════════════════════════════════════════════════════
+# واحدهای سفارشی
+# ═══════════════════════════════════════════════════════════
+
+# پردازش فایل‌ها
+for f in tqdm(range(50), unit="file", desc="فایل‌ها"):
+    time.sleep(0.05)
+# فایل‌ها: 100%|████████████| 50/50 [00:02<00:00, 19.8file/s]
+
+# پردازش تصاویر
+for img in tqdm(range(100), unit="img", desc="تصاویر"):
+    time.sleep(0.02)
+# تصاویر: 100%|████████████| 100/100 [00:02<00:00, 49.5img/s]
+
+
+# ═══════════════════════════════════════════════════════════
+# مقیاس‌بندی خودکار (برای بایت)
+# ═══════════════════════════════════════════════════════════
+
+# شبیه‌سازی دانلود 100MB
+total_bytes = 100 * 1024 * 1024  # 100MB
+
+with tqdm(total=total_bytes, unit='B', unit_scale=True, 
+          unit_divisor=1024, desc="دانلود") as pbar:
+    chunk_size = 1024 * 1024  # 1MB chunks
+    for _ in range(100):
+        time.sleep(0.02)
+        pbar.update(chunk_size)
+# دانلود: 100%|████████████| 100M/100M [00:02<00:00, 48.5MB/s]
+
+
+# ═══════════════════════════════════════════════════════════
+# مقیاس‌بندی با SI units
+# ═══════════════════════════════════════════════════════════
+
+# برای اعداد بزرگ
+with tqdm(total=1_000_000, unit_scale=True, desc="رکوردها") as pbar:
+    for _ in range(100):
+        time.sleep(0.01)
+        pbar.update(10_000)
+# رکوردها: 100%|████████████| 1.00M/1.00M [00:01<00:00, 980kit/s]
+
+
+# ═══════════════════════════════════════════════════════════
+# واحدهای زمانی
+# ═══════════════════════════════════════════════════════════
+
+# پردازش به ثانیه
+total_seconds = 3600  # 1 ساعت
+
+with tqdm(total=total_seconds, unit='s', unit_scale=True,
+          desc="زمان پردازش") as pbar:
+    for _ in range(360):
+        time.sleep(0.01)
+        pbar.update(10)</code></pre>
+                </div>
+            </div>
+
+            <h3>🎨 رنگ و استایل</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>colors_styles.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# ═══════════════════════════════════════════════════════════
+# رنگ‌های پایه
+# ═══════════════════════════════════════════════════════════
+
+# رنگ‌های از پیش تعریف شده
+for color in ['red', 'green', 'blue', 'yellow', 'magenta', 'cyan', 'white']:
+    for i in tqdm(range(50), desc=f"رنگ {color}", colour=color, leave=False):
+        time.sleep(0.01)
+
+# رنگ سبز
+for i in tqdm(range(100), colour='green', desc="موفقیت"):
+    time.sleep(0.01)
+
+# رنگ قرمز
+for i in tqdm(range(100), colour='red', desc="خطا"):
+    time.sleep(0.01)
+
+
+# ═══════════════════════════════════════════════════════════
+# رنگ HEX
+# ═══════════════════════════════════════════════════════════
+
+# رنگ سفارشی با کد HEX
+for i in tqdm(range(100), colour='#FF6B6B', desc="رنگ سفارشی"):
+    time.sleep(0.01)
+
+for i in tqdm(range(100), colour='#4ECDC4', desc="فیروزه‌ای"):
+    time.sleep(0.01)
+
+
+# ═══════════════════════════════════════════════════════════
+# تغییر رنگ پویا بر اساس پیشرفت
+# ═══════════════════════════════════════════════════════════
+
+def get_color_by_progress(progress):
+    """رنگ بر اساس درصد پیشرفت"""
+    if progress < 30:
+        return 'red'
+    elif progress < 70:
+        return 'yellow'
+    else:
+        return 'green'
+
+with tqdm(total=100, desc="پیشرفت رنگی") as pbar:
+    for i in range(100):
+        time.sleep(0.02)
+        pbar.update(1)
+        # توجه: تغییر رنگ در حین اجرا محدودیت دارد
+
+
+# ═══════════════════════════════════════════════════════════
+# کاراکترهای سفارشی برای نوار
+# ═══════════════════════════════════════════════════════════
+
+# با ASCII
+for i in tqdm(range(100), 
+              ascii=True,  # استفاده از کاراکترهای ASCII
+              desc="ASCII"):
+    time.sleep(0.01)
+# ASCII: 100%|##########| 100/100
+
+# با کاراکترهای سفارشی
+for i in tqdm(range(100),
+              bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt}',
+              ascii="░▒█",
+              desc="سفارشی"):
+    time.sleep(0.01)
+
+
+# ═══════════════════════════════════════════════════════════════
+# کاراکترهای یونیکد
+# ═══════════════════════════════════════════════════════════
+
+# بلوک‌های مختلف
+for i in tqdm(range(100), 
+              ascii="▱▰",
+              desc="بلوک"):
+    time.sleep(0.01)
+
+# دایره
+for i in tqdm(range(100),
+              ascii="○◐◑●",
+              desc="دایره"):
+    time.sleep(0.01)</code></pre>
+                </div>
+            </div>
+
+            <h3>📐 فرمت سفارشی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>bar_format.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# ═══════════════════════════════════════════════════════════
+# متغیرهای قابل استفاده در bar_format
+# ═══════════════════════════════════════════════════════════
+
+"""
+{l_bar}      : چپ نوار (desc + percentage)
+{bar}        : خود نوار پیشرفت
+{r_bar}      : راست نوار (remaining info)
+{n}          : تعداد فعلی
+{n_fmt}      : تعداد فعلی فرمت شده
+{total}      : کل
+{total_fmt}  : کل فرمت شده
+{percentage} : درصد (0-100)
+{elapsed}    : زمان سپری شده
+{elapsed_s}  : زمان سپری شده (ثانیه)
+{remaining}  : زمان باقیمانده
+{remaining_s}: زمان باقیمانده (ثانیه)
+{rate}       : سرعت
+{rate_fmt}   : سرعت فرمت شده
+{rate_noinv} : سرعت بدون معکوس
+{rate_inv}   : سرعت معکوس
+{postfix}    : پسوند سفارشی
+{unit}       : واحد
+{desc}       : توضیح
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# فرمت‌های سفارشی مختلف
+# ═══════════════════════════════════════════════════════════
+
+# فقط درصد و نوار
+for i in tqdm(range(100),
+              bar_format='{percentage:3.0f}%|{bar}|',
+              ncols=50):
+    time.sleep(0.01)
+# 100%|████████████████████████████|
+
+
+# با اطلاعات سرعت
+for i in tqdm(range(100),
+              bar_format='{desc}: {percentage:.1f}% | {rate_fmt}',
+              desc="پردازش"):
+    time.sleep(0.01)
+# پردازش: 100.0% | 98.5it/s
+
+
+# فرمت کامل سفارشی
+custom_format = (
+    '{desc}: {percentage:3.0f}%|{bar:30}| '
+    '{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}]'
+)
+for i in tqdm(range(100), bar_format=custom_format, desc="دانلود"):
+    time.sleep(0.02)
+
+
+# فرمت مینیمال
+for i in tqdm(range(100),
+              bar_format='{n}/{total}',
+              ):
+    time.sleep(0.01)
+# 100/100
+
+
+# ═══════════════════════════════════════════════════════════
+# فرمت با رنگ ANSI
+# ═══════════════════════════════════════════════════════════
+
+# رنگ‌های ANSI
+GREEN = '\033[92m'
+YELLOW = '\033[93m'
+RED = '\033[91m'
+RESET = '\033[0m'
+BOLD = '\033[1m'
+
+colored_format = (
+    f'{GREEN}{{desc}}{RESET}: '
+    f'{BOLD}{{percentage:3.0f}}%{RESET}|{{bar}}| '
+    f'{YELLOW}{{n_fmt}}/{{total_fmt}}{RESET}'
+)
+
+for i in tqdm(range(100), bar_format=colored_format, desc="رنگی"):
+    time.sleep(0.01)
+
+
+# ═══════════════════════════════════════════════════════════
+# فرمت برای دانلود فایل
+# ═══════════════════════════════════════════════════════════
+
+download_format = (
+    '{desc}: {percentage:3.0f}%|{bar}| '
+    '{n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]'
+)
+
+with tqdm(total=100*1024*1024,  # 100MB
+          unit='B',
+          unit_scale=True,
+          unit_divisor=1024,
+          bar_format=download_format,
+          desc="دانلود فایل") as pbar:
+    for _ in range(100):
+        time.sleep(0.02)
+        pbar.update(1024*1024)</code></pre>
+                </div>
+            </div>
+
+            <h3>⚙️ تنظیمات نمایش</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>display_settings.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+
+# ═══════════════════════════════════════════════════════════
+# عرض progress bar
+# ═══════════════════════════════════════════════════════════
+
+# عرض ثابت
+for i in tqdm(range(100), ncols=80, desc="عرض 80"):
+    time.sleep(0.01)
+
+# عرض کوچک
+for i in tqdm(range(100), ncols=40, desc="کوچک"):
+    time.sleep(0.01)
+
+# عرض خودکار (پیش‌فرض)
+for i in tqdm(range(100), desc="خودکار"):
+    time.sleep(0.01)
+
+# عرض پویا
+for i in tqdm(range(100), dynamic_ncols=True, desc="پویا"):
+    time.sleep(0.01)
+
+
+# ═══════════════════════════════════════════════════════════
+# باقی ماندن بعد از اتمام
+# ═══════════════════════════════════════════════════════════
+
+# باقی می‌ماند (پیش‌فرض)
+for i in tqdm(range(50), leave=True, desc="باقی می‌ماند"):
+    time.sleep(0.01)
+
+# پاک می‌شود
+for i in tqdm(range(50), leave=False, desc="پاک می‌شود"):
+    time.sleep(0.01)
+
+print("این پیام بعد از progress bar چاپ می‌شود")
+
+
+# ═══════════════════════════════════════════════════════════
+# نرخ بروزرسانی
+# ═══════════════════════════════════════════════════════════
+
+# بروزرسانی هر 0.1 ثانیه (پیش‌فرض)
+for i in tqdm(range(1000), mininterval=0.1, desc="نرمال"):
+    pass
+
+# بروزرسانی سریع‌تر
+for i in tqdm(range(1000), mininterval=0.01, desc="سریع"):
+    pass
+
+# بروزرسانی کندتر (برای کارهای سنگین)
+for i in tqdm(range(1000), mininterval=1.0, desc="کند"):
+    time.sleep(0.001)
+
+# حداکثر نرخ بروزرسانی
+for i in tqdm(range(1000), maxinterval=10.0, desc="حداکثر 10 ثانیه"):
+    time.sleep(0.01)
+
+
+# ═══════════════════════════════════════════════════════════
+# smoothing - هموارسازی تخمین زمان
+# ═══════════════════════════════════════════════════════════
+
+# smoothing=0: فقط آخرین سرعت
+# smoothing=1: میانگین کل
+# smoothing=0.3: ترکیب (پیش‌فرض)
+
+for i in tqdm(range(100), smoothing=0, desc="بدون هموارسازی"):
+    time.sleep(0.01 + (i % 10) * 0.005)
+
+for i in tqdm(range(100), smoothing=1, desc="هموارسازی کامل"):
+    time.sleep(0.01 + (i % 10) * 0.005)
+
+
+# ═══════════════════════════════════════════════════════════
+# غیرفعال کردن progress bar
+# ═══════════════════════════════════════════════════════════
+
+verbose = False  # یا از تنظیمات بخوانید
+
+for i in tqdm(range(100), disable=not verbose, desc="شرطی"):
+    time.sleep(0.01)
+
+# یا با متغیر محیطی
+import os
+disable_tqdm = os.environ.get('DISABLE_TQDM', 'false').lower() == 'true'
+
+for i in tqdm(range(100), disable=disable_tqdm):
+    time.sleep(0.01)</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکته کاربردی</h4>
+                    <p>
+                        برای حلقه‌های بسیار سریع (میلیون‌ها تکرار در ثانیه)، از <code>mininterval</code> 
+                        بزرگتر استفاده کنید تا overhead کاهش یابد. همچنین <code>miniters</code> را 
+                        تنظیم کنید تا فقط هر N تکرار بروزرسانی شود.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Advanced -->
+        <section class="section" id="advanced">
+            <div class="section-header">
+                <div class="section-icon">⚡</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">استفاده پیشرفته</h2>
+                    <p class="section-subtitle">تکنیک‌های حرفه‌ای TQDM</p>
+                </div>
+            </div>
+
+            <h3>🔄 Progress Bar های تو در تو</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>nested_progress.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm, trange
+import time
+
+# ═══════════════════════════════════════════════════════════
+# دو سطح تو در تو
+# ═══════════════════════════════════════════════════════════
+
+epochs = 5
+batches = 100
+
+for epoch in tqdm(range(epochs), desc="Epochs", position=0):
+    for batch in tqdm(range(batches), desc="Batches", position=1, leave=False):
+        time.sleep(0.01)
+
+# خروجی:
+# Epochs:  60%|██████    | 3/5 [00:03<00:02]
+# Batches: 45%|████▌     | 45/100 [00:00<00:00]
+
+
+# ═══════════════════════════════════════════════════════════
+# سه سطح تو در تو
+# ═══════════════════════════════════════════════════════════
+
+for i in tqdm(range(3), desc="سطح 1", position=0, colour='green'):
+    for j in tqdm(range(5), desc="سطح 2", position=1, leave=False, colour='yellow'):
+        for k in tqdm(range(10), desc="سطح 3", position=2, leave=False, colour='cyan'):
+            time.sleep(0.02)
+
+
+# ═══════════════════════════════════════════════════════════
+# با اطلاعات بیشتر
+# ═══════════════════════════════════════════════════════════
+
+num_epochs = 10
+num_batches = 50
+
+outer = tqdm(range(num_epochs), desc="Training", position=0)
+for epoch in outer:
+    inner = tqdm(range(num_batches), desc=f"Epoch {epoch+1}", position=1, leave=False)
+    
+    total_loss = 0
+    for batch in inner:
+        # شبیه‌سازی training
+        loss = 1.0 / (epoch * num_batches + batch + 1)
+        total_loss += loss
+        
+        inner.set_postfix(loss=f"{loss:.4f}")
+        time.sleep(0.01)
+    
+    avg_loss = total_loss / num_batches
+    outer.set_postfix(avg_loss=f"{avg_loss:.4f}")
+    inner.close()
+
+outer.close()
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از write برای چاپ پیام
+# ═══════════════════════════════════════════════════════════
+
+for i in tqdm(range(100), desc="پردازش"):
+    if i % 25 == 0:
+        # استفاده از tqdm.write به جای print
+        tqdm.write(f"رسیدیم به مرحله {i}")
+    time.sleep(0.02)
+
+# این روش progress bar را خراب نمی‌کند</code></pre>
+                </div>
+            </div>
+
+            <h3>🧵 چند نخی و چند پردازشی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>multiprocessing_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+from tqdm.contrib.concurrent import process_map, thread_map
+import time
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import multiprocessing as mp
+
+# ═══════════════════════════════════════════════════════════
+# روش 1: استفاده از thread_map (ساده‌ترین)
+# ═══════════════════════════════════════════════════════════
+
+def process_item(x):
+    time.sleep(0.1)
+    return x * 2
+
+# با thread_map
+results = thread_map(process_item, range(100), max_workers=4, desc="Threading")
+print(f"نتایج: {list(results)[:5]}...")
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 2: استفاده از process_map
+# ═══════════════════════════════════════════════════════════
+
+def heavy_computation(x):
+    # کار سنگین CPU
+    result = sum(i**2 for i in range(10000))
+    return x + result
+
+# با process_map (برای کارهای CPU-bound)
+if __name__ == "__main__":
+    results = process_map(heavy_computation, range(50), max_workers=4, desc="Processing")
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 3: ThreadPoolExecutor با tqdm
+# ═══════════════════════════════════════════════════════════
+
+def download_file(url):
+    time.sleep(0.5)  # شبیه‌سازی دانلود
+    return f"Downloaded: {url}"
+
+urls = [f"http://example.com/file{i}.txt" for i in range(20)]
+
+with ThreadPoolExecutor(max_workers=5) as executor:
+    results = list(tqdm(
+        executor.map(download_file, urls),
+        total=len(urls),
+        desc="دانلود فایل‌ها"
+    ))
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 4: با as_completed برای نتایج به ترتیب اتمام
+# ═══════════════════════════════════════════════════════════
+
+from concurrent.futures import as_completed
+
+def variable_task(x):
+    import random
+    time.sleep(random.uniform(0.1, 0.5))
+    return x * 2
+
+with ThreadPoolExecutor(max_workers=4) as executor:
+    futures = {executor.submit(variable_task, i): i for i in range(20)}
+    
+    results = []
+    for future in tqdm(as_completed(futures), total=len(futures), desc="Tasks"):
+        result = future.result()
+        results.append(result)
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 5: multiprocessing با shared counter
+# ═══════════════════════════════════════════════════════════
+
+def worker(args):
+    item, lock, counter = args
+    time.sleep(0.1)
+    with lock:
+        counter.value += 1
+    return item * 2
+
+if __name__ == "__main__":
+    manager = mp.Manager()
+    lock = manager.Lock()
+    counter = manager.Value('i', 0)
+    
+    items = [(i, lock, counter) for i in range(100)]
+    
+    with mp.Pool(4) as pool:
+        with tqdm(total=len(items), desc="Multiprocessing") as pbar:
+            for result in pool.imap_unordered(worker, items):
+                pbar.update()
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 6: چند progress bar برای چند worker
+# ═══════════════════════════════════════════════════════════
+
+def worker_with_progress(worker_id, items, position):
+    results = []
+    for item in tqdm(items, desc=f"Worker {worker_id}", position=position, leave=False):
+        time.sleep(0.05)
+        results.append(item * 2)
+    return results
+
+# این نیاز به مدیریت پیچیده‌تر دارد</code></pre>
+                </div>
+            </div>
+
+            <h3>⚡ Async/Await</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>async_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import asyncio
+from tqdm.asyncio import tqdm as atqdm
+from tqdm.asyncio import tqdm_asyncio
+import aiohttp
+
+# ═══════════════════════════════════════════════════════════
+# استفاده پایه با async
+# ═══════════════════════════════════════════════════════════
+
+async def process_item(item):
+    await asyncio.sleep(0.1)
+    return item * 2
+
+async def main():
+    items = range(50)
+    
+    # روش 1: با async for
+    results = []
+    async for item in atqdm(items, desc="Async Processing"):
+        result = await process_item(item)
+        results.append(result)
+    
+    print(f"تعداد نتایج: {len(results)}")
+
+asyncio.run(main())
+
+
+# ═══════════════════════════════════════════════════════════
+# با gather
+# ═══════════════════════════════════════════════════════════
+
+async def fetch_data(url):
+    await asyncio.sleep(0.2)  # شبیه‌سازی درخواست
+    return f"Data from {url}"
+
+async def main_gather():
+    urls = [f"http://api.example.com/data/{i}" for i in range(20)]
+    
+    # ایجاد tasks
+    tasks = [fetch_data(url) for url in urls]
+    
+    # اجرا با progress
+    results = await tqdm_asyncio.gather(*tasks, desc="Fetching")
+    
+    return results
+
+# asyncio.run(main_gather())
+
+
+# ═══════════════════════════════════════════════════════════
+# دانلود async با aiohttp
+# ═══════════════════════════════════════════════════════════
+
+async def download_file(session, url, pbar):
+    async with session.get(url) as response:
+        content = await response.read()
+        pbar.update(1)
+        return len(content)
+
+async def download_all(urls):
+    async with aiohttp.ClientSession() as session:
+        with atqdm(total=len(urls), desc="دانلود") as pbar:
+            tasks = [download_file(session, url, pbar) for url in urls]
+            results = await asyncio.gather(*tasks)
+    return results
+
+# urls = ["http://example.com"] * 10
+# asyncio.run(download_all(urls))
+
+
+# ═══════════════════════════════════════════════════════════
+# Async Generator با tqdm
+# ═══════════════════════════════════════════════════════════
+
+async def async_data_generator(n):
+    for i in range(n):
+        await asyncio.sleep(0.05)
+        yield i
+
+async def process_async_generator():
+    async for item in atqdm(async_data_generator(50), total=50, desc="Generator"):
+        # پردازش item
+        pass
+
+# asyncio.run(process_async_generator())
+
+
+# ═══════════════════════════════════════════════════════════
+# Semaphore برای محدود کردن همزمانی
+# ═══════════════════════════════════════════════════════════
+
+async def limited_fetch(semaphore, url, pbar):
+    async with semaphore:
+        await asyncio.sleep(0.2)
+        pbar.update(1)
+        return url
+
+async def main_limited():
+    urls = [f"http://example.com/{i}" for i in range(100)]
+    semaphore = asyncio.Semaphore(10)  # حداکثر 10 همزمان
+    
+    with atqdm(total=len(urls), desc="Limited Fetch") as pbar:
+        tasks = [limited_fetch(semaphore, url, pbar) for url in urls]
+        results = await asyncio.gather(*tasks)
+    
+    return results
+
+# asyncio.run(main_limited())</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 Progress Bar بدون حلقه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>manual_progress.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm import tqdm
+import time
+import random
+
+# ═══════════════════════════════════════════════════════════
+# Progress برای عملیات طولانی
+# ═══════════════════════════════════════════════════════════
+
+def long_operation(pbar, total_steps=100):
+    """یک عملیات طولانی با گزارش پیشرفت"""
+    
+    # مرحله 1: آماده‌سازی (20%)
+    pbar.set_description("آماده‌سازی")
+    time.sleep(0.5)
+    pbar.update(20)
+    
+    # مرحله 2: پردازش (50%)
+    pbar.set_description("پردازش")
+    for i in range(5):
+        time.sleep(0.2)
+        pbar.update(10)
+    
+    # مرحله 3: نهایی‌سازی (30%)
+    pbar.set_description("نهایی‌سازی")
+    time.sleep(0.3)
+    pbar.update(30)
+    
+    pbar.set_description("تکمیل شد")
+
+with tqdm(total=100, desc="شروع") as pbar:
+    long_operation(pbar)
+
+
+# ═══════════════════════════════════════════════════════════
+# Callback-based Progress
+# ═══════════════════════════════════════════════════════════
+
+class ProgressCallback:
+    def __init__(self, total, desc="Progress"):
+        self.pbar = tqdm(total=total, desc=desc)
+    
+    def update(self, amount=1):
+        self.pbar.update(amount)
+    
+    def set_description(self, desc):
+        self.pbar.set_description(desc)
+    
+    def close(self):
+        self.pbar.close()
+
+def process_with_callback(data, callback):
+    for item in data:
+        # پردازش
+        time.sleep(0.05)
+        callback.update(1)
+
+# استفاده
+callback = ProgressCallback(100, "پردازش با Callback")
+process_with_callback(range(100), callback)
+callback.close()
+
+
+# ═══════════════════════════════════════════════════════════
+# Progress برای دانلود با requests
+# ═══════════════════════════════════════════════════════════
+
+import requests
+
+def download_with_progress(url, filename):
+    response = requests.get(url, stream=True)
+    total_size = int(response.headers.get('content-length', 0))
+    
+    with tqdm(total=total_size, unit='B', unit_scale=True, desc=filename) as pbar:
+        with open(filename, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+
+# download_with_progress("http://example.com/file.zip", "file.zip")
+
+
+# ═══════════════════════════════════════════════════════════
+# Progress نامحدود (Spinner)
+# ═══════════════════════════════════════════════════════════
+
+def unknown_duration_task():
+    """وقتی نمی‌دانیم چقدر طول می‌کشد"""
+    with tqdm(desc="در حال کار", bar_format='{desc}: {elapsed}') as pbar:
+        for i in range(random.randint(50, 150)):
+            time.sleep(0.02)
+            pbar.update(0)  # فقط زمان را بروزرسانی کن
+            pbar.refresh()
+
+unknown_duration_task()</code></pre>
+                </div>
+            </div>
+
+            <h3>📝 Logging با TQDM</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>logging_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import logging
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
+import time
+
+# ═══════════════════════════════════════════════════════════
+# تنظیم logging
+# ═══════════════════════════════════════════════════════════
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 1: استفاده از tqdm.write
+# ═══════════════════════════════════════════════════════════
+
+for i in tqdm(range(100), desc="پردازش"):
+    if i % 20 == 0:
+        tqdm.write(f"INFO: رسیدیم به مرحله {i}")
+    time.sleep(0.02)
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 2: redirect logging به tqdm
+# ═══════════════════════════════════════════════════════════
+
+with logging_redirect_tqdm():
+    for i in tqdm(range(100), desc="با Logging"):
+        if i % 25 == 0:
+            logger.info(f"پردازش آیتم {i}")
+        if i == 50:
+            logger.warning("رسیدیم به نیمه!")
+        time.sleep(0.02)
+
+
+# ═══════════════════════════════════════════════════════════
+# روش 3: TqdmLoggingHandler سفارشی
+# ═══════════════════════════════════════════════════════════
+
+class TqdmLoggingHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            tqdm.write(msg)
+        except Exception:
+            self.handleError(record)
+
+# استفاده
+logger = logging.getLogger('tqdm_logger')
+logger.setLevel(logging.INFO)
+handler = TqdmLoggingHandler()
+handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+logger.addHandler(handler)
+
+for i in tqdm(range(50), desc="سفارشی"):
+    if i % 10 == 0:
+        logger.info(f"مرحله {i}")
+    time.sleep(0.03)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Integrations -->
+        <section class="section" id="integrations">
+            <div class="section-header">
+                <div class="section-icon">🔗</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">یکپارچه‌سازی</h2>
+                    <p class="section-subtitle">TQDM با کتابخانه‌های محبوب</p>
+                </div>
+            </div>
+
+            <h3>🐼 Pandas</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>pandas_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import pandas as pd
+import numpy as np
+from tqdm import tqdm
+
+# ═══════════════════════════════════════════════════════════
+# فعال‌سازی tqdm برای pandas
+# ═══════════════════════════════════════════════════════════
+
+# این خط را یکبار در ابتدای کد اجرا کنید
+tqdm.pandas(desc="Pandas Progress")
+
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد DataFrame نمونه
+# ═══════════════════════════════════════════════════════════
+
+df = pd.DataFrame({
+    'A': np.random.randint(1, 100, 10000),
+    'B': np.random.random(10000),
+    'C': np.random.choice(['cat', 'dog', 'bird'], 10000)
+})
+
+
+# ═══════════════════════════════════════════════════════════
+# progress_apply به جای apply
+# ═══════════════════════════════════════════════════════════
+
+# روش معمولی (بدون progress)
+# df['D'] = df['A'].apply(lambda x: x ** 2)
+
+# با progress bar
+df['D'] = df['A'].progress_apply(lambda x: x ** 2)
+
+
+# ═══════════════════════════════════════════════════════════
+# برای DataFrame کامل
+# ═══════════════════════════════════════════════════════════
+
+def process_row(row):
+    return row['A'] * row['B']
+
+df['E'] = df.progress_apply(process_row, axis=1)
+
+
+# ═══════════════════════════════════════════════════════════
+# GroupBy با progress
+# ═══════════════════════════════════════════════════════════
+
+grouped = df.groupby('C')
+
+# progress_apply روی گروه‌ها
+result = grouped.progress_apply(lambda x: x['A'].mean())
+
+
+# ═══════════════════════════════════════════════════════════
+# map با progress
+# ═══════════════════════════════════════════════════════════
+
+mapping = {'cat': 1, 'dog': 2, 'bird': 3}
+df['C_numeric'] = df['C'].progress_map(mapping)
+
+
+# ═══════════════════════════════════════════════════════════
+# خواندن فایل‌های بزرگ با progress
+# ═══════════════════════════════════════════════════════════
+
+def read_csv_with_progress(filepath, chunksize=10000):
+    """خواندن CSV بزرگ با progress bar"""
+    
+    # ابتدا تعداد خطوط را بشمارید
+    total_rows = sum(1 for _ in open(filepath)) - 1  # منهای header
+    
+    chunks = []
+    with tqdm(total=total_rows, desc="خواندن CSV") as pbar:
+        for chunk in pd.read_csv(filepath, chunksize=chunksize):
+            chunks.append(chunk)
+            pbar.update(len(chunk))
+    
+    return pd.concat(chunks, ignore_index=True)
+
+# df = read_csv_with_progress("large_file.csv")
+
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره با progress (برای فایل‌های بزرگ)
+# ═══════════════════════════════════════════════════════════
+
+def save_csv_with_progress(df, filepath, chunksize=10000):
+    """ذخیره DataFrame بزرگ با progress"""
+    
+    total_rows = len(df)
+    
+    with tqdm(total=total_rows, desc="ذخیره CSV") as pbar:
+        for i in range(0, total_rows, chunksize):
+            chunk = df.iloc[i:i+chunksize]
+            mode = 'w' if i == 0 else 'a'
+            header = i == 0
+            chunk.to_csv(filepath, mode=mode, header=header, index=False)
+            pbar.update(len(chunk))
+
+# save_csv_with_progress(df, "output.csv")</code></pre>
+                </div>
+            </div>
+
+            <h3>📓 Jupyter Notebook</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>jupyter_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════
+# در Jupyter Notebook
+# ═══════════════════════════════════════════════════════════
+
+# روش 1: import خودکار (تشخیص محیط)
+from tqdm.auto import tqdm, trange
+
+# روش 2: import مستقیم notebook
+from tqdm.notebook import tqdm, trange
+
+# استفاده عادی - widget گرافیکی نمایش داده می‌شود
+for i in tqdm(range(100)):
+    pass
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات خاص Notebook
+# ═══════════════════════════════════════════════════════════
+
+from tqdm.notebook import tqdm
+
+# با رنگ
+for i in tqdm(range(100), colour='green'):
+    pass
+
+# تو در تو
+for i in tqdm(range(5), desc="Outer"):
+    for j in tqdm(range(20), desc="Inner", leave=False):
+        pass
+
+
+# ═══════════════════════════════════════════════════════════
+# فعال‌سازی برای pandas در Notebook
+# ═══════════════════════════════════════════════════════════
+
+from tqdm.auto import tqdm
+tqdm.pandas()
+
+import pandas as pd
+df = pd.DataFrame({'x': range(1000)})
+df['y'] = df['x'].progress_apply(lambda x: x ** 2)
+
+
+# ═══════════════════════════════════════════════════════════
+# اگر widget کار نکرد
+# ═══════════════════════════════════════════════════════════
+
+# نصب widget
+# !pip install ipywidgets
+# !jupyter nbextension enable --py widgetsnbextension
+
+# یا استفاده از نسخه متنی
+from tqdm import tqdm  # به جای tqdm.notebook</code></pre>
+                </div>
+            </div>
+
+            <h3>🤖 Keras/TensorFlow</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>keras_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">from tqdm.keras import TqdmCallback
+from tqdm import tqdm
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# Keras Callback
+# ═══════════════════════════════════════════════════════════
+
+"""
+from tensorflow import keras
+
+# ایجاد مدل ساده
+model = keras.Sequential([
+    keras.layers.Dense(64, activation='relu', input_shape=(10,)),
+    keras.layers.Dense(32, activation='relu'),
+    keras.layers.Dense(1)
+])
+
+model.compile(optimizer='adam', loss='mse')
+
+# داده‌های نمونه
+X = np.random.random((1000, 10))
+y = np.random.random((1000, 1))
+
+# آموزش با tqdm callback
+model.fit(
+    X, y,
+    epochs=10,
+    batch_size=32,
+    verbose=0,  # غیرفعال کردن progress پیش‌فرض keras
+    callbacks=[TqdmCallback(verbose=1)]
+)
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# Custom Training Loop با tqdm
+# ═══════════════════════════════════════════════════════════
+
+"""
+import tensorflow as tf
+
+# داده‌ها
+dataset = tf.data.Dataset.from_tensor_slices((X, y))
+dataset = dataset.batch(32)
+
+epochs = 10
+for epoch in tqdm(range(epochs), desc="Epochs"):
+    epoch_loss = []
+    
+    for batch_x, batch_y in tqdm(dataset, desc=f"Epoch {epoch+1}", leave=False):
+        with tf.GradientTape() as tape:
+            predictions = model(batch_x, training=True)
+            loss = loss_fn(batch_y, predictions)
+        
+        gradients = tape.gradient(loss, model.trainable_variables)
+        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+        epoch_loss.append(loss.numpy())
+    
+    tqdm.write(f"Epoch {epoch+1} - Loss: {np.mean(epoch_loss):.4f}")
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# PyTorch Training Loop
+# ═══════════════════════════════════════════════════════════
+
+"""
+import torch
+from torch.utils.data import DataLoader
+
+# فرض کنید model, optimizer, criterion, train_loader تعریف شده‌اند
+
+num_epochs = 10
+
+for epoch in tqdm(range(num_epochs), desc="Training"):
+    model.train()
+    running_loss = 0.0
+    
+    pbar = tqdm(train_loader, desc=f"Epoch {epoch+1}", leave=False)
+    for batch_idx, (data, target) in enumerate(pbar):
+        optimizer.zero_grad()
+        output = model(data)
+        loss = criterion(output, target)
+        loss.backward()
+        optimizer.step()
+        
+        running_loss += loss.item()
+        pbar.set_postfix(loss=f"{loss.item():.4f}")
+    
+    avg_loss = running_loss / len(train_loader)
+    tqdm.write(f"Epoch {epoch+1} - Average Loss: {avg_loss:.4f}")
+"""</code></pre>
+                </div>
+            </div>
+
+            <h3>📡 Requests و دانلود</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>requests_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import requests
+from tqdm import tqdm
+from tqdm.utils import CallbackIOWrapper
+import os
+
+# ═══════════════════════════════════════════════════════════
+# دانلود فایل با progress
+# ═══════════════════════════════════════════════════════════
+
+def download_file(url, filename=None):
+    """دانلود فایل با نمایش progress"""
+    
+    if filename is None:
+        filename = url.split('/')[-1]
+    
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+    
+    total_size = int(response.headers.get('content-length', 0))
+    block_size = 8192
+    
+    with tqdm(total=total_size, unit='B', unit_scale=True, 
+              unit_divisor=1024, desc=filename) as pbar:
+        with open(filename, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=block_size):
+                if chunk:
+                    f.write(chunk)
+                    pbar.update(len(chunk))
+    
+    return filename
+
+# download_file("https://example.com/large_file.zip")
+
+
+# ═══════════════════════════════════════════════════════════
+# آپلود فایل با progress
+# ═══════════════════════════════════════════════════════════
+
+def upload_file(url, filepath):
+    """آپلود فایل با نمایش progress"""
+    
+    file_size = os.path.getsize(filepath)
+    filename = os.path.basename(filepath)
+    
+    with tqdm(total=file_size, unit='B', unit_scale=True,
+              unit_divisor=1024, desc=f"آپلود {filename}") as pbar:
+        with open(filepath, 'rb') as f:
+            wrapped_file = CallbackIOWrapper(pbar.update, f, 'read')
+            response = requests.post(
+                url,
+                files={'file': (filename, wrapped_file)}
+            )
+    
+    return response
+
+# upload_file("https://api.example.com/upload", "my_file.zip")
+
+
+# ═══════════════════════════════════════════════════════════
+# دانلود چندین فایل
+# ═══════════════════════════════════════════════════════════
+
+def download_multiple(urls, output_dir="."):
+    """دانلود چندین فایل با progress کلی و جزئی"""
+    
+    os.makedirs(output_dir, exist_ok=True)
+    
+    for url in tqdm(urls, desc="فایل‌ها", position=0):
+        filename = url.split('/')[-1]
+        filepath = os.path.join(output_dir, filename)
+        
+        response = requests.get(url, stream=True)
+        total_size = int(response.headers.get('content-length', 0))
+        
+        with tqdm(total=total_size, unit='B', unit_scale=True,
+                  desc=filename, position=1, leave=False) as pbar:
+            with open(filepath, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        pbar.update(len(chunk))
+
+# urls = ["http://example.com/file1.zip", "http://example.com/file2.zip"]
+# download_multiple(urls, "downloads")</code></pre>
+                </div>
+            </div>
+
+            <h3>💬 Telegram و Discord</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>telegram_discord_tqdm.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════
+# Telegram Progress
+# ═══════════════════════════════════════════════════════════
+
+# pip install tqdm[telegram]
+
+from tqdm.contrib.telegram import tqdm as tqdm_telegram
+import time
+
+# نیاز به تنظیم token و chat_id
+TELEGRAM_TOKEN = "your_bot_token"
+TELEGRAM_CHAT_ID = "your_chat_id"
+
+"""
+for i in tqdm_telegram(range(100), 
+                       token=TELEGRAM_TOKEN, 
+                       chat_id=TELEGRAM_CHAT_ID,
+                       desc="پردازش"):
+    time.sleep(0.1)
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# Discord Progress
+# ═══════════════════════════════════════════════════════════
+
+# pip install tqdm[discord]
+
+from tqdm.contrib.discord import tqdm as tqdm_discord
+
+DISCORD_TOKEN = "your_discord_token"
+DISCORD_CHANNEL_ID = "your_channel_id"
+
+"""
+for i in tqdm_discord(range(100),
+                      token=DISCORD_TOKEN,
+                      channel_id=DISCORD_CHANNEL_ID,
+                      desc="پردازش"):
+    time.sleep(0.1)
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# Slack Progress (سفارشی)
+# ═══════════════════════════════════════════════════════════
+
+import requests
+
+class SlackProgress:
+    def __init__(self, webhook_url, total, desc="Progress"):
+        self.webhook_url = webhook_url
+        self.total = total
+        self.desc = desc
+        self.current = 0
+        self.last_update = 0
+    
+    def update(self, n=1):
+        self.current += n
+        percentage = int(self.current / self.total * 100)
+        
+        # فقط هر 10% آپدیت کن
+        if percentage >= self.last_update + 10:
+            self.last_update = percentage
+            self._send_update(percentage)
+    
+    def _send_update(self, percentage):
+        bar = "█" * (percentage // 10) + "░" * (10 - percentage // 10)
+        message = f"{self.desc}: [{bar}] {percentage}%"
+        
+        requests.post(self.webhook_url, json={"text": message})
+
+# استفاده:
+# progress = SlackProgress("https://hooks.slack.com/...", 100, "Training")
+# for i in range(100):
+#     progress.update(1)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Real Projects -->
+        <section class="section" id="examples">
+            <div class="section-header">
+                <div class="section-icon">🏗️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">پروژه‌های عملی</h2>
+                    <p class="section-subtitle">مثال‌های کاربردی از دنیای واقعی</p>
+                </div>
+            </div>
+
+            <h3>📁 پردازش دسته‌ای فایل‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>batch_file_processor.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پردازش دسته‌ای فایل‌های تصویری با تغییر اندازه
+"""
+
+from tqdm import tqdm
+from pathlib import Path
+from PIL import Image
+import os
+
+def batch_resize_images(
+    input_dir: str,
+    output_dir: str,
+    size: tuple = (800, 600),
+    quality: int = 85
+):
+    """
+    تغییر اندازه دسته‌ای تصاویر
+    
+    Args:
+        input_dir: پوشه ورودی
+        output_dir: پوشه خروجی
+        size: اندازه جدید (width, height)
+        quality: کیفیت JPEG
+    """
+    
+    input_path = Path(input_dir)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # پیدا کردن همه تصاویر
+    extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'}
+    images = [f for f in input_path.iterdir() 
+              if f.suffix.lower() in extensions]
+    
+    if not images:
+        print("هیچ تصویری یافت نشد!")
+        return
+    
+    # محاسبه حجم کل
+    total_size = sum(f.stat().st_size for f in images)
+    
+    print(f"تعداد تصاویر: {len(images)}")
+    print(f"حجم کل: {total_size / (1024*1024):.2f} MB")
+    print("-" * 50)
+    
+    processed_size = 0
+    errors = []
+    
+    # پردازش با دو progress bar
+    with tqdm(total=len(images), desc="تصاویر", position=0) as pbar_files:
+        with tqdm(total=total_size, unit='B', unit_scale=True, 
+                  desc="حجم", position=1) as pbar_size:
+            
+            for image_path in images:
+                try:
+                    # باز کردن و تغییر اندازه
+                    with Image.open(image_path) as img:
+                        # حفظ نسبت تصویر
+                        img.thumbnail(size, Image.Resampling.LANCZOS)
+                        
+                        # ذخیره
+                        output_file = output_path / image_path.name
+                        if image_path.suffix.lower() in {'.jpg', '.jpeg'}:
+                            img.save(output_file, 'JPEG', quality=quality)
+                        else:
+                            img.save(output_file)
+                    
+                    file_size = image_path.stat().st_size
+                    processed_size += file_size
+                    
+                    pbar_files.set_postfix(file=image_path.name[:20])
+                    pbar_size.update(file_size)
+                    
+                except Exception as e:
+                    errors.append((image_path.name, str(e)))
+                    tqdm.write(f"❌ خطا در {image_path.name}: {e}")
+                
+                pbar_files.update(1)
+    
+    # گزارش نهایی
+    print("\n" + "=" * 50)
+    print(f"✅ پردازش شده: {len(images) - len(errors)}")
+    print(f"❌ خطا: {len(errors)}")
+    
+    if errors:
+        print("\nفایل‌های با خطا:")
+        for filename, error in errors:
+            print(f"  - {filename}: {error}")
+
+# استفاده
+# batch_resize_images("photos/originals", "photos/resized", size=(1920, 1080))</code></pre>
+                </div>
+            </div>
+
+            <h3>🌐 Web Scraper با Progress</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>web_scraper.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+Web Scraper با نمایش پیشرفت
+"""
+
+import asyncio
+import aiohttp
+from tqdm.asyncio import tqdm as atqdm
+from bs4 import BeautifulSoup
+import json
+from dataclasses import dataclass, asdict
+from typing import List, Optional
+import time
+
+@dataclass
+class Article:
+    title: str
+    url: str
+    content: Optional[str] = None
+    word_count: int = 0
+
+class WebScraper:
+    def __init__(self, max_concurrent: int = 10):
+        self.max_concurrent = max_concurrent
+        self.semaphore = asyncio.Semaphore(max_concurrent)
+        self.results: List[Article] = []
+        self.errors: List[tuple] = []
+    
+    async def fetch_page(self, session: aiohttp.ClientSession, 
+                         url: str, pbar) -> Optional[str]:
+        """دریافت یک صفحه"""
+        async with self.semaphore:
+            try:
+                async with session.get(url, timeout=10) as response:
+                    if response.status == 200:
+                        content = await response.text()
+                        pbar.update(1)
+                        return content
+                    else:
+                        self.errors.append((url, f"Status: {response.status}"))
+                        pbar.update(1)
+                        return None
+            except Exception as e:
+                self.errors.append((url, str(e)))
+                pbar.update(1)
+                return None
+    
+    def parse_article(self, html: str, url: str) -> Article:
+        """پارس کردن مقاله"""
+        soup = BeautifulSoup(html, 'html.parser')
+        
+        title = soup.find('h1')
+        title = title.get_text(strip=True) if title else "بدون عنوان"
+        
+        content = soup.find('article') or soup.find('main') or soup.find('body')
+        text = content.get_text(strip=True) if content else ""
+        
+        return Article(
+            title=title,
+            url=url,
+            content=text[:500],  # فقط 500 کاراکتر اول
+            word_count=len(text.split())
+        )
+    
+    async def scrape_urls(self, urls: List[str]) -> List[Article]:
+        """اسکرپ کردن لیست URL ها"""
+        
+        print(f"🌐 شروع اسکرپ {len(urls)} صفحه...")
+        print(f"   همزمانی: {self.max_concurrent}")
+        print("-" * 50)
+        
+        async with aiohttp.ClientSession() as session:
+            # مرحله 1: دریافت صفحات
+            with atqdm(total=len(urls), desc="دریافت صفحات", 
+                      colour='cyan') as pbar:
+                tasks = [self.fetch_page(session, url, pbar) for url in urls]
+                pages = await asyncio.gather(*tasks)
+            
+            # مرحله 2: پارس کردن
+            valid_pages = [(url, html) for url, html in zip(urls, pages) if html]
+            
+            for url, html in atqdm(valid_pages, desc="پارس کردن", colour='green'):
+                try:
+                    article = self.parse_article(html, url)
+                    self.results.append(article)
+                except Exception as e:
+                    self.errors.append((url, f"Parse error: {e}"))
+        
+        # گزارش
+        print("\n" + "=" * 50)
+        print(f"✅ موفق: {len(self.results)}")
+        print(f"❌ خطا: {len(self.errors)}")
+        
+        if self.results:
+            total_words = sum(a.word_count for a in self.results)
+            print(f"📝 کل کلمات: {total_words:,}")
+        
+        return self.results
+    
+    def save_results(self, filepath: str):
+        """ذخیره نتایج در JSON"""
+        data = [asdict(article) for article in self.results]
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        print(f"💾 ذخیره شد در: {filepath}")
+
+# استفاده
+async def main():
+    urls = [
+        "https://example.com/article1",
+        "https://example.com/article2",
+        # ... لیست URL ها
+    ]
+    
+    scraper = WebScraper(max_concurrent=5)
+    articles = await scraper.scrape_urls(urls)
+    scraper.save_results("articles.json")
+
+# asyncio.run(main())</code></pre>
+                </div>
+            </div>
+
+            <h3>🗄️ پردازش داده‌های بزرگ</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>big_data_processor.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پردازش فایل‌های CSV بزرگ با TQDM
+"""
+
+import pandas as pd
+import numpy as np
+from tqdm import tqdm
+from pathlib import Path
+import gc
+from typing import Callable, Generator, Any
+from dataclasses import dataclass
+import json
+
+@dataclass
+class ProcessingStats:
+    total_rows: int = 0
+    processed_rows: int = 0
+    filtered_rows: int = 0
+    error_rows: int = 0
+    
+    def to_dict(self):
+        return {
+            'total_rows': self.total_rows,
+            'processed_rows': self.processed_rows,
+            'filtered_rows': self.filtered_rows,
+            'error_rows': self.error_rows,
+            'success_rate': f"{self.processed_rows/self.total_rows*100:.2f}%" if self.total_rows > 0 else "0%"
+        }
+
+
+class BigDataProcessor:
+    """پردازشگر فایل‌های بزرگ با نمایش پیشرفت"""
+    
+    def __init__(self, chunksize: int = 100_000):
+        self.chunksize = chunksize
+        self.stats = ProcessingStats()
+    
+    def count_rows(self, filepath: str) -> int:
+        """شمارش سریع تعداد ردیف‌ها"""
+        with tqdm(desc="شمارش ردیف‌ها", unit=" lines", 
+                  bar_format='{desc}: {n:,} {unit}') as pbar:
+            count = 0
+            with open(filepath, 'r', encoding='utf-8') as f:
+                for _ in f:
+                    count += 1
+                    if count % 100_000 == 0:
+                        pbar.update(100_000)
+            pbar.update(count % 100_000)
+        return count - 1  # منهای header
+    
+    def read_chunks(self, filepath: str) -> Generator[pd.DataFrame, None, None]:
+        """خواندن فایل به صورت chunk"""
+        return pd.read_csv(filepath, chunksize=self.chunksize)
+    
+    def process_file(
+        self,
+        input_path: str,
+        output_path: str,
+        transform_func: Callable[[pd.DataFrame], pd.DataFrame],
+        filter_func: Callable[[pd.DataFrame], pd.DataFrame] = None
+    ):
+        """
+        پردازش فایل بزرگ با transform و filter
+        
+        Args:
+            input_path: مسیر فایل ورودی
+            output_path: مسیر فایل خروجی
+            transform_func: تابع تبدیل داده‌ها
+            filter_func: تابع فیلتر (اختیاری)
+        """
+        
+        print(f"📂 فایل ورودی: {input_path}")
+        print(f"📂 فایل خروجی: {output_path}")
+        print("-" * 60)
+        
+        # شمارش ردیف‌ها
+        total_rows = self.count_rows(input_path)
+        self.stats.total_rows = total_rows
+        print(f"📊 تعداد کل ردیف‌ها: {total_rows:,}")
+        print("-" * 60)
+        
+        # پردازش
+        chunks_processed = 0
+        first_chunk = True
+        
+        with tqdm(total=total_rows, desc="پردازش", unit=" rows",
+                  colour='green') as pbar:
+            
+            for chunk in self.read_chunks(input_path):
+                original_len = len(chunk)
+                
+                try:
+                    # اعمال filter
+                    if filter_func:
+                        chunk = filter_func(chunk)
+                        self.stats.filtered_rows += original_len - len(chunk)
+                    
+                    # اعمال transform
+                    chunk = transform_func(chunk)
+                    
+                    # ذخیره
+                    mode = 'w' if first_chunk else 'a'
+                    header = first_chunk
+                    chunk.to_csv(output_path, mode=mode, header=header, index=False)
+                    
+                    self.stats.processed_rows += len(chunk)
+                    first_chunk = False
+                    
+                except Exception as e:
+                    self.stats.error_rows += original_len
+                    tqdm.write(f"❌ خطا در chunk {chunks_processed}: {e}")
+                
+                pbar.update(original_len)
+                pbar.set_postfix({
+                    'processed': f"{self.stats.processed_rows:,}",
+                    'filtered': f"{self.stats.filtered_rows:,}"
+                })
+                
+                chunks_processed += 1
+                
+                # آزادسازی حافظه
+                del chunk
+                gc.collect()
+        
+        # گزارش نهایی
+        print("\n" + "=" * 60)
+        print("📈 گزارش پردازش:")
+        for key, value in self.stats.to_dict().items():
+            print(f"   {key}: {value}")
+        
+        return self.stats
+
+
+def main():
+    """مثال استفاده"""
+    
+    processor = BigDataProcessor(chunksize=50_000)
+    
+    # تابع تبدیل
+    def transform(df: pd.DataFrame) -> pd.DataFrame:
+        # مثال: نرمال‌سازی ستون‌های عددی
+        numeric_cols = df.select_dtypes(include=[np.number]).columns
+        for col in numeric_cols:
+            df[col] = (df[col] - df[col].mean()) / df[col].std()
+        return df
+    
+    # تابع فیلتر
+    def filter_data(df: pd.DataFrame) -> pd.DataFrame:
+        # مثال: حذف ردیف‌های با مقادیر null
+        return df.dropna()
+    
+    # پردازش
+    stats = processor.process_file(
+        input_path="large_data.csv",
+        output_path="processed_data.csv",
+        transform_func=transform,
+        filter_func=filter_data
+    )
+
+# if __name__ == "__main__":
+#     main()</code></pre>
+                </div>
+            </div>
+
+            <h3>🤖 آموزش مدل Machine Learning</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>ml_training.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+آموزش مدل با نمایش پیشرفت کامل
+"""
+
+import numpy as np
+from tqdm import tqdm, trange
+from dataclasses import dataclass, field
+from typing import List, Dict, Tuple, Optional
+import json
+from datetime import datetime
+
+@dataclass
+class TrainingMetrics:
+    """ذخیره متریک‌های آموزش"""
+    epoch: int = 0
+    train_loss: float = 0.0
+    val_loss: float = 0.0
+    train_accuracy: float = 0.0
+    val_accuracy: float = 0.0
+    learning_rate: float = 0.0
+    
+    def to_dict(self):
+        return {
+            'epoch': self.epoch,
+            'train_loss': round(self.train_loss, 4),
+            'val_loss': round(self.val_loss, 4),
+            'train_accuracy': round(self.train_accuracy, 4),
+            'val_accuracy': round(self.val_accuracy, 4),
+            'learning_rate': self.learning_rate
+        }
+
+
+@dataclass
+class TrainingHistory:
+    """تاریخچه آموزش"""
+    metrics: List[TrainingMetrics] = field(default_factory=list)
+    best_val_loss: float = float('inf')
+    best_epoch: int = 0
+    
+    def add(self, metrics: TrainingMetrics):
+        self.metrics.append(metrics)
+        if metrics.val_loss < self.best_val_loss:
+            self.best_val_loss = metrics.val_loss
+            self.best_epoch = metrics.epoch
+    
+    def save(self, filepath: str):
+        data = {
+            'history': [m.to_dict() for m in self.metrics],
+            'best_val_loss': self.best_val_loss,
+            'best_epoch': self.best_epoch,
+            'timestamp': datetime.now().isoformat()
+        }
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
+
+
+class ModelTrainer:
+    """کلاس آموزش مدل با TQDM"""
+    
+    def __init__(
+        self,
+        model,
+        optimizer,
+        criterion,
+        device='cpu'
+    ):
+        self.model = model
+        self.optimizer = optimizer
+        self.criterion = criterion
+        self.device = device
+        self.history = TrainingHistory()
+    
+    def train_epoch(
+        self,
+        train_loader,
+        epoch: int,
+        total_epochs: int
+    ) -> Tuple[float, float]:
+        """آموزش یک epoch"""
+        
+        self.model.train()
+        running_loss = 0.0
+        correct = 0
+        total = 0
+        
+        # Progress bar برای batch ها
+        pbar = tqdm(
+            train_loader,
+            desc=f"Epoch {epoch+1}/{total_epochs} [Train]",
+            leave=False,
+            colour='blue'
+        )
+        
+        for batch_idx, (data, target) in enumerate(pbar):
+            # شبیه‌سازی آموزش
+            # در واقعیت:
+            # data, target = data.to(self.device), target.to(self.device)
+            # self.optimizer.zero_grad()
+            # output = self.model(data)
+            # loss = self.criterion(output, target)
+            # loss.backward()
+            # self.optimizer.step()
+            
+            # شبیه‌سازی
+            loss = 1.0 / (epoch + batch_idx + 1) + np.random.random() * 0.1
+            accuracy = min(0.99, 0.5 + epoch * 0.05 + batch_idx * 0.001)
+            
+            running_loss += loss
+            correct += int(accuracy * 32)  # batch_size = 32
+            total += 32
+            
+            # بروزرسانی progress bar
+            pbar.set_postfix({
+                'loss': f'{loss:.4f}',
+                'acc': f'{correct/total:.2%}'
+            })
+        
+        avg_loss = running_loss / len(train_loader)
+        accuracy = correct / total
+        
+        return avg_loss, accuracy
+    
+    def validate(
+        self,
+        val_loader,
+        epoch: int,
+        total_epochs: int
+    ) -> Tuple[float, float]:
+        """اعتبارسنجی"""
+        
+        self.model.eval()
+        running_loss = 0.0
+        correct = 0
+        total = 0
+        
+        pbar = tqdm(
+            val_loader,
+            desc=f"Epoch {epoch+1}/{total_epochs} [Val]",
+            leave=False,
+            colour='cyan'
+        )
+        
+        for data, target in pbar:
+            # شبیه‌سازی
+            loss = 0.8 / (epoch + 1) + np.random.random() * 0.05
+            accuracy = min(0.98, 0.55 + epoch * 0.04)
+            
+            running_loss += loss
+            correct += int(accuracy * 32)
+            total += 32
+            
+            pbar.set_postfix({
+                'loss': f'{loss:.4f}',
+                'acc': f'{correct/total:.2%}'
+            })
+        
+        avg_loss = running_loss / len(val_loader)
+        accuracy = correct / total
+        
+        return avg_loss, accuracy
+    
+    def fit(
+        self,
+        train_loader,
+        val_loader,
+        epochs: int,
+        early_stopping: int = 5
+    ):
+        """آموزش کامل مدل"""
+        
+        print("🚀 شروع آموزش")
+        print(f"   Epochs: {epochs}")
+        print(f"   Early Stopping: {early_stopping}")
+        print("=" * 60)
+        
+        patience_counter = 0
+        
+        # Progress bar اصلی برای epochs
+        epoch_pbar = tqdm(
+            range(epochs),
+            desc="Training Progress",
+            position=0,
+            colour='green'
+        )
+        
+        for epoch in epoch_pbar:
+            # آموزش
+            train_loss, train_acc = self.train_epoch(
+                train_loader, epoch, epochs
+            )
+            
+            # اعتبارسنجی
+            val_loss, val_acc = self.validate(
+                val_loader, epoch, epochs
+            )
+            
+            # ذخیره متریک‌ها
+            metrics = TrainingMetrics(
+                epoch=epoch + 1,
+                train_loss=train_loss,
+                val_loss=val_loss,
+                train_accuracy=train_acc,
+                val_accuracy=val_acc,
+                learning_rate=0.001  # یا از optimizer بگیرید
+            )
+            self.history.add(metrics)
+            
+            # بروزرسانی progress bar اصلی
+            epoch_pbar.set_postfix({
+                't_loss': f'{train_loss:.4f}',
+                'v_loss': f'{val_loss:.4f}',
+                'v_acc': f'{val_acc:.2%}',
+                'best': f'{self.history.best_val_loss:.4f}'
+            })
+            
+            # چاپ خلاصه epoch
+            tqdm.write(
+                f"📊 Epoch {epoch+1}: "
+                f"Train Loss={train_loss:.4f}, "
+                f"Val Loss={val_loss:.4f}, "
+                f"Val Acc={val_acc:.2%}"
+            )
+            
+            # Early stopping
+            if val_loss >= self.history.best_val_loss:
+                patience_counter += 1
+                if patience_counter >= early_stopping:
+                    tqdm.write(f"\n⏹️ Early stopping at epoch {epoch+1}")
+                    break
+            else:
+                patience_counter = 0
+                tqdm.write(f"   ✨ New best model!")
+        
+        # گزارش نهایی
+        print("\n" + "=" * 60)
+        print("🏆 آموزش تکمیل شد!")
+        print(f"   بهترین Val Loss: {self.history.best_val_loss:.4f}")
+        print(f"   بهترین Epoch: {self.history.best_epoch}")
+        
+        return self.history
+
+
+# مثال استفاده
+def main():
+    # شبیه‌سازی DataLoader
+    class FakeDataLoader:
+        def __init__(self, n_batches):
+            self.n_batches = n_batches
+        def __iter__(self):
+            for i in range(self.n_batches):
+                yield (np.random.randn(32, 10), np.random.randint(0, 10, 32))
+        def __len__(self):
+            return self.n_batches
+    
+    train_loader = FakeDataLoader(100)
+    val_loader = FakeDataLoader(20)
+    
+    # شبیه‌سازی مدل
+    class FakeModel:
+        def train(self): pass
+        def eval(self): pass
+    
+    trainer = ModelTrainer(
+        model=FakeModel(),
+        optimizer=None,
+        criterion=None
+    )
+    
+    history = trainer.fit(
+        train_loader,
+        val_loader,
+        epochs=20,
+        early_stopping=5
+    )
+    
+    history.save("training_history.json")
+
+# main()</code></pre>
+                </div>
+            </div>
+
+            <h3>📦 دانلود منیجر پیشرفته</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>download_manager.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+دانلود منیجر با قابلیت resume و چند اتصال همزمان
+"""
+
+import asyncio
+import aiohttp
+import aiofiles
+from tqdm.asyncio import tqdm as atqdm
+from tqdm import tqdm
+from pathlib import Path
+from dataclasses import dataclass
+from typing import List, Optional
+import os
+import hashlib
+
+@dataclass
+class DownloadTask:
+    url: str
+    filename: str
+    size: int = 0
+    downloaded: int = 0
+    status: str = "pending"  # pending, downloading, completed, failed
+    error: Optional[str] = None
+
+
+class DownloadManager:
+    """مدیریت دانلود با پشتیبانی از resume"""
+    
+    def __init__(
+        self,
+        output_dir: str = "downloads",
+        max_concurrent: int = 3,
+        chunk_size: int = 8192
+    ):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.max_concurrent = max_concurrent
+        self.chunk_size = chunk_size
+        self.semaphore = asyncio.Semaphore(max_concurrent)
+        self.tasks: List[DownloadTask] = []
+    
+    async def get_file_size(
+        self,
+        session: aiohttp.ClientSession,
+        url: str
+    ) -> int:
+        """دریافت اندازه فایل"""
+        try:
+            async with session.head(url) as response:
+                return int(response.headers.get('content-length', 0))
+        except:
+            return 0
+    
+    async def download_file(
+        self,
+        session: aiohttp.ClientSession,
+        task: DownloadTask,
+        position: int
+    ):
+        """دانلود یک فایل با پشتیبانی از resume"""
+        
+        async with self.semaphore:
+            filepath = self.output_dir / task.filename
+            temp_filepath = filepath.with_suffix('.tmp')
+            
+            # بررسی برای resume
+            start_byte = 0
+            if temp_filepath.exists():
+                start_byte = temp_filepath.stat().st_size
+                task.downloaded = start_byte
+            
+            headers = {}
+            if start_byte > 0:
+                headers['Range'] = f'bytes={start_byte}-'
+            
+            try:
+                async with session.get(task.url, headers=headers) as response:
+                    if response.status not in [200, 206]:
+                        task.status = "failed"
+                        task.error = f"HTTP {response.status}"
+                        return
+                    
+                    # اگر resume نبود، اندازه را بگیر
+                    if start_byte == 0:
+                        task.size = int(response.headers.get('content-length', 0))
+                    else:
+                        # برای resume، اندازه باقیمانده
+                        remaining = int(response.headers.get('content-length', 0))
+                        task.size = start_byte + remaining
+                    
+                    task.status = "downloading"
+                    
+                    # Progress bar برای این فایل
+                    pbar = tqdm(
+                        total=task.size,
+                        initial=start_byte,
+                        unit='B',
+                        unit_scale=True,
+                        unit_divisor=1024,
+                        desc=task.filename[:30],
+                        position=position,
+                        leave=False,
+                        colour='cyan'
+                    )
+                    
+                    mode = 'ab' if start_byte > 0 else 'wb'
+                    async with aiofiles.open(temp_filepath, mode) as f:
+                        async for chunk in response.content.iter_chunked(self.chunk_size):
+                            await f.write(chunk)
+                            task.downloaded += len(chunk)
+                            pbar.update(len(chunk))
+                    
+                    pbar.close()
+                    
+                    # تغییر نام از temp به final
+                    temp_filepath.rename(filepath)
+                    task.status = "completed"
+                    
+            except asyncio.CancelledError:
+                task.status = "paused"
+                raise
+            except Exception as e:
+                task.status = "failed"
+                task.error = str(e)
+    
+    async def download_all(self, urls: List[str]):
+        """دانلود همه فایل‌ها"""
+        
+        # ایجاد tasks
+        self.tasks = []
+        for url in urls:
+            filename = url.split('/')[-1].split('?')[0]
+            if not filename:
+                filename = hashlib.md5(url.encode()).hexdigest()[:10]
+            self.tasks.append(DownloadTask(url=url, filename=filename))
+        
+        print(f"📥 شروع دانلود {len(self.tasks)} فایل")
+        print(f"   همزمانی: {self.max_concurrent}")
+        print(f"   مسیر: {self.output_dir}")
+        print("=" * 60)
+        
+        async with aiohttp.ClientSession() as session:
+            # گرفتن اندازه فایل‌ها
+            print("📊 دریافت اطلاعات فایل‌ها...")
+            for task in tqdm(self.tasks, desc="اطلاعات"):
+                task.size = await self.get_file_size(session, task.url)
+            
+            total_size = sum(t.size for t in self.tasks)
+            print(f"   حجم کل: {total_size / (1024*1024):.2f} MB")
+            print("-" * 60)
+            
+            # دانلود
+            download_tasks = [
+                self.download_file(session, task, i)
+                for i, task in enumerate(self.tasks)
+            ]
+            
+            await asyncio.gather(*download_tasks, return_exceptions=True)
+        
+        # گزارش نهایی
+        print("\n" + "=" * 60)
+        completed = sum(1 for t in self.tasks if t.status == "completed")
+        failed = sum(1 for t in self.tasks if t.status == "failed")
+        
+        print(f"✅ تکمیل شده: {completed}")
+        print(f"❌ ناموفق: {failed}")
+        
+        if failed > 0:
+            print("\n فایل‌های ناموفق:")
+            for task in self.tasks:
+                if task.status == "failed":
+                    print(f"   - {task.filename}: {task.error}")
+        
+        return self.tasks
+
+
+# استفاده
+async def main():
+    manager = DownloadManager(
+        output_dir="downloads",
+        max_concurrent=3
+    )
+    
+    urls = [
+        "https://example.com/file1.zip",
+        "https://example.com/file2.zip",
+        "https://example.com/file3.zip",
+    ]
+    
+    await manager.download_all(urls)
+
+# asyncio.run(main())</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="section" id="reference">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <div class="section-title-group">
+                    <div class="section-number">پیوست</div>
+                    <h2 class="section-title">مرجع سریع</h2>
+                    <p class="section-subtitle">TQDM Quick Reference</p>
+                </div>
+            </div>
+
+            <h3>⚡ دستورات پرکاربرد</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>کاربرد</th>
+                            <th>کد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ساده‌ترین استفاده</td>
+                            <td><code>for i in tqdm(range(100)): ...</code></td>
+                        </tr>
+                        <tr>
+                            <td>با توضیح</td>
+                            <td><code>tqdm(items, desc="Processing")</code></td>
+                        </tr>
+                        <tr>
+                            <td>واحد سفارشی</td>
+                            <td><code>tqdm(items, unit="file")</code></td>
+                        </tr>
+                        <tr>
+                            <td>برای بایت</td>
+                            <td><code>tqdm(total=size, unit='B', unit_scale=True)</code></td>
+                        </tr>
+                        <tr>
+                            <td>رنگی</td>
+                            <td><code>tqdm(items, colour='green')</code></td>
+                        </tr>
+                        <tr>
+                            <td>بدون باقی ماندن</td>
+                            <td><code>tqdm(items, leave=False)</code></td>
+                        </tr>
+                        <tr>
+                            <td>دستی</td>
+                            <td><code>pbar = tqdm(total=100); pbar.update(10)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Pandas</td>
+                            <td><code>tqdm.pandas(); df.progress_apply(...)</code></td>
+                        </tr>
+                        <tr>
+                            <td>Async</td>
+                            <td><code>async for x in atqdm(items): ...</code></td>
+                        </tr>
+                        <tr>
+                            <td>Notebook</td>
+                            <td><code>from tqdm.auto import tqdm</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎨 فرمت‌های آماده</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>ready_formats.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python"># فرمت‌های آماده برای استفاده
+
+# دانلود فایل
+DOWNLOAD_FORMAT = '{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{rate_fmt}]'
+
+# آموزش مدل
+TRAINING_FORMAT = 'Epoch {n_fmt}/{total_fmt} |{bar}| [{elapsed}<{remaining}] {postfix}'
+
+# پردازش داده
+DATA_FORMAT = '{desc}: {percentage:.1f}%|{bar:20}| {n:,}/{total:,} [{elapsed}<{remaining}]'
+
+# مینیمال
+MINIMAL_FORMAT = '{percentage:3.0f}%|{bar}|'
+
+# فقط اعداد
+NUMBERS_ONLY = '{n_fmt}/{total_fmt}'
+
+# با سرعت
+WITH_SPEED = '{desc} {percentage:3.0f}%|{bar}| {rate_fmt}'</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات نهایی</h4>
+                    <ul>
+                        <li><strong>برای حلقه‌های سریع:</strong> از <code>mininterval=0.5</code> استفاده کنید</li>
+                        <li><strong>برای Jupyter:</strong> همیشه از <code>tqdm.auto</code> import کنید</li>
+                        <li><strong>برای debug:</strong> از <code>tqdm.write()</code> به جای <code>print()</code> استفاده کنید</li>
+                        <li><strong>برای تست:</strong> با <code>disable=True</code> progress bar را غیرفعال کنید</li>
+                        <li><strong>برای فایل‌های بزرگ:</strong> از <code>unit='B', unit_scale=True</code> استفاده کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">▓</div>
+                <span class="logo-text" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TQDM</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                آموزش جامع TQDM - Progress Bar هوشمند پایتون
+            </p>
+            <div class="footer-links">
+                <a href="https://tqdm.github.io/" target="_blank">مستندات رسمی</a>
+                <a href="https://github.com/tqdm/tqdm" target="_blank">GitHub</a>
+                <a href="https://pypi.org/project/tqdm/" target="_blank">PyPI</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای جامعه برنامه‌نویسان ایران
+                <br>
+                <a href="https://araz.me" target="_blank">araz.me</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    
+    <script>
+        // Initialize highlight.js
+        hljs.highlightAll();
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✓</span> کپی شد';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            });
+        }
+        
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Active nav link
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Animate progress bar in hero
+        function animateProgressBar() {
+            const progressBar = document.querySelector('.progress-bar');
+            const progressText = document.querySelector('.progress-text');
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                if (progress > 100) {
+                    progress = 0;
+                }
+                
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = progress + '%';
+                
+                const elapsed = (progress * 0.1).toFixed(2);
+                const remaining = ((100 - progress) * 0.1).toFixed(2);
+                const rate = (progress > 0 ? (progress / (progress * 0.1)).toFixed(1) : 0);
+                
+                const filled = Math.floor(progress / 5);
+                const empty = 20 - filled;
+                const bar = '█'.repeat(filled) + '░'.repeat(empty);
+                
+                progressText.textContent = `${progress}%|${bar}| ${progress}/100 [00:${elapsed}<00:${remaining}, ${rate}it/s]`;
+            }, 100);
+        }
+        
+        // Start animation
+        animateProgressBar();
+    </script>
+</body>
+</html>

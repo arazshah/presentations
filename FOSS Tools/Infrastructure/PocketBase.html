@@ -1,0 +1,4912 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع PocketBase | Backend در یک فایل</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            --primary: #16161a;
+            --primary-light: #242629;
+            --accent: #7f5af0;
+            --accent-light: #9d7ff0;
+            --accent-dark: #6842d0;
+            --secondary: #2cb67d;
+            --secondary-light: #3fc68e;
+            --warning: #ffc107;
+            --danger: #ef4565;
+            --info: #00bcd4;
+            
+            --bg-primary: #0a0a0c;
+            --bg-secondary: #0f0f12;
+            --bg-tertiary: #16161a;
+            --bg-card: #1a1a1f;
+            
+            --text-primary: #fffffe;
+            --text-secondary: #94a1b2;
+            --text-muted: #72757e;
+            
+            --border-color: #242629;
+            --border-light: #333338;
+            
+            --gradient-primary: linear-gradient(135deg, #7f5af0 0%, #2cb67d 100%);
+            --gradient-accent: linear-gradient(135deg, #7f5af0 0%, #ef4565 100%);
+            --gradient-secondary: linear-gradient(135deg, #2cb67d 0%, #00bcd4 100%);
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.6);
+            --shadow-glow: 0 0 40px rgba(127, 90, 240, 0.3);
+            
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-light);
+        }
+
+        ::selection {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .nav-link.active {
+            color: var(--accent-light);
+            background: rgba(127, 90, 240, 0.15);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(127, 90, 240, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(44, 182, 125, 0.1) 0%, transparent 50%);
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(127, 90, 240, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(127, 90, 240, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(127, 90, 240, 0.15);
+            border: 1px solid rgba(127, 90, 240, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Code Preview */
+        .hero-code {
+            max-width: 600px;
+            margin: 2rem auto;
+            text-align: left;
+            direction: ltr;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .hero-code-header {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .hero-code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .hero-code-dot.red { background: #ef4565; }
+        .hero-code-dot.yellow { background: #ffc107; }
+        .hero-code-dot.green { background: #2cb67d; }
+
+        .hero-code-body {
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .hero-code-body .comment { color: #6c7086; }
+        .hero-code-body .command { color: #2cb67d; }
+        .hero-code-body .output { color: #94a1b2; }
+        .hero-code-body .highlight { color: #7f5af0; }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .section-title-group {
+            flex: 1;
+        }
+
+        .section-number {
+            font-size: 0.85rem;
+            color: var(--accent-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Content Styles */
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--accent-light);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.bash {
+            background: #4EAA25;
+            color: white;
+        }
+
+        .code-lang-icon.js {
+            background: #F7DF1E;
+            color: black;
+        }
+
+        .code-lang-icon.go {
+            background: #00ADD8;
+            color: white;
+        }
+
+        .code-lang-icon.json {
+            background: #292929;
+            color: #f5f5f5;
+        }
+
+        .code-lang-icon.html {
+            background: #E34F26;
+            color: white;
+        }
+
+        .code-lang-icon.dart {
+            background: #0175C2;
+            color: white;
+        }
+
+        .code-lang-icon.python {
+            background: #3776AB;
+            color: white;
+        }
+
+        .code-lang-icon.svelte {
+            background: #FF3E00;
+            color: white;
+        }
+
+        .code-lang-icon.react {
+            background: #61DAFB;
+            color: black;
+        }
+
+        .code-lang-icon.vue {
+            background: #4FC08D;
+            color: white;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.875rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: inherit;
+        }
+
+        .code-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .code-btn.copied {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: white;
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            background: transparent;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Inline Code */
+        code:not([class*="language-"]) {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875em;
+            color: var(--accent-light);
+            border: 1px solid var(--border-color);
+            direction: ltr;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip {
+            background: rgba(44, 182, 125, 0.1);
+            border: 1px solid rgba(44, 182, 125, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+
+        .info-box.info {
+            background: rgba(127, 90, 240, 0.1);
+            border: 1px solid rgba(127, 90, 240, 0.3);
+        }
+
+        .info-box.danger {
+            background: rgba(239, 69, 101, 0.1);
+            border: 1px solid rgba(239, 69, 101, 0.3);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .info-content ul {
+            margin: 0.5rem 0 0 1rem;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Feature List */
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: var(--accent);
+        }
+
+        .feature-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .feature-text strong {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-item {
+            margin: 0;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .toc-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .toc-number {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-light);
+        }
+
+        /* API Endpoint */
+        .api-endpoint {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .api-endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-method {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .api-method.get { background: #2cb67d; color: white; }
+        .api-method.post { background: #7f5af0; color: white; }
+        .api-method.patch { background: #ffc107; color: black; }
+        .api-method.delete { background: #ef4565; color: white; }
+
+        .api-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            direction: ltr;
+        }
+
+        .api-endpoint-body {
+            padding: 1rem;
+        }
+
+        .api-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Steps */
+        .steps {
+            margin: 2rem 0;
+        }
+
+        .step {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .architecture-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .architecture-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .arch-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .arch-box {
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .arch-box.client {
+            background: rgba(127, 90, 240, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent-light);
+        }
+
+        .arch-box.pocketbase {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 700;
+        }
+
+        .arch-box.storage {
+            background: rgba(44, 182, 125, 0.2);
+            border: 1px solid var(--secondary);
+            color: var(--secondary-light);
+        }
+
+        .arch-arrow {
+            font-size: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-light);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .copyright a {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .hero {
+                padding: 4rem 1.5rem;
+            }
+            
+            .hero-stats {
+                gap: 2rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .section-icon {
+                margin: 0 auto;
+            }
+            
+            .main {
+                padding: 2rem 1rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+            
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .step-number {
+                margin: 0 auto;
+            }
+            
+            .api-endpoint-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .hero-code-dot {
+            animation: pulse 2s infinite;
+        }
+
+        /* Print */
+        @media print {
+            .header, .nav, .code-actions, .footer {
+                display: none;
+            }
+            
+            .hero {
+                padding: 2rem;
+            }
+            
+            .code-block {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">🗄️</div>
+                <div>
+                    <div class="logo-text">PocketBase</div>
+                    <div class="logo-subtitle">Backend در یک فایل</div>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="#intro" class="nav-link active">معرفی</a>
+                <a href="#install" class="nav-link">نصب</a>
+                <a href="#collections" class="nav-link">Collections</a>
+                <a href="#api" class="nav-link">API</a>
+                <a href="#auth" class="nav-link">احراز هویت</a>
+                <a href="#files" class="nav-link">فایل‌ها</a>
+                <a href="#realtime" class="nav-link">Realtime</a>
+                <a href="#extend" class="nav-link">توسعه</a>
+                <a href="#deploy" class="nav-link">استقرار</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>⚡</span>
+                <span>نسخه 0.22+ | متن‌باز | یک فایل اجرایی</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">PocketBase</span>
+            </h1>
+            <p class="hero-description">
+                Backend کامل در یک فایل اجرایی!
+                دیتابیس، API، احراز هویت، ذخیره فایل و Admin UI - همه در کمتر از ۲۰ مگابایت.
+            </p>
+            
+            <!-- Code Preview -->
+            <div class="hero-code">
+                <div class="hero-code-header">
+                    <div class="hero-code-dot red"></div>
+                    <div class="hero-code-dot yellow"></div>
+                    <div class="hero-code-dot green"></div>
+                </div>
+                <div class="hero-code-body">
+                    <div><span class="comment"># دانلود و اجرا - همین!</span></div>
+                    <div><span class="command">$</span> ./pocketbase serve</div>
+                    <div></div>
+                    <div><span class="output">Server started at:</span></div>
+                    <div><span class="output">├─ REST API: </span><span class="highlight">http://127.0.0.1:8090/api/</span></div>
+                    <div><span class="output">└─ Admin UI: </span><span class="highlight">http://127.0.0.1:8090/_/</span></div>
+                </div>
+            </div>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">~20MB</div>
+                    <div class="stat-label">حجم فایل</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">وابستگی</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">35K+</div>
+                    <div class="stat-label">ستاره GitHub</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2 class="toc-title">📚 فهرست مطالب</h2>
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <a href="#intro" class="toc-link">
+                        <span class="toc-number">۱</span>
+                        معرفی PocketBase
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#install" class="toc-link">
+                        <span class="toc-number">۲</span>
+                        نصب و راه‌اندازی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#collections" class="toc-link">
+                        <span class="toc-number">۳</span>
+                        Collections و Schema
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#api" class="toc-link">
+                        <span class="toc-number">۴</span>
+                        REST API
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#auth" class="toc-link">
+                        <span class="toc-number">۵</span>
+                        احراز هویت
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#files" class="toc-link">
+                        <span class="toc-number">۶</span>
+                        مدیریت فایل‌ها
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#realtime" class="toc-link">
+                        <span class="toc-number">۷</span>
+                        Realtime و SSE
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#extend" class="toc-link">
+                        <span class="toc-number">۸</span>
+                        توسعه با Go/JS
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#deploy" class="toc-link">
+                        <span class="toc-number">۹</span>
+                        استقرار و Production
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">🗄️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی PocketBase</h2>
+                    <p class="section-subtitle">Backend کامل در یک فایل</p>
+                </div>
+            </div>
+
+            <h3>🎯 PocketBase چیست؟</h3>
+            <p>
+                <strong>PocketBase</strong> یک Backend متن‌باز است که به زبان Go نوشته شده و تمام 
+                قابلیت‌های مورد نیاز یک اپلیکیشن را در یک فایل اجرایی ارائه می‌دهد. این پروژه 
+                توسط <strong>Gani Georgiev</strong> توسعه داده شده و به سرعت به یکی از محبوب‌ترین 
+                جایگزین‌های Firebase تبدیل شده است.
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🗃️</div>
+                    <h4 class="card-title">SQLite Database</h4>
+                    <p class="card-description">
+                        دیتابیس embedded با SQLite. بدون نیاز به نصب سرور جداگانه.
+                        سریع، قابل اعتماد و پرتابل.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔌</div>
+                    <h4 class="card-title">REST API خودکار</h4>
+                    <p class="card-description">
+                        برای هر Collection به صورت خودکار REST API ایجاد می‌شود.
+                        CRUD کامل با فیلتر، مرتب‌سازی و صفحه‌بندی.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔐</div>
+                    <h4 class="card-title">احراز هویت کامل</h4>
+                    <p class="card-description">
+                        Email/Password، OAuth2 (Google, GitHub, ...)، 
+                        JWT tokens و مدیریت کاربران.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📁</div>
+                    <h4 class="card-title">ذخیره فایل</h4>
+                    <p class="card-description">
+                        آپلود و مدیریت فایل‌ها با پشتیبانی از S3.
+                        تولید خودکار thumbnail برای تصاویر.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h4 class="card-title">Realtime</h4>
+                    <p class="card-description">
+                        اشتراک‌گذاری تغییرات به صورت لحظه‌ای با SSE.
+                        مناسب برای چت، نوتیفیکیشن و...
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎨</div>
+                    <h4 class="card-title">Admin Dashboard</h4>
+                    <p class="card-description">
+                        پنل مدیریت زیبا و کامل برای مدیریت داده‌ها،
+                        کاربران و تنظیمات.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🏗️ معماری PocketBase</h3>
+            <div class="architecture">
+                <div class="architecture-title">معماری کلی سیستم</div>
+                <div class="architecture-diagram">
+                    <div class="arch-row">
+                        <div class="arch-box client">🌐 Web App</div>
+                        <div class="arch-box client">📱 Mobile App</div>
+                        <div class="arch-box client">🖥️ Desktop App</div>
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-row">
+                        <div class="arch-box pocketbase">🗄️ PocketBase (REST API + Admin UI)</div>
+                    </div>
+                    <div class="arch-arrow">⬇️</div>
+                    <div class="arch-row">
+                        <div class="arch-box storage">💾 SQLite</div>
+                        <div class="arch-box storage">📁 Local/S3 Storage</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🆚 مقایسه با رقبا</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>PocketBase</th>
+                            <th>Firebase</th>
+                            <th>Supabase</th>
+                            <th>Appwrite</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>متن‌باز</strong></td>
+                            <td>✅ MIT</td>
+                            <td>❌</td>
+                            <td>✅ Apache 2.0</td>
+                            <td>✅ BSD</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Self-hosted</strong></td>
+                            <td>✅ آسان</td>
+                            <td>❌</td>
+                            <td>✅ Docker</td>
+                            <td>✅ Docker</td>
+                        </tr>
+                        <tr>
+                            <td><strong>وابستگی</strong></td>
+                            <td>✅ صفر</td>
+                            <td>-</td>
+                            <td>⚠️ PostgreSQL, ...</td>
+                            <td>⚠️ MariaDB, Redis, ...</td>
+                        </tr>
+                        <tr>
+                            <td><strong>حجم</strong></td>
+                            <td>✅ ~20MB</td>
+                            <td>-</td>
+                            <td>⚠️ چند GB</td>
+                            <td>⚠️ چند GB</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Realtime</strong></td>
+                            <td>✅ SSE</td>
+                            <td>✅ WebSocket</td>
+                            <td>✅ WebSocket</td>
+                            <td>✅ WebSocket</td>
+                        </tr>
+                        <tr>
+                            <td><strong>قابل توسعه</strong></td>
+                            <td>✅ Go/JS</td>
+                            <td>✅ Cloud Functions</td>
+                            <td>✅ Edge Functions</td>
+                            <td>✅ Functions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>مناسب برای</strong></td>
+                            <td>MVP, Small-Medium</td>
+                            <td>همه سایزها</td>
+                            <td>Medium-Large</td>
+                            <td>Medium-Large</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>چه زمانی از PocketBase استفاده کنیم؟</h4>
+                    <ul>
+                        <li><strong>MVP و نمونه اولیه:</strong> سریع‌ترین راه برای شروع</li>
+                        <li><strong>پروژه‌های کوچک تا متوسط:</strong> تا چند هزار کاربر همزمان</li>
+                        <li><strong>اپلیکیشن‌های داخلی:</strong> ابزارهای مدیریتی شرکت</li>
+                        <li><strong>یادگیری:</strong> عالی برای آموزش مفاهیم Backend</li>
+                        <li><strong>حریم خصوصی:</strong> وقتی داده‌ها باید روی سرور شما باشند</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Installation -->
+        <section class="section" id="install">
+            <div class="section-header">
+                <div class="section-icon">⚙️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">نصب و راه‌اندازی</h2>
+                    <p class="section-subtitle">شروع کار با PocketBase</p>
+                </div>
+            </div>
+
+            <h3>📥 دانلود مستقیم</h3>
+            <p>
+                ساده‌ترین روش، دانلود فایل اجرایی از GitHub است:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>download.sh</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# دانلود برای Linux (AMD64)
+# ═══════════════════════════════════════════════════════════
+
+wget https://github.com/pocketbase/pocketbase/releases/download/v0.22.0/pocketbase_0.22.0_linux_amd64.zip
+unzip pocketbase_0.22.0_linux_amd64.zip
+chmod +x pocketbase
+
+# ═══════════════════════════════════════════════════════════
+# دانلود برای macOS (Apple Silicon)
+# ═══════════════════════════════════════════════════════════
+
+wget https://github.com/pocketbase/pocketbase/releases/download/v0.22.0/pocketbase_0.22.0_darwin_arm64.zip
+unzip pocketbase_0.22.0_darwin_arm64.zip
+chmod +x pocketbase
+
+# ═══════════════════════════════════════════════════════════
+# دانلود برای Windows
+# ═══════════════════════════════════════════════════════════
+
+# فایل pocketbase_0.22.0_windows_amd64.zip را دانلود کنید
+# و از حالت فشرده خارج کنید
+
+# ═══════════════════════════════════════════════════════════
+# اجرا
+# ═══════════════════════════════════════════════════════════
+
+./pocketbase serve
+
+# خروجی:
+# Server started at http://127.0.0.1:8090
+# ├─ REST API: http://127.0.0.1:8090/api/
+# └─ Admin UI: http://127.0.0.1:8090/_/</code></pre>
+                </div>
+            </div>
+
+            <h3>🐳 نصب با Docker</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>docker-compose.yml</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml">version: '3.8'
+
+services:
+  pocketbase:
+    image: ghcr.io/muchobien/pocketbase:latest
+    container_name: pocketbase
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./pb_data:/pb_data
+      - ./pb_public:/pb_public
+      - ./pb_migrations:/pb_migrations
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8090/api/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pb_data:
+  pb_public:
+  pb_migrations:</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>Docker Commands</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># اجرا
+docker-compose up -d
+
+# مشاهده لاگ‌ها
+docker-compose logs -f
+
+# توقف
+docker-compose down
+
+# با Dockerfile سفارشی (برای توسعه با Go)
+# Dockerfile:
+# FROM golang:1.21-alpine AS builder
+# WORKDIR /app
+# COPY . .
+# RUN go build -o pocketbase
+#
+# FROM alpine:latest
+# COPY --from=builder /app/pocketbase /pocketbase
+# EXPOSE 8090
+# CMD ["/pocketbase", "serve", "--http=0.0.0.0:8090"]</code></pre>
+                </div>
+            </div>
+
+            <h3>⚙️ گزینه‌های اجرا</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>CLI Options</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# دستورات اصلی
+# ═══════════════════════════════════════════════════════════
+
+./pocketbase serve                    # اجرای سرور
+./pocketbase serve --http=0.0.0.0:80  # تغییر پورت و آدرس
+./pocketbase serve --https=0.0.0.0:443 --origins=https://example.com
+
+# ═══════════════════════════════════════════════════════════
+# گزینه‌های serve
+# ═══════════════════════════════════════════════════════════
+
+--http          آدرس و پورت HTTP (پیش‌فرض: 127.0.0.1:8090)
+--https         آدرس و پورت HTTPS
+--origins       دامنه‌های مجاز برای CORS (جدا شده با کاما)
+--dir           مسیر پوشه داده (پیش‌فرض: pb_data)
+--publicDir     مسیر فایل‌های استاتیک (پیش‌فرض: pb_public)
+--migrationsDir مسیر migrations (پیش‌فرض: pb_migrations)
+--dev           حالت توسعه (hot reload برای Admin UI)
+
+# ═══════════════════════════════════════════════════════════
+# سایر دستورات
+# ═══════════════════════════════════════════════════════════
+
+./pocketbase migrate                  # اجرای migrations
+./pocketbase migrate create name      # ایجاد migration جدید
+./pocketbase admin create email pass  # ایجاد ادمین از CLI
+./pocketbase admin update email pass  # تغییر رمز ادمین
+./pocketbase admin delete email       # حذف ادمین
+./pocketbase update                   # بروزرسانی به آخرین نسخه
+./pocketbase version                  # نمایش نسخه
+
+# ═══════════════════════════════════════════════════════════
+# مثال‌های کاربردی
+# ═══════════════════════════════════════════════════════════
+
+# توسعه محلی
+./pocketbase serve --dev
+
+# Production با HTTPS خودکار (Let's Encrypt)
+./pocketbase serve \
+  --http=0.0.0.0:80 \
+  --https=0.0.0.0:443 \
+  --origins=https://myapp.com,https://www.myapp.com
+
+# با پوشه داده سفارشی
+./pocketbase serve --dir=/var/pocketbase/data</code></pre>
+                </div>
+            </div>
+
+            <h3>🎨 اولین ورود به Admin UI</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">۱</div>
+                    <div class="step-content">
+                        <h4 class="step-title">باز کردن Admin UI</h4>
+                        <p class="step-description">
+                            به آدرس <code>http://127.0.0.1:8090/_/</code> بروید.
+                            در اولین بازدید، فرم ایجاد حساب ادمین نمایش داده می‌شود.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۲</div>
+                    <div class="step-content">
+                        <h4 class="step-title">ایجاد حساب ادمین</h4>
+                        <p class="step-description">
+                            ایمیل و رمز عبور را وارد کنید. این حساب برای مدیریت کل سیستم استفاده می‌شود.
+                            <strong>نکته:</strong> رمز عبور باید حداقل ۱۰ کاراکتر باشد.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۳</div>
+                    <div class="step-content">
+                        <h4 class="step-title">آشنایی با داشبورد</h4>
+                        <p class="step-description">
+                            پس از ورود، به داشبورد مدیریت دسترسی خواهید داشت:
+                            <strong>Collections</strong> (جداول)، <strong>Settings</strong> (تنظیمات)،
+                            <strong>Logs</strong> (لاگ‌ها) و <strong>API Preview</strong>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکات امنیتی</h4>
+                    <ul>
+                        <li>در Production، حتماً از HTTPS استفاده کنید</li>
+                        <li>پوشه <code>pb_data</code> را بکاپ بگیرید (شامل دیتابیس و فایل‌ها)</li>
+                        <li>دسترسی به <code>/_/</code> را محدود کنید</li>
+                        <li>از رمز عبور قوی برای ادمین استفاده کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Collections -->
+        <section class="section" id="collections">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">Collections و Schema</h2>
+                    <p class="section-subtitle">ساختار داده در PocketBase</p>
+                </div>
+            </div>
+
+            <h3>📦 Collection چیست؟</h3>
+            <p>
+                <strong>Collection</strong> در PocketBase معادل جدول (Table) در دیتابیس‌های رابطه‌ای است.
+                هر Collection شامل فیلدها (Schema) و قوانین دسترسی (Rules) است.
+            </p>
+
+            <h4>انواع Collection</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع</th>
+                            <th>توضیح</th>
+                            <th>کاربرد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Base</strong></td>
+                            <td>Collection عمومی برای ذخیره داده</td>
+                            <td>محصولات، پست‌ها، سفارشات</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Auth</strong></td>
+                            <td>Collection با قابلیت احراز هویت</td>
+                            <td>کاربران، ادمین‌ها</td>
+                        </tr>
+                        <tr>
+                            <td><strong>View</strong></td>
+                            <td>Collection فقط خواندنی بر اساس SQL query</td>
+                            <td>گزارش‌ها، آمار، داده‌های ترکیبی</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🏗️ انواع فیلدها</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع فیلد</th>
+                            <th>توضیح</th>
+                            <th>گزینه‌ها</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>text</code></td>
+                            <td>متن کوتاه</td>
+                            <td>min, max, pattern</td>
+                        </tr>
+                        <tr>
+                            <td><code>editor</code></td>
+                            <td>متن بلند با Rich Text</td>
+                            <td>convertUrls</td>
+                        </tr>
+                        <tr>
+                            <td><code>number</code></td>
+                            <td>عدد صحیح یا اعشاری</td>
+                            <td>min, max, noDecimal</td>
+                        </tr>
+                        <tr>
+                            <td><code>bool</code></td>
+                            <td>بولین (true/false)</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td><code>email</code></td>
+                            <td>آدرس ایمیل</td>
+                            <td>exceptDomains, onlyDomains</td>
+                        </tr>
+                        <tr>
+                            <td><code>url</code></td>
+                            <td>آدرس URL</td>
+                            <td>exceptDomains, onlyDomains</td>
+                        </tr>
+                        <tr>
+                            <td><code>date</code></td>
+                            <td>تاریخ و زمان</td>
+                            <td>min, max</td>
+                        </tr>
+                        <tr>
+                            <td><code>select</code></td>
+                            <td>انتخاب از لیست</td>
+                            <td>values, maxSelect</td>
+                        </tr>
+                        <tr>
+                            <td><code>json</code></td>
+                            <td>داده JSON</td>
+                            <td>maxSize</td>
+                        </tr>
+                        <tr>
+                            <td><code>file</code></td>
+                            <td>فایل آپلودی</td>
+                            <td>maxSelect, maxSize, mimeTypes, thumbs</td>
+                        </tr>
+                        <tr>
+                            <td><code>relation</code></td>
+                            <td>رابطه با Collection دیگر</td>
+                            <td>collectionId, cascadeDelete, maxSelect</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>📝 ایجاد Collection از Admin UI</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">۱</div>
+                    <div class="step-content">
+                        <h4 class="step-title">New Collection</h4>
+                        <p class="step-description">
+                            در Admin UI، روی <strong>New collection</strong> کلیک کنید.
+                            نوع (Base/Auth/View) و نام را وارد کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۲</div>
+                    <div class="step-content">
+                        <h4 class="step-title">تعریف فیلدها</h4>
+                        <p class="step-description">
+                            در تب <strong>Fields</strong>، فیلدهای مورد نیاز را اضافه کنید.
+                            برای هر فیلد نوع، نام و گزینه‌ها را تنظیم کنید.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۳</div>
+                    <div class="step-content">
+                        <h4 class="step-title">تنظیم قوانین دسترسی</h4>
+                        <p class="step-description">
+                            در تب <strong>API Rules</strong>، دسترسی‌ها را تنظیم کنید:
+                            List, View, Create, Update, Delete.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>📋 مثال: ایجاد Collection با کد</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon json">JSON</div>
+                        <span>posts_collection.json</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-json">{
+  "name": "posts",
+  "type": "base",
+  "schema": [
+    {
+      "name": "title",
+      "type": "text",
+      "required": true,
+      "options": {
+        "min": 3,
+        "max": 200
+      }
+    },
+    {
+      "name": "slug",
+      "type": "text",
+      "required": true,
+      "options": {
+        "pattern": "^[a-z0-9-]+$"
+      }
+    },
+    {
+      "name": "content",
+      "type": "editor",
+      "required": true
+    },
+    {
+      "name": "excerpt",
+      "type": "text",
+      "options": {
+        "max": 500
+      }
+    },
+    {
+      "name": "cover",
+      "type": "file",
+      "options": {
+        "maxSelect": 1,
+        "maxSize": 5242880,
+        "mimeTypes": ["image/jpeg", "image/png", "image/webp"],
+        "thumbs": ["100x100", "400x300"]
+      }
+    },
+    {
+      "name": "author",
+      "type": "relation",
+      "required": true,
+      "options": {
+        "collectionId": "users",
+        "cascadeDelete": false,
+        "maxSelect": 1
+      }
+    },
+    {
+      "name": "tags",
+      "type": "select",
+      "options": {
+        "maxSelect": 5,
+        "values": ["technology", "lifestyle", "travel", "food", "health"]
+      }
+    },
+    {
+      "name": "published",
+      "type": "bool"
+    },
+    {
+      "name": "publishedAt",
+      "type": "date"
+    },
+    {
+      "name": "views",
+      "type": "number",
+      "options": {
+        "min": 0,
+        "noDecimal": true
+      }
+    },
+    {
+      "name": "metadata",
+      "type": "json"
+    }
+  ],
+  "indexes": [
+    "CREATE UNIQUE INDEX idx_posts_slug ON posts (slug)",
+    "CREATE INDEX idx_posts_author ON posts (author)",
+    "CREATE INDEX idx_posts_published ON posts (published, publishedAt)"
+  ],
+  "listRule": "@request.auth.id != '' || published = true",
+  "viewRule": "@request.auth.id != '' || published = true",
+  "createRule": "@request.auth.id != ''",
+  "updateRule": "@request.auth.id = author.id",
+  "deleteRule": "@request.auth.id = author.id"
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>🔐 قوانین دسترسی (API Rules)</h3>
+            <p>
+                قوانین دسترسی تعیین می‌کنند چه کسی می‌تواند چه عملیاتی روی داده‌ها انجام دهد.
+                از یک زبان فیلتر ساده استفاده می‌شود.
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon json">TXT</div>
+                        <span>API Rules Examples</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+متغیرهای موجود
+═══════════════════════════════════════════════════════════
+
+@request.auth         کاربر لاگین شده
+@request.auth.id      آیدی کاربر لاگین شده
+@request.data         داده ارسال شده در درخواست
+@collection           رکورد فعلی
+
+═══════════════════════════════════════════════════════════
+مثال‌های قوانین
+═══════════════════════════════════════════════════════════
+
+# خالی = فقط ادمین
+""
+
+# همه می‌توانند
+null
+یا
+""  (با تیک Allow در Admin UI)
+
+# فقط کاربران لاگین شده
+@request.auth.id != ""
+
+# فقط صاحب رکورد
+@request.auth.id = user.id
+
+# فقط رکوردهای منتشر شده یا صاحب
+published = true || @request.auth.id = author.id
+
+# بررسی نقش کاربر (با فرض فیلد role در users)
+@request.auth.role = "admin"
+
+# بررسی عضویت در لیست
+@request.auth.id ?= members.id
+
+# ترکیب شرایط
+(@request.auth.id = owner.id) || (@request.auth.role = "moderator")
+
+# محدود کردن فیلدهای قابل ویرایش
+@request.data.role:isset = false
+
+# بررسی رابطه
+@request.auth.id = team.members.id
+
+═══════════════════════════════════════════════════════════
+عملگرها
+═══════════════════════════════════════════════════════════
+
+=      برابر
+!=     نابرابر
+>      بزرگتر
+>=     بزرگتر مساوی
+<      کوچکتر
+<=     کوچکتر مساوی
+~      شامل (like)
+!~     شامل نیست
+?=     شامل در آرایه
+?!=    شامل نیست در آرایه
+&&     و
+||     یا</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات مهم درباره Rules</h4>
+                    <ul>
+                        <li><strong>قانون خالی:</strong> یعنی فقط ادمین دسترسی دارد</li>
+                        <li><strong>تست کنید:</strong> از API Preview در Admin UI برای تست استفاده کنید</li>
+                        <li><strong>حداقل دسترسی:</strong> فقط دسترسی‌های لازم را بدهید</li>
+                        <li><strong>Expand:</strong> قوانین روی داده‌های expand شده هم اعمال می‌شوند</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: REST API -->
+        <section class="section" id="api">
+            <div class="section-header">
+                <div class="section-icon">🔌</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">REST API</h2>
+                    <p class="section-subtitle">کار با API خودکار PocketBase</p>
+                </div>
+            </div>
+
+            <h3>📡 Endpoints اصلی</h3>
+            
+            <div class="api-endpoint">
+                <div class="api-endpoint-header">
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/api/collections/{collection}/records</span>
+                </div>
+                <div class="api-endpoint-body">
+                    <p class="api-description">دریافت لیست رکوردها با پشتیبانی از فیلتر، مرتب‌سازی و صفحه‌بندی</p>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div class="api-endpoint-header">
+                    <span class="api-method get">GET</span>
+                    <span class="api-path">/api/collections/{collection}/records/{id}</span>
+                </div>
+                <div class="api-endpoint-body">
+                    <p class="api-description">دریافت یک رکورد خاص با آیدی</p>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div class="api-endpoint-header">
+                    <span class="api-method post">POST</span>
+                    <span class="api-path">/api/collections/{collection}/records</span>
+                </div>
+                <div class="api-endpoint-body">
+                    <p class="api-description">ایجاد رکورد جدید</p>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div class="api-endpoint-header">
+                    <span class="api-method patch">PATCH</span>
+                    <span class="api-path">/api/collections/{collection}/records/{id}</span>
+                </div>
+                <div class="api-endpoint-body">
+                    <p class="api-description">بروزرسانی رکورد</p>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div class="api-endpoint-header">
+                    <span class="api-method delete">DELETE</span>
+                    <span class="api-path">/api/collections/{collection}/records/{id}</span>
+                </div>
+                <div class="api-endpoint-body">
+                    <p class="api-description">حذف رکورد</p>
+                </div>
+            </div>
+
+            <h3>🔍 پارامترهای Query</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>پارامتر</th>
+                            <th>توضیح</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>page</code></td>
+                            <td>شماره صفحه</td>
+                            <td><code>?page=2</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>perPage</code></td>
+                            <td>تعداد در هر صفحه (حداکثر ۵۰۰)</td>
+                            <td><code>?perPage=50</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>sort</code></td>
+                            <td>مرتب‌سازی (- برای نزولی)</td>
+                            <td><code>?sort=-created,title</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>filter</code></td>
+                            <td>فیلتر کردن نتایج</td>
+                            <td><code>?filter=(status='active')</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>expand</code></td>
+                            <td>بارگذاری روابط</td>
+                            <td><code>?expand=author,comments</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>fields</code></td>
+                            <td>انتخاب فیلدها</td>
+                            <td><code>?fields=id,title,author</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>skipTotal</code></td>
+                            <td>عدم شمارش کل (سریع‌تر)</td>
+                            <td><code>?skipTotal=1</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎯 مثال‌های فیلتر</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">TXT</div>
+                        <span>Filter Examples</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+فیلترهای ساده
+═══════════════════════════════════════════════════════════
+
+# برابری
+?filter=(status='published')
+
+# نابرابری
+?filter=(status!='draft')
+
+# مقایسه عددی
+?filter=(price>=100 && price<=500)
+
+# جستجوی متنی (شامل)
+?filter=(title~'hello')
+
+# جستجوی متنی (شروع با)
+?filter=(title~'hello%')
+
+# NULL check
+?filter=(deletedAt=null)
+?filter=(deletedAt!=null)
+
+═══════════════════════════════════════════════════════════
+فیلترهای پیشرفته
+═══════════════════════════════════════════════════════════
+
+# ترکیب AND
+?filter=(status='active' && category='tech')
+
+# ترکیب OR
+?filter=(status='active' || featured=true)
+
+# گروه‌بندی
+?filter=((status='active' || status='pending') && price>0)
+
+# فیلتر روی رابطه
+?filter=(author.name~'john')
+
+# فیلتر روی تاریخ
+?filter=(created>='2024-01-01' && created<'2024-02-01')
+
+# فیلتر روی آرایه (select چندگانه)
+?filter=(tags?~'technology')
+
+═══════════════════════════════════════════════════════════
+مرتب‌سازی
+═══════════════════════════════════════════════════════════
+
+# صعودی
+?sort=created
+
+# نزولی
+?sort=-created
+
+# چندگانه
+?sort=-featured,-created,title
+
+# بر اساس رابطه
+?sort=author.name
+
+═══════════════════════════════════════════════════════════
+Expand (بارگذاری روابط)
+═══════════════════════════════════════════════════════════
+
+# یک رابطه
+?expand=author
+
+# چند رابطه
+?expand=author,category
+
+# رابطه تو در تو
+?expand=author.profile
+
+# رابطه معکوس (back-relation)
+?expand=comments_via_post</code></pre>
+                </div>
+            </div>
+
+            <h3>📦 JavaScript SDK</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>pocketbase_client.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">// ═══════════════════════════════════════════════════════════
+// نصب
+// ═══════════════════════════════════════════════════════════
+
+// npm install pocketbase
+// یا
+// yarn add pocketbase
+
+// ═══════════════════════════════════════════════════════════
+// راه‌اندازی
+// ═══════════════════════════════════════════════════════════
+
+import PocketBase from 'pocketbase';
+
+const pb = new PocketBase('http://127.0.0.1:8090');
+
+// ═══════════════════════════════════════════════════════════
+// CRUD Operations
+// ═══════════════════════════════════════════════════════════
+
+// دریافت لیست
+const posts = await pb.collection('posts').getList(1, 20, {
+    filter: 'published = true',
+    sort: '-created',
+    expand: 'author',
+});
+
+console.log(posts.items);       // آرایه رکوردها
+console.log(posts.totalItems);  // تعداد کل
+console.log(posts.totalPages);  // تعداد صفحات
+
+// دریافت همه (با احتیاط استفاده کنید)
+const allPosts = await pb.collection('posts').getFullList({
+    sort: '-created',
+});
+
+// دریافت اولین نتیجه
+const firstPost = await pb.collection('posts').getFirstListItem(
+    'slug="hello-world"',
+    { expand: 'author' }
+);
+
+// دریافت با آیدی
+const post = await pb.collection('posts').getOne('RECORD_ID', {
+    expand: 'author,comments_via_post',
+});
+
+// ایجاد رکورد
+const newPost = await pb.collection('posts').create({
+    title: 'My New Post',
+    content: 'This is the content...',
+    author: pb.authStore.model.id,
+    published: false,
+});
+
+// بروزرسانی
+const updatedPost = await pb.collection('posts').update('RECORD_ID', {
+    title: 'Updated Title',
+    published: true,
+});
+
+// حذف
+await pb.collection('posts').delete('RECORD_ID');
+
+// ═══════════════════════════════════════════════════════════
+// آپلود فایل
+// ═══════════════════════════════════════════════════════════
+
+// با FormData
+const formData = new FormData();
+formData.append('title', 'Post with Image');
+formData.append('cover', fileInput.files[0]);
+
+const postWithImage = await pb.collection('posts').create(formData);
+
+// دریافت URL فایل
+const imageUrl = pb.files.getUrl(postWithImage, postWithImage.cover);
+const thumbUrl = pb.files.getUrl(postWithImage, postWithImage.cover, {
+    thumb: '100x100'
+});
+
+// ═══════════════════════════════════════════════════════════
+// Error Handling
+// ═══════════════════════════════════════════════════════════
+
+try {
+    const post = await pb.collection('posts').getOne('invalid_id');
+} catch (error) {
+    console.log(error.status);      // کد HTTP
+    console.log(error.message);     // پیام خطا
+    console.log(error.data);        // جزئیات
+    
+    if (error.status === 404) {
+        console.log('Post not found');
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>🐍 Python Client</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>pocketbase_python.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+PocketBase Python Client
+pip install pocketbase
+"""
+
+from pocketbase import PocketBase
+
+# راه‌اندازی
+client = PocketBase('http://127.0.0.1:8090')
+
+# احراز هویت ادمین
+admin_data = client.admins.auth_with_password(
+    'admin@example.com',
+    'password123'
+)
+
+# احراز هویت کاربر
+user_data = client.collection('users').auth_with_password(
+    'user@example.com',
+    'password123'
+)
+
+# دریافت لیست
+result = client.collection('posts').get_list(
+    page=1,
+    per_page=20,
+    query_params={
+        'filter': 'published = true',
+        'sort': '-created',
+        'expand': 'author'
+    }
+)
+
+for item in result.items:
+    print(f"{item.id}: {item.title}")
+
+# دریافت یک رکورد
+post = client.collection('posts').get_one('RECORD_ID')
+
+# ایجاد رکورد
+new_post = client.collection('posts').create({
+    'title': 'New Post from Python',
+    'content': 'Content here...',
+    'author': client.auth_store.model.id
+})
+
+# بروزرسانی
+updated = client.collection('posts').update('RECORD_ID', {
+    'title': 'Updated Title'
+})
+
+# حذف
+client.collection('posts').delete('RECORD_ID')
+
+# آپلود فایل
+with open('image.jpg', 'rb') as f:
+    post_with_file = client.collection('posts').create({
+        'title': 'Post with Image',
+        'cover': ('image.jpg', f, 'image/jpeg')
+    })</code></pre>
+                </div>
+            </div>
+
+            <h3>🎨 Dart/Flutter Client</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon dart">DART</div>
+                        <span>pocketbase_flutter.dart</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-dart">// pubspec.yaml:
+// dependencies:
+//   pocketbase: ^0.18.0
+
+import 'package:pocketbase/pocketbase.dart';
+
+final pb = PocketBase('http://127.0.0.1:8090');
+
+// احراز هویت
+Future&lt;void&gt; login() async {
+  final authData = await pb.collection('users').authWithPassword(
+    'user@example.com',
+    'password123',
+  );
+  
+  print('Logged in as: ${authData.record?.id}');
+  print('Token: ${pb.authStore.token}');
+}
+
+// دریافت لیست
+Future&lt;void&gt; getPosts() async {
+  final result = await pb.collection('posts').getList(
+    page: 1,
+    perPage: 20,
+    filter: 'published = true',
+    sort: '-created',
+    expand: 'author',
+  );
+  
+  for (final item in result.items) {
+    print('${item.id}: ${item.data['title']}');
+  }
+}
+
+// ایجاد رکورد
+Future&lt;void&gt; createPost() async {
+  final record = await pb.collection('posts').create(body: {
+    'title': 'Flutter Post',
+    'content': 'Created from Flutter app',
+    'author': pb.authStore.model?.id,
+  });
+  
+  print('Created: ${record.id}');
+}
+
+// Realtime subscription
+void subscribeToChanges() {
+  pb.collection('posts').subscribe('*', (e) {
+    print('Action: ${e.action}');
+    print('Record: ${e.record?.data}');
+  });
+}
+
+// لغو اشتراک
+void unsubscribe() {
+  pb.collection('posts').unsubscribe('*');
+}</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Authentication -->
+        <section class="section" id="auth">
+            <div class="section-header">
+                <div class="section-icon">🔐</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">احراز هویت</h2>
+                    <p class="section-subtitle">مدیریت کاربران و امنیت</p>
+                </div>
+            </div>
+
+            <h3>👤 Auth Collections</h3>
+            <p>
+                هر Collection از نوع <strong>Auth</strong> قابلیت‌های احراز هویت را دارد.
+                به صورت پیش‌فرض یک Collection به نام <code>users</code> وجود دارد.
+            </p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">📧</div>
+                    <div class="feature-text">
+                        <strong>Email/Password</strong>
+                        ثبت‌نام و ورود با ایمیل و رمز عبور
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔑</div>
+                    <div class="feature-text">
+                        <strong>OAuth2</strong>
+                        ورود با Google, GitHub, Facebook, ...
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎫</div>
+                    <div class="feature-text">
+                        <strong>JWT Tokens</strong>
+                        توکن‌های امن با قابلیت refresh
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">✉️</div>
+                    <div class="feature-text">
+                        <strong>Email Verification</strong>
+                        تأیید ایمیل کاربران
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🔄</div>
+                    <div class="feature-text">
+                        <strong>Password Reset</strong>
+                        بازیابی رمز عبور با ایمیل
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-text">
+                        <strong>Multiple Auth Collections</strong>
+                        جداسازی کاربران و ادمین‌ها
+                    </div>
+                </div>
+            </div>
+
+            <h3>📝 ثبت‌نام و ورود</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>authentication.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import PocketBase from 'pocketbase';
+
+const pb = new PocketBase('http://127.0.0.1:8090');
+
+// ═══════════════════════════════════════════════════════════
+// ثبت‌نام کاربر جدید
+// ═══════════════════════════════════════════════════════════
+
+async function register(email, password, name) {
+    try {
+        const user = await pb.collection('users').create({
+            email: email,
+            password: password,
+            passwordConfirm: password,
+            name: name,
+            // فیلدهای سفارشی
+            avatar: null,
+            role: 'user',
+        });
+        
+        console.log('User created:', user.id);
+        
+        // ارسال ایمیل تأیید (اختیاری)
+        await pb.collection('users').requestVerification(email);
+        
+        return user;
+    } catch (error) {
+        console.error('Registration failed:', error.data);
+        throw error;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ورود با ایمیل و رمز عبور
+// ═══════════════════════════════════════════════════════════
+
+async function login(email, password) {
+    try {
+        const authData = await pb.collection('users').authWithPassword(
+            email,
+            password
+        );
+        
+        console.log('Logged in:', authData.record.id);
+        console.log('Token:', authData.token);
+        
+        // اطلاعات کاربر
+        console.log('User:', pb.authStore.model);
+        
+        return authData;
+    } catch (error) {
+        console.error('Login failed:', error.message);
+        throw error;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// بررسی وضعیت لاگین
+// ═══════════════════════════════════════════════════════════
+
+function checkAuth() {
+    // آیا توکن معتبر است؟
+    console.log('Is valid:', pb.authStore.isValid);
+    
+    // اطلاعات کاربر
+    console.log('User:', pb.authStore.model);
+    
+    // توکن
+    console.log('Token:', pb.authStore.token);
+}
+
+// ═══════════════════════════════════════════════════════════
+// Refresh Token
+// ═══════════════════════════════════════════════════════════
+
+async function refreshAuth() {
+    try {
+        const authData = await pb.collection('users').authRefresh();
+        console.log('Token refreshed');
+        return authData;
+    } catch (error) {
+        // توکن منقضی شده، نیاز به لاگین مجدد
+        pb.authStore.clear();
+        throw error;
+    }
+}
+
+// ═══════════════════════════════════════════════════════════
+// خروج
+// ═══════════════════════════════════════════════════════════
+
+function logout() {
+    pb.authStore.clear();
+    console.log('Logged out');
+}
+
+// ═══════════════════════════════════════════════════════════
+// بازیابی رمز عبور
+// ═══════════════════════════════════════════════════════════
+
+async function requestPasswordReset(email) {
+    await pb.collection('users').requestPasswordReset(email);
+    console.log('Password reset email sent');
+}
+
+async function confirmPasswordReset(token, newPassword) {
+    await pb.collection('users').confirmPasswordReset(
+        token,
+        newPassword,
+        newPassword
+    );
+    console.log('Password changed');
+}
+
+// ═══════════════════════════════════════════════════════════
+// تأیید ایمیل
+// ═══════════════════════════════════════════════════════════
+
+async function requestEmailVerification(email) {
+    await pb.collection('users').requestVerification(email);
+    console.log('Verification email sent');
+}
+
+async function confirmEmailVerification(token) {
+    await pb.collection('users').confirmVerification(token);
+    console.log('Email verified');
+}
+
+// ═══════════════════════════════════════════════════════════
+// تغییر ایمیل
+// ═══════════════════════════════════════════════════════════
+
+async function requestEmailChange(newEmail) {
+    await pb.collection('users').requestEmailChange(newEmail);
+    console.log('Email change confirmation sent');
+}
+
+// ═══════════════════════════════════════════════════════════
+// ذخیره Auth State (برای persist)
+// ═══════════════════════════════════════════════════════════
+
+// AuthStore به صورت خودکار در localStorage ذخیره می‌شود
+// برای سفارشی‌سازی:
+
+pb.authStore.onChange((token, model) => {
+    console.log('Auth state changed');
+    // ذخیره سفارشی
+    localStorage.setItem('pb_auth', JSON.stringify({ token, model }));
+});
+
+// بازیابی از storage
+const savedAuth = localStorage.getItem('pb_auth');
+if (savedAuth) {
+    const { token, model } = JSON.parse(savedAuth);
+    pb.authStore.save(token, model);
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>🔑 OAuth2 (Google, GitHub, ...)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>oauth2.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">// ═══════════════════════════════════════════════════════════
+// تنظیم OAuth2 در Admin UI
+// ═══════════════════════════════════════════════════════════
+
+// 1. به Settings → Auth providers بروید
+// 2. Provider مورد نظر را فعال کنید
+// 3. Client ID و Client Secret را وارد کنید
+
+// برای Google:
+// - به Google Cloud Console بروید
+// - یک OAuth 2.0 Client ID بسازید
+// - Redirect URI: http://127.0.0.1:8090/api/oauth2-redirect
+
+// ═══════════════════════════════════════════════════════════
+// ورود با OAuth2
+// ═══════════════════════════════════════════════════════════
+
+// لیست providers فعال
+const authMethods = await pb.collection('users').listAuthMethods();
+console.log(authMethods.authProviders);
+
+// ورود با Google (باز کردن popup)
+async function loginWithGoogle() {
+    try {
+        const authData = await pb.collection('users').authWithOAuth2({
+            provider: 'google',
+            // اختیاری: scopes اضافی
+            scopes: ['email', 'profile'],
+        });
+        
+        console.log('Logged in with Google:', authData.record.id);
+        console.log('OAuth2 meta:', authData.meta);
+        
+        return authData;
+    } catch (error) {
+        console.error('OAuth2 failed:', error);
+        throw error;
+    }
+}
+
+// ورود با GitHub
+async function loginWithGitHub() {
+    const authData = await pb.collection('users').authWithOAuth2({
+        provider: 'github',
+    });
+    return authData;
+}
+
+// ═══════════════════════════════════════════════════════════
+// OAuth2 با redirect (بدون popup)
+// ═══════════════════════════════════════════════════════════
+
+// مرحله 1: redirect به provider
+async function startOAuth2(provider) {
+    const authMethods = await pb.collection('users').listAuthMethods();
+    const providerData = authMethods.authProviders.find(
+        p => p.name === provider
+    );
+    
+    // ذخیره state برای verification
+    localStorage.setItem('oauth2_state', providerData.state);
+    localStorage.setItem('oauth2_verifier', providerData.codeVerifier);
+    
+    // redirect
+    window.location.href = providerData.authUrl + 
+        '&redirect_uri=' + encodeURIComponent(window.location.origin + '/oauth-callback');
+}
+
+// مرحله 2: در callback page
+async function handleOAuth2Callback() {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+    
+    const savedState = localStorage.getItem('oauth2_state');
+    const codeVerifier = localStorage.getItem('oauth2_verifier');
+    
+    if (state !== savedState) {
+        throw new Error('Invalid state');
+    }
+    
+    const authData = await pb.collection('users').authWithOAuth2Code(
+        'google',
+        code,
+        codeVerifier,
+        window.location.origin + '/oauth-callback'
+    );
+    
+    // پاکسازی
+    localStorage.removeItem('oauth2_state');
+    localStorage.removeItem('oauth2_verifier');
+    
+    return authData;
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>🛡️ محافظت از API</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>protected_requests.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">// ═══════════════════════════════════════════════════════════
+// درخواست‌های محافظت شده
+// ═══════════════════════════════════════════════════════════
+
+// SDK به صورت خودکار توکن را به هدر اضافه می‌کند
+// اگر pb.authStore.isValid باشد
+
+// دریافت پست‌های کاربر فعلی
+const myPosts = await pb.collection('posts').getList(1, 20, {
+    filter: `author = "${pb.authStore.model.id}"`,
+});
+
+// ═══════════════════════════════════════════════════════════
+// با fetch خام
+// ═══════════════════════════════════════════════════════════
+
+const response = await fetch('http://127.0.0.1:8090/api/collections/posts/records', {
+    headers: {
+        'Authorization': `Bearer ${pb.authStore.token}`,
+        'Content-Type': 'application/json',
+    },
+});
+
+// ═══════════════════════════════════════════════════════════
+// Middleware برای بررسی auth
+// ═══════════════════════════════════════════════════════════
+
+function requireAuth() {
+    if (!pb.authStore.isValid) {
+        // redirect به صفحه لاگین
+        window.location.href = '/login';
+        return false;
+    }
+    return true;
+}
+
+// استفاده
+async function getProtectedData() {
+    if (!requireAuth()) return;
+    
+    const data = await pb.collection('private_data').getList();
+    return data;
+}
+
+// ═══════════════════════════════════════════════════════════
+// Auto refresh token
+// ═══════════════════════════════════════════════════════════
+
+// هر ۵ دقیقه توکن را refresh کن
+setInterval(async () => {
+    if (pb.authStore.isValid) {
+        try {
+            await pb.collection('users').authRefresh();
+        } catch (error) {
+            pb.authStore.clear();
+            window.location.href = '/login';
+        }
+    }
+}, 5 * 60 * 1000);</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکات امنیتی مهم</h4>
+                    <ul>
+                        <li><strong>HTTPS:</strong> در Production حتماً از HTTPS استفاده کنید</li>
+                        <li><strong>Token Storage:</strong> توکن‌ها را در httpOnly cookie ذخیره کنید (برای امنیت بیشتر)</li>
+                        <li><strong>Password Policy:</strong> سیاست رمز عبور قوی تنظیم کنید</li>
+                        <li><strong>Rate Limiting:</strong> محدودیت تعداد درخواست برای جلوگیری از brute force</li>
+                        <li><strong>Email Verification:</strong> برای حساب‌های حساس، تأیید ایمیل را اجباری کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Files -->
+        <section class="section" id="files">
+            <div class="section-header">
+                <div class="section-icon">📁</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">مدیریت فایل‌ها</h2>
+                    <p class="section-subtitle">آپلود، ذخیره و پردازش فایل</p>
+                </div>
+            </div>
+
+            <h3>📤 آپلود فایل</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>file_upload.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">// ═══════════════════════════════════════════════════════════
+// آپلود با فرم HTML
+// ═══════════════════════════════════════════════════════════
+
+// HTML:
+// &lt;form id="uploadForm"&gt;
+//   &lt;input type="text" name="title" /&gt;
+//   &lt;input type="file" name="cover" /&gt;
+//   &lt;input type="file" name="attachments" multiple /&gt;
+//   &lt;button type="submit"&gt;Upload&lt;/button&gt;
+// &lt;/form&gt;
+
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    
+    try {
+        const record = await pb.collection('posts').create(formData);
+        console.log('Created with files:', record);
+    } catch (error) {
+        console.error('Upload failed:', error);
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+// آپلود با JavaScript
+// ═══════════════════════════════════════════════════════════
+
+async function uploadPost(title, coverFile, attachmentFiles) {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('author', pb.authStore.model.id);
+    
+    // یک فایل
+    if (coverFile) {
+        formData.append('cover', coverFile);
+    }
+    
+    // چند فایل
+    if (attachmentFiles) {
+        for (const file of attachmentFiles) {
+            formData.append('attachments', file);
+        }
+    }
+    
+    const record = await pb.collection('posts').create(formData);
+    return record;
+}
+
+// ═══════════════════════════════════════════════════════════
+// آپلود با Drag & Drop
+// ═══════════════════════════════════════════════════════════
+
+const dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    
+    for (const file of files) {
+        await uploadFile(file);
+    }
+});
+
+async function uploadFile(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('name', file.name);
+    formData.append('size', file.size);
+    formData.append('type', file.type);
+    
+    const record = await pb.collection('uploads').create(formData);
+    console.log('Uploaded:', record);
+    return record;
+}
+
+// ═══════════════════════════════════════════════════════════
+// نمایش پیشرفت آپلود
+// ═══════════════════════════════════════════════════════════
+
+async function uploadWithProgress(file, onProgress) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+                const percent = (e.loaded / e.total) * 100;
+                onProgress(percent);
+            }
+        });
+        
+        xhr.addEventListener('load', () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(JSON.parse(xhr.responseText));
+            } else {
+                reject(new Error(xhr.statusText));
+            }
+        });
+        
+        xhr.addEventListener('error', () => reject(new Error('Upload failed')));
+        
+        xhr.open('POST', `${pb.baseUrl}/api/collections/uploads/records`);
+        xhr.setRequestHeader('Authorization', `Bearer ${pb.authStore.token}`);
+        xhr.send(formData);
+    });
+}
+
+// استفاده
+uploadWithProgress(file, (percent) => {
+    console.log(`Upload progress: ${percent.toFixed(0)}%`);
+    progressBar.style.width = `${percent}%`;
+});</code></pre>
+                </div>
+            </div>
+
+            <h3>📥 دریافت URL فایل</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>file_urls.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">// ═══════════════════════════════════════════════════════════
+// دریافت URL فایل
+// ═══════════════════════════════════════════════════════════
+
+const post = await pb.collection('posts').getOne('RECORD_ID');
+
+// URL اصلی فایل
+const coverUrl = pb.files.getUrl(post, post.cover);
+// نتیجه: http://127.0.0.1:8090/api/files/posts/RECORD_ID/filename.jpg
+
+// URL با thumbnail
+const thumbUrl = pb.files.getUrl(post, post.cover, {
+    thumb: '100x100'  // اندازه thumbnail
+});
+
+// گزینه‌های thumbnail
+const thumb1 = pb.files.getUrl(post, post.cover, { thumb: '100x100' });  // fit
+const thumb2 = pb.files.getUrl(post, post.cover, { thumb: '100x100f' }); // fill
+const thumb3 = pb.files.getUrl(post, post.cover, { thumb: '100x100t' }); // top crop
+const thumb4 = pb.files.getUrl(post, post.cover, { thumb: '100x100b' }); // bottom crop
+const thumb5 = pb.files.getUrl(post, post.cover, { thumb: '0x100' });    // فقط ارتفاع
+const thumb6 = pb.files.getUrl(post, post.cover, { thumb: '100x0' });    // فقط عرض
+
+// ═══════════════════════════════════════════════════════════
+// توکن دسترسی برای فایل‌های محافظت شده
+// ═══════════════════════════════════════════════════════════
+
+// اگر قانون view فایل محدود باشد، نیاز به توکن است
+const protectedUrl = pb.files.getUrl(post, post.cover, {
+    token: pb.authStore.token
+});
+
+// یا دریافت توکن موقت
+const fileToken = await pb.files.getToken();
+const urlWithToken = pb.files.getUrl(post, post.cover, {
+    token: fileToken
+});
+
+// ═══════════════════════════════════════════════════════════
+// نمایش در HTML
+// ═══════════════════════════════════════════════════════════
+
+// React/Vue/Svelte
+function PostImage({ post }) {
+    const imageUrl = pb.files.getUrl(post, post.cover, {
+        thumb: '400x300'
+    });
+    
+    return &lt;img src={imageUrl} alt={post.title} /&gt;;
+}
+
+// چند فایل
+function PostGallery({ post }) {
+    return (
+        &lt;div className="gallery"&gt;
+            {post.images.map((filename, index) =&gt; (
+                &lt;img 
+                    key={index}
+                    src={pb.files.getUrl(post, filename, { thumb: '200x200' })}
+                    alt={`Image ${index + 1}`}
+                /&gt;
+            ))}
+        &lt;/div&gt;
+    );
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>🗑️ حذف و بروزرسانی فایل</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>file_management.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">// ═══════════════════════════════════════════════════════════
+// جایگزینی فایل
+// ═══════════════════════════════════════════════════════════
+
+async function updateCover(recordId, newFile) {
+    const formData = new FormData();
+    formData.append('cover', newFile);
+    
+    const updated = await pb.collection('posts').update(recordId, formData);
+    return updated;
+}
+
+// ═══════════════════════════════════════════════════════════
+// حذف فایل
+// ═══════════════════════════════════════════════════════════
+
+// حذف یک فایل (تنظیم به null)
+async function removeCover(recordId) {
+    const updated = await pb.collection('posts').update(recordId, {
+        cover: null
+    });
+    return updated;
+}
+
+// حذف فایل خاص از فیلد چندگانه
+async function removeAttachment(recordId, filenameToRemove) {
+    const record = await pb.collection('posts').getOne(recordId);
+    
+    // فیلتر کردن فایل مورد نظر
+    const remainingFiles = record.attachments.filter(
+        filename => filename !== filenameToRemove
+    );
+    
+    const updated = await pb.collection('posts').update(recordId, {
+        attachments: remainingFiles
+    });
+    
+    return updated;
+}
+
+// ═══════════════════════════════════════════════════════════
+// اضافه کردن فایل به فیلد چندگانه
+// ═══════════════════════════════════════════════════════════
+
+async function addAttachments(recordId, newFiles) {
+    const formData = new FormData();
+    
+    // علامت + برای اضافه کردن (نه جایگزینی)
+    for (const file of newFiles) {
+        formData.append('attachments+', file);
+    }
+    
+    const updated = await pb.collection('posts').update(recordId, formData);
+    return updated;
+}
+
+// حذف فایل خاص با علامت -
+async function removeSpecificAttachment(recordId, filename) {
+    const updated = await pb.collection('posts').update(recordId, {
+        'attachments-': filename
+    });
+    return updated;
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>☁️ S3 Storage</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">TXT</div>
+                        <span>S3 Configuration</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">═══════════════════════════════════════════════════════════
+تنظیم S3 در Admin UI
+═══════════════════════════════════════════════════════════
+
+Settings → Files storage → S3
+
+Endpoint:        s3.amazonaws.com (یا compatible endpoint)
+Bucket:          your-bucket-name
+Region:          us-east-1
+Access Key:      AKIAXXXXXXXXXXXXXXXX
+Secret Key:      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Force Path Style: false (برای AWS)، true (برای MinIO)
+
+═══════════════════════════════════════════════════════════
+سرویس‌های سازگار با S3
+═══════════════════════════════════════════════════════════
+
+• AWS S3
+• DigitalOcean Spaces
+• Cloudflare R2
+• MinIO (self-hosted)
+• Backblaze B2
+• Wasabi
+• Linode Object Storage
+
+═══════════════════════════════════════════════════════════
+مثال MinIO (self-hosted)
+═══════════════════════════════════════════════════════════
+
+# docker-compose.yml
+services:
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+
+# تنظیمات در PocketBase:
+Endpoint:        localhost:9000
+Bucket:          pocketbase
+Force Path Style: true</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات مهم درباره فایل‌ها</h4>
+                    <ul>
+                        <li><strong>Thumbnails:</strong> فقط برای تصاویر کار می‌کنند و در اولین درخواست ساخته می‌شوند</li>
+                        <li><strong>حجم:</strong> محدودیت حجم را در تنظیمات فیلد مشخص کنید</li>
+                        <li><strong>MIME Types:</strong> انواع فایل مجاز را محدود کنید</li>
+                        <li><strong>S3 برای Production:</strong> برای مقیاس‌پذیری از S3 استفاده کنید</li>
+                        <li><strong>بکاپ:</strong> پوشه <code>pb_data/storage</code> را بکاپ بگیرید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Realtime -->
+        <section class="section" id="realtime">
+            <div class="section-header">
+                <div class="section-icon">⚡</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">Realtime و SSE</h2>
+                    <p class="section-subtitle">اشتراک‌گذاری تغییرات به صورت لحظه‌ای</p>
+                </div>
+            </div>
+
+            <h3>📡 Server-Sent Events (SSE)</h3>
+            <p>
+                PocketBase از <strong>SSE</strong> برای ارسال تغییرات به صورت لحظه‌ای استفاده می‌کند.
+                این روش ساده‌تر از WebSocket است و برای اکثر موارد کافی است.
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">➕</div>
+                    <h4 class="card-title">Create</h4>
+                    <p class="card-description">
+                        وقتی رکورد جدیدی ایجاد می‌شود
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">✏️</div>
+                    <h4 class="card-title">Update</h4>
+                    <p class="card-description">
+                        وقتی رکورد موجود بروزرسانی می‌شود
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🗑️</div>
+                    <h4 class="card-title">Delete</h4>
+                    <p class="card-description">
+                        وقتی رکورد حذف می‌شود
+                    </p>
+                </div>
+            </div>
+
+            <h3>🔔 اشتراک در تغییرات</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>realtime.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import PocketBase from 'pocketbase';
+
+const pb = new PocketBase('http://127.0.0.1:8090');
+
+// ═══════════════════════════════════════════════════════════
+// اشتراک در همه تغییرات یک Collection
+// ═══════════════════════════════════════════════════════════
+
+pb.collection('messages').subscribe('*', function (e) {
+    console.log('Action:', e.action);  // create, update, delete
+    console.log('Record:', e.record);
+    
+    switch (e.action) {
+        case 'create':
+            // رکورد جدید اضافه شده
+            addMessageToUI(e.record);
+            break;
+        case 'update':
+            // رکورد بروزرسانی شده
+            updateMessageInUI(e.record);
+            break;
+        case 'delete':
+            // رکورد حذف شده
+            removeMessageFromUI(e.record.id);
+            break;
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+// اشتراک در یک رکورد خاص
+// ═══════════════════════════════════════════════════════════
+
+const recordId = 'RECORD_ID';
+
+pb.collection('posts').subscribe(recordId, function (e) {
+    console.log('Post changed:', e.record);
+    
+    if (e.action === 'delete') {
+        // redirect به صفحه دیگر
+        window.location.href = '/posts';
+    } else {
+        // بروزرسانی UI
+        updatePostDetails(e.record);
+    }
+});
+
+// ═══════════════════════════════════════════════════════════
+// لغو اشتراک
+// ═══════════════════════════════════════════════════════════
+
+// لغو اشتراک یک topic خاص
+pb.collection('messages').unsubscribe('*');
+pb.collection('posts').unsubscribe(recordId);
+
+// لغو همه اشتراک‌های یک Collection
+pb.collection('messages').unsubscribe();
+
+// لغو همه اشتراک‌ها
+pb.realtime.unsubscribe();
+
+// ═══════════════════════════════════════════════════════════
+// مدیریت اتصال
+// ═══════════════════════════════════════════════════════════
+
+// بررسی وضعیت اتصال
+console.log('Is connected:', pb.realtime.isConnected);
+
+// رویداد قطع اتصال
+pb.realtime.onDisconnect = function() {
+    console.log('Realtime disconnected');
+    showReconnectingMessage();
+};
+
+// رویداد اتصال مجدد (SDK به صورت خودکار reconnect می‌کند)
+pb.realtime.onConnect = function() {
+    console.log('Realtime connected');
+    hideReconnectingMessage();
+};</code></pre>
+                </div>
+            </div>
+
+            <h3>💬 مثال: چت Realtime</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>chat_example.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">// ═══════════════════════════════════════════════════════════
+// سیستم چت ساده با PocketBase
+// ═══════════════════════════════════════════════════════════
+
+class ChatApp {
+    constructor(roomId) {
+        this.pb = new PocketBase('http://127.0.0.1:8090');
+        this.roomId = roomId;
+        this.messages = [];
+    }
+    
+    // بارگذاری پیام‌های قبلی
+    async loadMessages() {
+        const result = await this.pb.collection('messages').getList(1, 50, {
+            filter: `room = "${this.roomId}"`,
+            sort: 'created',
+            expand: 'sender',
+        });
+        
+        this.messages = result.items;
+        this.renderMessages();
+    }
+    
+    // اشتراک در پیام‌های جدید
+    subscribeToMessages() {
+        this.pb.collection('messages').subscribe('*', (e) => {
+            // فقط پیام‌های این اتاق
+            if (e.record.room !== this.roomId) return;
+            
+            switch (e.action) {
+                case 'create':
+                    this.messages.push(e.record);
+                    this.renderNewMessage(e.record);
+                    this.scrollToBottom();
+                    break;
+                case 'update':
+                    const index = this.messages.findIndex(m => m.id === e.record.id);
+                    if (index !== -1) {
+                        this.messages[index] = e.record;
+                        this.updateMessageInUI(e.record);
+                    }
+                    break;
+                case 'delete':
+                    this.messages = this.messages.filter(m => m.id !== e.record.id);
+                    this.removeMessageFromUI(e.record.id);
+                    break;
+            }
+        });
+    }
+    
+    // ارسال پیام
+    async sendMessage(text) {
+        if (!text.trim()) return;
+        
+        const message = await this.pb.collection('messages').create({
+            text: text,
+            room: this.roomId,
+            sender: this.pb.authStore.model.id,
+        });
+        
+        return message;
+    }
+    
+    // ویرایش پیام
+    async editMessage(messageId, newText) {
+        const message = await this.pb.collection('messages').update(messageId, {
+            text: newText,
+            edited: true,
+        });
+        return message;
+    }
+    
+    // حذف پیام
+    async deleteMessage(messageId) {
+        await this.pb.collection('messages').delete(messageId);
+    }
+    
+    // رندر پیام‌ها
+    renderMessages() {
+        const container = document.getElementById('messages');
+        container.innerHTML = this.messages.map(m => this.messageHTML(m)).join('');
+        this.scrollToBottom();
+    }
+    
+    renderNewMessage(message) {
+        const container = document.getElementById('messages');
+        container.insertAdjacentHTML('beforeend', this.messageHTML(message));
+    }
+    
+    messageHTML(message) {
+        const isOwn = message.sender === this.pb.authStore.model?.id;
+        return `
+            &lt;div class="message ${isOwn ? 'own' : ''}" data-id="${message.id}"&gt;
+                &lt;div class="message-sender"&gt;${message.expand?.sender?.name || 'Unknown'}&lt;/div&gt;
+                &lt;div class="message-text"&gt;${message.text}&lt;/div&gt;
+                &lt;div class="message-time"&gt;${new Date(message.created).toLocaleTimeString()}&lt;/div&gt;
+                ${message.edited ? '&lt;span class="edited"&gt;(edited)&lt;/span&gt;' : ''}
+            &lt;/div&gt;
+        `;
+    }
+    
+    scrollToBottom() {
+        const container = document.getElementById('messages');
+        container.scrollTop = container.scrollHeight;
+    }
+    
+    // پاکسازی
+    destroy() {
+        this.pb.collection('messages').unsubscribe('*');
+    }
+}
+
+// استفاده
+const chat = new ChatApp('room_123');
+await chat.loadMessages();
+chat.subscribeToMessages();
+
+// ارسال پیام
+document.getElementById('sendBtn').addEventListener('click', () => {
+    const input = document.getElementById('messageInput');
+    chat.sendMessage(input.value);
+    input.value = '';
+});
+
+// پاکسازی هنگام خروج
+window.addEventListener('beforeunload', () => {
+    chat.destroy();
+});</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 مثال: Realtime با React</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon react">JSX</div>
+                        <span>useRealtime.jsx</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">import { useState, useEffect, useCallback } from 'react';
+import PocketBase from 'pocketbase';
+
+const pb = new PocketBase('http://127.0.0.1:8090');
+
+// ═══════════════════════════════════════════════════════════
+// Custom Hook برای Realtime
+// ═══════════════════════════════════════════════════════════
+
+function useRealtimeCollection(collectionName, options = {}) {
+    const [records, setRecords] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
+    const { filter, sort, expand } = options;
+    
+    // بارگذاری اولیه
+    useEffect(() => {
+        async function loadData() {
+            try {
+                setLoading(true);
+                const result = await pb.collection(collectionName).getFullList({
+                    filter,
+                    sort,
+                    expand,
+                });
+                setRecords(result);
+            } catch (err) {
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        }
+        
+        loadData();
+    }, [collectionName, filter, sort, expand]);
+    
+    // اشتراک در تغییرات
+    useEffect(() => {
+        pb.collection(collectionName).subscribe('*', (e) => {
+            setRecords(current => {
+                switch (e.action) {
+                    case 'create':
+                        return [...current, e.record];
+                    case 'update':
+                        return current.map(r => 
+                            r.id === e.record.id ? e.record : r
+                        );
+                    case 'delete':
+                        return current.filter(r => r.id !== e.record.id);
+                    default:
+                        return current;
+                }
+            });
+        });
+        
+        return () => {
+            pb.collection(collectionName).unsubscribe('*');
+        };
+    }, [collectionName]);
+    
+    return { records, loading, error };
+}
+
+// ═══════════════════════════════════════════════════════════
+// استفاده در کامپوننت
+// ═══════════════════════════════════════════════════════════
+
+function NotificationsList() {
+    const { records: notifications, loading } = useRealtimeCollection(
+        'notifications',
+        {
+            filter: `user = "${pb.authStore.model?.id}" && read = false`,
+            sort: '-created',
+        }
+    );
+    
+    if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+    
+    return (
+        &lt;div className="notifications"&gt;
+            &lt;h3&gt;Notifications ({notifications.length})&lt;/h3&gt;
+            {notifications.map(notif => (
+                &lt;div key={notif.id} className="notification"&gt;
+                    &lt;p&gt;{notif.message}&lt;/p&gt;
+                    &lt;small&gt;{new Date(notif.created).toLocaleString()}&lt;/small&gt;
+                &lt;/div&gt;
+            ))}
+        &lt;/div&gt;
+    );
+}
+
+// ═══════════════════════════════════════════════════════════
+// Hook برای یک رکورد خاص
+// ═══════════════════════════════════════════════════════════
+
+function useRealtimeRecord(collectionName, recordId) {
+    const [record, setRecord] = useState(null);
+    const [loading, setLoading] = useState(true);
+    
+    useEffect(() => {
+        if (!recordId) return;
+        
+        // بارگذاری اولیه
+        pb.collection(collectionName).getOne(recordId)
+            .then(setRecord)
+            .finally(() => setLoading(false));
+        
+        // اشتراک
+        pb.collection(collectionName).subscribe(recordId, (e) => {
+            if (e.action === 'delete') {
+                setRecord(null);
+            } else {
+                setRecord(e.record);
+            }
+        });
+        
+        return () => {
+            pb.collection(collectionName).unsubscribe(recordId);
+        };
+    }, [collectionName, recordId]);
+    
+    return { record, loading };
+}
+
+// استفاده
+function PostDetails({ postId }) {
+    const { record: post, loading } = useRealtimeRecord('posts', postId);
+    
+    if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+    if (!post) return &lt;div&gt;Post not found&lt;/div&gt;;
+    
+    return (
+        &lt;article&gt;
+            &lt;h1&gt;{post.title}&lt;/h1&gt;
+            &lt;p&gt;Views: {post.views}&lt;/p&gt;
+            &lt;div dangerouslySetInnerHTML={{ __html: post.content }} /&gt;
+        &lt;/article&gt;
+    );
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box info">
+                <div class="info-icon">ℹ️</div>
+                <div class="info-content">
+                    <h4>محدودیت‌های Realtime</h4>
+                    <ul>
+                        <li><strong>قوانین دسترسی:</strong> فقط رکوردهایی که کاربر حق دیدن دارد ارسال می‌شوند</li>
+                        <li><strong>Expand:</strong> داده‌های expand شده در realtime ارسال نمی‌شوند (باید جداگانه fetch کنید)</li>
+                        <li><strong>Batch:</strong> عملیات batch به صورت جداگانه ارسال می‌شوند</li>
+                        <li><strong>مقیاس:</strong> برای هزاران اتصال همزمان، load balancing نیاز است</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Extending -->
+        <section class="section" id="extend">
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">توسعه با Go/JS</h2>
+                    <p class="section-subtitle">سفارشی‌سازی و افزودن قابلیت</p>
+                </div>
+            </div>
+
+            <h3>🔌 Hooks و Events</h3>
+            <p>
+                PocketBase امکان اجرای کد سفارشی در رویدادهای مختلف را فراهم می‌کند.
+                می‌توانید با <strong>Go</strong> یا <strong>JavaScript</strong> توسعه دهید.
+            </p>
+
+            <h4>توسعه با JavaScript (ساده‌تر)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon js">JS</div>
+                        <span>pb_hooks/main.pb.js</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-javascript">/// &lt;reference path="../pb_data/types.d.ts" /&gt;
+
+// ═══════════════════════════════════════════════════════════
+// Hook قبل از ایجاد رکورد
+// ═══════════════════════════════════════════════════════════
+
+onRecordBeforeCreateRequest((e) => {
+    const collection = e.collection.name;
+    const record = e.record;
+    
+    // اعتبارسنجی سفارشی
+    if (collection === 'posts') {
+        if (record.get('title').length < 5) {
+            throw new BadRequestError('Title must be at least 5 characters');
+        }
+        
+        // تنظیم slug خودکار
+        const slug = record.get('title')
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/(^-|-$)/g, '');
+        record.set('slug', slug);
+    }
+}, 'posts');
+
+// ═══════════════════════════════════════════════════════════
+// Hook بعد از ایجاد رکورد
+// ═══════════════════════════════════════════════════════════
+
+onRecordAfterCreateRequest((e) => {
+    const collection = e.collection.name;
+    const record = e.record;
+    
+    // ارسال نوتیفیکیشن
+    if (collection === 'comments') {
+        const postId = record.get('post');
+        
+        // دریافت پست و نویسنده
+        const post = $app.dao().findRecordById('posts', postId);
+        const authorId = post.get('author');
+        
+        // ایجاد نوتیفیکیشن
+        if (authorId !== record.get('user')) {
+            const notifCollection = $app.dao().findCollectionByNameOrId('notifications');
+            const notification = new Record(notifCollection);
+            notification.set('user', authorId);
+            notification.set('type', 'new_comment');
+            notification.set('message', `New comment on your post "${post.get('title')}"`);
+            notification.set('data', { postId, commentId: record.id });
+            notification.set('read', false);
+            
+            $app.dao().saveRecord(notification);
+        }
+    }
+}, 'comments');
+
+// ═══════════════════════════════════════════════════════════
+// Hook قبل از بروزرسانی
+// ═══════════════════════════════════════════════════════════
+
+onRecordBeforeUpdateRequest((e) => {
+    const record = e.record;
+    const original = e.record.originalCopy();
+    
+    // جلوگیری از تغییر فیلدهای خاص
+    if (record.get('status') === 'published' && original.get('status') !== 'published') {
+        record.set('publishedAt', new Date().toISOString());
+    }
+    
+    // ثبت تاریخ آخرین ویرایش
+    record.set('updatedAt', new Date().toISOString());
+}, 'posts');
+
+// ═══════════════════════════════════════════════════════════
+// Hook قبل از حذف
+// ═══════════════════════════════════════════════════════════
+
+onRecordBeforeDeleteRequest((e) => {
+    const record = e.record;
+    
+    // جلوگیری از حذف رکوردهای مهم
+    if (record.get('protected')) {
+        throw new ForbiddenError('This record cannot be deleted');
+    }
+}, 'posts');
+
+// ═══════════════════════════════════════════════════════════
+// Hook برای احراز هویت
+// ═══════════════════════════════════════════════════════════
+
+onRecordAfterAuthWithPasswordRequest((e) => {
+    const record = e.record;
+    
+    // ثبت آخرین ورود
+    record.set('lastLogin', new Date().toISOString());
+    record.set('loginCount', (record.get('loginCount') || 0) + 1);
+    
+    $app.dao().saveRecord(record);
+    
+    console.log(`User ${record.get('email')} logged in`);
+}, 'users');
+
+// ═══════════════════════════════════════════════════════════
+// افزودن Route سفارشی
+// ═══════════════════════════════════════════════════════════
+
+routerAdd('GET', '/api/stats', (c) => {
+    // بررسی احراز هویت
+    const authRecord = c.get('authRecord');
+    if (!authRecord) {
+        throw new UnauthorizedError('Authentication required');
+    }
+    
+    // محاسبه آمار
+    const postsCount = $app.dao().findRecordsByFilter('posts', 'author = {:userId}', '-created', 0, 0, { userId: authRecord.id }).length;
+    const commentsCount = $app.dao().findRecordsByFilter('comments', 'user = {:userId}', '', 0, 0, { userId: authRecord.id }).length;
+    
+    return c.json(200, {
+        posts: postsCount,
+        comments: commentsCount,
+        user: authRecord.get('name'),
+    });
+}, $apis.requireRecordAuth());
+
+// Route عمومی
+routerAdd('GET', '/api/public/featured', (c) => {
+    const posts = $app.dao().findRecordsByFilter(
+        'posts',
+        'featured = true && published = true',
+        '-created',
+        10,
+        0
+    );
+    
+    const result = posts.map(post => ({
+        id: post.id,
+        title: post.get('title'),
+        slug: post.get('slug'),
+        excerpt: post.get('excerpt'),
+    }));
+    
+    return c.json(200, { posts: result });
+});
+
+// ═══════════════════════════════════════════════════════════
+// Cron Jobs (کارهای زمان‌بندی شده)
+// ═══════════════════════════════════════════════════════════
+
+cronAdd('cleanupOldNotifications', '0 0 * * *', () => {
+    // حذف نوتیفیکیشن‌های خوانده شده قدیمی‌تر از 30 روز
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const oldNotifications = $app.dao().findRecordsByFilter(
+        'notifications',
+        'read = true && created < {:date}',
+        '',
+        0,
+        0,
+        { date: thirtyDaysAgo.toISOString() }
+    );
+    
+    for (const notif of oldNotifications) {
+        $app.dao().deleteRecord(notif);
+    }
+    
+    console.log(`Cleaned up ${oldNotifications.length} old notifications`);
+});
+
+// هر ساعت
+cronAdd('updateStats', '0 * * * *', () => {
+    // بروزرسانی آمار
+    console.log('Updating stats...');
+});
+
+// ═══════════════════════════════════════════════════════════
+// ارسال ایمیل سفارشی
+// ═══════════════════════════════════════════════════════════
+
+onRecordAfterCreateRequest((e) => {
+    const record = e.record;
+    
+    // ارسال ایمیل خوش‌آمدگویی
+    const message = new MailerMessage({
+        from: {
+            address: $app.settings().meta.senderAddress,
+            name: $app.settings().meta.senderName,
+        },
+        to: [{ address: record.get('email') }],
+        subject: 'Welcome to Our App!',
+        html: `
+            <h1>Welcome, ${record.get('name')}!</h1>
+            <p>Thank you for joining us.</p>
+            <p>Click <a href="https://example.com/verify?token=${record.get('verificationToken')}">here</a> to verify your email.</p>
+        `,
+    });
+    
+    $app.newMailClient().send(message);
+}, 'users');</code></pre>
+                </div>
+            </div>
+
+            <h4>توسعه با Go (قدرتمندتر)</h4>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon go">GO</div>
+                        <span>main.go</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-go">package main
+
+import (
+    "log"
+    "net/http"
+    "strings"
+
+    "github.com/labstack/echo/v5"
+    "github.com/pocketbase/pocketbase"
+    "github.com/pocketbase/pocketbase/apis"
+    "github.com/pocketbase/pocketbase/core"
+    "github.com/pocketbase/pocketbase/models"
+)
+
+func main() {
+    app := pocketbase.New()
+
+    // ═══════════════════════════════════════════════════════════
+    // Hook قبل از ایجاد
+    // ═══════════════════════════════════════════════════════════
+    
+    app.OnRecordBeforeCreateRequest("posts").Add(func(e *core.RecordCreateEvent) error {
+        record := e.Record
+        
+        // تولید slug از title
+        title := record.GetString("title")
+        slug := strings.ToLower(title)
+        slug = strings.ReplaceAll(slug, " ", "-")
+        record.Set("slug", slug)
+        
+        return nil
+    })
+
+    // ═══════════════════════════════════════════════════════════
+    // Hook بعد از ایجاد
+    // ═══════════════════════════════════════════════════════════
+    
+    app.OnRecordAfterCreateRequest("orders").Add(func(e *core.RecordCreateEvent) error {
+        record := e.Record
+        
+        // ارسال ایمیل تأیید سفارش
+        userID := record.GetString("user")
+        user, err := app.Dao().FindRecordById("users", userID)
+        if err != nil {
+            return err
+        }
+        
+        // ارسال ایمیل
+        message := &mailer.Message{
+            From:    mail.Address{Name: "Shop", Address: "shop@example.com"},
+            To:      []mail.Address{{Address: user.GetString("email")}},
+            Subject: "Order Confirmation",
+            HTML:    "<h1>Your order has been received!</h1>",
+        }
+        
+        return app.NewMailClient().Send(message)
+    })
+
+    // ═══════════════════════════════════════════════════════════
+    // Route سفارشی
+    // ═══════════════════════════════════════════════════════════
+    
+    app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+        // Route عمومی
+        e.Router.GET("/api/health", func(c echo.Context) error {
+            return c.JSON(http.StatusOK, map[string]string{
+                "status": "healthy",
+            })
+        })
+        
+        // Route با احراز هویت
+        e.Router.GET("/api/me/stats", func(c echo.Context) error {
+            authRecord, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
+            if authRecord == nil {
+                return apis.NewUnauthorizedError("Unauthorized", nil)
+            }
+            
+            // محاسبه آمار
+            posts, _ := app.Dao().FindRecordsByFilter(
+                "posts",
+                "author = {:userId}",
+                "",
+                0,
+                0,
+                dbx.Params{"userId": authRecord.Id},
+            )
+            
+            return c.JSON(http.StatusOK, map[string]interface{}{
+                "postsCount": len(posts),
+                "userId":     authRecord.Id,
+            })
+        }, apis.RequireRecordAuth())
+        
+        return nil
+    })
+
+    // ═══════════════════════════════════════════════════════════
+    // Middleware سفارشی
+    // ═══════════════════════════════════════════════════════════
+    
+    app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+        e.Router.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+            return func(c echo.Context) error {
+                // لاگ همه درخواست‌ها
+                log.Printf("%s %s", c.Request().Method, c.Request().URL.Path)
+                return next(c)
+            }
+        })
+        return nil
+    })
+
+    // اجرای اپلیکیشن
+    if err := app.Start(); err != nil {
+        log.Fatal(err)
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>📁 ساختار پروژه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">TXT</div>
+                        <span>Project Structure</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-plaintext">my-pocketbase-app/
+├── pb_data/                    # داده‌ها (دیتابیس، فایل‌ها)
+│   ├── data.db                 # دیتابیس SQLite
+│   ├── storage/                # فایل‌های آپلود شده
+│   └── types.d.ts              # TypeScript definitions
+│
+├── pb_hooks/                   # JavaScript hooks
+│   ├── main.pb.js              # فایل اصلی hooks
+│   ├── posts.pb.js             # hooks مربوط به posts
+│   └── users.pb.js             # hooks مربوط به users
+│
+├── pb_migrations/              # Migration files
+│   ├── 1234567890_initial.js
+│   └── 1234567891_add_posts.js
+│
+├── pb_public/                  # فایل‌های استاتیک
+│   ├── index.html
+│   ├── css/
+│   └── js/
+│
+├── main.go                     # (اختیاری) برای توسعه با Go
+├── go.mod
+├── go.sum
+│
+└── pocketbase                  # فایل اجرایی</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>کدام روش را انتخاب کنم؟</h4>
+                    <ul>
+                        <li><strong>JavaScript:</strong> سریع‌تر برای شروع، مناسب برای hooks ساده، hot reload دارد</li>
+                        <li><strong>Go:</strong> عملکرد بهتر، دسترسی کامل به API، مناسب برای پروژه‌های بزرگ</li>
+                        <li><strong>ترکیبی:</strong> می‌توانید هر دو را همزمان استفاده کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Deployment -->
+        <section class="section" id="deploy">
+            <div class="section-header">
+                <div class="section-icon">🚀</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">استقرار و Production</h2>
+                    <p class="section-subtitle">راه‌اندازی در محیط واقعی</p>
+                </div>
+            </div>
+
+            <h3>☁️ روش‌های استقرار</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🖥️</div>
+                    <h4 class="card-title">VPS / Dedicated</h4>
+                    <p class="card-description">
+                        DigitalOcean, Linode, Hetzner, Vultr
+                        <br>کنترل کامل، هزینه پایین
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐳</div>
+                    <h4 class="card-title">Docker / Kubernetes</h4>
+                    <p class="card-description">
+                        مقیاس‌پذیری آسان، portability
+                        <br>مناسب برای تیم‌های DevOps
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h4 class="card-title">PocketHost</h4>
+                    <p class="card-description">
+                        هاستینگ اختصاصی PocketBase
+                        <br>ساده‌ترین روش، رایگان شروع
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🌐</div>
+                    <h4 class="card-title">Railway / Fly.io</h4>
+                    <p class="card-description">
+                        PaaS با پشتیبانی از Docker
+                        <br>استقرار سریع، auto-scaling
+                    </p>
+                </div>
+            </div>
+
+            <h3>🖥️ استقرار روی VPS با Systemd</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>deploy_vps.sh</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# استقرار PocketBase روی Ubuntu VPS
+
+# ═══════════════════════════════════════════════════════════
+# 1. آماده‌سازی سرور
+# ═══════════════════════════════════════════════════════════
+
+# بروزرسانی سیستم
+sudo apt update && sudo apt upgrade -y
+
+# نصب ابزارهای ضروری
+sudo apt install -y wget unzip ufw nginx certbot python3-certbot-nginx
+
+# ایجاد کاربر برای PocketBase
+sudo useradd -r -s /bin/false pocketbase
+
+# ═══════════════════════════════════════════════════════════
+# 2. دانلود و نصب PocketBase
+# ═══════════════════════════════════════════════════════════
+
+# ایجاد دایرکتوری
+sudo mkdir -p /opt/pocketbase
+cd /opt/pocketbase
+
+# دانلود آخرین نسخه
+PB_VERSION="0.22.0"
+wget https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip
+unzip pocketbase_${PB_VERSION}_linux_amd64.zip
+rm pocketbase_${PB_VERSION}_linux_amd64.zip
+
+# تنظیم مالکیت
+sudo chown -R pocketbase:pocketbase /opt/pocketbase
+
+# ═══════════════════════════════════════════════════════════
+# 3. ایجاد Systemd Service
+# ═══════════════════════════════════════════════════════════
+
+sudo tee /etc/systemd/system/pocketbase.service > /dev/null &lt;&lt;EOF
+[Unit]
+Description=PocketBase
+After=network.target
+
+[Service]
+Type=simple
+User=pocketbase
+Group=pocketbase
+WorkingDirectory=/opt/pocketbase
+ExecStart=/opt/pocketbase/pocketbase serve --http=127.0.0.1:8090
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/pocketbase/access.log
+StandardError=append:/var/log/pocketbase/error.log
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/pocketbase/pb_data
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# ایجاد دایرکتوری لاگ
+sudo mkdir -p /var/log/pocketbase
+sudo chown pocketbase:pocketbase /var/log/pocketbase
+
+# فعال‌سازی و شروع سرویس
+sudo systemctl daemon-reload
+sudo systemctl enable pocketbase
+sudo systemctl start pocketbase
+
+# بررسی وضعیت
+sudo systemctl status pocketbase
+
+# ═══════════════════════════════════════════════════════════
+# 4. تنظیم Nginx Reverse Proxy
+# ═══════════════════════════════════════════════════════════
+
+sudo tee /etc/nginx/sites-available/pocketbase > /dev/null &lt;&lt;EOF
+server {
+    listen 80;
+    server_name api.example.com;
+    
+    client_max_body_size 100M;
+    
+    location / {
+        proxy_pass http://127.0.0.1:8090;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # SSE support
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 86400s;
+    }
+}
+EOF
+
+# فعال‌سازی سایت
+sudo ln -s /etc/nginx/sites-available/pocketbase /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+# ═══════════════════════════════════════════════════════════
+# 5. تنظیم SSL با Let's Encrypt
+# ═══════════════════════════════════════════════════════════
+
+sudo certbot --nginx -d api.example.com
+
+# ═══════════════════════════════════════════════════════════
+# 6. تنظیم فایروال
+# ═══════════════════════════════════════════════════════════
+
+sudo ufw allow 22/tcp   # SSH
+sudo ufw allow 80/tcp   # HTTP
+sudo ufw allow 443/tcp  # HTTPS
+sudo ufw enable
+
+# ═══════════════════════════════════════════════════════════
+# 7. تنظیم بکاپ خودکار
+# ═══════════════════════════════════════════════════════════
+
+sudo tee /opt/pocketbase/backup.sh > /dev/null &lt;&lt;'EOF'
+#!/bin/bash
+BACKUP_DIR="/opt/pocketbase/backups"
+DATE=$(date +%Y%m%d_%H%M%S)
+mkdir -p $BACKUP_DIR
+
+# بکاپ دیتابیس و فایل‌ها
+tar -czf $BACKUP_DIR/pb_backup_$DATE.tar.gz pb_data
+
+# نگهداری 7 روز اخیر
+find $BACKUP_DIR -type f -mtime +7 -delete
+
+# آپلود به S3 (اختیاری)
+# aws s3 cp $BACKUP_DIR/pb_backup_$DATE.tar.gz s3://your-bucket/backups/
+EOF
+
+sudo chmod +x /opt/pocketbase/backup.sh
+
+# اضافه کردن به cron (هر روز ساعت 3 صبح)
+echo "0 3 * * * /opt/pocketbase/backup.sh" | sudo crontab -u pocketbase -</code></pre>
+                </div>
+            </div>
+
+            <h3>🐳 استقرار با Docker Compose</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">YML</div>
+                        <span>docker-compose.prod.yml</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml">version: '3.8'
+
+services:
+  pocketbase:
+    image: ghcr.io/muchobien/pocketbase:latest
+    container_name: pocketbase
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    volumes:
+      - pb_data:/pb_data
+      - pb_public:/pb_public
+      - ./pb_hooks:/pb_hooks:ro
+    environment:
+      - PB_ENCRYPTION_KEY=${PB_ENCRYPTION_KEY}
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8090/api/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - pb_public:/var/www/public:ro
+    depends_on:
+      - pocketbase
+
+  # بکاپ خودکار
+  backup:
+    image: alpine:latest
+    container_name: backup
+    volumes:
+      - pb_data:/data:ro
+      - ./backups:/backups
+    command: |
+      sh -c 'while true; do
+        tar -czf /backups/backup_$$(date +%Y%m%d_%H%M%S).tar.gz -C /data .
+        find /backups -type f -mtime +7 -delete
+        sleep 86400
+      done'
+    restart: unless-stopped
+
+volumes:
+  pb_data:
+  pb_public:</code></pre>
+                </div>
+            </div>
+
+            <h3>⚡ استقرار روی PocketHost</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">۱</div>
+                    <div class="step-content">
+                        <h4 class="step-title">ثبت‌نام در PocketHost</h4>
+                        <p class="step-description">
+                            به <a href="https://pockethost.io" target="_blank">pockethost.io</a> بروید و حساب بسازید.
+                            پلن رایگان برای شروع کافی است.
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۲</div>
+                    <div class="step-content">
+                        <h4 class="step-title">ایجاد Instance</h4>
+                        <p class="step-description">
+                            روی <strong>Create Instance</strong> کلیک کنید.
+                            نام دلخواه وارد کنید (مثلاً myapp).
+                            URL شما: <code>myapp.pockethost.io</code>
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">۳</div>
+                    <div class="step-content">
+                        <h4 class="step-title">تنظیم و استفاده</h4>
+                        <p class="step-description">
+                            به Admin UI بروید و حساب ادمین بسازید.
+                            Collections را تعریف کنید و شروع به استفاده کنید!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>📊 مانیتورینگ و لاگ</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>monitoring.sh</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# مشاهده لاگ‌ها
+# ═══════════════════════════════════════════════════════════
+
+# Systemd
+sudo journalctl -u pocketbase -f
+
+# Docker
+docker logs -f pocketbase
+
+# فایل لاگ
+tail -f /var/log/pocketbase/access.log
+tail -f /var/log/pocketbase/error.log
+
+# ═══════════════════════════════════════════════════════════
+# Health Check
+# ═══════════════════════════════════════════════════════════
+
+curl http://localhost:8090/api/health
+
+# ═══════════════════════════════════════════════════════════
+# بررسی منابع
+# ═══════════════════════════════════════════════════════════
+
+# CPU و Memory
+htop
+
+# Disk usage
+df -h /opt/pocketbase
+
+# اندازه دیتابیس
+du -sh /opt/pocketbase/pb_data/
+
+# ═══════════════════════════════════════════════════════════
+# Prometheus Metrics (با hook سفارشی)
+# ═══════════════════════════════════════════════════════════
+
+# در pb_hooks/metrics.pb.js:
+routerAdd('GET', '/metrics', (c) => {
+    const stats = $app.dao().db().stats();
+    
+    const metrics = `
+# HELP pocketbase_db_size_bytes Database size in bytes
+# TYPE pocketbase_db_size_bytes gauge
+pocketbase_db_size_bytes ${stats.size || 0}
+
+# HELP pocketbase_collections_total Total number of collections
+# TYPE pocketbase_collections_total gauge
+pocketbase_collections_total ${$app.dao().findCollectionsByType('base').length}
+    `.trim();
+    
+    c.response().header().set('Content-Type', 'text/plain');
+    return c.string(200, metrics);
+});</code></pre>
+                </div>
+            </div>
+
+            <h3>🔒 چک‌لیست امنیتی Production</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>آیتم</th>
+                            <th>توضیح</th>
+                            <th>وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>HTTPS</strong></td>
+                            <td>استفاده از SSL/TLS برای همه ارتباطات</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>رمز عبور قوی</strong></td>
+                            <td>رمز عبور ادمین حداقل ۱۲ کاراکتر</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>API Rules</strong></td>
+                            <td>بررسی دقیق قوانین دسترسی همه Collections</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CORS</strong></td>
+                            <td>محدود کردن origins مجاز</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rate Limiting</strong></td>
+                            <td>محدودیت تعداد درخواست (با Nginx)</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>بکاپ</strong></td>
+                            <td>بکاپ خودکار روزانه + ذخیره خارجی</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>فایروال</strong></td>
+                            <td>فقط پورت‌های ضروری باز</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>بروزرسانی</strong></td>
+                            <td>PocketBase و سیستم‌عامل به‌روز</td>
+                            <td>☐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>مانیتورینگ</strong></td>
+                            <td>هشدار برای downtime و خطاها</td>
+                            <td>☐</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکات مهم Production</h4>
+                    <ul>
+                        <li><strong>تست بکاپ:</strong> حتماً بازیابی بکاپ را تست کنید</li>
+                        <li><strong>دامنه سفارشی:</strong> از دامنه خودتان استفاده کنید</li>
+                        <li><strong>Email:</strong> SMTP را برای ایمیل‌های سیستم تنظیم کنید</li>
+                        <li><strong>S3:</strong> برای فایل‌های زیاد از S3 استفاده کنید</li>
+                        <li><strong>Staging:</strong> قبل از Production روی Staging تست کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="section" id="reference">
+            <div class="section-header">
+                <div class="section-icon">📚</div>
+                <div class="section-title-group">
+                    <div class="section-number">پیوست</div>
+                    <h2 class="section-title">مرجع سریع</h2>
+                    <p class="section-subtitle">دستورات و لینک‌های مفید</p>
+                </div>
+            </div>
+
+            <h3>⌨️ دستورات CLI</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>CLI Commands</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># اجرای سرور
+./pocketbase serve
+./pocketbase serve --http=0.0.0.0:8080
+./pocketbase serve --dev  # حالت توسعه
+
+# مدیریت ادمین
+./pocketbase admin create admin@example.com password123
+./pocketbase admin update admin@example.com newpassword
+./pocketbase admin delete admin@example.com
+
+# Migrations
+./pocketbase migrate
+./pocketbase migrate create "add_posts_collection"
+./pocketbase migrate down
+
+# بروزرسانی
+./pocketbase update
+
+# نسخه
+./pocketbase version</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 لینک‌های مفید</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📖</div>
+                    <h4 class="card-title">مستندات رسمی</h4>
+                    <p class="card-description">
+                        <a href="https://pocketbase.io/docs/" target="_blank">pocketbase.io/docs</a>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🐙</div>
+                    <h4 class="card-title">GitHub</h4>
+                    <p class="card-description">
+                        <a href="https://github.com/pocketbase/pocketbase" target="_blank">github.com/pocketbase</a>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">💬</div>
+                    <h4 class="card-title">Discord</h4>
+                    <p class="card-description">
+                        <a href="https://discord.gg/pocketbase" target="_blank">انجمن PocketBase</a>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">☁️</div>
+                    <h4 class="card-title">PocketHost</h4>
+                    <p class="card-description">
+                        <a href="https://pockethost.io" target="_blank">هاستینگ رایگان</a>
+                    </p>
+                </div>
+            </div>
+
+            <h3>📦 SDKs رسمی</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>زبان/فریمورک</th>
+                            <th>پکیج</th>
+                            <th>نصب</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>JavaScript</strong></td>
+                            <td>pocketbase</td>
+                            <td><code>npm install pocketbase</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dart/Flutter</strong></td>
+                            <td>pocketbase</td>
+                            <td><code>flutter pub add pocketbase</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Python</strong></td>
+                            <td>pocketbase</td>
+                            <td><code>pip install pocketbase</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Go</strong></td>
+                            <td>pocketbase</td>
+                            <td><code>go get github.com/pocketbase/pocketbase</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">🗄️</div>
+                <span class="logo-text" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">PocketBase</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                آموزش جامع PocketBase - Backend در یک فایل
+            </p>
+            <div class="footer-links">
+                <a href="https://pocketbase.io" target="_blank">وبسایت رسمی</a>
+                <a href="https://pocketbase.io/docs/" target="_blank">مستندات</a>
+                <a href="https://github.com/pocketbase/pocketbase" target="_blank">GitHub</a>
+                <a href="https://pockethost.io" target="_blank">PocketHost</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای جامعه متن‌باز ایران
+                <br>
+                <a href="https://araz.me" target="_blank">araz.me</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/dart.min.js"></script>
+    
+    <script>
+        // Initialize highlight.js
+        hljs.highlightAll();
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✓</span> کپی شد';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            }).catch(err => {
+                console.error('خطا در کپی:', err);
+            });
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Active navigation link on scroll
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        function updateActiveNav() {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', updateActiveNav);
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.card, .code-block, .info-box, .step, .api-endpoint').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+        
+        // Terminal typing effect for hero code
+        const heroCode = document.querySelector('.hero-code-body');
+        if (heroCode) {
+            heroCode.style.opacity = '0';
+            setTimeout(() => {
+                heroCode.style.transition = 'opacity 0.5s ease';
+                heroCode.style.opacity = '1';
+            }, 500);
+        }
+    </script>
+</body>
+</html>

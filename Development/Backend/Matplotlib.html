@@ -1,0 +1,5234 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع Matplotlib | تجسم داده با پایتون</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    
+    <style>
+        :root {
+            --primary: #11557c;
+            --primary-dark: #0d3d5c;
+            --primary-light: #1976D2;
+            --secondary: #E65100;
+            --accent: #7B1FA2;
+            --success: #2E7D32;
+            --warning: #F57C00;
+            --chart-red: #E53935;
+            --chart-blue: #1E88E5;
+            --chart-green: #43A047;
+            --chart-orange: #FB8C00;
+            --chart-purple: #8E24AA;
+            
+            --bg-primary: #0a0d12;
+            --bg-secondary: #0f1419;
+            --bg-tertiary: #151c24;
+            --bg-card: #121820;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            
+            --border-color: #1e293b;
+            --border-light: #334155;
+            
+            --gradient-primary: linear-gradient(135deg, #11557c 0%, #7B1FA2 100%);
+            --gradient-chart: linear-gradient(135deg, #1976D2 0%, #E65100 50%, #7B1FA2 100%);
+            --gradient-warm: linear-gradient(135deg, #E65100 0%, #E53935 100%);
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 40px rgba(17, 85, 124, 0.3);
+            
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.8;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+
+        ::selection {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .nav-link.active {
+            color: var(--primary-light);
+            background: rgba(17, 85, 124, 0.15);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 6rem 2rem;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(17, 85, 124, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(123, 31, 162, 0.1) 0%, transparent 50%);
+        }
+
+        /* Chart Grid Pattern */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(17, 85, 124, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(17, 85, 124, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(17, 85, 124, 0.15);
+            border: 1px solid rgba(17, 85, 124, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Chart Illustration */
+        .chart-illustration {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 250px;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .section-title-group {
+            flex: 1;
+        }
+
+        .section-number {
+            font-size: 0.85rem;
+            color: var(--primary-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        /* Content Styles */
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--primary-light);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 0.875rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.python {
+            background: linear-gradient(135deg, #3776AB, #FFD43B);
+            color: white;
+        }
+
+        .code-lang-icon.bash {
+            background: #4EAA25;
+            color: white;
+        }
+
+        .code-lang-icon.output {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.875rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-family: inherit;
+        }
+
+        .code-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .code-btn.copied {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .code-body {
+            padding: 1.25rem;
+            overflow-x: auto;
+        }
+
+        .code-body pre {
+            margin: 0;
+            padding: 0;
+            background: transparent;
+        }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            background: transparent;
+            direction: ltr;
+            text-align: left;
+        }
+
+        /* Inline Code */
+        code:not([class*="language-"]) {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: var(--radius-sm);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.875em;
+            color: var(--primary-light);
+            border: 1px solid var(--border-color);
+            direction: ltr;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip {
+            background: rgba(46, 125, 50, 0.1);
+            border: 1px solid rgba(46, 125, 50, 0.3);
+        }
+
+        .info-box.warning {
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+        }
+
+        .info-box.info {
+            background: rgba(17, 85, 124, 0.1);
+            border: 1px solid rgba(17, 85, 124, 0.3);
+        }
+
+        .info-box.chart {
+            background: rgba(123, 31, 162, 0.1);
+            border: 1px solid rgba(123, 31, 162, 0.3);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .info-content p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .info-content ul {
+            margin: 0.5rem 0 0 1rem;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Chart Types Grid */
+        .chart-types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .chart-type-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .chart-type-card:hover {
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .chart-type-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .chart-type-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        td code {
+            font-size: 0.85rem;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-item {
+            margin: 0;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .toc-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .toc-number {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-light);
+        }
+
+        /* Color Palette Display */
+        .color-palette {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .color-swatch {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border-color);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .copyright a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav {
+                justify-content: center;
+            }
+            
+            .hero {
+                padding: 4rem 1.5rem;
+            }
+            
+            .hero-stats {
+                gap: 2rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .section-icon {
+                margin: 0 auto;
+            }
+            
+            .main {
+                padding: 2rem 1rem;
+            }
+            
+            h3 {
+                font-size: 1.3rem;
+            }
+            
+            .code-body {
+                padding: 1rem;
+            }
+            
+            .code-body code {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes chartGrow {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+
+        /* Print */
+        @media print {
+            .header, .nav, .code-actions, .footer {
+                display: none;
+            }
+            
+            .hero {
+                padding: 2rem;
+            }
+            
+            .code-block {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">📊</div>
+                <div>
+                    <div class="logo-text">Matplotlib</div>
+                    <div class="logo-subtitle">تجسم داده با پایتون</div>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="#intro" class="nav-link active">معرفی</a>
+                <a href="#basics" class="nav-link">مبانی</a>
+                <a href="#line" class="nav-link">خطی</a>
+                <a href="#bar" class="nav-link">میله‌ای</a>
+                <a href="#scatter" class="nav-link">پراکندگی</a>
+                <a href="#other" class="nav-link">سایر</a>
+                <a href="#customize" class="nav-link">سفارشی‌سازی</a>
+                <a href="#advanced" class="nav-link">پیشرفته</a>
+                <a href="#projects" class="nav-link">پروژه‌ها</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>📈</span>
+                <span>نسخه 3.8+ | بروزرسانی ۱۴۰۴</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">Matplotlib</span>
+            </h1>
+            <p class="hero-description">
+                قدرتمندترین کتابخانه پایتون برای تجسم داده و رسم نمودار.
+                از نمودارهای ساده تا تصاویر علمی پیچیده، همه چیز در یک کتابخانه.
+            </p>
+            
+            <!-- Chart Illustration -->
+            <div class="chart-illustration">
+                <svg class="chart-svg" viewBox="0 0 600 200">
+                    <!-- Grid Lines -->
+                    <defs>
+                        <pattern id="grid" width="50" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 50 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)"/>
+                    
+                    <!-- Axes -->
+                    <line x1="50" y1="180" x2="580" y2="180" stroke="#64748b" stroke-width="2"/>
+                    <line x1="50" y1="20" x2="50" y2="180" stroke="#64748b" stroke-width="2"/>
+                    
+                    <!-- Bar Chart -->
+                    <rect x="80" y="100" width="30" height="80" fill="#E53935" rx="4"/>
+                    <rect x="120" y="60" width="30" height="120" fill="#1E88E5" rx="4"/>
+                    <rect x="160" y="80" width="30" height="100" fill="#43A047" rx="4"/>
+                    <rect x="200" y="40" width="30" height="140" fill="#FB8C00" rx="4"/>
+                    
+                    <!-- Line Chart -->
+                    <path d="M 280,140 L 330,80 L 380,100 L 430,50 L 480,70 L 530,30" 
+                          fill="none" stroke="#8E24AA" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="280" cy="140" r="6" fill="#8E24AA"/>
+                    <circle cx="330" cy="80" r="6" fill="#8E24AA"/>
+                    <circle cx="380" cy="100" r="6" fill="#8E24AA"/>
+                    <circle cx="430" cy="50" r="6" fill="#8E24AA"/>
+                    <circle cx="480" cy="70" r="6" fill="#8E24AA"/>
+                    <circle cx="530" cy="30" r="6" fill="#8E24AA"/>
+                    
+                    <!-- Labels -->
+                    <text x="140" y="195" fill="#94a3b8" font-size="12" text-anchor="middle">Bar Chart</text>
+                    <text x="400" y="195" fill="#94a3b8" font-size="12" text-anchor="middle">Line Chart</text>
+                </svg>
+            </div>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value">۲۰M+</div>
+                    <div class="stat-label">دانلود ماهانه</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۱۸K+</div>
+                    <div class="stat-label">ستاره GitHub</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">۵۰+</div>
+                    <div class="stat-label">نوع نمودار</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2 class="toc-title">📚 فهرست مطالب</h2>
+            <ul class="toc-list">
+                <li class="toc-item">
+                    <a href="#intro" class="toc-link">
+                        <span class="toc-number">۱</span>
+                        معرفی Matplotlib
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#basics" class="toc-link">
+                        <span class="toc-number">۲</span>
+                        مبانی و ساختار
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#line" class="toc-link">
+                        <span class="toc-number">۳</span>
+                        نمودار خطی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#bar" class="toc-link">
+                        <span class="toc-number">۴</span>
+                        نمودار میله‌ای
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#scatter" class="toc-link">
+                        <span class="toc-number">۵</span>
+                        نمودار پراکندگی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#other" class="toc-link">
+                        <span class="toc-number">۶</span>
+                        سایر نمودارها
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#customize" class="toc-link">
+                        <span class="toc-number">۷</span>
+                        سفارشی‌سازی
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#advanced" class="toc-link">
+                        <span class="toc-number">۸</span>
+                        موضوعات پیشرفته
+                    </a>
+                </li>
+                <li class="toc-item">
+                    <a href="#projects" class="toc-link">
+                        <span class="toc-number">۹</span>
+                        پروژه‌های عملی
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Section 1: Introduction -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی Matplotlib</h2>
+                    <p class="section-subtitle">آشنایی با کتابخانه تجسم داده</p>
+                </div>
+            </div>
+
+            <h3>🎯 Matplotlib چیست؟</h3>
+            <p>
+                <strong>Matplotlib</strong> یک کتابخانه جامع پایتون برای ایجاد تصاویر ثابت، متحرک و تعاملی است.
+                این کتابخانه در سال ۲۰۰۳ توسط John D. Hunter ایجاد شد و امروزه یکی از پرکاربردترین 
+                ابزارهای تجسم داده در پایتون است.
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🎨</div>
+                    <h4 class="card-title">انعطاف‌پذیری بالا</h4>
+                    <p class="card-description">
+                        کنترل کامل بر هر جزء نمودار از رنگ و فونت تا موقعیت و اندازه.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">📈</div>
+                    <h4 class="card-title">تنوع نمودارها</h4>
+                    <p class="card-description">
+                        پشتیبانی از ۵۰+ نوع نمودار شامل خطی، میله‌ای، دایره‌ای، سه‌بعدی و...
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔬</div>
+                    <h4 class="card-title">کیفیت علمی</h4>
+                    <p class="card-description">
+                        خروجی با کیفیت بالا مناسب برای مقالات علمی و ارائه‌های حرفه‌ای.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔗</div>
+                    <h4 class="card-title">یکپارچگی</h4>
+                    <p class="card-description">
+                        سازگاری عالی با NumPy، Pandas، SciPy و سایر کتابخانه‌های علمی.
+                    </p>
+                </div>
+            </div>
+
+            <h3>⚙️ نصب Matplotlib</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>Installation</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># نصب با pip
+pip install matplotlib
+
+# نصب با conda
+conda install matplotlib
+
+# نصب با وابستگی‌های اضافی
+pip install matplotlib numpy pandas scipy
+
+# بررسی نصب
+python -c "import matplotlib; print(matplotlib.__version__)"
+
+# نصب برای Jupyter
+pip install matplotlib ipympl</code></pre>
+                </div>
+            </div>
+
+            <h3>🚀 اولین نمودار</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>first_plot.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# ساده‌ترین نمودار
+# ═══════════════════════════════════════════════════════════
+
+# داده‌ها
+x = [1, 2, 3, 4, 5]
+y = [2, 4, 6, 8, 10]
+
+# رسم نمودار
+plt.plot(x, y)
+
+# نمایش
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار با تنظیمات بیشتر
+# ═══════════════════════════════════════════════════════════
+
+# داده‌های بیشتر
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# ایجاد figure و axes
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# رسم نمودار
+ax.plot(x, y, color='blue', linewidth=2, label='sin(x)')
+
+# عنوان و برچسب‌ها
+ax.set_title('نمودار سینوسی', fontsize=14, fontweight='bold')
+ax.set_xlabel('محور X', fontsize=12)
+ax.set_ylabel('محور Y', fontsize=12)
+
+# شبکه و legend
+ax.grid(True, alpha=0.3)
+ax.legend()
+
+# ذخیره
+plt.savefig('sine_wave.png', dpi=300, bbox_inches='tight')
+
+# نمایش
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 انواع نمودارها</h3>
+            <div class="chart-types-grid">
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">📈</div>
+                    <div class="chart-type-name">Line Plot</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">📊</div>
+                    <div class="chart-type-name">Bar Chart</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">🔵</div>
+                    <div class="chart-type-name">Scatter Plot</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">🥧</div>
+                    <div class="chart-type-name">Pie Chart</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">📉</div>
+                    <div class="chart-type-name">Histogram</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">📦</div>
+                    <div class="chart-type-name">Box Plot</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">🗺️</div>
+                    <div class="chart-type-name">Heatmap</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">🎯</div>
+                    <div class="chart-type-name">Contour</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">🧊</div>
+                    <div class="chart-type-name">3D Plot</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">🌊</div>
+                    <div class="chart-type-name">Area Plot</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">🎻</div>
+                    <div class="chart-type-name">Violin Plot</div>
+                </div>
+                <div class="chart-type-card">
+                    <div class="chart-type-icon">📍</div>
+                    <div class="chart-type-name">Stem Plot</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Basics -->
+        <section class="section" id="basics">
+            <div class="section-header">
+                <div class="section-icon">🏗️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">مبانی و ساختار</h2>
+                    <p class="section-subtitle">Figure, Axes و رابط‌های مختلف</p>
+                </div>
+            </div>
+
+            <h3>🎨 ساختار Matplotlib</h3>
+            <p>
+                Matplotlib دارای یک ساختار سلسله‌مراتبی است که درک آن برای استفاده مؤثر ضروری است:
+            </p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>structure.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+"""
+ساختار سلسله‌مراتبی Matplotlib:
+
+Figure (شکل)
+├── Axes (محورها) - محل اصلی رسم نمودار
+│   ├── Title (عنوان)
+│   ├── X-axis (محور افقی)
+│   │   ├── Label (برچسب)
+│   │   ├── Ticks (علامت‌ها)
+│   │   └── Tick Labels (برچسب علامت‌ها)
+│   ├── Y-axis (محور عمودی)
+│   │   └── ...
+│   ├── Legend (راهنما)
+│   ├── Grid (شبکه)
+│   └── Plot Elements (عناصر نمودار)
+│       ├── Lines
+│       ├── Markers
+│       ├── Text
+│       └── ...
+└── Suptitle (عنوان کلی)
+"""
+
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد Figure و Axes
+# ═══════════════════════════════════════════════════════════
+
+# روش 1: plt.subplots() - توصیه شده
+fig, ax = plt.subplots()
+
+# روش 2: با تنظیمات
+fig, ax = plt.subplots(figsize=(10, 6), dpi=100)
+
+# روش 3: چند Axes
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 10))
+
+# روش 4: ایجاد جداگانه
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_subplot(111)  # 1 ردیف، 1 ستون، اولین
+
+# روش 5: add_axes با موقعیت دقیق
+fig = plt.figure()
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8])  # [left, bottom, width, height]
+
+
+# ═══════════════════════════════════════════════════════════
+# دسترسی به اجزا
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots()
+
+# Figure
+print(f"Figure size: {fig.get_size_inches()}")
+print(f"Figure dpi: {fig.dpi}")
+
+# Axes
+print(f"Axes position: {ax.get_position()}")
+
+# محورها
+xaxis = ax.xaxis
+yaxis = ax.yaxis
+
+plt.close()</code></pre>
+                </div>
+            </div>
+
+            <h3>🔀 دو رابط: pyplot vs Object-Oriented</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>interfaces.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+
+# ═══════════════════════════════════════════════════════════
+# رابط pyplot (State-based) - ساده اما محدود
+# ═══════════════════════════════════════════════════════════
+
+plt.figure(figsize=(10, 6))
+plt.plot(x, y, 'b-', linewidth=2)
+plt.title('نمودار سینوسی')
+plt.xlabel('X')
+plt.ylabel('Y')
+plt.grid(True)
+plt.legend(['sin(x)'])
+plt.savefig('pyplot_style.png')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# رابط Object-Oriented - توصیه شده
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+ax.plot(x, y, 'b-', linewidth=2, label='sin(x)')
+ax.set_title('نمودار سینوسی')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.grid(True)
+ax.legend()
+
+fig.savefig('oo_style.png')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# مقایسه مزایا
+# ═══════════════════════════════════════════════════════════
+
+"""
+pyplot (plt.xxx):
+✓ ساده‌تر برای نمودارهای سریع
+✓ کد کوتاه‌تر
+✗ کنترل کمتر
+✗ مشکل در نمودارهای پیچیده
+
+Object-Oriented (fig, ax):
+✓ کنترل کامل
+✓ مناسب برای چند نمودار
+✓ خوانایی بهتر
+✓ استفاده در توابع و کلاس‌ها
+✗ کد طولانی‌تر
+"""</code></pre>
+                </div>
+            </div>
+
+            <h3>📐 Subplots (چند نمودار)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>subplots.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 2 * np.pi, 100)
+
+
+# ═══════════════════════════════════════════════════════════
+# چند نمودار در یک ردیف
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 4))
+
+axes[0].plot(x, np.sin(x), 'r-')
+axes[0].set_title('Sine')
+
+axes[1].plot(x, np.cos(x), 'g-')
+axes[1].set_title('Cosine')
+
+axes[2].plot(x, np.tan(x), 'b-')
+axes[2].set_ylim(-5, 5)
+axes[2].set_title('Tangent')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# گرید 2x2
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# دسترسی با ایندکس
+axes[0, 0].plot(x, np.sin(x))
+axes[0, 0].set_title('sin(x)')
+
+axes[0, 1].plot(x, np.cos(x))
+axes[0, 1].set_title('cos(x)')
+
+axes[1, 0].plot(x, np.sin(2*x))
+axes[1, 0].set_title('sin(2x)')
+
+axes[1, 1].plot(x, np.cos(2*x))
+axes[1, 1].set_title('cos(2x)')
+
+# عنوان کلی
+fig.suptitle('توابع مثلثاتی', fontsize=16, fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# اشتراک محورها
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10), 
+                         sharex=True, sharey=True)
+
+for ax in axes.flat:
+    ax.plot(x, np.sin(x + np.random.rand()))
+    ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# GridSpec برای layouts پیچیده
+# ═══════════════════════════════════════════════════════════
+
+import matplotlib.gridspec as gridspec
+
+fig = plt.figure(figsize=(12, 8))
+gs = gridspec.GridSpec(3, 3, figure=fig)
+
+# نمودار بزرگ سمت چپ
+ax1 = fig.add_subplot(gs[:2, :2])
+ax1.plot(x, np.sin(x))
+ax1.set_title('نمودار اصلی')
+
+# نمودارهای کوچک سمت راست
+ax2 = fig.add_subplot(gs[0, 2])
+ax2.plot(x, np.cos(x), 'r')
+
+ax3 = fig.add_subplot(gs[1, 2])
+ax3.plot(x, np.tan(x), 'g')
+ax3.set_ylim(-3, 3)
+
+# نمودار پایین
+ax4 = fig.add_subplot(gs[2, :])
+ax4.bar(range(10), np.random.rand(10))
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# subplot_mosaic - روش جدید و ساده
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplot_mosaic(
+    [
+        ['top', 'top', 'right'],
+        ['bottom_left', 'bottom_right', 'right']
+    ],
+    figsize=(12, 8)
+)
+
+axes['top'].plot(x, np.sin(x))
+axes['top'].set_title('بالا')
+
+axes['right'].barh(range(5), np.random.rand(5))
+axes['right'].set_title('راست')
+
+axes['bottom_left'].scatter(np.random.rand(20), np.random.rand(20))
+axes['bottom_left'].set_title('پایین چپ')
+
+axes['bottom_right'].pie([30, 40, 30], labels=['A', 'B', 'C'])
+axes['bottom_right'].set_title('پایین راست')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکته مهم</h4>
+                    <p>
+                        همیشه از <code>plt.tight_layout()</code> یا <code>fig.tight_layout()</code> 
+                        استفاده کنید تا نمودارها همپوشانی نداشته باشند و فضا بهینه استفاده شود.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Line Plots -->
+        <section class="section" id="line">
+            <div class="section-header">
+                <div class="section-icon">📈</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">نمودار خطی</h2>
+                    <p class="section-subtitle">Line Plot و تنظیمات آن</p>
+                </div>
+            </div>
+
+            <h3>📊 نمودار خطی پایه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>line_basic.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# نمودار خطی ساده
+# ═══════════════════════════════════════════════════════════
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.plot(x, y)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# چند خط در یک نمودار
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+ax.plot(x, np.sin(x), label='sin(x)')
+ax.plot(x, np.cos(x), label='cos(x)')
+ax.plot(x, np.sin(x) + np.cos(x), label='sin(x) + cos(x)')
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_title('توابع مثلثاتی')
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# فرمت سریع (format string)
+# ═══════════════════════════════════════════════════════════
+
+"""
+فرمت: '[color][marker][linestyle]'
+
+رنگ‌ها:
+b = blue, g = green, r = red, c = cyan
+m = magenta, y = yellow, k = black, w = white
+
+مارکرها:
+. = point, o = circle, s = square, ^ = triangle
+* = star, + = plus, x = x, D = diamond
+
+استایل خط:
+- = solid, -- = dashed, -. = dash-dot, : = dotted
+"""
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+ax.plot(x, np.sin(x), 'b-', label='آبی خط‌دار')
+ax.plot(x, np.sin(x + 1), 'r--', label='قرمز خط‌چین')
+ax.plot(x, np.sin(x + 2), 'g-.', label='سبز خط‌نقطه')
+ax.plot(x, np.sin(x + 3), 'm:', label='بنفش نقطه‌ای')
+ax.plot(x[::10], np.sin(x[::10] + 4), 'ko', label='سیاه دایره')
+ax.plot(x[::10], np.sin(x[::10] + 5), 'c^-', label='فیروزه‌ای مثلث')
+
+ax.legend(loc='upper right')
+ax.set_title('فرمت‌های مختلف خط')
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🎨 سفارشی‌سازی خطوط</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>line_customization.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 50)
+
+
+# ═══════════════════════════════════════════════════════════
+# پارامترهای خط
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# ضخامت خط (linewidth یا lw)
+ax = axes[0, 0]
+for i, lw in enumerate([0.5, 1, 2, 4, 8]):
+    ax.plot(x, np.sin(x) + i*2, linewidth=lw, label=f'lw={lw}')
+ax.legend()
+ax.set_title('ضخامت خط (linewidth)')
+
+# استایل خط (linestyle یا ls)
+ax = axes[0, 1]
+linestyles = ['-', '--', '-.', ':', (0, (5, 10)), (0, (3, 1, 1, 1))]
+labels = ['solid', 'dashed', 'dashdot', 'dotted', 'custom1', 'custom2']
+for i, (ls, label) in enumerate(zip(linestyles, labels)):
+    ax.plot(x, np.sin(x) + i, linestyle=ls, linewidth=2, label=label)
+ax.legend()
+ax.set_title('استایل خط (linestyle)')
+
+# رنگ خط
+ax = axes[1, 0]
+colors = ['red', '#FF5733', 'C0', (0.2, 0.4, 0.6), 'tab:orange']
+labels = ['نام', 'hex', 'C0', 'RGB', 'tab:']
+for i, (color, label) in enumerate(zip(colors, labels)):
+    ax.plot(x, np.sin(x) + i, color=color, linewidth=2, label=label)
+ax.legend()
+ax.set_title('رنگ خط (color)')
+
+# شفافیت (alpha)
+ax = axes[1, 1]
+for i, alpha in enumerate([0.2, 0.4, 0.6, 0.8, 1.0]):
+    ax.plot(x, np.sin(x) + i, alpha=alpha, linewidth=3, 
+            color='blue', label=f'alpha={alpha}')
+ax.legend()
+ax.set_title('شفافیت (alpha)')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# مارکرها
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+x_sparse = np.linspace(0, 10, 15)
+y_sparse = np.sin(x_sparse)
+
+# نوع مارکر
+ax = axes[0, 0]
+markers = ['o', 's', '^', 'D', 'v', 'p', '*', 'h']
+for i, marker in enumerate(markers):
+    ax.plot(x_sparse, y_sparse + i*0.5, marker=marker, 
+            linestyle='-', label=marker)
+ax.legend(ncol=2)
+ax.set_title('نوع مارکر')
+
+# اندازه مارکر
+ax = axes[0, 1]
+for i, ms in enumerate([4, 8, 12, 16, 20]):
+    ax.plot(x_sparse, y_sparse + i*0.5, 'o-', markersize=ms, 
+            label=f'size={ms}')
+ax.legend()
+ax.set_title('اندازه مارکر (markersize)')
+
+# رنگ مارکر
+ax = axes[1, 0]
+ax.plot(x_sparse, y_sparse, 'o-', 
+        markerfacecolor='yellow',      # رنگ داخل
+        markeredgecolor='red',         # رنگ حاشیه
+        markeredgewidth=2,             # ضخامت حاشیه
+        markersize=12,
+        linewidth=2,
+        color='blue')
+ax.set_title('رنگ مارکر')
+
+# هر n امین نقطه
+ax = axes[1, 1]
+x_dense = np.linspace(0, 10, 100)
+y_dense = np.sin(x_dense)
+ax.plot(x_dense, y_dense, 'b-', linewidth=2)
+ax.plot(x_dense, y_dense, 'ro', markevery=10, markersize=8)
+ax.set_title('markevery - هر 10 نقطه')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>📉 نمودار با ناحیه پر شده</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>fill_between.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+
+
+# ═══════════════════════════════════════════════════════════
+# fill_between - پر کردن بین خط و محور
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# پر کردن زیر خط
+ax = axes[0, 0]
+y = np.sin(x)
+ax.plot(x, y, 'b-', linewidth=2)
+ax.fill_between(x, y, alpha=0.3)
+ax.set_title('fill_between ساده')
+
+# پر کردن بین دو خط
+ax = axes[0, 1]
+y1 = np.sin(x)
+y2 = np.sin(x) + 0.5
+ax.plot(x, y1, 'b-', linewidth=2)
+ax.plot(x, y2, 'r-', linewidth=2)
+ax.fill_between(x, y1, y2, alpha=0.3, color='green')
+ax.set_title('پر کردن بین دو خط')
+
+# پر کردن شرطی
+ax = axes[1, 0]
+y = np.sin(x)
+ax.plot(x, y, 'k-', linewidth=2)
+ax.fill_between(x, y, where=(y > 0), alpha=0.5, color='green', label='مثبت')
+ax.fill_between(x, y, where=(y < 0), alpha=0.5, color='red', label='منفی')
+ax.axhline(y=0, color='gray', linestyle='--')
+ax.legend()
+ax.set_title('پر کردن شرطی')
+
+# نوار خطا (Error Band)
+ax = axes[1, 1]
+y = np.sin(x)
+error = 0.2 + 0.1 * np.random.rand(len(x))
+ax.plot(x, y, 'b-', linewidth=2, label='مقدار')
+ax.fill_between(x, y - error, y + error, alpha=0.3, label='خطا')
+ax.legend()
+ax.set_title('نوار خطا')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Stacked Area Chart
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+months = np.arange(1, 13)
+product_a = np.array([10, 12, 14, 16, 18, 22, 25, 24, 20, 18, 15, 12])
+product_b = np.array([8, 10, 12, 14, 16, 18, 20, 19, 17, 15, 12, 10])
+product_c = np.array([5, 6, 8, 10, 12, 14, 15, 14, 12, 10, 8, 6])
+
+ax.stackplot(months, product_a, product_b, product_c,
+             labels=['محصول A', 'محصول B', 'محصول C'],
+             colors=['#E53935', '#1E88E5', '#43A047'],
+             alpha=0.8)
+
+ax.set_xlabel('ماه')
+ax.set_ylabel('فروش')
+ax.set_title('فروش ماهانه محصولات')
+ax.legend(loc='upper left')
+ax.set_xlim(1, 12)
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Bar Charts -->
+        <section class="section" id="bar">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">نمودار میله‌ای</h2>
+                    <p class="section-subtitle">Bar Chart و انواع آن</p>
+                </div>
+            </div>
+
+            <h3>📊 نمودار میله‌ای عمودی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>bar_vertical.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# نمودار میله‌ای ساده
+# ═══════════════════════════════════════════════════════════
+
+categories = ['تهران', 'اصفهان', 'شیراز', 'تبریز', 'مشهد']
+values = [8.7, 2.0, 1.6, 1.6, 3.0]
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+bars = ax.bar(categories, values, color='steelblue', edgecolor='black')
+
+ax.set_xlabel('شهر')
+ax.set_ylabel('جمعیت (میلیون نفر)')
+ax.set_title('جمعیت شهرهای بزرگ ایران')
+
+# افزودن مقادیر روی میله‌ها
+for bar, val in zip(bars, values):
+    ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1,
+            f'{val}', ha='center', va='bottom', fontweight='bold')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# سفارشی‌سازی میله‌ها
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# رنگ‌های مختلف برای هر میله
+ax = axes[0, 0]
+colors = ['#E53935', '#1E88E5', '#43A047', '#FB8C00', '#8E24AA']
+ax.bar(categories, values, color=colors, edgecolor='black', linewidth=1.5)
+ax.set_title('رنگ‌های مختلف')
+
+# عرض میله
+ax = axes[0, 1]
+ax.bar(categories, values, width=0.5, color='coral')
+ax.set_title('عرض میله (width=0.5)')
+
+# گوشه‌های گرد (نیاز به matplotlib 3.5+)
+ax = axes[1, 0]
+ax.bar(categories, values, color='teal')
+ax.set_title('میله‌های استاندارد')
+
+# الگو (hatch)
+ax = axes[1, 1]
+hatches = ['/', '\\', '|', '-', '+']
+bars = ax.bar(categories, values, color='lightblue', edgecolor='black')
+for bar, hatch in zip(bars, hatches):
+    bar.set_hatch(hatch)
+ax.set_title('الگو (hatch)')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار میله‌ای گروهی
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+categories = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد']
+x = np.arange(len(categories))
+width = 0.25
+
+sales_2022 = [120, 150, 180, 200, 170]
+sales_2023 = [140, 160, 190, 220, 190]
+sales_2024 = [160, 180, 210, 250, 220]
+
+bars1 = ax.bar(x - width, sales_2022, width, label='۱۴۰۱', color='#E53935')
+bars2 = ax.bar(x, sales_2023, width, label='۱۴۰۲', color='#1E88E5')
+bars3 = ax.bar(x + width, sales_2024, width, label='۱۴۰۳', color='#43A047')
+
+ax.set_xlabel('ماه')
+ax.set_ylabel('فروش (میلیون تومان)')
+ax.set_title('مقایسه فروش ماهانه')
+ax.set_xticks(x)
+ax.set_xticklabels(categories)
+ax.legend()
+
+# افزودن مقادیر
+for bars in [bars1, bars2, bars3]:
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate(f'{height}',
+                   xy=(bar.get_x() + bar.get_width()/2, height),
+                   xytext=(0, 3),
+                   textcoords="offset points",
+                   ha='center', va='bottom', fontsize=8)
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 نمودار میله‌ای افقی و انباشته</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>bar_horizontal_stacked.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# نمودار میله‌ای افقی
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+categories = ['پایتون', 'جاوااسکریپت', 'جاوا', 'سی‌پلاس‌پلاس', 'سی‌شارپ']
+values = [30, 25, 20, 15, 10]
+colors = ['#3776AB', '#F7DF1E', '#ED8B00', '#00599C', '#239120']
+
+bars = ax.barh(categories, values, color=colors, edgecolor='black')
+
+ax.set_xlabel('درصد محبوبیت')
+ax.set_title('محبوب‌ترین زبان‌های برنامه‌نویسی')
+
+# افزودن مقادیر
+for bar, val in zip(bars, values):
+    ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
+            f'{val}%', ha='left', va='center', fontweight='bold')
+
+ax.set_xlim(0, 40)
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار میله‌ای انباشته (Stacked)
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+categories = ['Q1', 'Q2', 'Q3', 'Q4']
+product_a = [20, 35, 30, 35]
+product_b = [25, 32, 34, 20]
+product_c = [15, 20, 25, 30]
+
+# عمودی انباشته
+ax = axes[0]
+ax.bar(categories, product_a, label='محصول A', color='#E53935')
+ax.bar(categories, product_b, bottom=product_a, label='محصول B', color='#1E88E5')
+ax.bar(categories, product_c, bottom=np.array(product_a) + np.array(product_b), 
+       label='محصول C', color='#43A047')
+ax.set_ylabel('فروش')
+ax.set_title('نمودار انباشته عمودی')
+ax.legend()
+
+# افقی انباشته
+ax = axes[1]
+ax.barh(categories, product_a, label='محصول A', color='#E53935')
+ax.barh(categories, product_b, left=product_a, label='محصول B', color='#1E88E5')
+ax.barh(categories, product_c, left=np.array(product_a) + np.array(product_b), 
+        label='محصول C', color='#43A047')
+ax.set_xlabel('فروش')
+ax.set_title('نمودار انباشته افقی')
+ax.legend()
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار میله‌ای با خطا
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+categories = ['روش A', 'روش B', 'روش C', 'روش D']
+means = [85, 90, 78, 92]
+errors = [5, 3, 7, 4]
+
+bars = ax.bar(categories, means, yerr=errors, 
+              capsize=5,           # اندازه خط افقی خطا
+              color='steelblue',
+              edgecolor='black',
+              error_kw={'elinewidth': 2, 'ecolor': 'red'})
+
+ax.set_ylabel('دقت (%)')
+ax.set_title('مقایسه دقت روش‌های مختلف')
+ax.set_ylim(0, 110)
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Scatter Plots -->
+        <section class="section" id="scatter">
+            <div class="section-header">
+                <div class="section-icon">🔵</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">نمودار پراکندگی</h2>
+                    <p class="section-subtitle">Scatter Plot و Bubble Chart</p>
+                </div>
+            </div>
+
+            <h3>🔵 نمودار پراکندگی پایه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>scatter_basic.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+np.random.seed(42)
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار پراکندگی ساده
+# ═══════════════════════════════════════════════════════════
+
+x = np.random.randn(100)
+y = np.random.randn(100)
+
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.scatter(x, y)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_title('نمودار پراکندگی ساده')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# سفارشی‌سازی نقاط
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# اندازه نقاط
+ax = axes[0, 0]
+sizes = np.random.randint(20, 200, 100)
+ax.scatter(x, y, s=sizes, alpha=0.6)
+ax.set_title('اندازه متفاوت (s)')
+
+# رنگ نقاط
+ax = axes[0, 1]
+colors = np.random.rand(100)
+scatter = ax.scatter(x, y, c=colors, cmap='viridis', s=50)
+plt.colorbar(scatter, ax=ax, label='مقدار')
+ax.set_title('رنگ بر اساس مقدار (c)')
+
+# شکل نقاط
+ax = axes[1, 0]
+markers = ['o', 's', '^', 'D']
+for i, marker in enumerate(markers):
+    mask = (i * 25 <= np.arange(100)) & (np.arange(100) < (i+1) * 25)
+    ax.scatter(x[mask], y[mask], marker=marker, s=80, label=marker)
+ax.legend()
+ax.set_title('شکل‌های مختلف (marker)')
+
+# حاشیه نقاط
+ax = axes[1, 1]
+ax.scatter(x, y, s=100, 
+           facecolors='lightblue',    # رنگ داخل
+           edgecolors='darkblue',     # رنگ حاشیه
+           linewidths=2,              # ضخامت حاشیه
+           alpha=0.7)
+ax.set_title('حاشیه نقاط')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار با رابطه خطی
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# داده با رابطه خطی + نویز
+x = np.linspace(0, 10, 50)
+y = 2 * x + 1 + np.random.randn(50) * 2
+
+ax.scatter(x, y, s=80, alpha=0.7, label='داده‌ها')
+
+# خط رگرسیون
+z = np.polyfit(x, y, 1)
+p = np.poly1d(z)
+ax.plot(x, p(x), 'r-', linewidth=2, label=f'y = {z[0]:.2f}x + {z[1]:.2f}')
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_title('نمودار پراکندگی با خط رگرسیون')
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🫧 Bubble Chart</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>bubble_chart.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# Bubble Chart - سه متغیره
+# ═══════════════════════════════════════════════════════════
+
+# داده‌های نمونه: کشورها
+countries = ['ایران', 'ترکیه', 'عربستان', 'مصر', 'پاکستان', 'عراق']
+gdp = [1.5, 0.9, 0.8, 0.4, 0.35, 0.2]  # تریلیون دلار
+population = [85, 85, 35, 100, 220, 40]  # میلیون نفر
+area = [1648, 783, 2150, 1001, 881, 438]  # هزار کیلومتر مربع
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+# اندازه حباب بر اساس مساحت
+sizes = [a * 0.3 for a in area]
+
+scatter = ax.scatter(population, gdp, s=sizes, 
+                     c=range(len(countries)), cmap='Set2',
+                     alpha=0.6, edgecolors='black', linewidth=2)
+
+# افزودن برچسب کشورها
+for i, country in enumerate(countries):
+    ax.annotate(country, (population[i], gdp[i]),
+                xytext=(5, 5), textcoords='offset points',
+                fontsize=10, fontweight='bold')
+
+ax.set_xlabel('جمعیت (میلیون نفر)', fontsize=12)
+ax.set_ylabel('GDP (تریلیون دلار)', fontsize=12)
+ax.set_title('مقایسه کشورها: جمعیت، GDP و مساحت', fontsize=14)
+
+# Legend برای اندازه
+for area_val in [500, 1000, 2000]:
+    ax.scatter([], [], s=area_val * 0.3, c='gray', alpha=0.5,
+               label=f'{area_val} هزار km²')
+ax.legend(title='مساحت', loc='upper right')
+
+ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Bubble Chart - چهار متغیره (با رنگ)
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+np.random.seed(42)
+n = 30
+
+x = np.random.rand(n) * 100
+y = np.random.rand(n) * 100
+sizes = np.random.rand(n) * 1000 + 100
+colors = np.random.rand(n) * 100
+
+scatter = ax.scatter(x, y, s=sizes, c=colors, 
+                     cmap='RdYlGn', alpha=0.6,
+                     edgecolors='black', linewidth=1)
+
+cbar = plt.colorbar(scatter, ax=ax)
+cbar.set_label('متغیر چهارم (رنگ)', fontsize=12)
+
+ax.set_xlabel('متغیر اول (X)', fontsize=12)
+ax.set_ylabel('متغیر دوم (Y)', fontsize=12)
+ax.set_title('نمودار حبابی چهار متغیره', fontsize=14)
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Other Charts -->
+        <section class="section" id="other">
+            <div class="section-header">
+                <div class="section-icon">🥧</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">سایر نمودارها</h2>
+                    <p class="section-subtitle">Pie, Histogram, Box Plot و ...</p>
+                </div>
+            </div>
+
+            <h3>🥧 نمودار دایره‌ای (Pie Chart)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>pie_chart.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# نمودار دایره‌ای ساده
+# ═══════════════════════════════════════════════════════════
+
+labels = ['پایتون', 'جاوا', 'جاوااسکریپت', 'سی++', 'سایر']
+sizes = [35, 25, 20, 12, 8]
+colors = ['#3776AB', '#ED8B00', '#F7DF1E', '#00599C', '#808080']
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+ax.pie(sizes, labels=labels, colors=colors,
+       autopct='%1.1f%%',           # نمایش درصد
+       startangle=90,               # شروع از بالا
+       shadow=True)                 # سایه
+
+ax.set_title('محبوبیت زبان‌های برنامه‌نویسی')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار دایره‌ای پیشرفته
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# جدا کردن یک قطعه (explode)
+ax = axes[0]
+explode = (0.1, 0, 0, 0, 0)  # جدا کردن اولین قطعه
+ax.pie(sizes, labels=labels, colors=colors,
+       explode=explode,
+       autopct='%1.1f%%',
+       shadow=True,
+       startangle=90)
+ax.set_title('با Explode')
+
+# دونات چارت
+ax = axes[1]
+wedges, texts, autotexts = ax.pie(sizes, labels=labels, colors=colors,
+                                   autopct='%1.1f%%',
+                                   startangle=90,
+                                   pctdistance=0.75,
+                                   wedgeprops=dict(width=0.5))  # ضخامت حلقه
+ax.set_title('دونات چارت')
+
+# دایره سفید در مرکز
+centre_circle = plt.Circle((0, 0), 0.25, fc='white')
+ax.add_patch(centre_circle)
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار دایره‌ای تو در تو
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 10))
+
+# داده‌های بیرونی و داخلی
+outer_labels = ['گروه A', 'گروه B', 'گروه C']
+outer_sizes = [40, 35, 25]
+outer_colors = ['#E53935', '#1E88E5', '#43A047']
+
+inner_labels = ['A1', 'A2', 'B1', 'B2', 'B3', 'C1', 'C2']
+inner_sizes = [25, 15, 15, 12, 8, 15, 10]
+inner_colors = ['#EF5350', '#E57373', '#42A5F5', '#64B5F6', '#90CAF9', 
+                '#66BB6A', '#81C784']
+
+# حلقه بیرونی
+ax.pie(outer_sizes, labels=outer_labels, colors=outer_colors,
+       radius=1, wedgeprops=dict(width=0.3, edgecolor='white'),
+       startangle=90)
+
+# حلقه داخلی
+ax.pie(inner_sizes, labels=inner_labels, colors=inner_colors,
+       radius=0.7, wedgeprops=dict(width=0.4, edgecolor='white'),
+       startangle=90, labeldistance=0.4)
+
+ax.set_title('نمودار دایره‌ای تو در تو')
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>📉 هیستوگرام (Histogram)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>histogram.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+np.random.seed(42)
+
+
+# ═══════════════════════════════════════════════════════════
+# هیستوگرام ساده
+# ═══════════════════════════════════════════════════════════
+
+data = np.random.randn(1000)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.hist(data, bins=30, color='steelblue', edgecolor='black')
+ax.set_xlabel('مقدار')
+ax.set_ylabel('فراوانی')
+ax.set_title('هیستوگرام توزیع نرمال')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# انواع هیستوگرام
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+# تعداد bins مختلف
+ax = axes[0, 0]
+ax.hist(data, bins=10, color='coral', edgecolor='black', alpha=0.7, label='10 bins')
+ax.hist(data, bins=50, color='steelblue', edgecolor='black', alpha=0.5, label='50 bins')
+ax.legend()
+ax.set_title('تعداد bins مختلف')
+
+# نرمال شده (density)
+ax = axes[0, 1]
+ax.hist(data, bins=30, density=True, color='green', edgecolor='black', alpha=0.7)
+# منحنی توزیع نرمال
+x = np.linspace(-4, 4, 100)
+ax.plot(x, 1/(np.sqrt(2*np.pi)) * np.exp(-x**2/2), 'r-', linewidth=2)
+ax.set_title('هیستوگرام نرمال شده + منحنی')
+
+# نوع step
+ax = axes[1, 0]
+ax.hist(data, bins=30, histtype='step', linewidth=2, color='purple')
+ax.set_title('histtype="step"')
+
+# چند توزیع
+ax = axes[1, 1]
+data1 = np.random.randn(1000)
+data2 = np.random.randn(1000) + 2
+ax.hist(data1, bins=30, alpha=0.5, label='توزیع 1')
+ax.hist(data2, bins=30, alpha=0.5, label='توزیع 2')
+ax.legend()
+ax.set_title('مقایسه دو توزیع')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# هیستوگرام دوبعدی (2D Histogram)
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+x = np.random.randn(10000)
+y = np.random.randn(10000)
+
+# hist2d
+ax = axes[0]
+h = ax.hist2d(x, y, bins=50, cmap='Blues')
+plt.colorbar(h[3], ax=ax, label='فراوانی')
+ax.set_title('هیستوگرام دوبعدی')
+
+# hexbin
+ax = axes[1]
+hb = ax.hexbin(x, y, gridsize=30, cmap='YlOrRd')
+plt.colorbar(hb, ax=ax, label='فراوانی')
+ax.set_title('Hexbin Plot')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>📦 Box Plot و Violin Plot</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>box_violin.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+np.random.seed(42)
+
+# داده‌های نمونه
+data1 = np.random.normal(100, 10, 200)
+data2 = np.random.normal(90, 20, 200)
+data3 = np.random.normal(110, 15, 200)
+data4 = np.random.normal(95, 25, 200)
+all_data = [data1, data2, data3, data4]
+labels = ['گروه A', 'گروه B', 'گروه C', 'گروه D']
+
+
+# ═══════════════════════════════════════════════════════════
+# Box Plot
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# Box Plot ساده
+ax = axes[0]
+bp = ax.boxplot(all_data, labels=labels, patch_artist=True)
+
+# رنگ‌آمیزی
+colors = ['#E53935', '#1E88E5', '#43A047', '#FB8C00']
+for patch, color in zip(bp['boxes'], colors):
+    patch.set_facecolor(color)
+    patch.set_alpha(0.7)
+
+ax.set_ylabel('مقدار')
+ax.set_title('Box Plot')
+ax.grid(True, alpha=0.3)
+
+# Box Plot افقی
+ax = axes[1]
+bp = ax.boxplot(all_data, labels=labels, vert=False, patch_artist=True)
+for patch, color in zip(bp['boxes'], colors):
+    patch.set_facecolor(color)
+    patch.set_alpha(0.7)
+ax.set_xlabel('مقدار')
+ax.set_title('Box Plot افقی')
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Violin Plot
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# Violin Plot ساده
+ax = axes[0]
+vp = ax.violinplot(all_data, positions=range(1, 5), showmeans=True, showmedians=True)
+
+# رنگ‌آمیزی
+for i, body in enumerate(vp['bodies']):
+    body.set_facecolor(colors[i])
+    body.set_alpha(0.7)
+
+ax.set_xticks(range(1, 5))
+ax.set_xticklabels(labels)
+ax.set_ylabel('مقدار')
+ax.set_title('Violin Plot')
+ax.grid(True, alpha=0.3)
+
+# ترکیب Box و Violin
+ax = axes[1]
+vp = ax.violinplot(all_data, positions=range(1, 5), showextrema=False)
+for i, body in enumerate(vp['bodies']):
+    body.set_facecolor(colors[i])
+    body.set_alpha(0.5)
+
+bp = ax.boxplot(all_data, positions=range(1, 5), widths=0.1, 
+                patch_artist=True, showfliers=False)
+for patch in bp['boxes']:
+    patch.set_facecolor('white')
+
+ax.set_xticks(range(1, 5))
+ax.set_xticklabels(labels)
+ax.set_ylabel('مقدار')
+ax.set_title('ترکیب Violin و Box Plot')
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🗺️ Heatmap و Contour</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>heatmap_contour.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# Heatmap با imshow
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# ماتریس تصادفی
+data = np.random.rand(10, 10)
+
+# Heatmap ساده
+ax = axes[0]
+im = ax.imshow(data, cmap='viridis')
+plt.colorbar(im, ax=ax, label='مقدار')
+ax.set_title('Heatmap با imshow')
+
+# Heatmap با برچسب
+ax = axes[1]
+im = ax.imshow(data, cmap='YlOrRd')
+plt.colorbar(im, ax=ax)
+
+# افزودن مقادیر
+for i in range(10):
+    for j in range(10):
+        text = ax.text(j, i, f'{data[i, j]:.2f}',
+                       ha='center', va='center', color='black', fontsize=7)
+
+ax.set_title('Heatmap با مقادیر')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# ماتریس همبستگی
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# داده نمونه
+np.random.seed(42)
+n_vars = 6
+var_names = ['متغیر A', 'متغیر B', 'متغیر C', 'متغیر D', 'متغیر E', 'متغیر F']
+
+# ایجاد ماتریس همبستگی تصادفی
+corr_matrix = np.random.rand(n_vars, n_vars)
+corr_matrix = (corr_matrix + corr_matrix.T) / 2  # متقارن
+np.fill_diagonal(corr_matrix, 1)  # قطر = 1
+
+im = ax.imshow(corr_matrix, cmap='RdBu_r', vmin=-1, vmax=1)
+plt.colorbar(im, ax=ax, label='همبستگی')
+
+# برچسب‌ها
+ax.set_xticks(range(n_vars))
+ax.set_yticks(range(n_vars))
+ax.set_xticklabels(var_names, rotation=45, ha='right')
+ax.set_yticklabels(var_names)
+
+# مقادیر
+for i in range(n_vars):
+    for j in range(n_vars):
+        text = ax.text(j, i, f'{corr_matrix[i, j]:.2f}',
+                       ha='center', va='center', 
+                       color='white' if abs(corr_matrix[i, j]) > 0.5 else 'black')
+
+ax.set_title('ماتریس همبستگی')
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Contour Plot
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+# ایجاد داده
+x = np.linspace(-3, 3, 100)
+y = np.linspace(-3, 3, 100)
+X, Y = np.meshgrid(x, y)
+Z = np.sin(X) * np.cos(Y)
+
+# Contour خطی
+ax = axes[0]
+cs = ax.contour(X, Y, Z, levels=15, cmap='RdYlBu')
+ax.clabel(cs, inline=True, fontsize=8)
+ax.set_title('Contour Plot')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+
+# Contour پر شده
+ax = axes[1]
+cf = ax.contourf(X, Y, Z, levels=15, cmap='RdYlBu')
+plt.colorbar(cf, ax=ax, label='Z')
+ax.contour(X, Y, Z, levels=15, colors='black', linewidths=0.5)
+ax.set_title('Filled Contour Plot')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Customization -->
+        <section class="section" id="customize">
+            <div class="section-header">
+                <div class="section-icon">🎨</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">سفارشی‌سازی</h2>
+                    <p class="section-subtitle">رنگ، فونت، استایل و ...</p>
+                </div>
+            </div>
+
+            <h3>🎨 رنگ‌ها و Colormaps</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>colors.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# روش‌های تعریف رنگ
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+x = np.linspace(0, 10, 100)
+
+# روش‌های مختلف تعریف رنگ
+ax.plot(x, np.sin(x), color='red', label='نام رنگ')
+ax.plot(x, np.sin(x) + 1, color='#FF5733', label='کد Hex')
+ax.plot(x, np.sin(x) + 2, color=(0.2, 0.6, 0.8), label='RGB tuple')
+ax.plot(x, np.sin(x) + 3, color=(0.2, 0.6, 0.8, 0.5), label='RGBA tuple')
+ax.plot(x, np.sin(x) + 4, color='C0', label='C0 (رنگ اول چرخه)')
+ax.plot(x, np.sin(x) + 5, color='tab:orange', label='tab:orange')
+
+ax.legend()
+ax.set_title('روش‌های مختلف تعریف رنگ')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Colormaps
+# ═══════════════════════════════════════════════════════════
+
+"""
+دسته‌بندی Colormaps:
+
+Sequential (ترتیبی): viridis, plasma, inferno, magma, cividis
+                     Blues, Greens, Reds, Purples, Oranges
+                     
+Diverging (واگرا): RdBu, RdYlGn, RdYlBu, BrBG, PRGn, PiYG
+
+Cyclic (چرخه‌ای): twilight, twilight_shifted, hsv
+
+Qualitative (کیفی): Set1, Set2, Set3, Pastel1, Pastel2, tab10, tab20
+"""
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+
+data = np.random.rand(10, 10)
+cmaps = ['viridis', 'plasma', 'RdBu', 'coolwarm', 'YlOrRd', 'Spectral']
+
+for ax, cmap in zip(axes.flat, cmaps):
+    im = ax.imshow(data, cmap=cmap)
+    plt.colorbar(im, ax=ax)
+    ax.set_title(cmap)
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد Colormap سفارشی
+# ═══════════════════════════════════════════════════════════
+
+from matplotlib.colors import LinearSegmentedColormap, ListedColormap
+
+# از لیست رنگ‌ها
+colors = ['#2E7D32', '#66BB6A', '#FFEB3B', '#FF9800', '#D32F2F']
+custom_cmap = LinearSegmentedColormap.from_list('custom', colors)
+
+fig, ax = plt.subplots(figsize=(10, 6))
+im = ax.imshow(np.random.rand(10, 10), cmap=custom_cmap)
+plt.colorbar(im, ax=ax)
+ax.set_title('Colormap سفارشی')
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نرمال‌سازی رنگ
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+data = np.random.randn(10, 10)
+
+# نرمال خطی
+ax = axes[0]
+im = ax.imshow(data, cmap='RdBu', norm=mcolors.Normalize(vmin=-2, vmax=2))
+plt.colorbar(im, ax=ax)
+ax.set_title('Normalize')
+
+# نرمال لگاریتمی
+ax = axes[1]
+data_pos = np.abs(data) + 0.1
+im = ax.imshow(data_pos, cmap='viridis', norm=mcolors.LogNorm())
+plt.colorbar(im, ax=ax)
+ax.set_title('LogNorm')
+
+# نرمال متقارن
+ax = axes[2]
+im = ax.imshow(data, cmap='RdBu', norm=mcolors.TwoSlopeNorm(vcenter=0))
+plt.colorbar(im, ax=ax)
+ax.set_title('TwoSlopeNorm')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🔤 فونت و متن</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>fonts_text.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات فونت
+# ═══════════════════════════════════════════════════════════
+
+# تنظیم فونت فارسی
+plt.rcParams['font.family'] = 'Vazirmatn'  # یا 'B Nazanin', 'Tahoma'
+plt.rcParams['axes.unicode_minus'] = False  # برای علامت منفی
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+x = np.linspace(0, 10, 100)
+ax.plot(x, np.sin(x))
+
+# عنوان با فونت سفارشی
+ax.set_title('نمودار سینوسی', fontsize=16, fontweight='bold', 
+             fontfamily='Vazirmatn', color='darkblue')
+
+# برچسب محورها
+ax.set_xlabel('محور افقی', fontsize=12, fontstyle='italic')
+ax.set_ylabel('محور عمودی', fontsize=12)
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# افزودن متن به نمودار
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+ax.plot(x, y, 'b-', linewidth=2)
+
+# متن ساده
+ax.text(5, 0.5, 'نقطه مهم', fontsize=14, color='red')
+
+# متن با جعبه
+ax.text(2, -0.5, 'متن با جعبه', fontsize=12,
+        bbox=dict(boxstyle='round', facecolor='yellow', alpha=0.8))
+
+# متن با فلش (annotation)
+ax.annotate('حداکثر', xy=(np.pi/2, 1), xytext=(3, 0.7),
+            fontsize=12,
+            arrowprops=dict(arrowstyle='->', color='red'),
+            color='red')
+
+# متن ریاضی (LaTeX)
+ax.text(7, 0.3, r'$y = \sin(x)$', fontsize=16)
+ax.text(7, -0.3, r'$\int_0^{\pi} \sin(x)dx = 2$', fontsize=14)
+
+ax.set_title('افزودن متن به نمودار')
+ax.grid(True, alpha=0.3)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# استایل‌های مختلف متن
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 8))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 10)
+
+# موقعیت‌های مختلف (ha, va)
+positions = [
+    (2, 8, 'left', 'top'),
+    (5, 8, 'center', 'top'),
+    (8, 8, 'right', 'top'),
+    (2, 5, 'left', 'center'),
+    (5, 5, 'center', 'center'),
+    (8, 5, 'right', 'center'),
+    (2, 2, 'left', 'bottom'),
+    (5, 2, 'center', 'bottom'),
+    (8, 2, 'right', 'bottom'),
+]
+
+for x, y, ha, va in positions:
+    ax.plot(x, y, 'ro', markersize=10)
+    ax.text(x, y, f'ha={ha}\nva={va}', ha=ha, va=va, fontsize=9,
+            bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.5))
+
+ax.set_title('موقعیت‌های مختلف متن (ha, va)')
+ax.grid(True)
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>📏 محورها و شبکه</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>axes_grid.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات محورها
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# محدوده محورها
+ax = axes[0, 0]
+ax.plot(x, y)
+ax.set_xlim(0, 8)
+ax.set_ylim(-1.5, 1.5)
+ax.set_title('محدوده محورها (xlim, ylim)')
+
+# مقیاس لگاریتمی
+ax = axes[0, 1]
+x_log = np.linspace(1, 1000, 100)
+ax.plot(x_log, x_log**2)
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.set_title('مقیاس لگاریتمی')
+
+# علامت‌های محور (ticks)
+ax = axes[1, 0]
+ax.plot(x, y)
+ax.set_xticks([0, np.pi, 2*np.pi, 3*np.pi])
+ax.set_xticklabels(['0', 'π', '2π', '3π'])
+ax.set_yticks([-1, 0, 1])
+ax.set_title('علامت‌های سفارشی')
+
+# محور معکوس
+ax = axes[1, 1]
+ax.plot(x, y)
+ax.invert_xaxis()
+ax.invert_yaxis()
+ax.set_title('محور معکوس')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# شبکه (Grid)
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# شبکه ساده
+ax = axes[0, 0]
+ax.plot(x, y)
+ax.grid(True)
+ax.set_title('شبکه ساده')
+
+# شبکه سفارشی
+ax = axes[0, 1]
+ax.plot(x, y)
+ax.grid(True, color='gray', linestyle='--', linewidth=0.5, alpha=0.7)
+ax.set_title('شبکه سفارشی')
+
+# شبکه اصلی و فرعی
+ax = axes[1, 0]
+ax.plot(x, y)
+ax.grid(True, which='major', color='black', linewidth=1, alpha=0.5)
+ax.grid(True, which='minor', color='gray', linewidth=0.5, alpha=0.3)
+ax.minorticks_on()
+ax.set_title('شبکه اصلی و فرعی')
+
+# شبکه فقط یک محور
+ax = axes[1, 1]
+ax.plot(x, y)
+ax.grid(True, axis='y', color='blue', alpha=0.3)
+ax.set_title('شبکه فقط محور Y')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# دو محور Y
+# ═══════════════════════════════════════════════════════════
+
+fig, ax1 = plt.subplots(figsize=(10, 6))
+
+x = np.linspace(0, 10, 100)
+y1 = np.sin(x)
+y2 = np.exp(x / 3)
+
+# محور اول (چپ)
+color1 = 'tab:blue'
+ax1.set_xlabel('X')
+ax1.set_ylabel('sin(x)', color=color1)
+ax1.plot(x, y1, color=color1, linewidth=2)
+ax1.tick_params(axis='y', labelcolor=color1)
+
+# محور دوم (راست)
+ax2 = ax1.twinx()
+color2 = 'tab:red'
+ax2.set_ylabel('exp(x/3)', color=color2)
+ax2.plot(x, y2, color=color2, linewidth=2)
+ax2.tick_params(axis='y', labelcolor=color2)
+
+ax1.set_title('دو محور Y')
+fig.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🎭 استایل‌ها و تم‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>styles.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# لیست استایل‌های موجود
+# ═══════════════════════════════════════════════════════════
+
+print("استایل‌های موجود:")
+print(plt.style.available)
+
+
+# ═══════════════════════════════════════════════════════════
+# مقایسه استایل‌ها
+# ═══════════════════════════════════════════════════════════
+
+styles = ['default', 'seaborn-v0_8', 'ggplot', 'dark_background', 
+          'bmh', 'fivethirtyeight']
+
+x = np.linspace(0, 10, 100)
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+
+for ax, style in zip(axes.flat, styles):
+    with plt.style.context(style):
+        ax.plot(x, np.sin(x), label='sin')
+        ax.plot(x, np.cos(x), label='cos')
+        ax.set_title(style)
+        ax.legend()
+        ax.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# استفاده از استایل
+# ═══════════════════════════════════════════════════════════
+
+# روش 1: استفاده موقت
+with plt.style.context('seaborn-v0_8-darkgrid'):
+    fig, ax = plt.subplots()
+    ax.plot(x, np.sin(x))
+    plt.show()
+
+# روش 2: استفاده دائمی
+plt.style.use('seaborn-v0_8-whitegrid')
+
+# روش 3: ترکیب استایل‌ها
+plt.style.use(['seaborn-v0_8', 'dark_background'])
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات سراسری با rcParams
+# ═══════════════════════════════════════════════════════════
+
+# بازگشت به پیش‌فرض
+plt.rcdefaults()
+
+# تنظیمات سفارشی
+plt.rcParams.update({
+    # Figure
+    'figure.figsize': (10, 6),
+    'figure.dpi': 100,
+    'figure.facecolor': 'white',
+    
+    # Font
+    'font.family': 'sans-serif',
+    'font.size': 12,
+    
+    # Axes
+    'axes.titlesize': 14,
+    'axes.labelsize': 12,
+    'axes.grid': True,
+    'axes.facecolor': '#f0f0f0',
+    
+    # Lines
+    'lines.linewidth': 2,
+    'lines.markersize': 8,
+    
+    # Grid
+    'grid.alpha': 0.3,
+    'grid.linestyle': '--',
+    
+    # Legend
+    'legend.fontsize': 10,
+    'legend.framealpha': 0.8,
+    
+    # Ticks
+    'xtick.labelsize': 10,
+    'ytick.labelsize': 10,
+})
+
+fig, ax = plt.subplots()
+ax.plot(x, np.sin(x), label='sin(x)')
+ax.plot(x, np.cos(x), label='cos(x)')
+ax.set_title('نمودار با تنظیمات سفارشی')
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.legend()
+plt.show()
+
+# بازگشت به پیش‌فرض
+plt.rcdefaults()</code></pre>
+                </div>
+            </div>
+
+            <h3>📝 Legend (راهنما)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>legend.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+x = np.linspace(0, 10, 100)
+
+
+# ═══════════════════════════════════════════════════════════
+# موقعیت Legend
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+
+locations = ['best', 'upper right', 'upper left', 
+             'lower left', 'lower right', 'center']
+
+for ax, loc in zip(axes.flat, locations):
+    ax.plot(x, np.sin(x), label='sin(x)')
+    ax.plot(x, np.cos(x), label='cos(x)')
+    ax.legend(loc=loc)
+    ax.set_title(f'loc="{loc}"')
+    ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# سفارشی‌سازی Legend
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 8))
+
+ax.plot(x, np.sin(x), 'b-', linewidth=2, label='سینوس')
+ax.plot(x, np.cos(x), 'r--', linewidth=2, label='کسینوس')
+ax.plot(x, np.tan(x), 'g:', linewidth=2, label='تانژانت')
+
+ax.set_ylim(-3, 3)
+
+ax.legend(
+    loc='upper right',
+    fontsize=12,
+    frameon=True,              # نمایش قاب
+    framealpha=0.9,            # شفافیت قاب
+    facecolor='lightyellow',   # رنگ پس‌زمینه
+    edgecolor='black',         # رنگ حاشیه
+    shadow=True,               # سایه
+    ncol=3,                    # تعداد ستون
+    title='توابع مثلثاتی',     # عنوان
+    title_fontsize=14,
+    borderpad=1,               # فاصله داخلی
+    labelspacing=1,            # فاصله بین برچسب‌ها
+)
+
+ax.set_title('Legend سفارشی')
+ax.grid(True, alpha=0.3)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Legend خارج از نمودار
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 6))
+
+for i in range(5):
+    ax.plot(x, np.sin(x + i*0.5), label=f'خط {i+1}')
+
+# Legend در سمت راست بیرون
+ax.legend(
+    bbox_to_anchor=(1.02, 1),  # موقعیت (x, y)
+    loc='upper left',
+    borderaxespad=0
+)
+
+ax.set_title('Legend خارج از نمودار')
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Legend سفارشی با handles
+# ═══════════════════════════════════════════════════════════
+
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+ax.scatter(np.random.rand(20), np.random.rand(20), c='red', s=100)
+ax.scatter(np.random.rand(20), np.random.rand(20), c='blue', s=100)
+ax.bar([0.2, 0.4], [0.5, 0.7], width=0.1, color='green', alpha=0.5)
+
+# ایجاد handles سفارشی
+legend_elements = [
+    Line2D([0], [0], marker='o', color='w', markerfacecolor='red', 
+           markersize=10, label='نقاط قرمز'),
+    Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', 
+           markersize=10, label='نقاط آبی'),
+    Patch(facecolor='green', alpha=0.5, label='میله‌ها'),
+]
+
+ax.legend(handles=legend_elements, loc='upper right')
+ax.set_title('Legend سفارشی با handles')
+plt.show()</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Advanced -->
+        <section class="section" id="advanced">
+            <div class="section-header">
+                <div class="section-icon">⚡</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">موضوعات پیشرفته</h2>
+                    <p class="section-subtitle">3D، انیمیشن و نمودارهای تعاملی</p>
+                </div>
+            </div>
+
+            <h3>🧊 نمودارهای سه‌بعدی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>3d_plots.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# نمودار خطی سه‌بعدی
+# ═══════════════════════════════════════════════════════════
+
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# داده
+t = np.linspace(0, 4*np.pi, 100)
+x = np.sin(t)
+y = np.cos(t)
+z = t
+
+ax.plot(x, y, z, 'b-', linewidth=2)
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('نمودار خطی سه‌بعدی (مارپیچ)')
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار پراکندگی سه‌بعدی
+# ═══════════════════════════════════════════════════════════
+
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+n = 100
+x = np.random.rand(n)
+y = np.random.rand(n)
+z = np.random.rand(n)
+colors = np.random.rand(n)
+
+scatter = ax.scatter(x, y, z, c=colors, cmap='viridis', s=50, alpha=0.8)
+plt.colorbar(scatter, ax=ax, shrink=0.5, label='مقدار')
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('نمودار پراکندگی سه‌بعدی')
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# سطح سه‌بعدی (Surface Plot)
+# ═══════════════════════════════════════════════════════════
+
+fig = plt.figure(figsize=(12, 5))
+
+# ایجاد داده
+x = np.linspace(-5, 5, 50)
+y = np.linspace(-5, 5, 50)
+X, Y = np.meshgrid(x, y)
+Z = np.sin(np.sqrt(X**2 + Y**2))
+
+# Surface Plot
+ax1 = fig.add_subplot(121, projection='3d')
+surf = ax1.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none', alpha=0.8)
+ax1.set_title('Surface Plot')
+plt.colorbar(surf, ax=ax1, shrink=0.5)
+
+# Wireframe
+ax2 = fig.add_subplot(122, projection='3d')
+ax2.plot_wireframe(X, Y, Z, color='blue', linewidth=0.5)
+ax2.set_title('Wireframe Plot')
+
+plt.tight_layout()
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# نمودار میله‌ای سه‌بعدی
+# ═══════════════════════════════════════════════════════════
+
+fig = plt.figure(figsize=(10, 8))
+ax = fig.add_subplot(111, projection='3d')
+
+# داده
+x_pos = np.arange(5)
+y_pos = np.arange(4)
+x_pos, y_pos = np.meshgrid(x_pos, y_pos)
+x_pos = x_pos.flatten()
+y_pos = y_pos.flatten()
+z_pos = np.zeros_like(x_pos)
+
+dx = dy = 0.5
+dz = np.random.randint(1, 10, len(x_pos))
+
+colors = plt.cm.viridis(dz / max(dz))
+
+ax.bar3d(x_pos, y_pos, z_pos, dx, dy, dz, color=colors, alpha=0.8)
+
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('نمودار میله‌ای سه‌بعدی')
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیم زاویه دید
+# ═══════════════════════════════════════════════════════════
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5), 
+                         subplot_kw={'projection': '3d'})
+
+x = np.linspace(-5, 5, 30)
+y = np.linspace(-5, 5, 30)
+X, Y = np.meshgrid(x, y)
+Z = np.sin(np.sqrt(X**2 + Y**2))
+
+views = [(30, 45), (60, 30), (0, 90)]  # (elevation, azimuth)
+
+for ax, (elev, azim) in zip(axes, views):
+    ax.plot_surface(X, Y, Z, cmap='coolwarm', alpha=0.8)
+    ax.view_init(elev=elev, azim=azim)
+    ax.set_title(f'elev={elev}, azim={azim}')
+
+plt.tight_layout()
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🎬 انیمیشن</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>animation.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# انیمیشن ساده با FuncAnimation
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+x = np.linspace(0, 2*np.pi, 100)
+line, = ax.plot(x, np.sin(x))
+
+ax.set_xlim(0, 2*np.pi)
+ax.set_ylim(-1.5, 1.5)
+ax.set_title('موج سینوسی متحرک')
+
+def animate(frame):
+    line.set_ydata(np.sin(x + frame * 0.1))
+    return line,
+
+ani = animation.FuncAnimation(
+    fig, animate,
+    frames=100,
+    interval=50,      # میلی‌ثانیه بین فریم‌ها
+    blit=True
+)
+
+plt.show()
+
+# ذخیره به فایل
+# ani.save('sine_wave.gif', writer='pillow', fps=30)
+# ani.save('sine_wave.mp4', writer='ffmpeg', fps=30)
+
+
+# ═══════════════════════════════════════════════════════════
+# انیمیشن پراکندگی
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 8))
+
+n = 50
+x = np.random.rand(n)
+y = np.random.rand(n)
+colors = np.random.rand(n)
+sizes = np.random.rand(n) * 500
+
+scatter = ax.scatter(x, y, c=colors, s=sizes, cmap='viridis', alpha=0.6)
+ax.set_xlim(0, 1)
+ax.set_ylim(0, 1)
+ax.set_title('ذرات متحرک')
+
+def animate(frame):
+    global x, y
+    # حرکت تصادفی
+    x = x + (np.random.rand(n) - 0.5) * 0.02
+    y = y + (np.random.rand(n) - 0.5) * 0.02
+    
+    # محدود کردن به بازه [0, 1]
+    x = np.clip(x, 0, 1)
+    y = np.clip(y, 0, 1)
+    
+    scatter.set_offsets(np.c_[x, y])
+    return scatter,
+
+ani = animation.FuncAnimation(fig, animate, frames=200, interval=50, blit=True)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# انیمیشن نمودار میله‌ای
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+categories = ['A', 'B', 'C', 'D', 'E']
+values = np.random.rand(5) * 100
+
+bars = ax.bar(categories, values, color='steelblue')
+ax.set_ylim(0, 120)
+ax.set_title('نمودار میله‌ای متحرک')
+
+def animate(frame):
+    new_values = np.random.rand(5) * 100
+    for bar, val in zip(bars, new_values):
+        bar.set_height(val)
+    return bars
+
+ani = animation.FuncAnimation(fig, animate, frames=50, interval=200, blit=False)
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# انیمیشن رسم تدریجی
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+x = np.linspace(0, 4*np.pi, 200)
+y = np.sin(x) * np.exp(-x/10)
+
+line, = ax.plot([], [], 'b-', linewidth=2)
+ax.set_xlim(0, 4*np.pi)
+ax.set_ylim(-1, 1)
+ax.set_title('رسم تدریجی')
+ax.grid(True, alpha=0.3)
+
+def init():
+    line.set_data([], [])
+    return line,
+
+def animate(frame):
+    line.set_data(x[:frame], y[:frame])
+    return line,
+
+ani = animation.FuncAnimation(
+    fig, animate,
+    init_func=init,
+    frames=len(x),
+    interval=20,
+    blit=True
+)
+
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>🖱️ نمودارهای تعاملی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>interactive.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button, CheckButtons, RadioButtons
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# Slider
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 8))
+plt.subplots_adjust(bottom=0.25)
+
+x = np.linspace(0, 2*np.pi, 100)
+freq_init = 1
+amp_init = 1
+
+line, = ax.plot(x, amp_init * np.sin(freq_init * x), 'b-', linewidth=2)
+ax.set_ylim(-3, 3)
+ax.set_title('نمودار سینوسی تعاملی')
+ax.grid(True, alpha=0.3)
+
+# ایجاد Sliders
+ax_freq = plt.axes([0.2, 0.1, 0.6, 0.03])
+ax_amp = plt.axes([0.2, 0.05, 0.6, 0.03])
+
+slider_freq = Slider(ax_freq, 'فرکانس', 0.1, 5.0, valinit=freq_init)
+slider_amp = Slider(ax_amp, 'دامنه', 0.1, 3.0, valinit=amp_init)
+
+def update(val):
+    freq = slider_freq.val
+    amp = slider_amp.val
+    line.set_ydata(amp * np.sin(freq * x))
+    fig.canvas.draw_idle()
+
+slider_freq.on_changed(update)
+slider_amp.on_changed(update)
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# Button
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 8))
+plt.subplots_adjust(bottom=0.2)
+
+x = np.linspace(0, 10, 100)
+line, = ax.plot(x, np.sin(x), 'b-', linewidth=2)
+ax.set_title('کلیک کنید!')
+
+# دکمه‌ها
+ax_reset = plt.axes([0.2, 0.05, 0.1, 0.05])
+ax_random = plt.axes([0.35, 0.05, 0.1, 0.05])
+ax_color = plt.axes([0.5, 0.05, 0.1, 0.05])
+
+btn_reset = Button(ax_reset, 'Reset')
+btn_random = Button(ax_random, 'Random')
+btn_color = Button(ax_color, 'Color')
+
+colors = ['blue', 'red', 'green', 'orange', 'purple']
+color_index = [0]
+
+def reset(event):
+    line.set_ydata(np.sin(x))
+    fig.canvas.draw_idle()
+
+def random_data(event):
+    line.set_ydata(np.sin(x + np.random.rand() * 5))
+    fig.canvas.draw_idle()
+
+def change_color(event):
+    color_index[0] = (color_index[0] + 1) % len(colors)
+    line.set_color(colors[color_index[0]])
+    fig.canvas.draw_idle()
+
+btn_reset.on_clicked(reset)
+btn_random.on_clicked(random_data)
+btn_color.on_clicked(change_color)
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# CheckButtons و RadioButtons
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(12, 8))
+plt.subplots_adjust(left=0.3)
+
+x = np.linspace(0, 2*np.pi, 100)
+
+line_sin, = ax.plot(x, np.sin(x), 'b-', label='sin', linewidth=2)
+line_cos, = ax.plot(x, np.cos(x), 'r-', label='cos', linewidth=2)
+line_tan, = ax.plot(x, np.tan(x), 'g-', label='tan', linewidth=2)
+
+ax.set_ylim(-3, 3)
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+# CheckButtons
+ax_check = plt.axes([0.05, 0.5, 0.15, 0.15])
+check = CheckButtons(ax_check, ['sin', 'cos', 'tan'], [True, True, True])
+
+lines = {'sin': line_sin, 'cos': line_cos, 'tan': line_tan}
+
+def toggle_visibility(label):
+    lines[label].set_visible(not lines[label].get_visible())
+    fig.canvas.draw_idle()
+
+check.on_clicked(toggle_visibility)
+
+# RadioButtons برای رنگ
+ax_radio = plt.axes([0.05, 0.2, 0.15, 0.2])
+radio = RadioButtons(ax_radio, ['آبی', 'قرمز', 'سبز', 'نارنجی'])
+
+color_map = {'آبی': 'blue', 'قرمز': 'red', 'سبز': 'green', 'نارنجی': 'orange'}
+
+def change_sin_color(label):
+    line_sin.set_color(color_map[label])
+    fig.canvas.draw_idle()
+
+radio.on_clicked(change_sin_color)
+
+plt.show()
+
+
+# ═══════════════════════════════════════════════════════════
+# رویدادهای ماوس
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots(figsize=(10, 8))
+ax.set_xlim(0, 10)
+ax.set_ylim(0, 10)
+ax.set_title('کلیک کنید تا نقطه اضافه شود')
+ax.grid(True, alpha=0.3)
+
+points_x = []
+points_y = []
+scatter = ax.scatter([], [], s=100, c='red')
+
+def onclick(event):
+    if event.inaxes == ax:
+        points_x.append(event.xdata)
+        points_y.append(event.ydata)
+        scatter.set_offsets(np.c_[points_x, points_y])
+        fig.canvas.draw_idle()
+
+fig.canvas.mpl_connect('button_press_event', onclick)
+
+plt.show()</code></pre>
+                </div>
+            </div>
+
+            <h3>💾 ذخیره و خروجی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>save_export.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+fig, ax = plt.subplots(figsize=(10, 6))
+x = np.linspace(0, 10, 100)
+ax.plot(x, np.sin(x), 'b-', linewidth=2)
+ax.set_title('نمودار نمونه')
+ax.grid(True, alpha=0.3)
+
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره با فرمت‌های مختلف
+# ═══════════════════════════════════════════════════════════
+
+# PNG (پیش‌فرض)
+fig.savefig('plot.png')
+
+# PNG با کیفیت بالا
+fig.savefig('plot_hd.png', dpi=300)
+
+# JPEG
+fig.savefig('plot.jpg', quality=95)
+
+# PDF (برداری - مناسب چاپ)
+fig.savefig('plot.pdf')
+
+# SVG (برداری - مناسب وب)
+fig.savefig('plot.svg')
+
+# EPS (برداری - مناسب LaTeX)
+fig.savefig('plot.eps')
+
+
+# ═══════════════════════════════════════════════════════════
+# پارامترهای savefig
+# ═══════════════════════════════════════════════════════════
+
+fig.savefig(
+    'plot_custom.png',
+    dpi=300,                    # وضوح
+    facecolor='white',          # رنگ پس‌زمینه
+    edgecolor='none',           # رنگ حاشیه
+    bbox_inches='tight',        # حذف فضای اضافی
+    pad_inches=0.1,             # حاشیه
+    transparent=False,          # پس‌زمینه شفاف
+    format='png',               # فرمت
+)
+
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره به buffer (برای وب)
+# ═══════════════════════════════════════════════════════════
+
+import io
+import base64
+
+buffer = io.BytesIO()
+fig.savefig(buffer, format='png', dpi=100, bbox_inches='tight')
+buffer.seek(0)
+
+# تبدیل به base64 برای HTML
+image_base64 = base64.b64encode(buffer.getvalue()).decode()
+html_img = f'<img src="data:image/png;base64,{image_base64}">'
+
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره چند نمودار در یک PDF
+# ═══════════════════════════════════════════════════════════
+
+from matplotlib.backends.backend_pdf import PdfPages
+
+with PdfPages('multiple_plots.pdf') as pdf:
+    # صفحه 1
+    fig1, ax1 = plt.subplots()
+    ax1.plot(x, np.sin(x))
+    ax1.set_title('صفحه 1: سینوس')
+    pdf.savefig(fig1)
+    plt.close(fig1)
+    
+    # صفحه 2
+    fig2, ax2 = plt.subplots()
+    ax2.plot(x, np.cos(x))
+    ax2.set_title('صفحه 2: کسینوس')
+    pdf.savefig(fig2)
+    plt.close(fig2)
+    
+    # صفحه 3
+    fig3, ax3 = plt.subplots()
+    ax3.bar(['A', 'B', 'C'], [10, 20, 15])
+    ax3.set_title('صفحه 3: میله‌ای')
+    pdf.savefig(fig3)
+    plt.close(fig3)
+
+print("PDF با 3 صفحه ذخیره شد")
+
+plt.close('all')</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Projects -->
+        <section class="section" id="projects">
+            <div class="section-header">
+                <div class="section-icon">🏗️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">پروژه‌های عملی</h2>
+                    <p class="section-subtitle">مثال‌های کاربردی از دنیای واقعی</p>
+                </div>
+            </div>
+
+            <h3>📊 داشبورد فروش</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>sales_dashboard.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پروژه: داشبورد تحلیل فروش
+هدف: نمایش جامع اطلاعات فروش در یک صفحه
+"""
+
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import numpy as np
+import pandas as pd
+
+# تنظیم فونت فارسی
+plt.rcParams['font.family'] = 'Vazirmatn'
+plt.rcParams['axes.unicode_minus'] = False
+
+
+def create_sales_dashboard():
+    """ایجاد داشبورد فروش"""
+    
+    # ═══════════════════════════════════════════════════════
+    # داده‌های نمونه
+    # ═══════════════════════════════════════════════════════
+    
+    np.random.seed(42)
+    
+    months = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+              'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند']
+    
+    sales_2023 = np.array([120, 150, 180, 200, 170, 190, 
+                           210, 230, 250, 220, 200, 280])
+    sales_2024 = np.array([140, 160, 190, 220, 190, 210, 
+                           240, 260, 280, 250, 230, 310])
+    
+    products = ['محصول A', 'محصول B', 'محصول C', 'محصول D', 'محصول E']
+    product_sales = [35, 25, 20, 12, 8]
+    
+    regions = ['تهران', 'اصفهان', 'شیراز', 'مشهد', 'تبریز']
+    region_sales = [45, 20, 15, 12, 8]
+    
+    # داده روزانه
+    days = np.arange(1, 31)
+    daily_sales = 50 + 30 * np.sin(days / 5) + np.random.randn(30) * 10
+    
+    # ═══════════════════════════════════════════════════════
+    # ایجاد Figure با GridSpec
+    # ═══════════════════════════════════════════════════════
+    
+    fig = plt.figure(figsize=(16, 12))
+    fig.suptitle('داشبورد تحلیل فروش - سال ۱۴۰۳', 
+                 fontsize=20, fontweight='bold', y=0.98)
+    
+    gs = gridspec.GridSpec(3, 3, figure=fig, hspace=0.3, wspace=0.3)
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 1: روند فروش ماهانه (بزرگ)
+    # ═══════════════════════════════════════════════════════
+    
+    ax1 = fig.add_subplot(gs[0, :2])
+    
+    x = np.arange(len(months))
+    width = 0.35
+    
+    bars1 = ax1.bar(x - width/2, sales_2023, width, label='۱۴۰۲', 
+                    color='#1E88E5', alpha=0.8)
+    bars2 = ax1.bar(x + width/2, sales_2024, width, label='۱۴۰۳', 
+                    color='#43A047', alpha=0.8)
+    
+    ax1.set_xlabel('ماه')
+    ax1.set_ylabel('فروش (میلیون تومان)')
+    ax1.set_title('مقایسه فروش ماهانه')
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(months, rotation=45, ha='right')
+    ax1.legend()
+    ax1.grid(True, axis='y', alpha=0.3)
+    
+    # خط روند
+    z = np.polyfit(x, sales_2024, 1)
+    p = np.poly1d(z)
+    ax1.plot(x, p(x), 'r--', linewidth=2, label='روند')
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 2: KPI Cards (سمت راست بالا)
+    # ═══════════════════════════════════════════════════════
+    
+    ax2 = fig.add_subplot(gs[0, 2])
+    ax2.axis('off')
+    
+    total_sales = sales_2024.sum()
+    growth = ((sales_2024.sum() - sales_2023.sum()) / sales_2023.sum()) * 100
+    avg_monthly = sales_2024.mean()
+    max_month = months[np.argmax(sales_2024)]
+    
+    kpis = [
+        ('کل فروش', f'{total_sales:,}', 'میلیون تومان', '#1E88E5'),
+        ('رشد سالانه', f'{growth:.1f}%', 'نسبت به سال قبل', '#43A047'),
+        ('میانگین ماهانه', f'{avg_monthly:.0f}', 'میلیون تومان', '#FB8C00'),
+        ('بیشترین فروش', max_month, f'{max(sales_2024)} میلیون', '#8E24AA'),
+    ]
+    
+    for i, (title, value, subtitle, color) in enumerate(kpis):
+        y_pos = 0.85 - i * 0.23
+        ax2.add_patch(plt.Rectangle((0.05, y_pos - 0.08), 0.9, 0.2,
+                                     facecolor=color, alpha=0.1,
+                                     edgecolor=color, linewidth=2,
+                                     transform=ax2.transAxes))
+        ax2.text(0.5, y_pos + 0.05, title, ha='center', va='center',
+                fontsize=10, color='gray', transform=ax2.transAxes)
+        ax2.text(0.5, y_pos - 0.02, value, ha='center', va='center',
+                fontsize=16, fontweight='bold', color=color,
+                transform=ax2.transAxes)
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 3: سهم محصولات (دایره‌ای)
+    # ═══════════════════════════════════════════════════════
+    
+    ax3 = fig.add_subplot(gs[1, 0])
+    
+    colors = ['#E53935', '#1E88E5', '#43A047', '#FB8C00', '#8E24AA']
+    explode = (0.05, 0, 0, 0, 0)
+    
+    wedges, texts, autotexts = ax3.pie(product_sales, labels=products,
+                                        colors=colors, explode=explode,
+                                        autopct='%1.1f%%', startangle=90,
+                                        pctdistance=0.75)
+    
+    # دونات
+    centre_circle = plt.Circle((0, 0), 0.4, fc='white')
+    ax3.add_patch(centre_circle)
+    ax3.text(0, 0, 'محصولات', ha='center', va='center', fontsize=12)
+    
+    ax3.set_title('سهم فروش محصولات')
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 4: فروش مناطق (افقی)
+    # ═══════════════════════════════════════════════════════
+    
+    ax4 = fig.add_subplot(gs[1, 1])
+    
+    y_pos = np.arange(len(regions))
+    bars = ax4.barh(y_pos, region_sales, color=colors, alpha=0.8)
+    
+    ax4.set_yticks(y_pos)
+    ax4.set_yticklabels(regions)
+    ax4.set_xlabel('درصد فروش')
+    ax4.set_title('توزیع فروش بر اساس منطقه')
+    
+    # افزودن مقادیر
+    for bar, val in zip(bars, region_sales):
+        ax4.text(bar.get_width() + 1, bar.get_y() + bar.get_height()/2,
+                f'{val}%', ha='left', va='center', fontweight='bold')
+    
+    ax4.set_xlim(0, 55)
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 5: فروش روزانه (خطی)
+    # ═══════════════════════════════════════════════════════
+    
+    ax5 = fig.add_subplot(gs[1, 2])
+    
+    ax5.fill_between(days, daily_sales, alpha=0.3, color='#1E88E5')
+    ax5.plot(days, daily_sales, 'b-', linewidth=2)
+    
+    # میانگین
+    avg_daily = daily_sales.mean()
+    ax5.axhline(y=avg_daily, color='red', linestyle='--', 
+                label=f'میانگین: {avg_daily:.0f}')
+    
+    ax5.set_xlabel('روز')
+    ax5.set_ylabel('فروش')
+    ax5.set_title('فروش روزانه (ماه جاری)')
+    ax5.legend()
+    ax5.grid(True, alpha=0.3)
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 6: هیت‌مپ فروش ساعتی
+    # ═══════════════════════════════════════════════════════
+    
+    ax6 = fig.add_subplot(gs[2, :2])
+    
+    hours = np.arange(8, 22)  # 8 صبح تا 10 شب
+    weekdays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 
+                'چهارشنبه', 'پنج‌شنبه', 'جمعه']
+    
+    # داده تصادفی برای هیت‌مپ
+    heatmap_data = np.random.rand(7, 14) * 100
+    # اوج فروش در ساعات خاص
+    heatmap_data[:, 4:7] *= 1.5  # ظهر
+    heatmap_data[:, 10:13] *= 1.3  # عصر
+    heatmap_data[6, :] *= 0.7  # جمعه کمتر
+    
+    im = ax6.imshow(heatmap_data, cmap='YlOrRd', aspect='auto')
+    
+    ax6.set_xticks(np.arange(len(hours)))
+    ax6.set_xticklabels(hours)
+    ax6.set_yticks(np.arange(len(weekdays)))
+    ax6.set_yticklabels(weekdays)
+    
+    ax6.set_xlabel('ساعت')
+    ax6.set_title('الگوی فروش ساعتی در طول هفته')
+    
+    plt.colorbar(im, ax=ax6, label='تعداد فروش', shrink=0.8)
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 7: رشد ماهانه
+    # ═══════════════════════════════════════════════════════
+    
+    ax7 = fig.add_subplot(gs[2, 2])
+    
+    growth_monthly = ((sales_2024 - sales_2023) / sales_2023) * 100
+    colors_growth = ['#43A047' if g > 0 else '#E53935' for g in growth_monthly]
+    
+    bars = ax7.bar(range(len(months)), growth_monthly, color=colors_growth)
+    ax7.axhline(y=0, color='black', linewidth=0.5)
+    
+    ax7.set_xticks(range(len(months)))
+    ax7.set_xticklabels([m[:2] for m in months], rotation=0)
+    ax7.set_ylabel('درصد رشد')
+    ax7.set_title('رشد ماهانه نسبت به سال قبل')
+    ax7.grid(True, axis='y', alpha=0.3)
+    
+    # ═══════════════════════════════════════════════════════
+    # ذخیره و نمایش
+    # ═══════════════════════════════════════════════════════
+    
+    plt.savefig('sales_dashboard.png', dpi=300, bbox_inches='tight',
+                facecolor='white', edgecolor='none')
+    plt.show()
+    
+    return fig
+
+
+# اجرا
+# fig = create_sales_dashboard()</code></pre>
+                </div>
+            </div>
+
+            <h3>📈 تحلیل داده‌های مالی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>financial_analysis.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پروژه: تحلیل داده‌های مالی و سهام
+هدف: نمایش نمودارهای رایج در تحلیل تکنیکال
+"""
+
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from matplotlib.patches import Rectangle
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+
+
+def create_stock_chart():
+    """ایجاد نمودار تحلیل سهام"""
+    
+    # ═══════════════════════════════════════════════════════
+    # تولید داده نمونه
+    # ═══════════════════════════════════════════════════════
+    
+    np.random.seed(42)
+    
+    n_days = 100
+    dates = pd.date_range(start='2024-01-01', periods=n_days, freq='D')
+    
+    # شبیه‌سازی قیمت سهام
+    returns = np.random.randn(n_days) * 0.02
+    price = 1000 * np.exp(np.cumsum(returns))
+    
+    # OHLC
+    open_price = price * (1 + np.random.randn(n_days) * 0.005)
+    high_price = np.maximum(price, open_price) * (1 + np.abs(np.random.randn(n_days)) * 0.01)
+    low_price = np.minimum(price, open_price) * (1 - np.abs(np.random.randn(n_days)) * 0.01)
+    close_price = price
+    volume = np.random.randint(1000000, 5000000, n_days)
+    
+    df = pd.DataFrame({
+        'Date': dates,
+        'Open': open_price,
+        'High': high_price,
+        'Low': low_price,
+        'Close': close_price,
+        'Volume': volume
+    })
+    
+    # محاسبه میانگین متحرک
+    df['MA20'] = df['Close'].rolling(window=20).mean()
+    df['MA50'] = df['Close'].rolling(window=50).mean()
+    
+    # محاسبه RSI
+    delta = df['Close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+    rs = gain / loss
+    df['RSI'] = 100 - (100 / (1 + rs))
+    
+    # ═══════════════════════════════════════════════════════
+    # ایجاد نمودار
+    # ═══════════════════════════════════════════════════════
+    
+    fig = plt.figure(figsize=(14, 12))
+    
+    # GridSpec برای نسبت‌های مختلف
+    gs = fig.add_gridspec(4, 1, height_ratios=[3, 1, 1, 1], hspace=0.1)
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 1: قیمت و میانگین متحرک
+    # ═══════════════════════════════════════════════════════
+    
+    ax1 = fig.add_subplot(gs[0])
+    
+    # نمودار کندل‌استیک ساده
+    for i in range(len(df)):
+        color = '#43A047' if df['Close'].iloc[i] >= df['Open'].iloc[i] else '#E53935'
+        
+        # بدنه کندل
+        ax1.add_patch(Rectangle(
+            (i - 0.3, min(df['Open'].iloc[i], df['Close'].iloc[i])),
+            0.6,
+            abs(df['Close'].iloc[i] - df['Open'].iloc[i]),
+            facecolor=color, edgecolor=color
+        ))
+        
+        # سایه
+        ax1.plot([i, i], [df['Low'].iloc[i], df['High'].iloc[i]], 
+                color=color, linewidth=1)
+    
+    # میانگین متحرک
+    ax1.plot(range(len(df)), df['MA20'], 'b-', linewidth=1.5, 
+             label='MA20', alpha=0.8)
+    ax1.plot(range(len(df)), df['MA50'], 'orange', linewidth=1.5, 
+             label='MA50', alpha=0.8)
+    
+    ax1.set_ylabel('قیمت (تومان)')
+    ax1.set_title('نمودار قیمت سهام با میانگین متحرک', fontsize=14, fontweight='bold')
+    ax1.legend(loc='upper left')
+    ax1.grid(True, alpha=0.3)
+    ax1.set_xlim(-1, len(df))
+    
+    # مخفی کردن برچسب‌های محور X
+    ax1.set_xticklabels([])
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 2: حجم معاملات
+    # ═══════════════════════════════════════════════════════
+    
+    ax2 = fig.add_subplot(gs[1], sharex=ax1)
+    
+    colors = ['#43A047' if df['Close'].iloc[i] >= df['Open'].iloc[i] 
+              else '#E53935' for i in range(len(df))]
+    ax2.bar(range(len(df)), df['Volume'] / 1e6, color=colors, alpha=0.7)
+    
+    ax2.set_ylabel('حجم (M)')
+    ax2.grid(True, alpha=0.3)
+    ax2.set_xticklabels([])
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 3: RSI
+    # ═══════════════════════════════════════════════════════
+    
+    ax3 = fig.add_subplot(gs[2], sharex=ax1)
+    
+    ax3.plot(range(len(df)), df['RSI'], 'purple', linewidth=1.5)
+    ax3.axhline(y=70, color='red', linestyle='--', alpha=0.5)
+    ax3.axhline(y=30, color='green', linestyle='--', alpha=0.5)
+    ax3.fill_between(range(len(df)), 30, 70, alpha=0.1, color='gray')
+    
+    ax3.set_ylabel('RSI')
+    ax3.set_ylim(0, 100)
+    ax3.grid(True, alpha=0.3)
+    ax3.set_xticklabels([])
+    
+    # ═══════════════════════════════════════════════════════
+    # نمودار 4: بازدهی تجمعی
+    # ═══════════════════════════════════════════════════════
+    
+    ax4 = fig.add_subplot(gs[3], sharex=ax1)
+    
+    cumulative_return = (df['Close'] / df['Close'].iloc[0] - 1) * 100
+    ax4.fill_between(range(len(df)), cumulative_return, 
+                     where=(cumulative_return >= 0), color='green', alpha=0.3)
+    ax4.fill_between(range(len(df)), cumulative_return, 
+                     where=(cumulative_return < 0), color='red', alpha=0.3)
+    ax4.plot(range(len(df)), cumulative_return, 'k-', linewidth=1)
+    ax4.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
+    
+    ax4.set_ylabel('بازدهی (%)')
+    ax4.set_xlabel('روز')
+    ax4.grid(True, alpha=0.3)
+    
+    # تنظیم برچسب‌های محور X
+    tick_positions = range(0, len(df), 10)
+    ax4.set_xticks(tick_positions)
+    ax4.set_xticklabels([df['Date'].iloc[i].strftime('%m/%d') 
+                         for i in tick_positions], rotation=45)
+    
+    plt.tight_layout()
+    plt.savefig('stock_analysis.png', dpi=300, bbox_inches='tight',
+                facecolor='white')
+    plt.show()
+    
+    return fig
+
+
+# اجرا
+# fig = create_stock_chart()</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات مهم برای نمودارهای حرفه‌ای</h4>
+                    <ul>
+                        <li><strong>سادگی:</strong> از شلوغ کردن نمودار خودداری کنید</li>
+                        <li><strong>رنگ:</strong> از پالت رنگی هماهنگ استفاده کنید</li>
+                        <li><strong>برچسب:</strong> همه محورها و داده‌ها را برچسب‌گذاری کنید</li>
+                        <li><strong>کیفیت:</strong> برای چاپ از dpi=300 استفاده کنید</li>
+                        <li><strong>فونت:</strong> از فونت خوانا و اندازه مناسب استفاده کنید</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Reference -->
+        <section class="section" id="reference">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <div class="section-title-group">
+                    <div class="section-number">پیوست</div>
+                    <h2 class="section-title">مرجع سریع</h2>
+                    <p class="section-subtitle">Matplotlib Cheat Sheet</p>
+                </div>
+            </div>
+
+            <h3>📊 توابع رسم اصلی</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تابع</th>
+                            <th>کاربرد</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>plot()</code></td>
+                            <td>نمودار خطی</td>
+                            <td><code>ax.plot(x, y, 'b-')</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>scatter()</code></td>
+                            <td>نمودار پراکندگی</td>
+                            <td><code>ax.scatter(x, y, s=50, c='red')</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>bar()</code></td>
+                            <td>نمودار میله‌ای عمودی</td>
+                            <td><code>ax.bar(x, height, width=0.8)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>barh()</code></td>
+                            <td>نمودار میله‌ای افقی</td>
+                            <td><code>ax.barh(y, width)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>hist()</code></td>
+                            <td>هیستوگرام</td>
+                            <td><code>ax.hist(data, bins=30)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>pie()</code></td>
+                            <td>نمودار دایره‌ای</td>
+                            <td><code>ax.pie(sizes, labels=labels)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>boxplot()</code></td>
+                            <td>نمودار جعبه‌ای</td>
+                            <td><code>ax.boxplot(data)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>violinplot()</code></td>
+                            <td>نمودار ویولن</td>
+                            <td><code>ax.violinplot(data)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>imshow()</code></td>
+                            <td>نمایش تصویر/ماتریس</td>
+                            <td><code>ax.imshow(matrix, cmap='viridis')</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>contour()</code></td>
+                            <td>نمودار کانتور</td>
+                            <td><code>ax.contour(X, Y, Z)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>contourf()</code></td>
+                            <td>کانتور پر شده</td>
+                            <td><code>ax.contourf(X, Y, Z)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>fill_between()</code></td>
+                            <td>پر کردن ناحیه</td>
+                            <td><code>ax.fill_between(x, y1, y2)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>errorbar()</code></td>
+                            <td>نمودار با خطا</td>
+                            <td><code>ax.errorbar(x, y, yerr=err)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>stem()</code></td>
+                            <td>نمودار ساقه‌ای</td>
+                            <td><code>ax.stem(x, y)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>stackplot()</code></td>
+                            <td>نمودار انباشته</td>
+                            <td><code>ax.stackplot(x, y1, y2, y3)</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎨 پارامترهای استایل خط</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>پارامتر</th>
+                            <th>توضیح</th>
+                            <th>مقادیر</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>color</code> / <code>c</code></td>
+                            <td>رنگ</td>
+                            <td><code>'red'</code>, <code>'#FF0000'</code>, <code>(1,0,0)</code>, <code>'C0'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>linewidth</code> / <code>lw</code></td>
+                            <td>ضخامت خط</td>
+                            <td><code>0.5</code>, <code>1</code>, <code>2</code>, ...</td>
+                        </tr>
+                        <tr>
+                            <td><code>linestyle</code> / <code>ls</code></td>
+                            <td>استایل خط</td>
+                            <td><code>'-'</code>, <code>'--'</code>, <code>'-.'</code>, <code>':'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>marker</code></td>
+                            <td>شکل نقطه</td>
+                            <td><code>'o'</code>, <code>'s'</code>, <code>'^'</code>, <code>'*'</code>, <code>'D'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>markersize</code> / <code>ms</code></td>
+                            <td>اندازه نقطه</td>
+                            <td><code>5</code>, <code>10</code>, <code>15</code>, ...</td>
+                        </tr>
+                        <tr>
+                            <td><code>markerfacecolor</code> / <code>mfc</code></td>
+                            <td>رنگ داخل نقطه</td>
+                            <td>مانند color</td>
+                        </tr>
+                        <tr>
+                            <td><code>markeredgecolor</code> / <code>mec</code></td>
+                            <td>رنگ حاشیه نقطه</td>
+                            <td>مانند color</td>
+                        </tr>
+                        <tr>
+                            <td><code>alpha</code></td>
+                            <td>شفافیت</td>
+                            <td><code>0.0</code> تا <code>1.0</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>label</code></td>
+                            <td>برچسب برای legend</td>
+                            <td><code>'خط اول'</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🔤 فرمت سریع (Format String)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>format_string.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python"># فرمت: '[color][marker][linestyle]'
+
+# رنگ‌ها
+# b = blue      g = green     r = red       c = cyan
+# m = magenta   y = yellow    k = black     w = white
+
+# مارکرها
+# .  = point    o  = circle   s  = square   ^  = triangle up
+# v  = tri down <  = tri left >  = tri right
+# *  = star     +  = plus     x  = x        D  = diamond
+# |  = vline    _  = hline
+
+# استایل خط
+# -  = solid    -- = dashed   -. = dashdot  :  = dotted
+
+# مثال‌ها
+ax.plot(x, y, 'b-')      # آبی، خط ممتد
+ax.plot(x, y, 'r--')     # قرمز، خط‌چین
+ax.plot(x, y, 'go')      # سبز، دایره
+ax.plot(x, y, 'k^-')     # سیاه، مثلث، خط ممتد
+ax.plot(x, y, 'ms--')    # بنفش، مربع، خط‌چین</code></pre>
+                </div>
+            </div>
+
+            <h3>🗺️ Colormaps پرکاربرد</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">🔵</div>
+                    <h4 class="card-title">Sequential (ترتیبی)</h4>
+                    <p class="card-description">
+                        <code>viridis</code>, <code>plasma</code>, <code>inferno</code>, <code>magma</code><br>
+                        <code>Blues</code>, <code>Greens</code>, <code>Reds</code>, <code>Oranges</code>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">↔️</div>
+                    <h4 class="card-title">Diverging (واگرا)</h4>
+                    <p class="card-description">
+                        <code>RdBu</code>, <code>RdYlGn</code>, <code>RdYlBu</code><br>
+                        <code>coolwarm</code>, <code>seismic</code>, <code>BrBG</code>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎨</div>
+                    <h4 class="card-title">Qualitative (کیفی)</h4>
+                    <p class="card-description">
+                        <code>Set1</code>, <code>Set2</code>, <code>Set3</code><br>
+                        <code>tab10</code>, <code>tab20</code>, <code>Pastel1</code>
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🔄</div>
+                    <h4 class="card-title">Cyclic (چرخه‌ای)</h4>
+                    <p class="card-description">
+                        <code>twilight</code>, <code>twilight_shifted</code><br>
+                        <code>hsv</code>
+                    </p>
+                </div>
+            </div>
+
+            <h3>📐 تنظیمات محور</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تابع</th>
+                            <th>کاربرد</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>ax.set_xlim(min, max)</code></td>
+                            <td>محدوده محور X</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.set_ylim(min, max)</code></td>
+                            <td>محدوده محور Y</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.set_xlabel('label')</code></td>
+                            <td>برچسب محور X</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.set_ylabel('label')</code></td>
+                            <td>برچسب محور Y</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.set_title('title')</code></td>
+                            <td>عنوان نمودار</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.set_xticks([...])</code></td>
+                            <td>موقعیت علامت‌های X</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.set_xticklabels([...])</code></td>
+                            <td>برچسب علامت‌های X</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.set_xscale('log')</code></td>
+                            <td>مقیاس لگاریتمی</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.invert_xaxis()</code></td>
+                            <td>معکوس کردن محور</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.grid(True)</code></td>
+                            <td>نمایش شبکه</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.legend()</code></td>
+                            <td>نمایش راهنما</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.axis('off')</code></td>
+                            <td>مخفی کردن محورها</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.axis('equal')</code></td>
+                            <td>نسبت مساوی محورها</td>
+                        </tr>
+                        <tr>
+                            <td><code>ax.twinx()</code></td>
+                            <td>محور Y دوم</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>💾 ذخیره نمودار</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>save_figure.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python"># ذخیره ساده
+fig.savefig('plot.png')
+
+# ذخیره با کیفیت بالا
+fig.savefig('plot.png', dpi=300, bbox_inches='tight')
+
+# فرمت‌های مختلف
+fig.savefig('plot.pdf')   # PDF (برداری)
+fig.savefig('plot.svg')   # SVG (برداری)
+fig.savefig('plot.jpg')   # JPEG
+fig.savefig('plot.eps')   # EPS
+
+# پارامترهای کامل
+fig.savefig(
+    'plot.png',
+    dpi=300,                  # وضوح
+    facecolor='white',        # رنگ پس‌زمینه
+    edgecolor='none',         # رنگ حاشیه
+    bbox_inches='tight',      # حذف فضای اضافی
+    pad_inches=0.1,           # حاشیه
+    transparent=False,        # پس‌زمینه شفاف
+)</code></pre>
+                </div>
+            </div>
+
+            <h3>⚡ نکات سریع</h3>
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>بهترین روش‌ها</h4>
+                    <ul>
+                        <li>از <code>fig, ax = plt.subplots()</code> استفاده کنید (Object-Oriented)</li>
+                        <li>همیشه <code>plt.tight_layout()</code> را فراخوانی کنید</li>
+                        <li>برای چاپ از <code>dpi=300</code> استفاده کنید</li>
+                        <li>از <code>bbox_inches='tight'</code> برای حذف فضای اضافی استفاده کنید</li>
+                        <li>برای نمودارهای علمی از PDF یا SVG استفاده کنید</li>
+                        <li>برای فارسی، فونت را تنظیم کنید: <code>plt.rcParams['font.family'] = 'Vazirmatn'</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">📊</div>
+                <span class="logo-text" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Matplotlib</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                آموزش جامع Matplotlib - تادامه فایل HTML آموزش جامع Matplotlib:
+
+```html
+">مرجع سریع</h2>
+                    <p class="section-subtitle">Matplotlib Cheat Sheet</p>
+                </div>
+            </div>
+
+            <h3>📊 توابع رسم اصلی</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>تابع</th>
+                            <th>کاربرد</th>
+                            <th>مثال</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>plot()</code></td>
+                            <td>نمودار خطی</td>
+                            <td><code>ax.plot(x, y, 'b-')</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>scatter()</code></td>
+                            <td>نمودار پراکندگی</td>
+                            <td><code>ax.scatter(x, y, c=colors, s=sizes)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>bar()</code></td>
+                            <td>نمودار میله‌ای عمودی</td>
+                            <td><code>ax.bar(categories, values)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>barh()</code></td>
+                            <td>نمودار میله‌ای افقی</td>
+                            <td><code>ax.barh(categories, values)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>hist()</code></td>
+                            <td>هیستوگرام</td>
+                            <td><code>ax.hist(data, bins=30)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>pie()</code></td>
+                            <td>نمودار دایره‌ای</td>
+                            <td><code>ax.pie(sizes, labels=labels)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>boxplot()</code></td>
+                            <td>نمودار جعبه‌ای</td>
+                            <td><code>ax.boxplot(data)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>violinplot()</code></td>
+                            <td>نمودار ویولن</td>
+                            <td><code>ax.violinplot(data)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>imshow()</code></td>
+                            <td>نمایش تصویر/ماتریس</td>
+                            <td><code>ax.imshow(matrix, cmap='viridis')</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>contour()</code></td>
+                            <td>نمودار کانتور</td>
+                            <td><code>ax.contour(X, Y, Z)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>contourf()</code></td>
+                            <td>کانتور پر شده</td>
+                            <td><code>ax.contourf(X, Y, Z)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>fill_between()</code></td>
+                            <td>پر کردن بین خطوط</td>
+                            <td><code>ax.fill_between(x, y1, y2)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>errorbar()</code></td>
+                            <td>نمودار با خطا</td>
+                            <td><code>ax.errorbar(x, y, yerr=err)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>stem()</code></td>
+                            <td>نمودار ساقه‌ای</td>
+                            <td><code>ax.stem(x, y)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>stackplot()</code></td>
+                            <td>نمودار انباشته</td>
+                            <td><code>ax.stackplot(x, y1, y2, y3)</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎨 پارامترهای استایل</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>پارامتر</th>
+                            <th>توضیح</th>
+                            <th>مقادیر نمونه</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>color</code> / <code>c</code></td>
+                            <td>رنگ</td>
+                            <td><code>'red'</code>, <code>'#FF5733'</code>, <code>(0.1, 0.2, 0.5)</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>linewidth</code> / <code>lw</code></td>
+                            <td>ضخامت خط</td>
+                            <td><code>1</code>, <code>2</code>, <code>0.5</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>linestyle</code> / <code>ls</code></td>
+                            <td>استایل خط</td>
+                            <td><code>'-'</code>, <code>'--'</code>, <code>'-.'</code>, <code>':'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>marker</code></td>
+                            <td>نوع مارکر</td>
+                            <td><code>'o'</code>, <code>'s'</code>, <code>'^'</code>, <code>'*'</code>, <code>'D'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>markersize</code> / <code>ms</code></td>
+                            <td>اندازه مارکر</td>
+                            <td><code>5</code>, <code>10</code>, <code>20</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>alpha</code></td>
+                            <td>شفافیت (۰ تا ۱)</td>
+                            <td><code>0.5</code>, <code>0.8</code>, <code>1.0</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>label</code></td>
+                            <td>برچسب برای legend</td>
+                            <td><code>'داده اول'</code></td>
+                        </tr>
+                        <tr>
+                            <td><code>zorder</code></td>
+                            <td>ترتیب لایه‌ها</td>
+                            <td><code>1</code>, <code>2</code>, <code>10</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🎯 Colormaps پرکاربرد</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>colormaps_reference.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python"># ═══════════════════════════════════════════════════════════
+# Colormaps پرکاربرد
+# ═══════════════════════════════════════════════════════════
+
+"""
+Sequential (ترتیبی) - برای داده‌های پیوسته:
+    'viridis'      - پیش‌فرض، مناسب همه
+    'plasma'       - بنفش به زرد
+    'inferno'      - سیاه به زرد
+    'magma'        - سیاه به صورتی
+    'cividis'      - مناسب کوررنگی
+    'Blues'        - آبی
+    'Greens'       - سبز
+    'Reds'         - قرمز
+    'YlOrRd'       - زرد به قرمز
+    'YlGnBu'       - زرد به آبی
+
+Diverging (واگرا) - برای داده با مرکز:
+    'RdBu'         - قرمز-سفید-آبی
+    'RdYlGn'       - قرمز-زرد-سبز
+    'RdYlBu'       - قرمز-زرد-آبی
+    'coolwarm'     - آبی به قرمز
+    'seismic'      - آبی به قرمز (شدید)
+    'BrBG'         - قهوه‌ای به سبز
+
+Cyclic (چرخه‌ای) - برای داده‌های دوره‌ای:
+    'twilight'     - بنفش-نارنجی-بنفش
+    'hsv'          - رنگین‌کمان
+
+Qualitative (کیفی) - برای دسته‌بندی:
+    'Set1'         - 9 رنگ متمایز
+    'Set2'         - 8 رنگ پاستلی
+    'Set3'         - 12 رنگ
+    'tab10'        - 10 رنگ
+    'tab20'        - 20 رنگ
+    'Paired'       - جفت رنگ‌ها
+
+نکته: برای معکوس کردن، _r اضافه کنید:
+    'viridis_r', 'RdBu_r', 'Blues_r'
+"""</code></pre>
+                </div>
+            </div>
+
+            <h3>⚡ دستورات سریع</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>quick_commands.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+import numpy as np
+
+# ═══════════════════════════════════════════════════════════
+# ایجاد Figure و Axes
+# ═══════════════════════════════════════════════════════════
+
+fig, ax = plt.subplots()                          # یک نمودار
+fig, ax = plt.subplots(figsize=(10, 6))           # با اندازه
+fig, axes = plt.subplots(2, 3)                    # گرید 2x3
+fig, axes = plt.subplots(2, 2, sharex=True)       # اشتراک محور X
+
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات محور
+# ═══════════════════════════════════════════════════════════
+
+ax.set_xlim(0, 10)                                # محدوده X
+ax.set_ylim(-1, 1)                                # محدوده Y
+ax.set_xlabel('محور X', fontsize=12)              # برچسب X
+ax.set_ylabel('محور Y', fontsize=12)              # برچسب Y
+ax.set_title('عنوان', fontsize=14)                # عنوان
+ax.set_xticks([0, 2, 4, 6, 8, 10])               # علامت‌های X
+ax.set_xticklabels(['a', 'b', 'c', 'd', 'e', 'f']) # برچسب علامت‌ها
+ax.set_xscale('log')                              # مقیاس لگاریتمی
+ax.invert_xaxis()                                 # معکوس کردن محور
+ax.axis('off')                                    # حذف محورها
+ax.axis('equal')                                  # نسبت برابر
+
+
+# ═══════════════════════════════════════════════════════════
+# شبکه و Legend
+# ═══════════════════════════════════════════════════════════
+
+ax.grid(True)                                     # شبکه ساده
+ax.grid(True, alpha=0.3, linestyle='--')         # شبکه سفارشی
+ax.legend()                                       # راهنما
+ax.legend(loc='upper right')                      # موقعیت راهنما
+ax.legend(bbox_to_anchor=(1.02, 1))              # راهنما بیرون
+
+
+# ═══════════════════════════════════════════════════════════
+# متن و حاشیه‌نویسی
+# ═══════════════════════════════════════════════════════════
+
+ax.text(5, 0.5, 'متن', fontsize=12)              # متن ساده
+ax.annotate('نقطه', xy=(2, 1), xytext=(3, 1.5),  # حاشیه‌نویسی با فلش
+            arrowprops=dict(arrowstyle='->'))
+ax.axhline(y=0, color='r', linestyle='--')       # خط افقی
+ax.axvline(x=5, color='b', linestyle=':')        # خط عمودی
+ax.axhspan(0, 0.5, alpha=0.3)                    # ناحیه افقی
+ax.axvspan(2, 4, alpha=0.3)                      # ناحیه عمودی
+
+
+# ═══════════════════════════════════════════════════════════
+# ذخیره و نمایش
+# ═══════════════════════════════════════════════════════════
+
+plt.tight_layout()                                # تنظیم خودکار فاصله‌ها
+plt.savefig('plot.png', dpi=300, bbox_inches='tight')  # ذخیره
+plt.show()                                        # نمایش
+plt.close()                                       # بستن
+plt.close('all')                                  # بستن همه</code></pre>
+                </div>
+            </div>
+
+            <h3>🔧 تنظیمات rcParams پرکاربرد</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>rcparams_reference.py</span>
+                    </div>
+                    <div class="code-actions">
+                        <button class="code-btn" onclick="copyCode(this)">
+                            <span>📋</span> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">import matplotlib.pyplot as plt
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات پیشنهادی برای نمودارهای حرفه‌ای
+# ═══════════════════════════════════════════════════════════
+
+plt.rcParams.update({
+    # Figure
+    'figure.figsize': (10, 6),
+    'figure.dpi': 100,
+    'figure.facecolor': 'white',
+    'figure.autolayout': True,
+    
+    # Font
+    'font.family': 'sans-serif',
+    'font.size': 12,
+    
+    # Axes
+    'axes.titlesize': 14,
+    'axes.titleweight': 'bold',
+    'axes.labelsize': 12,
+    'axes.grid': True,
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    
+    # Lines
+    'lines.linewidth': 2,
+    'lines.markersize': 8,
+    
+    # Grid
+    'grid.alpha': 0.3,
+    'grid.linestyle': '--',
+    
+    # Legend
+    'legend.fontsize': 10,
+    'legend.framealpha': 0.9,
+    
+    # Ticks
+    'xtick.labelsize': 10,
+    'ytick.labelsize': 10,
+    
+    # Saving
+    'savefig.dpi': 300,
+    'savefig.bbox': 'tight',
+})
+
+# بازگشت به پیش‌فرض
+# plt.rcdefaults()</code></pre>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="logo-icon">📊</div>
+                <span class="logo-text" style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Matplotlib</span>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                آموزش جامع Matplotlib - تجسم داده با پایتون
+            </p>
+            <div class="footer-links">
+                <a href="https://matplotlib.org/" target="_blank">مستندات رسمی</a>
+                <a href="https://github.com/matplotlib/matplotlib" target="_blank">GitHub</a>
+                <a href="https://matplotlib.org/stable/gallery/index.html" target="_blank">گالری</a>
+                <a href="https://matplotlib.org/cheatsheets/" target="_blank">Cheat Sheets</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای جامعه پایتون ایران
+                <br>
+                <a href="https://araz.me" target="_blank">araz.me</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    
+    <script>
+        // Initialize highlight.js
+        hljs.highlightAll();
+        
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✓</span> کپی شد';
+                
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            }).catch(err => {
+                console.error('خطا در کپی:', err);
+            });
+        }
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Active navigation link on scroll
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        function updateActiveNav() {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', updateActiveNav);
+        
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.card, .code-block, .info-box').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(el);
+        });
+        
+        // Chart type cards hover effect
+        document.querySelectorAll('.chart-type-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Print-friendly
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('.code-block').forEach(block => {
+                block.style.breakInside = 'avoid';
+            });
+        });
+    </script>
+</body>
+</html>
