@@ -1,0 +1,3549 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع Hypersphere Sⁿ | ابرکره n-بعدی</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- MathJax for LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            options: {
+                enableMenu: false
+            }
+        };
+    </script>
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+    <style>
+        /* ═══════════════════════════════════════════════════
+           CSS VARIABLES - Cosmic Theme
+           ═══════════════════════════════════════════════════ */
+        :root {
+            --primary: #0f0a1f;
+            --accent: #a855f7;
+            --accent-light: #c084fc;
+            --accent-dark: #7c3aed;
+            --secondary: #06b6d4;
+            --secondary-light: #22d3ee;
+            --tertiary: #f472b6;
+            --gold: #fbbf24;
+            --emerald: #10b981;
+            --rose: #fb7185;
+            --indigo: #6366f1;
+            --orange: #f97316;
+
+            --bg-primary: #030014;
+            --bg-secondary: #0f0a1f;
+            --bg-tertiary: #1a1333;
+            --bg-card: #150d2a;
+
+            --text-primary: #f8fafc;
+            --text-secondary: #a5b4fc;
+            --text-muted: #6b7db3;
+
+            --border-color: #2e1f5a;
+            --border-light: #3d2a73;
+
+            --gradient-cosmic: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #06b6d4 100%);
+            --gradient-sphere: radial-gradient(circle at 30% 30%, #c084fc 0%, #7c3aed 40%, #4c1d95 100%);
+            --gradient-nebula: linear-gradient(135deg, #f472b6 0%, #a855f7 50%, #6366f1 100%);
+            --gradient-aurora: linear-gradient(135deg, #06b6d4 0%, #10b981 50%, #a855f7 100%);
+
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
+            --shadow-glow: 0 0 40px rgba(168, 85, 247, 0.2);
+            --shadow-glow-cyan: 0 0 40px rgba(6, 182, 212, 0.2);
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 22px;
+            --radius-xl: 30px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 2;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Starfield Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, rgba(255,255,255,0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(168,85,247,0.4), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.2), transparent),
+                radial-gradient(2px 2px at 130px 80px, rgba(6,182,212,0.3), transparent),
+                radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.3), transparent);
+            background-size: 200px 200px;
+            animation: twinkle 4s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-light); }
+        ::selection { background: var(--accent); color: white; }
+
+        /* ═══════════════════════════════════════════════════
+           HEADER
+           ═══════════════════════════════════════════════════ */
+        .header {
+            background: rgba(15, 10, 31, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(24px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 55px;
+            height: 55px;
+            background: var(--gradient-sphere);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-glow), inset 0 -5px 15px rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            width: 12px;
+            height: 8px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: var(--gradient-cosmic);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.4rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background: var(--bg-tertiary);
+        }
+
+        .nav-link.active {
+            color: var(--accent-light);
+            background: rgba(168, 85, 247, 0.15);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           HERO
+           ═══════════════════════════════════════════════════ */
+        .hero {
+            padding: 6rem 2rem 5rem;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(168,85,247,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(6,182,212,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(244,114,182,0.1) 0%, transparent 50%);
+        }
+
+        /* Animated Hypersphere */
+        .hero-sphere {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .sphere-ring {
+            position: absolute;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            animation: rotate3d 20s linear infinite;
+        }
+
+        .sphere-ring:nth-child(1) {
+            width: 100%; height: 100%;
+            animation-duration: 20s;
+        }
+        .sphere-ring:nth-child(2) {
+            width: 90%; height: 90%;
+            top: 5%; left: 5%;
+            border-color: var(--secondary);
+            animation-duration: 15s;
+            animation-direction: reverse;
+        }
+        .sphere-ring:nth-child(3) {
+            width: 80%; height: 80%;
+            top: 10%; left: 10%;
+            border-color: var(--tertiary);
+            animation-duration: 25s;
+        }
+        .sphere-ring:nth-child(4) {
+            width: 70%; height: 40%;
+            top: 30%; left: 15%;
+            border-color: var(--accent-light);
+            animation-duration: 18s;
+            animation-direction: reverse;
+        }
+        .sphere-ring:nth-child(5) {
+            width: 40%; height: 70%;
+            top: 15%; left: 30%;
+            border-color: var(--emerald);
+            animation-duration: 22s;
+        }
+
+        @keyframes rotate3d {
+            0% { transform: rotateX(60deg) rotateY(0deg); }
+            100% { transform: rotateX(60deg) rotateY(360deg); }
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(168,85,247,0.15);
+            border: 1px solid rgba(168,85,247,0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            color: var(--accent-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-cosmic);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title .math-inline {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .hero-description {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-formula {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto 0;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .hero-formula-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .hero-formula .MathJax {
+            font-size: 1.4rem !important;
+        }
+
+        /* Dimension Cards in Hero */
+        .dimension-showcase {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .dim-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.2rem 1.5rem;
+            text-align: center;
+            min-width: 120px;
+            transition: all 0.3s ease;
+        }
+
+        .dim-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .dim-card-symbol {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-cosmic);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .dim-card-name {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           MAIN CONTENT
+           ═══════════════════════════════════════════════════ */
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 0.7rem;
+            list-style: none;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.7rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            font-size: 0.92rem;
+        }
+
+        .toc-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .toc-number {
+            width: 30px;
+            height: 30px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            flex-shrink: 0;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 100px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .section-icon.cosmic { background: var(--gradient-cosmic); box-shadow: var(--shadow-glow); }
+        .section-icon.sphere { background: var(--gradient-sphere); box-shadow: var(--shadow-glow); }
+        .section-icon.nebula { background: var(--gradient-nebula); }
+        .section-icon.aurora { background: var(--gradient-aurora); box-shadow: var(--shadow-glow-cyan); }
+        .section-icon.purple { background: linear-gradient(135deg, #a855f7, #7c3aed); box-shadow: var(--shadow-glow); }
+        .section-icon.cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); box-shadow: var(--shadow-glow-cyan); }
+        .section-icon.pink { background: linear-gradient(135deg, #f472b6, #ec4899); }
+        .section-icon.gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
+        .section-title-group { flex: 1; }
+
+        .section-number {
+            font-size: 0.85rem;
+            color: var(--accent-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.8rem;
+            color: var(--accent-light);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--text-secondary);
+            line-height: 2;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1.5rem 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        li { margin-bottom: 0.7rem; line-height: 1.9; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        a { color: var(--accent-light); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Math Blocks */
+        .math-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            box-shadow: var(--shadow-md);
+        }
+
+        .math-block-title {
+            font-size: 0.85rem;
+            color: var(--accent-light);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .math-block .MathJax {
+            font-size: 1.1rem !important;
+        }
+
+        /* Theorem Box */
+        .theorem-box {
+            background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(99,102,241,0.05));
+            border: 1px solid rgba(168,85,247,0.25);
+            border-right: 4px solid var(--accent);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .theorem-box.definition {
+            background: linear-gradient(135deg, rgba(6,182,212,0.08), rgba(16,185,129,0.05));
+            border-color: rgba(6,182,212,0.25);
+            border-right-color: var(--secondary);
+        }
+
+        .theorem-box.example {
+            background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.05));
+            border-color: rgba(251,191,36,0.25);
+            border-right-color: var(--gold);
+        }
+
+        .theorem-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theorem-content {
+            color: var(--text-secondary);
+        }
+
+        .theorem-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 0.8rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.python { background: #3776AB; color: white; }
+        .code-lang-icon.math { background: var(--accent); color: white; }
+        .code-lang-icon.txt { background: #64748b; color: white; }
+
+        .code-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-family: inherit;
+        }
+
+        .code-btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+        .code-btn.copied { background: var(--emerald); border-color: var(--emerald); color: white; }
+
+        .code-body { padding: 1.25rem; overflow-x: auto; }
+        .code-body pre { margin: 0; background: transparent; }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            background: transparent;
+            direction: ltr;
+            text-align: left;
+        }
+
+        code:not([class*="language-"]) {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.86em;
+            color: var(--accent-light);
+            border: 1px solid var(--border-color);
+            direction: ltr;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
+        .info-box.note { background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.25); }
+        .info-box.info { background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.25); }
+        .info-box.warning { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25); }
+
+        .info-icon { font-size: 1.5rem; flex-shrink: 0; }
+        .info-content h4 { margin: 0 0 0.5rem; color: var(--text-primary); font-size: 1rem; }
+        .info-content p { margin: 0; font-size: 0.93rem; }
+        .info-content ul { margin: 0.5rem 0 0 1rem; }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg), var(--shadow-glow);
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon.purple { background: rgba(168,85,247,0.15); }
+        .card-icon.cyan { background: rgba(6,182,212,0.15); }
+        .card-icon.pink { background: rgba(244,114,182,0.15); }
+        .card-icon.gold { background: rgba(251,191,36,0.15); }
+        .card-icon.emerald { background: rgba(16,185,129,0.15); }
+        .card-icon.indigo { background: rgba(99,102,241,0.15); }
+        .card-icon.orange { background: rgba(249,115,22,0.15); }
+        .card-icon.rose { background: rgba(251,113,133,0.15); }
+
+        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.7rem; color: var(--text-primary); }
+        .card-description { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7; }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+
+        th, td {
+            padding: 0.85rem 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-primary); }
+        td { color: var(--text-secondary); }
+        tr:hover td { background: var(--bg-secondary); }
+
+        /* Dimension Visualization */
+        .dim-viz {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .dim-item {
+            text-align: center;
+        }
+
+        .dim-shape {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dim-shape.s0 { }
+        .dim-shape.s0::before, .dim-shape.s0::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+        .dim-shape.s0::after {
+            margin-left: 20px;
+        }
+
+        .dim-shape.s1 {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--secondary);
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(6,182,212,0.4);
+        }
+
+        .dim-shape.s2 {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-sphere);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(168,85,247,0.4), inset 0 -10px 20px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .dim-shape.s2::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 15px;
+            height: 10px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+            transform: rotate(-30deg);
+        }
+
+        .dim-shape.s3 {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-nebula);
+            border-radius: 50%;
+            box-shadow: 0 0 25px rgba(244,114,182,0.4);
+            position: relative;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(244,114,182,0.4); }
+            50% { box-shadow: 0 0 40px rgba(244,114,182,0.6), 0 0 60px rgba(168,85,247,0.3); }
+        }
+
+        .dim-label {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .dim-name {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-right: 2rem;
+            margin: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--gradient-cosmic);
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-right: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            right: -2rem;
+            top: 0.5rem;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            transform: translateX(50%);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .timeline-year {
+            font-size: 0.85rem;
+            color: var(--accent-light);
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .timeline-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content { max-width: 800px; margin: 0 auto; }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover { color: var(--accent-light); }
+
+        .copyright { color: var(--text-muted); font-size: 0.85rem; }
+        .copyright a { color: var(--accent-light); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; text-align: center; }
+            .nav { justify-content: center; }
+            .hero { padding: 4rem 1.5rem; }
+            .hero-sphere { width: 250px; height: 250px; }
+            .section-header { flex-direction: column; text-align: center; }
+            .section-icon { margin: 0 auto; }
+            .main { padding: 2rem 1rem; }
+            .math-block { padding: 1rem; }
+            .timeline { padding-right: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">Sⁿ</div>
+                <div>
+                    <div class="logo-text">Hypersphere Sⁿ</div>
+                    <div class="logo-subtitle">ابرکره n-بعدی</div>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="#intro" class="nav-link active">معرفی</a>
+                <a href="#definition" class="nav-link">تعریف</a>
+                <a href="#dimensions" class="nav-link">ابعاد</a>
+                <a href="#geometry" class="nav-link">هندسه</a>
+                <a href="#topology" class="nav-link">توپولوژی</a>
+                <a href="#groups" class="nav-link">گروه‌ها</a>
+                <a href="#applications" class="nav-link">کاربردها</a>
+                <a href="#ml" class="nav-link">ML</a>
+                <a href="#python" class="nav-link">Python</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-sphere">
+            <div class="sphere-ring"></div>
+            <div class="sphere-ring"></div>
+            <div class="sphere-ring"></div>
+            <div class="sphere-ring"></div>
+            <div class="sphere-ring"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🌐</span>
+                <span>Topology | Geometry | Machine Learning | Physics</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">Hypersphere <span class="math-inline">Sⁿ</span></span>
+            </h1>
+            <p class="hero-description">
+                از دایره و کره تا فضاهای بی‌نهایت بُعدی.
+                ریاضیات، هندسه، توپولوژی و کاربردهای مدرن ابرکره‌ها
+                در یادگیری ماشین، فیزیک و علم داده.
+            </p>
+
+            <div class="hero-formula">
+                <div class="hero-formula-title">📐 تعریف ابرکره n-بعدی</div>
+                $$S^n = \left\{ \mathbf{x} \in \mathbb{R}^{n+1} : \|\mathbf{x}\| = 1 \right\}$$
+            </div>
+
+            <div class="dimension-showcase">
+                <div class="dim-card">
+                    <div class="dim-card-symbol">S⁰</div>
+                    <div class="dim-card-name">دو نقطه</div>
+                </div>
+                <div class="dim-card">
+                    <div class="dim-card-symbol">S¹</div>
+                    <div class="dim-card-name">دایره</div>
+                </div>
+                <div class="dim-card">
+                    <div class="dim-card-symbol">S²</div>
+                    <div class="dim-card-name">کره</div>
+                </div>
+                <div class="dim-card">
+                    <div class="dim-card-symbol">S³</div>
+                    <div class="dim-card-name">۳-کره</div>
+                </div>
+                <div class="dim-card">
+                    <div class="dim-card-symbol">Sⁿ</div>
+                    <div class="dim-card-name">n-کره</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- TOC -->
+        <div class="toc">
+            <h2 class="toc-title">📚 فهرست مطالب</h2>
+            <ul class="toc-list">
+                <li><a href="#intro" class="toc-link"><span class="toc-number">۱</span>مقدمه و انگیزه</a></li>
+                <li><a href="#definition" class="toc-link"><span class="toc-number">۲</span>تعریف ریاضی دقیق</a></li>
+                <li><a href="#dimensions" class="toc-link"><span class="toc-number">۳</span>ابعاد مختلف Sⁿ</a></li>
+                <li><a href="#geometry" class="toc-link"><span class="toc-number">۴</span>هندسه ابرکره</a></li>
+                <li><a href="#topology" class="toc-link"><span class="toc-number">۵</span>توپولوژی و همولوژی</a></li>
+                <li><a href="#groups" class="toc-link"><span class="toc-number">۶</span>گروه‌های Lie و تقارن</a></li>
+                <li><a href="#applications" class="toc-link"><span class="toc-number">۷</span>کاربردها در فیزیک</a></li>
+                <li><a href="#ml" class="toc-link"><span class="toc-number">۸</span>یادگیری ماشین روی کره</a></li>
+                <li><a href="#python" class="toc-link"><span class="toc-number">۹</span>پیاده‌سازی Python</a></li>
+            </ul>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 1: INTRODUCTION
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon cosmic">🌌</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">مقدمه و انگیزه</h2>
+                    <p class="section-subtitle">چرا ابرکره‌ها مهم هستند؟</p>
+                </div>
+            </div>
+
+            <h3>🤔 ابرکره چیست؟</h3>
+            <p>
+                <strong>ابرکره</strong> (Hypersphere) یا <strong>n-کره</strong> ($S^n$) تعمیم مفهوم 
+                آشنای <strong>دایره</strong> و <strong>کره</strong> به ابعاد بالاتر است. همانطور که:
+            </p>
+            <ul>
+                <li><strong>دایره ($S^1$)</strong> مجموعه نقاطی در صفحه است که از مرکز فاصله ثابتی دارند</li>
+                <li><strong>کره ($S^2$)</strong> مجموعه نقاطی در فضای سه‌بعدی است که از مرکز فاصله ثابتی دارند</li>
+                <li><strong>n-کره ($S^n$)</strong> مجموعه نقاطی در فضای (n+1)-بعدی است که از مرکز فاصله ثابتی دارند</li>
+            </ul>
+
+            <div class="info-box note">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکته کلیدی</h4>
+                    <p>
+                        $S^n$ یک <strong>منیفلد n-بعدی</strong> است که در فضای <strong>(n+1)-بعدی</strong> قرار دارد.
+                        یعنی $S^2$ (کره معمولی) یک سطح دوبعدی است که در $\mathbb{R}^3$ نشسته است.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🎯 چرا ابرکره‌ها را مطالعه می‌کنیم؟</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">📐</div>
+                    <h4 class="card-title">هندسه و توپولوژی</h4>
+                    <p class="card-description">
+                        ابرکره‌ها ساده‌ترین و مهم‌ترین منیفلدهای فشرده هستند.
+                        درک آنها پایه توپولوژی جبری است.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">⚛️</div>
+                    <h4 class="card-title">فیزیک نظری</h4>
+                    <p class="card-description">
+                        کوانتوم، نسبیت، نظریه ریسمان همه از ابرکره‌ها استفاده می‌کنند.
+                        $S^3$ در مکانیک کوانتومی نقش اساسی دارد.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">🤖</div>
+                    <h4 class="card-title">یادگیری ماشین</h4>
+                    <p class="card-description">
+                        نرمال‌سازی بردارها، embedding‌ها، و Hyperbolic Neural Networks 
+                        همه روی ابرکره‌ها کار می‌کنند.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon gold">📊</div>
+                    <h4 class="card-title">آمار و داده</h4>
+                    <p class="card-description">
+                        داده‌های جهت‌دار (Directional Data)، 
+                        توزیع von Mises-Fisher روی کره تعریف می‌شوند.
+                    </p>
+                </div>
+            </div>
+
+            <h3>📜 تاریخچه مختصر</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-year">قرن ۱۹</div>
+                    <div class="timeline-title">ریمان و هندسه‌های غیراقلیدسی</div>
+                    <div class="timeline-desc">برنهارد ریمان مفهوم منیفلد و متریک را معرفی کرد.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">۱۹۰۴</div>
+                    <div class="timeline-title">حدس پوانکاره</div>
+                    <div class="timeline-desc">آیا هر منیفلد ۳-بعدی بسته و همبند ساده، هم‌ریخت با $S^3$ است؟</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">۱۹۳۱</div>
+                    <div class="timeline-title">فیبراسیون هوف</div>
+                    <div class="timeline-desc">Heinz Hopf نشان داد $S^3$ را می‌توان به صورت فیبره‌ای از $S^1$ روی $S^2$ دید.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">۲۰۰۳</div>
+                    <div class="timeline-title">اثبات حدس پوانکاره</div>
+                    <div class="timeline-desc">گریگوری پرلمن با استفاده از جریان ریچی اثبات کرد.</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-year">۲۰۱۸+</div>
+                    <div class="timeline-title">Hyperbolic & Spherical ML</div>
+                    <div class="timeline-desc">یادگیری ماشین روی فضاهای غیراقلیدسی رشد چشمگیری یافت.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 2: DEFINITION
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="definition">
+            <div class="section-header">
+                <div class="section-icon sphere">📐</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">تعریف ریاضی دقیق</h2>
+                    <p class="section-subtitle">تعریف رسمی و معادلات</p>
+                </div>
+            </div>
+
+            <h3>📝 تعریف استاندارد</h3>
+            <div class="theorem-box definition">
+                <div class="theorem-title">🔷 تعریف: n-کره واحد</div>
+                <div class="theorem-content">
+                    <p>
+                        <strong>n-کره واحد</strong> $S^n$ عبارت است از مجموعه تمام نقاط در فضای اقلیدسی 
+                        $(n+1)$-بعدی که فاصله‌شان از مبدأ برابر ۱ است:
+                    </p>
+                    <div class="math-block">
+                        $$S^n = \left\{ (x_0, x_1, \ldots, x_n) \in \mathbb{R}^{n+1} : \sum_{i=0}^{n} x_i^2 = 1 \right\}$$
+                    </div>
+                    <p>یا به صورت فشرده‌تر:</p>
+                    <div class="math-block">
+                        $$S^n = \left\{ \mathbf{x} \in \mathbb{R}^{n+1} : \|\mathbf{x}\|_2 = 1 \right\}$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>📊 مثال‌های پایه</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 کره‌های کم‌بعد</div>
+                $$\begin{aligned}
+                S^0 &= \{x \in \mathbb{R}^1 : x^2 = 1\} = \{-1, +1\} \\[8pt]
+                S^1 &= \{(x,y) \in \mathbb{R}^2 : x^2 + y^2 = 1\} \quad \text{(دایره)} \\[8pt]
+                S^2 &= \{(x,y,z) \in \mathbb{R}^3 : x^2 + y^2 + z^2 = 1\} \quad \text{(کره)} \\[8pt]
+                S^3 &= \{(x,y,z,w) \in \mathbb{R}^4 : x^2 + y^2 + z^2 + w^2 = 1\} \quad \text{(۳-کره)}
+                \end{aligned}$$
+            </div>
+
+            <h3>🔄 پارامتری‌سازی</h3>
+            <p>
+                هر $S^n$ را می‌توان با مختصات کروی تعمیم‌یافته (زاویه‌های $\theta_1, \ldots, \theta_n$) پارامتری‌سازی کرد.
+            </p>
+
+            <div class="theorem-box example">
+                <div class="theorem-title">📌 مثال: پارامتری‌سازی $S^2$</div>
+                <div class="theorem-content">
+                    <p>کره دوبعدی با مختصات کروی $(\theta, \phi)$:</p>
+                    <div class="math-block">
+                        $$\begin{cases}
+                        x = \sin\theta \cos\phi \\
+                        y = \sin\theta \sin\phi \\
+                        z = \cos\theta
+                        \end{cases}
+                        \quad \text{where } \theta \in [0, \pi], \; \phi \in [0, 2\pi)$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="theorem-box example">
+                <div class="theorem-title">📌 مثال: پارامتری‌سازی $S^3$</div>
+                <div class="theorem-content">
+                    <p>۳-کره با مختصات ابرکروی $(\psi, \theta, \phi)$:</p>
+                    <div class="math-block">
+                        $$\begin{cases}
+                        x = \cos\psi \\
+                        y = \sin\psi \cos\theta \\
+                        z = \sin\psi \sin\theta \cos\phi \\
+                        w = \sin\psi \sin\theta \sin\phi
+                        \end{cases}
+                        \quad \psi, \theta \in [0, \pi], \; \phi \in [0, 2\pi)$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>🎯 n-کره با شعاع دلخواه</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 کره با شعاع r</div>
+                $$S^n_r = \left\{ \mathbf{x} \in \mathbb{R}^{n+1} : \|\mathbf{x}\| = r \right\}$$
+            </div>
+            <p>
+                کره با شعاع $r$ به سادگی با ضرب نقاط کره واحد در $r$ به دست می‌آید:
+                $S^n_r = r \cdot S^n$
+            </p>
+
+            <h3>📐 به عنوان خارج‌قسمت</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 تعریف جایگزین</div>
+                <div class="theorem-content">
+                    <p>
+                        $S^n$ را می‌توان به عنوان خارج‌قسمت $\mathbb{R}^{n+1} \setminus \{0\}$ 
+                        روی رابطه هم‌ارزی «روی یک شعاع بودن» تعریف کرد:
+                    </p>
+                    <div class="math-block">
+                        $$S^n \cong \frac{\mathbb{R}^{n+1} \setminus \{0\}}{\mathbb{R}^+}$$
+                    </div>
+                    <p>که $\mathbf{x} \sim \lambda\mathbf{x}$ برای هر $\lambda > 0$.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 3: DIMENSIONS
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="dimensions">
+            <div class="section-header">
+                <div class="section-icon nebula">🔢</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">ابعاد مختلف Sⁿ</h2>
+                    <p class="section-subtitle">بررسی S⁰, S¹, S², S³ و بالاتر</p>
+                </div>
+            </div>
+
+            <!-- Visual Comparison -->
+            <div class="dim-viz">
+                <div class="dim-item">
+                    <div class="dim-shape s0"></div>
+                    <div class="dim-label">S⁰</div>
+                    <div class="dim-name">دو نقطه</div>
+                </div>
+                <div class="dim-item">
+                    <div class="dim-shape s1"></div>
+                    <div class="dim-label">S¹</div>
+                    <div class="dim-name">دایره</div>
+                </div>
+                <div class="dim-item">
+                    <div class="dim-shape s2"></div>
+                    <div class="dim-label">S²</div>
+                    <div class="dim-name">کره</div>
+                </div>
+                <div class="dim-item">
+                    <div class="dim-shape s3"></div>
+                    <div class="dim-label">S³</div>
+                    <div class="dim-name">۳-کره</div>
+                </div>
+            </div>
+
+            <h3>⚫ S⁰ — ۰-کره</h3>
+            <div class="theorem-box definition">
+                <div class="theorem-title">🔷 تعریف S⁰</div>
+                <div class="theorem-content">
+                    <div class="math-block">
+                        $$S^0 = \{x \in \mathbb{R} : |x| = 1\} = \{-1, +1\}$$
+                    </div>
+                    <p>
+                        $S^0$ ساده‌ترین ابرکره است: فقط <strong>دو نقطه</strong> مجزا.
+                        این منیفلد ۰-بعدی در $\mathbb{R}^1$ نشسته است.
+                    </p>
+                    <ul>
+                        <li><strong>بُعد:</strong> ۰</li>
+                        <li><strong>فضای محیط:</strong> $\mathbb{R}^1$</li>
+                        <li><strong>همبندی:</strong> ناهمبند (دو مؤلفه)</li>
+                        <li><strong>گروه بنیادی:</strong> $\pi_1(S^0) = 0$</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>⭕ S¹ — دایره</h3>
+            <div class="theorem-box definition">
+                <div class="theorem-title">🔷 تعریف S¹</div>
+                <div class="theorem-content">
+                    <div class="math-block">
+                        $$S^1 = \{(x, y) \in \mathbb{R}^2 : x^2 + y^2 = 1\}$$
+                    </div>
+                    <p>
+                        دایره واحد، آشناترین ابرکره. پارامتری‌سازی: $(cos\theta, \sin\theta)$.
+                    </p>
+                    <ul>
+                        <li><strong>بُعد:</strong> ۱</li>
+                        <li><strong>محیط:</strong> $2\pi r$</li>
+                        <li><strong>گروه بنیادی:</strong> $\pi_1(S^1) = \mathbb{Z}$</li>
+                        <li><strong>گروه Lie:</strong> $S^1 \cong U(1) \cong SO(2)$</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🌍 S² — کره</h3>
+            <div class="theorem-box definition">
+                <div class="theorem-title">🔷 تعریف S²</div>
+                <div class="theorem-content">
+                    <div class="math-block">
+                        $$S^2 = \{(x, y, z) \in \mathbb{R}^3 : x^2 + y^2 + z^2 = 1\}$$
+                    </div>
+                    <p>
+                        کره معمولی که همه می‌شناسیم — سطح توپ، زمین، و سیارات.
+                    </p>
+                    <ul>
+                        <li><strong>بُعد:</strong> ۲ (سطح دوبعدی)</li>
+                        <li><strong>مساحت:</strong> $4\pi r^2$</li>
+                        <li><strong>گروه بنیادی:</strong> $\pi_1(S^2) = 0$ (همبند ساده)</li>
+                        <li><strong>انحنای گاوسی:</strong> $K = \frac{1}{r^2}$ (ثابت و مثبت)</li>
+                        <li><strong>ویژگی اویلر:</strong> $\chi(S^2) = 2$</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🔮 S³ — ۳-کره (Glome)</h3>
+            <div class="theorem-box definition">
+                <div class="theorem-title">🔷 تعریف S³</div>
+                <div class="theorem-content">
+                    <div class="math-block">
+                        $$S^3 = \{(x, y, z, w) \in \mathbb{R}^4 : x^2 + y^2 + z^2 + w^2 = 1\}$$
+                    </div>
+                    <p>
+                        اولین ابرکره‌ای که نمی‌توانیم مستقیماً ببینیم. 
+                        یک «حجم» سه‌بعدی خمیده در $\mathbb{R}^4$.
+                    </p>
+                    <ul>
+                        <li><strong>بُعد:</strong> ۳</li>
+                        <li><strong>حجم:</strong> $2\pi^2 r^3$</li>
+                        <li><strong>گروه بنیادی:</strong> $\pi_1(S^3) = 0$</li>
+                        <li><strong>ایزومورفیسم:</strong> $S^3 \cong SU(2) \cong Spin(3)$</li>
+                        <li><strong>کواترنیون‌ها:</strong> $S^3 = \{q \in \mathbb{H} : |q| = 1\}$</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box info">
+                <div class="info-icon">🎲</div>
+                <div class="info-content">
+                    <h4>ارتباط با کواترنیون‌ها</h4>
+                    <p>
+                        $S^3$ دقیقاً مجموعه کواترنیون‌های واحد است. اگر $q = a + bi + cj + dk$ یک کواترنیون باشد:
+                    </p>
+                    <div class="math-block">
+                        $$S^3 = \{q \in \mathbb{H} : |q|^2 = a^2 + b^2 + c^2 + d^2 = 1\}$$
+                    </div>
+                    <p>این ارتباط در گرافیک کامپیوتری و روباتیک برای نمایش چرخش‌ها استفاده می‌شود.</p>
+                </div>
+            </div>
+
+            <h3>🌀 S⁷ — ۷-کره و اُکتونیون‌ها</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 ابرکره‌های خاص</div>
+                <div class="theorem-content">
+                    <p>سه ابرکره خاص که ساختار گروه دارند:</p>
+                    <ul>
+                        <li>$S^0$ — اعداد حقیقی واحد: $\{±1\}$</li>
+                        <li>$S^1$ — اعداد مختلط واحد: $\{z ∈ ℂ : |z| = 1\}$</li>
+                        <li>$S^3$ — کواترنیون‌های واحد: $\{q ∈ ℍ : |q| = 1\}$</li>
+                        <li>$S^7$ — اُکتونیون‌های واحد: $\{o ∈ 𝕆 : |o| = 1\}$ (فقط شبه‌گروه)</li>
+                    </ul>
+                    <p>
+                        <strong>قضیه:</strong> تنها کره‌هایی که ساختار گروه Lie دارند $S^0$، $S^1$ و $S^3$ هستند.
+                    </p>
+                </div>
+            </div>
+
+            <h3>📊 جدول مقایسه‌ای</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ابرکره</th>
+                            <th>بُعد</th>
+                            <th>فضای محیط</th>
+                            <th>«اندازه»</th>
+                            <th>$\pi_1$</th>
+                            <th>همبندی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>S⁰</strong></td>
+                            <td>۰</td>
+                            <td>$\mathbb{R}^1$</td>
+                            <td>۲ نقطه</td>
+                            <td>$0$</td>
+                            <td>ناهمبند</td>
+                        </tr>
+                        <tr>
+                            <td><strong>S¹</strong></td>
+                            <td>۱</td>
+                            <td>$\mathbb{R}^2$</td>
+                            <td>$2\pi r$</td>
+                            <td>$\mathbb{Z}$</td>
+                            <td>همبند</td>
+                        </tr>
+                        <tr>
+                            <td><strong>S²</strong></td>
+                            <td>۲</td>
+                            <td>$\mathbb{R}^3$</td>
+                            <td>$4\pi r^2$</td>
+                            <td>$0$</td>
+                            <td>همبند ساده</td>
+                        </tr>
+                        <tr>
+                            <td><strong>S³</strong></td>
+                            <td>۳</td>
+                            <td>$\mathbb{R}^4$</td>
+                            <td>$2\pi^2 r^3$</td>
+                            <td>$0$</td>
+                            <td>همبند ساده</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sⁿ</strong></td>
+                            <td>n</td>
+                            <td>$\mathbb{R}^{n+1}$</td>
+                            <td>فرمول عمومی</td>
+                            <td>$0$ (n≥2)</td>
+                            <td>همبند ساده (n≥2)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 4: GEOMETRY
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="geometry">
+            <div class="section-header">
+                <div class="section-icon aurora">📏</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">هندسه ابرکره</h2>
+                    <p class="section-subtitle">متریک، انحنا، حجم و ژئودزیک</p>
+                </div>
+            </div>
+
+            <h3>📐 متریک القایی</h3>
+            <p>
+                $S^n$ متریک ریمانی خود را از متریک اقلیدسی $\mathbb{R}^{n+1}$ به ارث می‌برد.
+                این متریک <strong>متریک گرد</strong> (round metric) نامیده می‌شود.
+            </p>
+
+            <div class="math-block">
+                <div class="math-block-title">🔹 متریک گرد روی S²</div>
+                $$ds^2 = d\theta^2 + \sin^2\theta \, d\phi^2$$
+                <p style="margin-top:0.5rem; font-size:0.9rem; color:var(--text-muted);">
+                    که $\theta \in [0, \pi]$ زاویه قطبی و $\phi \in [0, 2\pi)$ زاویه آزیموتی است.
+                </p>
+            </div>
+
+            <div class="math-block">
+                <div class="math-block-title">🔹 متریک گرد روی Sⁿ</div>
+                $$ds^2 = d\theta_1^2 + \sin^2\theta_1 \, d\theta_2^2 + \sin^2\theta_1 \sin^2\theta_2 \, d\theta_3^2 + \cdots$$
+            </div>
+
+            <h3>🔄 انحنا</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">📊</div>
+                    <h4 class="card-title">انحنای مقطعی (Sectional)</h4>
+                    <p class="card-description">
+                        برای کره واحد $S^n$، انحنای مقطعی در همه جهات ثابت و برابر $+1$ است.
+                        این همان انحنای مثبت ثابت است.
+                    </p>
+                    <div class="math-block">
+                        $$K = \frac{1}{r^2}$$
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">📈</div>
+                    <h4 class="card-title">انحنای ریچی (Ricci)</h4>
+                    <p class="card-description">
+                        تانسور ریچی برای $S^n$ با شعاع $r$:
+                    </p>
+                    <div class="math-block">
+                        $$Ric = \frac{n-1}{r^2} g$$
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">🔢</div>
+                    <h4 class="card-title">انحنای اسکالر (Scalar)</h4>
+                    <p class="card-description">
+                        انحنای اسکالر برای $S^n$ با شعاع $r$:
+                    </p>
+                    <div class="math-block">
+                        $$R = \frac{n(n-1)}{r^2}$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>📏 حجم و مساحت</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 فرمول حجم n-کره</div>
+                <div class="theorem-content">
+                    <p>«حجم» (اندازه n-بعدی) کره $S^n$ با شعاع $r$:</p>
+                    <div class="math-block">
+                        $$\text{Vol}(S^n_r) = \frac{2\pi^{\frac{n+1}{2}}}{\Gamma\left(\frac{n+1}{2}\right)} r^n$$
+                    </div>
+                    <p>که $\Gamma$ تابع گاما است. برای کره واحد ($r=1$):</p>
+                    <div class="math-block">
+                        $$\text{Vol}(S^n) = \frac{2\pi^{\frac{n+1}{2}}}{\Gamma\left(\frac{n+1}{2}\right)}$$
+                    </div>
+                </div>
+            </div>
+
+            <h4>مقادیر عددی</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>n</th>
+                            <th>$S^n$</th>
+                            <th>فرمول</th>
+                            <th>مقدار عددی</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0</td>
+                            <td>دو نقطه</td>
+                            <td>$2$</td>
+                            <td>$2$</td>
+                        </tr>
+                        <tr>
+                            <td>1</td>
+                            <td>دایره</td>
+                            <td>$2\pi$</td>
+                            <td>$\approx 6.283$</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>کره</td>
+                            <td>$4\pi$</td>
+                            <td>$\approx 12.566$</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>۳-کره</td>
+                            <td>$2\pi^2$</td>
+                            <td>$\approx 19.739$</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>۴-کره</td>
+                            <td>$\frac{8\pi^2}{3}$</td>
+                            <td>$\approx 26.319$</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>۵-کره</td>
+                            <td>$\pi^3$</td>
+                            <td>$\approx 31.006$</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>نکته جالب</h4>
+                    <p>
+                        حجم $S^n$ با افزایش $n$ ابتدا زیاد می‌شود اما پس از $n \approx 7$ شروع به کاهش می‌کند 
+                        و به سمت صفر میل می‌کند! این یکی از پدیده‌های عجیب ابعاد بالاست.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🛤️ ژئودزیک‌ها</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 قضیه: ژئودزیک‌های Sⁿ</div>
+                <div class="theorem-content">
+                    <p>
+                        ژئودزیک‌ها (کوتاه‌ترین مسیرها) روی $S^n$ دقیقاً <strong>دایره‌های بزرگ</strong> (Great Circles) هستند.
+                    </p>
+                    <p>
+                        دایره بزرگ: تقاطع $S^n$ با یک ابرصفحه $(n+1)$-بعدی گذرنده از مبدأ.
+                    </p>
+                    <div class="math-block">
+                        $$\gamma(t) = \cos(t) \cdot \mathbf{p} + \sin(t) \cdot \mathbf{v}$$
+                    </div>
+                    <p>
+                        که $\mathbf{p} \in S^n$ نقطه شروع و $\mathbf{v} \in T_{\mathbf{p}}S^n$ بردار مماس واحد است.
+                    </p>
+                </div>
+            </div>
+
+            <h3>📐 فاصله ژئودزیک</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 فاصله بین دو نقطه روی Sⁿ</div>
+                $$d(\mathbf{x}, \mathbf{y}) = \arccos(\mathbf{x} \cdot \mathbf{y}) = \arccos\left(\sum_{i=0}^{n} x_i y_i\right)$$
+            </div>
+            <p>
+                این فاصله برابر با زاویه بین دو بردار $\mathbf{x}$ و $\mathbf{y}$ است (بر حسب رادیان).
+            </p>
+
+            <h3>🎯 نگاشت نمایی و لگاریتمی</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 Exponential Map</div>
+                $$\exp_{\mathbf{p}}(\mathbf{v}) = \cos(\|\mathbf{v}\|) \cdot \mathbf{p} + \sin(\|\mathbf{v}\|) \cdot \frac{\mathbf{v}}{\|\mathbf{v}\|}$$
+            </div>
+
+            <div class="math-block">
+                <div class="math-block-title">🔹 Logarithmic Map</div>
+                $$\log_{\mathbf{p}}(\mathbf{q}) = \frac{\arccos(\mathbf{p} \cdot \mathbf{q})}{\sqrt{1 - (\mathbf{p} \cdot \mathbf{q})^2}} \left(\mathbf{q} - (\mathbf{p} \cdot \mathbf{q}) \mathbf{p}\right)$$
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 5: TOPOLOGY
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="topology">
+            <div class="section-header">
+                <div class="section-icon purple">🔗</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">توپولوژی و همولوژی</h2>
+                    <p class="section-subtitle">گروه‌های هموتوپی، همولوژی و ویژگی‌های توپولوژیکی</p>
+                </div>
+            </div>
+
+            <h3>🔄 گروه‌های هموتوپی</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 قضیه: گروه‌های هموتوپی Sⁿ</div>
+                <div class="theorem-content">
+                    <div class="math-block">
+                        $$\pi_k(S^n) = \begin{cases}
+                        0 & \text{if } k < n \\
+                        \mathbb{Z} & \text{if } k = n \\
+                        ??? & \text{if } k > n \text{ (پیچیده!)}
+                        \end{cases}$$
+                    </div>
+                    <p>
+                        برای $k > n$ محاسبه گروه‌های هموتوپی بسیار دشوار است و یکی از مسائل باز توپولوژی است.
+                    </p>
+                </div>
+            </div>
+
+            <h4>مثال‌های مهم</h4>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>$\pi_k(S^n)$</th>
+                            <th>$S^1$</th>
+                            <th>$S^2$</th>
+                            <th>$S^3$</th>
+                            <th>$S^4$</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>$\pi_1$</td>
+                            <td>$\mathbb{Z}$</td>
+                            <td>$0$</td>
+                            <td>$0$</td>
+                            <td>$0$</td>
+                        </tr>
+                        <tr>
+                            <td>$\pi_2$</td>
+                            <td>$0$</td>
+                            <td>$\mathbb{Z}$</td>
+                            <td>$0$</td>
+                            <td>$0$</td>
+                        </tr>
+                        <tr>
+                            <td>$\pi_3$</td>
+                            <td>$0$</td>
+                            <td>$\mathbb{Z}$</td>
+                            <td>$\mathbb{Z}$</td>
+                            <td>$0$</td>
+                        </tr>
+                        <tr>
+                            <td>$\pi_4$</td>
+                            <td>$0$</td>
+                            <td>$\mathbb{Z}_2$</td>
+                            <td>$\mathbb{Z}_2$</td>
+                            <td>$\mathbb{Z}$</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box note">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>$\pi_3(S^2) = \mathbb{Z}$ — نگاشت هوف</h4>
+                    <p>
+                        این نتیجه شگفت‌انگیز نشان می‌دهد که راه‌های غیربدیهی برای پیچیدن $S^3$ دور $S^2$ وجود دارد!
+                        این <strong>فیبراسیون هوف</strong> است: $S^1 \hookrightarrow S^3 \to S^2$.
+                    </p>
+                </div>
+            </div>
+
+            <h3>📊 همولوژی</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 قضیه: گروه‌های همولوژی Sⁿ</div>
+                <div class="theorem-content">
+                    <div class="math-block">
+                        $$H_k(S^n; \mathbb{Z}) = \begin{cases}
+                        \mathbb{Z} & \text{if } k = 0 \text{ or } k = n \\
+                        0 & \text{otherwise}
+                        \end{cases}$$
+                    </div>
+                    <p>
+                        $S^n$ دقیقاً دو گروه همولوژی غیربدیهی دارد: در بعد ۰ و بعد $n$.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🔢 ویژگی اویلر</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 ویژگی اویلر Sⁿ</div>
+                $$\chi(S^n) = 1 + (-1)^n = \begin{cases}
+                2 & \text{if } n \text{ زوج} \\
+                0 & \text{if } n \text{ فرد}
+                \end{cases}$$
+            </div>
+
+            <h3>🌀 فیبراسیون هوف</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 فیبراسیون‌های هوف</div>
+                <div class="theorem-content">
+                    <p>سه فیبراسیون هوف کلاسیک:</p>
+                    <div class="math-block">
+                        $$\begin{aligned}
+                        S^0 &\hookrightarrow S^1 \to S^1 \\
+                        S^1 &\hookrightarrow S^3 \to S^2 \\
+                        S^3 &\hookrightarrow S^7 \to S^4 \\
+                        S^7 &\hookrightarrow S^{15} \to S^8
+                        \end{aligned}$$
+                    </div>
+                    <p>
+                        این فیبراسیون‌ها مرتبط با اعداد حقیقی، مختلط، کواترنیون و اُکتونیون هستند.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🏠 پوشش‌ها</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">🔄</div>
+                    <h4 class="card-title">$\mathbb{R} \to S^1$</h4>
+                    <p class="card-description">
+                        پوشش جهانی دایره: $t \mapsto e^{2\pi i t}$.
+                        هر نقطه روی $S^1$ بی‌نهایت پیش‌تصویر دارد.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">🔄</div>
+                    <h4 class="card-title">$S^n \to \mathbb{RP}^n$</h4>
+                    <p class="card-description">
+                        $S^n$ پوشش دوگانه فضای تصویری حقیقی است.
+                        $\mathbf{x} \sim -\mathbf{x}$.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">🔄</div>
+                    <h4 class="card-title">$S^3 \to SO(3)$</h4>
+                    <p class="card-description">
+                        $S^3$ (کواترنیون‌های واحد) پوشش دوگانه گروه چرخش‌هاست.
+                        این پایه spinor‌هاست.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 6: LIE GROUPS
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="groups">
+            <div class="section-header">
+                <div class="section-icon cyan">⚙️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">گروه‌های Lie و تقارن</h2>
+                    <p class="section-subtitle">عمل گروه‌ها، ایزومتری‌ها و فضاهای همگن</p>
+                </div>
+            </div>
+
+            <h3>🔄 گروه ایزومتری</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 قضیه: ایزومتری‌های Sⁿ</div>
+                <div class="theorem-content">
+                    <p>گروه ایزومتری‌های کره $S^n$ برابر است با:</p>
+                    <div class="math-block">
+                        $$\text{Isom}(S^n) = O(n+1)$$
+                    </div>
+                    <p>
+                        یعنی گروه متعامد $(n+1)$-بعدی. این شامل چرخش‌ها ($SO(n+1)$) و انعکاس‌هاست.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🏠 فضای همگن</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 Sⁿ به عنوان فضای همگن</div>
+                $$S^n \cong \frac{O(n+1)}{O(n)} \cong \frac{SO(n+1)}{SO(n)}$$
+            </div>
+            <p>
+                هر نقطه روی $S^n$ را می‌توان با عمل گروه به هر نقطه دیگر برد.
+                این همان ویژگی <strong>همگنی</strong> است.
+            </p>
+
+            <h3>⭕ ابرکره‌ها به عنوان گروه‌های Lie</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">S⁰</div>
+                    <h4 class="card-title">$S^0 \cong \mathbb{Z}_2$</h4>
+                    <p class="card-description">
+                        گروه دوعضوی $\{-1, +1\}$ با ضرب.
+                        ساده‌ترین گروه غیربدیهی.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">S¹</div>
+                    <h4 class="card-title">$S^1 \cong U(1) \cong SO(2)$</h4>
+                    <p class="card-description">
+                        گروه اعداد مختلط واحد. گروه یک‌بعدی آبلی.
+                        چرخش‌های صفحه.
+                    </p>
+                    <div class="math-block">
+                        $$e^{i\theta} \cdot e^{i\phi} = e^{i(\theta+\phi)}$$
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">S³</div>
+                    <h4 class="card-title">$S^3 \cong SU(2) \cong Spin(3)$</h4>
+                    <p class="card-description">
+                        گروه کواترنیون‌های واحد. پوشش دوگانه $SO(3)$.
+                        اساس spinor‌ها در فیزیک.
+                    </p>
+                    <div class="math-block">
+                        $$q_1 \cdot q_2 \in S^3 \quad \text{(ضرب کواترنیونی)}$$
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box warning">
+                <div class="info-icon">⚠️</div>
+                <div class="info-content">
+                    <h4>قضیه مهم</h4>
+                    <p>
+                        <strong>تنها کره‌هایی که ساختار گروه Lie دارند $S^0$، $S^1$ و $S^3$ هستند.</strong>
+                        این مرتبط با این است که تنها جبرهای تقسیم نرم‌دار روی $\mathbb{R}$ عبارتند از:
+                        $\mathbb{R}$، $\mathbb{C}$، $\mathbb{H}$ (قضیه Hurwitz).
+                    </p>
+                </div>
+            </div>
+
+            <h3>🎯 عمل گروه‌ها روی کره</h3>
+            <div class="theorem-box example">
+                <div class="theorem-title">📌 مثال: عمل $SO(3)$ روی $S^2$</div>
+                <div class="theorem-content">
+                    <p>
+                        گروه چرخش‌های سه‌بعدی $SO(3)$ به صورت طبیعی روی کره $S^2$ عمل می‌کند:
+                    </p>
+                    <div class="math-block">
+                        $$A \cdot \mathbf{x} = A\mathbf{x} \quad \text{for } A \in SO(3), \mathbf{x} \in S^2$$
+                    </div>
+                    <p>
+                        این عمل <strong>انتقالی</strong> (transitive) است: هر نقطه را می‌توان به هر نقطه دیگر برد.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 7: PHYSICS
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="applications">
+            <div class="section-header">
+                <div class="section-icon gold">⚛️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">کاربردها در فیزیک</h2>
+                    <p class="section-subtitle">مکانیک کوانتومی، نسبیت و نظریه ریسمان</p>
+                </div>
+            </div>
+
+            <h3>🌀 کره بلوخ (Bloch Sphere)</h3>
+            <p>
+                در <strong>محاسبات کوانتومی</strong>، حالت یک کیوبیت را می‌توان روی $S^2$ نمایش داد.
+            </p>
+
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 نمایش کره بلوخ</div>
+                <div class="theorem-content">
+                    <p>هر حالت خالص کیوبیت:</p>
+                    <div class="math-block">
+                        $$|\psi\rangle = \cos\frac{\theta}{2}|0\rangle + e^{i\phi}\sin\frac{\theta}{2}|1\rangle$$
+                    </div>
+                    <p>
+                        با نقطه‌ای روی $S^2$ با مختصات $(\theta, \phi)$ متناظر است.
+                    </p>
+                    <ul>
+                        <li>قطب شمال ($\theta=0$): $|0\rangle$</li>
+                        <li>قطب جنوب ($\theta=\pi$): $|1\rangle$</li>
+                        <li>استوا: برهم‌نهی‌های متقارن</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🔄 اسپین و $SU(2)$</h3>
+            <div class="info-box info">
+                <div class="info-icon">🎲</div>
+                <div class="info-content">
+                    <h4>چرا $S^3$ در فیزیک کوانتوم ظاهر می‌شود؟</h4>
+                    <p>
+                        گروه $SU(2) \cong S^3$ گروه تقارن اسپین است.
+                        چرخش ۳۶۰ درجه یک ذره اسپین-½ آن را به حالت اولیه برنمی‌گرداند — بلکه منفی‌اش می‌کند!
+                        برای بازگشت به حالت اولیه، چرخش ۷۲۰ درجه لازم است.
+                    </p>
+                    <div class="math-block">
+                        $$R(2\pi) = -I, \quad R(4\pi) = I$$
+                    </div>
+                </div>
+            </div>
+
+            <h3>🌌 کیهان‌شناسی</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">🌍</div>
+                    <h4 class="card-title">جهان بسته ($S^3$)</h4>
+                    <p class="card-description">
+                        یکی از مدل‌های کیهان‌شناسی: فضای ۳-بعدی جهان می‌تواند $S^3$ باشد.
+                        جهان <strong>محدود ولی بدون مرز</strong>.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">🔭</div>
+                    <h4 class="card-title">کره آسمان ($S^2$)</h4>
+                    <p class="card-description">
+                        موقعیت ستارگان روی «کره آسمان» نمایش داده می‌شود.
+                        CMB (تابش پس‌زمینه کیهانی) روی $S^2$ اندازه‌گیری می‌شود.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">🎸</div>
+                    <h4 class="card-title">نظریه ریسمان</h4>
+                    <p class="card-description">
+                        در compactification، ابعاد اضافی می‌توانند کره‌های کوچک باشند.
+                        مثلاً $S^5$ در $AdS_5 \times S^5$.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🧲 تکینگی‌های توپولوژیکی</h3>
+            <div class="theorem-box">
+                <div class="theorem-title">🔷 مونوپول مغناطیسی</div>
+                <div class="theorem-content">
+                    <p>
+                        میدان مغناطیسی یک مونوپول فرضی توسط نگاشتی از $S^2$ (کره دور از مونوپول) 
+                        به $U(1)$ توصیف می‌شود. این نگاشت‌ها با $\pi_1(U(1)) = \mathbb{Z}$ طبقه‌بندی می‌شوند.
+                    </p>
+                    <p>
+                        به طور کلی، عدد صحیح توپولوژیکی <strong>بار مغناطیسی</strong> را می‌دهد.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 8: MACHINE LEARNING
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="ml">
+            <div class="section-header">
+                <div class="section-icon pink">🤖</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">یادگیری ماشین روی کره</h2>
+                    <p class="section-subtitle">Embeddings، توزیع‌ها و Spherical CNNs</p>
+                </div>
+            </div>
+
+            <h3>📊 چرا ML روی کره؟</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">📍</div>
+                    <h4 class="card-title">نرمال‌سازی بردارها</h4>
+                    <p class="card-description">
+                        در بسیاری از کاربردها، بردارها را نرمال می‌کنیم: $\|\mathbf{x}\| = 1$.
+                        این یعنی داده‌ها روی $S^{n-1}$ قرار دارند.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">🔤</div>
+                    <h4 class="card-title">Word Embeddings</h4>
+                    <p class="card-description">
+                        Word2Vec و embeddings مشابه اغلب با cosine similarity مقایسه می‌شوند.
+                        این معادل فاصله روی کره است.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">🌍</div>
+                    <h4 class="card-title">داده‌های جغرافیایی</h4>
+                    <p class="card-description">
+                        موقعیت‌ها روی زمین طبیعتاً روی $S^2$ هستند.
+                        تحلیل داده‌های جغرافیایی نیاز به هندسه کروی دارد.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon gold">🧭</div>
+                    <h4 class="card-title">داده‌های جهت‌دار</h4>
+                    <p class="card-description">
+                        جهت باد، جهت حرکت، زاویه‌ها — همه روی $S^1$ یا $S^2$ تعریف می‌شوند.
+                    </p>
+                </div>
+            </div>
+
+            <h3>📈 توزیع von Mises-Fisher</h3>
+            <div class="theorem-box definition">
+                <div class="theorem-title">🔷 تعریف: توزیع vMF</div>
+                <div class="theorem-content">
+                    <p>معادل توزیع نرمال روی کره:</p>
+                    <div class="math-block">
+                        $$f(\mathbf{x}; \boldsymbol{\mu}, \kappa) = C_p(\kappa) \exp(\kappa \boldsymbol{\mu}^T \mathbf{x})$$
+                    </div>
+                    <p>که:</p>
+                    <ul>
+                        <li>$\mathbf{x} \in S^{p-1}$ — نقطه روی کره</li>
+                        <li>$\boldsymbol{\mu} \in S^{p-1}$ — میانگین جهتی (mean direction)</li>
+                        <li>$\kappa \geq 0$ — پارامتر تمرکز (concentration)</li>
+                        <li>$C_p(\kappa)$ — ثابت نرمال‌سازی</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>تفسیر $\kappa$</h4>
+                    <ul>
+                        <li>$\kappa = 0$: توزیع یکنواخت روی کره</li>
+                        <li>$\kappa$ کوچک: پراکنده</li>
+                        <li>$\kappa$ بزرگ: متمرکز دور $\boldsymbol{\mu}$</li>
+                        <li>$\kappa \to \infty$: نقطه‌ای روی $\boldsymbol{\mu}$</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🧠 Spherical Neural Networks</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">🌐</div>
+                    <h4 class="card-title">Spherical CNNs</h4>
+                    <p class="card-description">
+                        کانولوشن روی $S^2$ برای داده‌های کروی (مثل تصاویر ۳۶۰°، نقشه‌های کره‌ای، CMB).
+                        از هارمونیک‌های کروی استفاده می‌کنند.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">🎯</div>
+                    <h4 class="card-title">Hyperspherical VAE</h4>
+                    <p class="card-description">
+                        VAE با فضای نهان کروی.
+                        توزیع پیشین: von Mises-Fisher به جای Gaussian.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">📐</div>
+                    <h4 class="card-title">Spherical Embeddings</h4>
+                    <p class="card-description">
+                        نگاشت داده‌ها به کره برای استفاده از cosine similarity.
+                        Contrastive Learning اغلب از embeddings نرمال‌شده استفاده می‌کند.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🔢 Cosine Similarity vs Geodesic Distance</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 ارتباط بین دو متریک</div>
+                $$\text{cosine\_sim}(\mathbf{x}, \mathbf{y}) = \mathbf{x} \cdot \mathbf{y} = \cos(d_{geo}(\mathbf{x}, \mathbf{y}))$$
+            </div>
+            <p>
+                برای بردارهای نرمال‌شده، cosine similarity و فاصله ژئودزیک اطلاعات یکسانی دارند.
+            </p>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 9: PYTHON
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="python">
+            <div class="section-header">
+                <div class="section-icon aurora">🐍</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">پیاده‌سازی Python</h2>
+                    <p class="section-subtitle">کد عملی برای کار با ابرکره‌ها</p>
+                </div>
+            </div>
+
+            <h3>🔧 کلاس پایه Hypersphere</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>hypersphere.py</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)">
+                        <span>📋</span> کپی
+                    </button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+پیاده‌سازی کامل Hypersphere Sⁿ
+شامل عملیات هندسی، نمونه‌برداری و تجسم
+"""
+
+import numpy as np
+from scipy.special import gamma
+from typing import Tuple, Optional
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+
+class Hypersphere:
+    """
+    کلاس نمایش n-کره Sⁿ
+    
+    Sⁿ = {x ∈ ℝⁿ⁺¹ : ||x|| = 1}
+    
+    Parameters
+    ----------
+    n : int
+        بُعد کره (Sⁿ یک منیفلد n-بعدی است)
+    """
+    
+    def __init__(self, n: int):
+        if n < 0:
+            raise ValueError("بُعد باید نامنفی باشد")
+        self.n = n
+        self.ambient_dim = n + 1  # بُعد فضای محیط
+    
+    def __repr__(self) -> str:
+        return f"S^{self.n} (Hypersphere in ℝ^{self.ambient_dim})"
+    
+    # ═══════════════════════════════════════════════════════════
+    # اعتبارسنجی نقاط
+    # ═══════════════════════════════════════════════════════════
+    
+    def is_on_sphere(self, x: np.ndarray, tol: float = 1e-8) -> bool:
+        """بررسی اینکه آیا نقطه روی کره است"""
+        x = np.asarray(x)
+        if x.shape[-1] != self.ambient_dim:
+            return False
+        norms = np.linalg.norm(x, axis=-1)
+        return np.all(np.abs(norms - 1.0) < tol)
+    
+    def project(self, x: np.ndarray) -> np.ndarray:
+        """تصویر نقطه روی کره (نرمال‌سازی)"""
+        x = np.asarray(x, dtype=np.float64)
+        norms = np.linalg.norm(x, axis=-1, keepdims=True)
+        # جلوگیری از تقسیم بر صفر
+        norms = np.maximum(norms, 1e-12)
+        return x / norms
+    
+    # ═══════════════════════════════════════════════════════════
+    # فاصله و هندسه
+    # ═══════════════════════════════════════════════════════════
+    
+    def geodesic_distance(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """
+        فاصله ژئودزیک بین دو نقطه روی کره
+        
+        d(x, y) = arccos(x · y)
+        """
+        x, y = np.asarray(x), np.asarray(y)
+        dot = np.clip(np.sum(x * y, axis=-1), -1.0, 1.0)
+        return np.arccos(dot)
+    
+    def cosine_similarity(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """شباهت کسینوسی (معادل ضرب داخلی برای بردارهای واحد)"""
+        x, y = np.asarray(x), np.asarray(y)
+        return np.sum(x * y, axis=-1)
+    
+    def chord_distance(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """فاصله وتری (اقلیدسی در فضای محیط)"""
+        x, y = np.asarray(x), np.asarray(y)
+        return np.linalg.norm(x - y, axis=-1)
+    
+    # ═══════════════════════════════════════════════════════════
+    # نگاشت نمایی و لگاریتمی
+    # ═══════════════════════════════════════════════════════════
+    
+    def exp_map(self, p: np.ndarray, v: np.ndarray) -> np.ndarray:
+        """
+        نگاشت نمایی: حرکت از p در جهت v
+        
+        exp_p(v) = cos(||v||)·p + sin(||v||)·(v/||v||)
+        """
+        p, v = np.asarray(p), np.asarray(v)
+        v_norm = np.linalg.norm(v, axis=-1, keepdims=True)
+        
+        # برای بردارهای صفر
+        mask = v_norm.squeeze() > 1e-12
+        result = p.copy()
+        
+        if np.any(mask):
+            v_unit = v / np.maximum(v_norm, 1e-12)
+            result = np.cos(v_norm) * p + np.sin(v_norm) * v_unit
+        
+        return self.project(result)
+    
+    def log_map(self, p: np.ndarray, q: np.ndarray) -> np.ndarray:
+        """
+        نگاشت لگاریتمی: بردار مماس از p به سمت q
+        
+        log_p(q) = (θ/sin(θ))·(q - cos(θ)·p)
+        که θ = arccos(p·q)
+        """
+        p, q = np.asarray(p), np.asarray(q)
+        dot = np.clip(np.sum(p * q, axis=-1, keepdims=True), -1.0, 1.0)
+        theta = np.arccos(dot)
+        
+        # جهت از p به q
+        direction = q - dot * p
+        dir_norm = np.linalg.norm(direction, axis=-1, keepdims=True)
+        
+        # برای نقاط خیلی نزدیک یا متقابل
+        mask = dir_norm.squeeze() > 1e-12
+        result = np.zeros_like(p)
+        
+        if np.any(mask):
+            result = (theta / np.maximum(dir_norm, 1e-12)) * direction
+        
+        return result
+    
+    # ═══════════════════════════════════════════════════════════
+    # فضای مماس
+    # ═══════════════════════════════════════════════════════════
+    
+    def project_to_tangent(self, p: np.ndarray, v: np.ndarray) -> np.ndarray:
+        """تصویر بردار v روی فضای مماس در p"""
+        p, v = np.asarray(p), np.asarray(v)
+        # T_p S^n = {v : p·v = 0}
+        # تصویر: v - (p·v)p
+        dot = np.sum(p * v, axis=-1, keepdims=True)
+        return v - dot * p
+    
+    def random_tangent(self, p: np.ndarray, 
+                       size: Optional[int] = None) -> np.ndarray:
+        """تولید بردار مماس تصادفی در نقطه p"""
+        p = np.asarray(p)
+        shape = (size, self.ambient_dim) if size else (self.ambient_dim,)
+        v = np.random.randn(*shape)
+        return self.project_to_tangent(p, v)
+    
+    # ═══════════════════════════════════════════════════════════
+    # نمونه‌برداری
+    # ═══════════════════════════════════════════════════════════
+    
+    def uniform_sample(self, size: int = 1) -> np.ndarray:
+        """
+        نمونه‌برداری یکنواخت از کره
+        
+        روش: نرمال‌سازی بردار گاوسی
+        """
+        x = np.random.randn(size, self.ambient_dim)
+        return self.project(x)
+    
+    def sample_vmf(self, mu: np.ndarray, kappa: float, 
+                   size: int = 1) -> np.ndarray:
+        """
+        نمونه‌برداری از توزیع von Mises-Fisher
+        
+        Parameters
+        ----------
+        mu : میانگین جهتی (mean direction)
+        kappa : پارامتر تمرکز (concentration)
+        """
+        mu = np.asarray(mu)
+        mu = mu / np.linalg.norm(mu)  # اطمینان از نرمال بودن
+        
+        if kappa == 0:
+            return self.uniform_sample(size)
+        
+        # الگوریتم نمونه‌برداری vMF (Wood's algorithm)
+        d = self.n  # بُعد کره
+        
+        # مقادیر کمکی
+        b = (-2 * kappa + np.sqrt(4 * kappa**2 + (d-1)**2)) / (d-1)
+        a = (d-1 + 2*kappa + np.sqrt(4*kappa**2 + (d-1)**2)) / 4
+        c = kappa / (1 - b**2)
+        
+        samples = []
+        for _ in range(size):
+            while True:
+                z = np.random.beta((d-1)/2, (d-1)/2)
+                w = (1 - (1+b)*z) / (1 - (1-b)*z)
+                t = 2*a*b*z / (1 - (1-b)*z)
+                u = np.random.uniform()
+                if t >= (d-1)*np.log(t) - t + c or np.log(u) < (d-1)*np.log(t) - t + c:
+                    break
+            
+            # ساخت نمونه
+            v = np.random.randn(d)
+            v = v / np.linalg.norm(v)
+            
+            # ترکیب w و v
+            sample = np.zeros(self.ambient_dim)
+            sample[0] = w
+            sample[1:] = np.sqrt(1 - w**2) * v[:self.n] if self.n > 0 else []
+            
+            # چرخش به سمت mu
+            sample = self._rotate_to_mu(sample, mu)
+            samples.append(sample)
+        
+        return np.array(samples)
+    
+    def _rotate_to_mu(self, x: np.ndarray, mu: np.ndarray) -> np.ndarray:
+        """چرخش بردار x به سمت mu"""
+        # e1 = [1, 0, ..., 0]
+        e1 = np.zeros(self.ambient_dim)
+        e1[0] = 1.0
+        
+        # ماتریس چرخش با Householder
+        u = e1 - mu
+        u_norm = np.linalg.norm(u)
+        
+        if u_norm < 1e-10:
+            return x
+        
+        u = u / u_norm
+        # x - 2(u·x)u
+        return x - 2 * np.dot(u, x) * u
+    
+    # ═══════════════════════════════════════════════════════════
+    # حجم و مساحت
+    # ═══════════════════════════════════════════════════════════
+    
+    def volume(self, radius: float = 1.0) -> float:
+        """
+        حجم (اندازه n-بعدی) کره
+        
+        Vol(Sⁿ) = 2π^((n+1)/2) / Γ((n+1)/2) × rⁿ
+        """
+        n = self.n
+        return (2 * np.pi**((n+1)/2) / gamma((n+1)/2)) * radius**n
+    
+    def ball_volume(self, radius: float = 1.0) -> float:
+        """
+        حجم توپ (n+1)-بعدی محصور در کره
+        
+        Vol(Bⁿ⁺¹) = π^((n+1)/2) / Γ((n+3)/2) × r^(n+1)
+        """
+        n = self.n
+        return (np.pi**((n+1)/2) / gamma((n+3)/2)) * radius**(n+1)
+    
+    # ═══════════════════════════════════════════════════════════
+    # میانگین و آمار
+    # ═══════════════════════════════════════════════════════════
+    
+    def frechet_mean(self, points: np.ndarray, 
+                     max_iter: int = 100, 
+                     tol: float = 1e-6) -> np.ndarray:
+        """
+        محاسبه میانگین فرشه (Fréchet mean) روی کره
+        
+        میانگین کارشی: نقطه‌ای که مجموع مربعات فواصل ژئودزیک را مینیمم می‌کند
+        """
+        points = np.asarray(points)
+        
+        # شروع از میانگین اقلیدسی نرمال‌شده
+        mean = self.project(points.mean(axis=0))
+        
+        for _ in range(max_iter):
+            # گرادیان در فضای مماس
+            tangent_vectors = np.array([self.log_map(mean, p) for p in points])
+            avg_tangent = tangent_vectors.mean(axis=0)
+            
+            # بررسی همگرایی
+            if np.linalg.norm(avg_tangent) < tol:
+                break
+            
+            # به‌روزرسانی
+            mean = self.exp_map(mean, avg_tangent)
+        
+        return mean
+    
+    def variance(self, points: np.ndarray, 
+                 mean: Optional[np.ndarray] = None) -> float:
+        """واریانس ژئودزیک"""
+        points = np.asarray(points)
+        if mean is None:
+            mean = self.frechet_mean(points)
+        
+        distances = self.geodesic_distance(points, mean)
+        return np.mean(distances**2)
+
+
+# ═══════════════════════════════════════════════════════════════
+# توابع کمکی برای تجسم
+# ═══════════════════════════════════════════════════════════════
+
+def visualize_s1(points: np.ndarray, 
+                 title: str = "نقاط روی S¹",
+                 highlight_mean: bool = False) -> None:
+    """تجسم نقاط روی دایره S¹"""
+    
+    fig, ax = plt.subplots(figsize=(8, 8))
+    
+    # رسم دایره
+    theta = np.linspace(0, 2*np.pi, 100)
+    ax.plot(np.cos(theta), np.sin(theta), 'b-', alpha=0.3, linewidth=2)
+    
+    # رسم نقاط
+    ax.scatter(points[:, 0], points[:, 1], c='purple', s=50, alpha=0.7, zorder=5)
+    
+    if highlight_mean and len(points) > 1:
+        sphere = Hypersphere(1)
+        mean = sphere.frechet_mean(points)
+        ax.scatter(mean[0], mean[1], c='red', s=200, marker='*', 
+                   zorder=10, label='میانگین فرشه')
+        ax.legend()
+    
+    ax.set_xlim(-1.3, 1.3)
+    ax.set_ylim(-1.3, 1.3)
+    ax.set_aspect('equal')
+    ax.grid(True, alpha=0.3)
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    return fig
+
+
+def visualize_s2(points: np.ndarray,
+                 title: str = "نقاط روی S²",
+                 highlight_mean: bool = False,
+                 show_geodesic: bool = False) -> None:
+    """تجسم نقاط روی کره S²"""
+    
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # رسم کره شفاف
+    u = np.linspace(0, 2*np.pi, 50)
+    v = np.linspace(0, np.pi, 30)
+    x = np.outer(np.cos(u), np.sin(v))
+    y = np.outer(np.sin(u), np.sin(v))
+    z = np.outer(np.ones(np.size(u)), np.cos(v))
+    ax.plot_surface(x, y, z, alpha=0.1, color='cyan')
+    
+    # خطوط عرض و طول
+    for angle in np.linspace(0, np.pi, 7):
+        circle_x = np.sin(angle) * np.cos(u)
+        circle_y = np.sin(angle) * np.sin(u)
+        circle_z = np.cos(angle) * np.ones_like(u)
+        ax.plot(circle_x, circle_y, circle_z, 'b-', alpha=0.2, linewidth=0.5)
+    
+    for angle in np.linspace(0, 2*np.pi, 13):
+        arc_x = np.sin(v) * np.cos(angle)
+        arc_y = np.sin(v) * np.sin(angle)
+        arc_z = np.cos(v)
+        ax.plot(arc_x, arc_y, arc_z, 'b-', alpha=0.2, linewidth=0.5)
+    
+    # رسم نقاط
+    ax.scatter(points[:, 0], points[:, 1], points[:, 2], 
+               c='purple', s=50, alpha=0.8, depthshade=True)
+    
+    if highlight_mean and len(points) > 1:
+        sphere = Hypersphere(2)
+        mean = sphere.frechet_mean(points)
+        ax.scatter([mean[0]], [mean[1]], [mean[2]], 
+                   c='red', s=300, marker='*', label='میانگین فرشه')
+        ax.legend()
+    
+    ax.set_xlim(-1.2, 1.2)
+    ax.set_ylim(-1.2, 1.2)
+    ax.set_zlim(-1.2, 1.2)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    
+    return fig
+
+
+# ═══════════════════════════════════════════════════════════════
+# مثال استفاده
+# ═══════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    print("=" * 60)
+    print("آزمایش کلاس Hypersphere")
+    print("=" * 60)
+    
+    # S² - کره معمولی
+    s2 = Hypersphere(2)
+    print(f"\n{s2}")
+    print(f"حجم S²: {s2.volume():.4f} (باید ≈ 4π ≈ 12.566 باشد)")
+    
+    # نمونه‌برداری یکنواخت
+    points = s2.uniform_sample(100)
+    print(f"\n۱۰۰ نقطه یکنواخت نمونه‌برداری شد")
+    print(f"همه روی کره هستند: {s2.is_on_sphere(points)}")
+    
+    # فاصله ژئودزیک
+    p1 = np.array([1, 0, 0])
+    p2 = np.array([0, 1, 0])
+    dist = s2.geodesic_distance(p1, p2)
+    print(f"\nفاصله ژئودزیک بین [1,0,0] و [0,1,0]: {dist:.4f}")
+    print(f"(باید π/2 ≈ {np.pi/2:.4f} باشد)")
+    
+    # نگاشت نمایی
+    p = np.array([0, 0, 1])  # قطب شمال
+    v = np.array([0.5, 0, 0])  # بردار مماس
+    q = s2.exp_map(p, v)
+    print(f"\nexp_[0,0,1]([0.5,0,0]) = {q}")
+    
+    # توزیع vMF
+    mu = np.array([0, 0, 1])
+    kappa = 10
+    vmf_samples = s2.sample_vmf(mu, kappa, size=50)
+    print(f"\n۵۰ نمونه از vMF(μ=[0,0,1], κ=10)")
+    
+    # میانگین فرشه
+    mean = s2.frechet_mean(vmf_samples)
+    print(f"میانگین فرشه: {mean}")
+    print(f"فاصله از μ: {s2.geodesic_distance(mean, mu):.4f}")
+    
+    print("\n" + "=" * 60)
+    print("✅ همه آزمایش‌ها با موفقیت انجام شد!")
+    print("=" * 60)</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 تجسم ابرکره‌ها</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>visualize_spheres.py</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)">
+                        <span>📋</span> کپی
+                    </button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+تجسم ابرکره‌ها و توزیع‌های روی آنها
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from hypersphere import Hypersphere
+
+# تنظیمات نمودار
+plt.rcParams['figure.facecolor'] = '#0a0a1a'
+plt.rcParams['axes.facecolor'] = '#0a0a1a'
+plt.rcParams['text.color'] = 'white'
+plt.rcParams['axes.labelcolor'] = 'white'
+plt.rcParams['xtick.color'] = 'white'
+plt.rcParams['ytick.color'] = 'white'
+
+
+def plot_sphere_with_geodesic():
+    """رسم کره با ژئودزیک بین دو نقطه"""
+    
+    fig = plt.figure(figsize=(12, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # کره
+    u = np.linspace(0, 2*np.pi, 60)
+    v = np.linspace(0, np.pi, 40)
+    x = np.outer(np.cos(u), np.sin(v))
+    y = np.outer(np.sin(u), np.sin(v))
+    z = np.outer(np.ones(np.size(u)), np.cos(v))
+    
+    ax.plot_surface(x, y, z, alpha=0.15, color='cyan', 
+                    linewidth=0, antialiased=True)
+    
+    # دو نقطه
+    p1 = np.array([1, 0, 0])
+    p2 = np.array([0, 0.7, 0.7])
+    p2 = p2 / np.linalg.norm(p2)
+    
+    ax.scatter(*p1, c='#ff6b6b', s=200, marker='o', label='P₁')
+    ax.scatter(*p2, c='#4ecdc4', s=200, marker='o', label='P₂')
+    
+    # ژئودزیک (دایره بزرگ)
+    s2 = Hypersphere(2)
+    t_values = np.linspace(0, 1, 100)
+    geodesic = []
+    
+    v = s2.log_map(p1, p2)
+    for t in t_values:
+        point = s2.exp_map(p1, t * v)
+        geodesic.append(point)
+    
+    geodesic = np.array(geodesic)
+    ax.plot(geodesic[:, 0], geodesic[:, 1], geodesic[:, 2], 
+            'yellow', linewidth=3, label='ژئودزیک')
+    
+    # تنظیمات
+    ax.set_xlim(-1.2, 1.2)
+    ax.set_ylim(-1.2, 1.2)
+    ax.set_zlim(-1.2, 1.2)
+    ax.set_xlabel('X', fontsize=12)
+    ax.set_ylabel('Y', fontsize=12)
+    ax.set_zlabel('Z', fontsize=12)
+    ax.legend(loc='upper left', fontsize=10)
+    ax.set_title('ژئودزیک روی S² (کوتاه‌ترین مسیر)', 
+                 fontsize=14, fontweight='bold', color='white')
+    
+    plt.tight_layout()
+    plt.savefig('geodesic_s2.png', dpi=150, 
+                facecolor='#0a0a1a', edgecolor='none')
+    plt.show()
+
+
+def plot_vmf_distribution():
+    """تجسم توزیع von Mises-Fisher با κ‌های مختلف"""
+    
+    fig = plt.figure(figsize=(16, 5))
+    
+    s2 = Hypersphere(2)
+    mu = np.array([0, 0, 1])  # قطب شمال
+    kappas = [0.5, 5, 50]
+    
+    for idx, kappa in enumerate(kappas):
+        ax = fig.add_subplot(1, 3, idx+1, projection='3d')
+        
+        # کره شفاف
+        u = np.linspace(0, 2*np.pi, 40)
+        v = np.linspace(0, np.pi, 25)
+        x = np.outer(np.cos(u), np.sin(v))
+        y = np.outer(np.sin(u), np.sin(v))
+        z = np.outer(np.ones(np.size(u)), np.cos(v))
+        ax.plot_surface(x, y, z, alpha=0.08, color='white')
+        
+        # نمونه‌ها از vMF
+        samples = s2.sample_vmf(mu, kappa, size=300)
+        
+        # رنگ بر اساس فاصله از mu
+        distances = s2.geodesic_distance(samples, mu)
+        colors = cm.plasma(distances / distances.max())
+        
+        ax.scatter(samples[:, 0], samples[:, 1], samples[:, 2],
+                   c=colors, s=20, alpha=0.8)
+        
+        # نقطه mu
+        ax.scatter(*mu, c='lime', s=150, marker='*', label='μ')
+        
+        ax.set_xlim(-1.2, 1.2)
+        ax.set_ylim(-1.2, 1.2)
+        ax.set_zlim(-1.2, 1.2)
+        ax.set_title(f'κ = {kappa}', fontsize=13, 
+                     fontweight='bold', color='white')
+        ax.set_axis_off()
+    
+    fig.suptitle('توزیع von Mises-Fisher روی S²', 
+                 fontsize=16, fontweight='bold', color='white', y=1.02)
+    
+    plt.tight_layout()
+    plt.savefig('vmf_distribution.png', dpi=150,
+                facecolor='#0a0a1a', edgecolor='none', bbox_inches='tight')
+    plt.show()
+
+
+def plot_hopf_fibration():
+    """تجسم فیبراسیون هوف S³ → S²"""
+    
+    fig = plt.figure(figsize=(14, 6))
+    
+    # نمای S² (پایه)
+    ax1 = fig.add_subplot(121, projection='3d')
+    
+    # کره پایه
+    u = np.linspace(0, 2*np.pi, 40)
+    v = np.linspace(0, np.pi, 25)
+    x = np.outer(np.cos(u), np.sin(v))
+    y = np.outer(np.sin(u), np.sin(v))
+    z = np.outer(np.ones(np.size(u)), np.cos(v))
+    ax1.plot_surface(x, y, z, alpha=0.1, color='cyan')
+    
+    # چند نقطه روی S² و فیبرهای متناظر (دایره‌ها)
+    base_points = [
+        np.array([0, 0, 1]),      # قطب شمال
+        np.array([1, 0, 0]),      # استوا
+        np.array([0, 1, 0]),      # استوا
+        np.array([0, 0, -1]),     # قطب جنوب
+    ]
+    colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24']
+    
+    for point, color in zip(base_points, colors):
+        ax1.scatter(*point, c=color, s=150, marker='o')
+    
+    ax1.set_title('S² (فضای پایه)', fontsize=13, 
+                  fontweight='bold', color='white')
+    ax1.set_axis_off()
+    
+    # نمای فیبرها (تورهای Clifford)
+    ax2 = fig.add_subplot(122, projection='3d')
+    
+    # رسم چند تور تو در تو (نمایش ساده‌شده)
+    for r, color in zip([0.3, 0.5, 0.7, 0.9], colors):
+        theta = np.linspace(0, 2*np.pi, 50)
+        phi = np.linspace(0, 2*np.pi, 50)
+        theta, phi = np.meshgrid(theta, phi)
+        
+        # تور در R³ (تصویر استریوگرافیک)
+        R = 1
+        x = (R + r*np.cos(theta)) * np.cos(phi)
+        y = (R + r*np.cos(theta)) * np.sin(phi)
+        z = r * np.sin(theta)
+        
+        ax2.plot_surface(x, y, z, alpha=0.3, color=color, linewidth=0)
+    
+    ax2.set_title('تورهای Clifford (فیبرها)', fontsize=13,
+                  fontweight='bold', color='white')
+    ax2.set_axis_off()
+    
+    fig.suptitle('فیبراسیون هوف: S¹ → S³ → S²', 
+                 fontsize=16, fontweight='bold', color='white')
+    
+    plt.tight_layout()
+    plt.savefig('hopf_fibration.png', dpi=150,
+                facecolor='#0a0a1a', edgecolor='none')
+    plt.show()
+
+
+def plot_sphere_volumes():
+    """نمودار حجم کره‌ها بر حسب بُعد"""
+    
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    dims = np.arange(0, 21)
+    volumes = []
+    
+    for n in dims:
+        sphere = Hypersphere(n)
+        volumes.append(sphere.volume())
+    
+    ax.bar(dims, volumes, color='#a855f7', alpha=0.8, edgecolor='white')
+    ax.axhline(y=0, color='white', linewidth=0.5)
+    
+    # علامت‌گذاری ماکزیمم
+    max_idx = np.argmax(volumes)
+    ax.bar(max_idx, volumes[max_idx], color='#f472b6', 
+           edgecolor='white', linewidth=2)
+    ax.annotate(f'Max at n={max_idx}\nVol≈{volumes[max_idx]:.2f}',
+                xy=(max_idx, volumes[max_idx]),
+                xytext=(max_idx+3, volumes[max_idx]),
+                fontsize=11, color='white',
+                arrowprops=dict(arrowstyle='->', color='white'))
+    
+    ax.set_xlabel('بُعد n (برای Sⁿ)', fontsize=12)
+    ax.set_ylabel('حجم', fontsize=12)
+    ax.set_title('حجم ابرکره Sⁿ بر حسب بُعد', 
+                 fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.2)
+    
+    plt.tight_layout()
+    plt.savefig('sphere_volumes.png', dpi=150,
+                facecolor='#0a0a1a', edgecolor='none')
+    plt.show()
+
+
+if __name__ == "__main__":
+    print("🌐 تولید تجسم‌های ابرکره...")
+    
+    plot_sphere_with_geodesic()
+    plot_vmf_distribution()
+    plot_hopf_fibration()
+    plot_sphere_volumes()
+    
+    print("✅ تمام نمودارها ذخیره شدند!")</code></pre>
+                </div>
+            </div>
+
+            <h3>🤖 یادگیری ماشین روی کره</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>spherical_ml.py</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)">
+                        <span>📋</span> کپی
+                    </button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+یادگیری ماشین روی ابرکره
+شامل Spherical K-Means و Spherical Embeddings
+"""
+
+import numpy as np
+from typing import Tuple, List
+from hypersphere import Hypersphere
+
+
+class SphericalKMeans:
+    """
+    الگوریتم K-Means روی کره
+    
+    به جای میانگین اقلیدسی از میانگین فرشه استفاده می‌کند
+    و فاصله کسینوسی (یا ژئودزیک) را به کار می‌برد.
+    """
+    
+    def __init__(self, n_clusters: int, max_iter: int = 100, 
+                 tol: float = 1e-4, random_state: int = None):
+        self.n_clusters = n_clusters
+        self.max_iter = max_iter
+        self.tol = tol
+        self.random_state = random_state
+        self.centroids_ = None
+        self.labels_ = None
+        self.inertia_ = None
+    
+    def fit(self, X: np.ndarray) -> 'SphericalKMeans':
+        """
+        آموزش مدل
+        
+        Parameters
+        ----------
+        X : array of shape (n_samples, n_features)
+            داده‌ها (باید روی کره باشند یا نرمال شوند)
+        """
+        if self.random_state is not None:
+            np.random.seed(self.random_state)
+        
+        n_samples, n_features = X.shape
+        sphere = Hypersphere(n_features - 1)
+        
+        # نرمال‌سازی داده‌ها
+        X = sphere.project(X)
+        
+        # مقداردهی اولیه: انتخاب تصادفی از داده‌ها
+        indices = np.random.choice(n_samples, self.n_clusters, replace=False)
+        self.centroids_ = X[indices].copy()
+        
+        for iteration in range(self.max_iter):
+            old_centroids = self.centroids_.copy()
+            
+            # گام تخصیص: هر نقطه به نزدیک‌ترین مرکز
+            similarities = X @ self.centroids_.T  # cosine similarity
+            self.labels_ = np.argmax(similarities, axis=1)
+            
+            # گام به‌روزرسانی: محاسبه مراکز جدید
+            for k in range(self.n_clusters):
+                mask = self.labels_ == k
+                if np.sum(mask) > 0:
+                    # میانگین و نرمال‌سازی
+                    cluster_mean = X[mask].mean(axis=0)
+                    self.centroids_[k] = sphere.project(cluster_mean)
+            
+            # بررسی همگرایی
+            centroid_shift = np.max([
+                sphere.geodesic_distance(old_centroids[k], self.centroids_[k])
+                for k in range(self.n_clusters)
+            ])
+            
+            if centroid_shift < self.tol:
+                print(f"همگرا شد در تکرار {iteration + 1}")
+                break
+        
+        # محاسبه inertia
+        self.inertia_ = 0
+        for k in range(self.n_clusters):
+            mask = self.labels_ == k
+            if np.sum(mask) > 0:
+                distances = sphere.geodesic_distance(X[mask], self.centroids_[k])
+                self.inertia_ += np.sum(distances**2)
+        
+        return self
+    
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """پیش‌بینی برچسب خوشه‌ها"""
+        X = X / np.linalg.norm(X, axis=1, keepdims=True)
+        similarities = X @ self.centroids_.T
+        return np.argmax(similarities, axis=1)
+    
+    def fit_predict(self, X: np.ndarray) -> np.ndarray:
+        """آموزش و پیش‌بینی"""
+        self.fit(X)
+        return self.labels_
+
+
+class SphericalPCA:
+    """
+    PCA روی داده‌های کروی
+    
+    ابتدا داده‌ها را به فضای مماس می‌برد، سپس PCA اجرا می‌کند
+    """
+    
+    def __init__(self, n_components: int):
+        self.n_components = n_components
+        self.mean_ = None
+        self.components_ = None
+        self.explained_variance_ = None
+    
+    def fit(self, X: np.ndarray) -> 'SphericalPCA':
+        """آموزش مدل"""
+        n_features = X.shape[1]
+        sphere = Hypersphere(n_features - 1)
+        
+        # نرمال‌سازی
+        X = sphere.project(X)
+        
+        # محاسبه میانگین فرشه
+        self.mean_ = sphere.frechet_mean(X)
+        
+        # انتقال به فضای مماس
+        tangent_vectors = np.array([sphere.log_map(self.mean_, x) for x in X])
+        
+        # PCA در فضای مماس
+        centered = tangent_vectors - tangent_vectors.mean(axis=0)
+        cov = centered.T @ centered / (len(X) - 1)
+        
+        eigenvalues, eigenvectors = np.linalg.eigh(cov)
+        
+        # مرتب‌سازی نزولی
+        idx = np.argsort(eigenvalues)[::-1]
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[:, idx]
+        
+        self.components_ = eigenvectors[:, :self.n_components].T
+        self.explained_variance_ = eigenvalues[:self.n_components]
+        
+        return self
+    
+    def transform(self, X: np.ndarray) -> np.ndarray:
+        """تبدیل داده‌ها به فضای کاهش‌یافته"""
+        n_features = X.shape[1]
+        sphere = Hypersphere(n_features - 1)
+        
+        X = sphere.project(X)
+        tangent_vectors = np.array([sphere.log_map(self.mean_, x) for x in X])
+        
+        return tangent_vectors @ self.components_.T
+    
+    def inverse_transform(self, X_reduced: np.ndarray) -> np.ndarray:
+        """بازسازی داده‌ها روی کره"""
+        n_features = self.mean_.shape[0]
+        sphere = Hypersphere(n_features - 1)
+        
+        tangent_vectors = X_reduced @ self.components_
+        
+        return np.array([sphere.exp_map(self.mean_, v) for v in tangent_vectors])
+
+
+def cosine_similarity_matrix(X: np.ndarray) -> np.ndarray:
+    """ماتریس شباهت کسینوسی"""
+    X_norm = X / np.linalg.norm(X, axis=1, keepdims=True)
+    return X_norm @ X_norm.T
+
+
+def spherical_interpolation(p: np.ndarray, q: np.ndarray, 
+                            t: float) -> np.ndarray:
+    """
+    درون‌یابی کروی (SLERP)
+    
+    Parameters
+    ----------
+    p, q : نقاط روی کره
+    t : پارامتر درون‌یابی در [0, 1]
+    
+    Returns
+    -------
+    نقطه درون‌یابی شده
+    """
+    p = p / np.linalg.norm(p)
+    q = q / np.linalg.norm(q)
+    
+    dot = np.clip(np.dot(p, q), -1.0, 1.0)
+    theta = np.arccos(dot)
+    
+    if theta < 1e-10:
+        return p
+    
+    sin_theta = np.sin(theta)
+    return (np.sin((1-t)*theta)/sin_theta) * p + (np.sin(t*theta)/sin_theta) * q
+
+
+# ═══════════════════════════════════════════════════════════════
+# مثال استفاده
+# ═══════════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    print("=" * 60)
+    print("آزمایش یادگیری ماشین روی کره")
+    print("=" * 60)
+    
+    # تولید داده‌های مصنوعی روی S²
+    s2 = Hypersphere(2)
+    
+    # سه خوشه با مراکز مختلف
+    centers = [
+        np.array([1, 0, 0]),
+        np.array([0, 1, 0]),
+        np.array([0, 0, 1]),
+    ]
+    
+    data = []
+    true_labels = []
+    
+    for i, center in enumerate(centers):
+        samples = s2.sample_vmf(center, kappa=20, size=50)
+        data.append(samples)
+        true_labels.extend([i] * 50)
+    
+    X = np.vstack(data)
+    y_true = np.array(true_labels)
+    
+    print(f"\nداده‌ها: {X.shape[0]} نمونه در {X.shape[1]} بُعد")
+    
+    # Spherical K-Means
+    print("\n--- Spherical K-Means ---")
+    skmeans = SphericalKMeans(n_clusters=3, random_state=42)
+    y_pred = skmeans.fit_predict(X)
+    
+    # دقت (با در نظر گرفتن جایگشت برچسب‌ها)
+    from itertools import permutations
+    
+    best_acc = 0
+    for perm in permutations([0, 1, 2]):
+        mapped = np.array([perm[l] for l in y_pred])
+        acc = np.mean(mapped == y_true)
+        best_acc = max(best_acc, acc)
+    
+    print(f"دقت خوشه‌بندی: {best_acc:.2%}")
+    print(f"Inertia: {skmeans.inertia_:.4f}")
+    
+    # Spherical PCA
+    print("\n--- Spherical PCA ---")
+    spca = SphericalPCA(n_components=2)
+    spca.fit(X)
+    X_reduced = spca.transform(X)
+    
+    print(f"شکل داده کاهش‌یافته: {X_reduced.shape}")
+    print(f"واریانس توضیح‌داده‌شده: {spca.explained_variance_}")
+    
+    # SLERP
+    print("\n--- SLERP (درون‌یابی کروی) ---")
+    p = np.array([1, 0, 0])
+    q = np.array([0, 1, 0])
+    
+    for t in [0, 0.25, 0.5, 0.75, 1.0]:
+        interp = spherical_interpolation(p, q, t)
+        print(f"t={t:.2f}: {interp}")
+    
+    print("\n" + "=" * 60)
+    print("✅ همه آزمایش‌ها با موفقیت انجام شد!")
+    print("=" * 60)</code></pre>
+                </div>
+            </div>
+
+            <h3>🧮 محاسبات عددی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>numerical_examples.py</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)">
+                        <span>📋</span> کپی
+                    </button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+مثال‌های عددی برای درک بهتر ابرکره‌ها
+"""
+
+import numpy as np
+from scipy.special import gamma
+from hypersphere import Hypersphere
+
+
+def demonstrate_dimensions():
+    """نمایش ویژگی‌های ابعاد مختلف"""
+    
+    print("=" * 70)
+    print("ویژگی‌های ابرکره‌های مختلف")
+    print("=" * 70)
+    print(f"{'n':<5} {'Sⁿ':<8} {'Ambient':<10} {'Volume':<15} {'Ball Vol':<15}")
+    print("-" * 70)
+    
+    for n in range(8):
+        sphere = Hypersphere(n)
+        vol = sphere.volume()
+        ball_vol = sphere.ball_volume()
+        
+        print(f"{n:<5} S^{n:<6} R^{n+1:<8} {vol:<15.6f} {ball_vol:<15.6f}")
+    
+    print("-" * 70)
+
+
+def demonstrate_geodesics():
+    """نمایش ژئودزیک‌ها روی S²"""
+    
+    print("\n" + "=" * 70)
+    print("ژئودزیک‌ها روی S²")
+    print("=" * 70)
+    
+    s2 = Hypersphere(2)
+    
+    # نقاط مشخص
+    north_pole = np.array([0, 0, 1])
+    equator_x = np.array([1, 0, 0])
+    equator_y = np.array([0, 1, 0])
+    south_pole = np.array([0, 0, -1])
+    
+    pairs = [
+        ("قطب شمال", "استوا (x)", north_pole, equator_x),
+        ("قطب شمال", "قطب جنوب", north_pole, south_pole),
+        ("استوا (x)", "استوا (y)", equator_x, equator_y),
+    ]
+    
+    for name1, name2, p1, p2 in pairs:
+        geo_dist = s2.geodesic_distance(p1, p2)
+        chord_dist = s2.chord_distance(p1, p2)
+        
+        print(f"\n{name1} ↔ {name2}:")
+        print(f"  فاصله ژئودزیک: {geo_dist:.4f} rad = {np.degrees(geo_dist):.2f}°")
+        print(f"  فاصله وتری:   {chord_dist:.4f}")
+        print(f"  نسبت:         {geo_dist/chord_dist:.4f}")
+
+
+def demonstrate_exp_log_maps():
+    """نمایش نگاشت‌های نمایی و لگاریتمی"""
+    
+    print("\n" + "=" * 70)
+    print("نگاشت‌های نمایی و لگاریتمی")
+    print("=" * 70)
+    
+    s2 = Hypersphere(2)
+    
+    # شروع از قطب شمال
+    p = np.array([0, 0, 1])
+    print(f"\nنقطه شروع p = {p}")
+    
+    # حرکت در جهات مختلف
+    tangent_vectors = [
+        ("شرق", np.array([1, 0, 0])),
+        ("شمال‌شرق", np.array([1, 1, 0]) / np.sqrt(2)),
+        ("شمال", np.array([0, 1, 0])),
+    ]
+    
+    distances = [0.5, 1.0, np.pi/2]
+    
+    for direction_name, v_unit in tangent_vectors:
+        print(f"\n  جهت: {direction_name}")
+        for d in distances:
+            v = d * v_unit
+            q = s2.exp_map(p, v)
+            
+            # بررسی معکوس
+            v_back = s2.log_map(p, q)
+            error = np.linalg.norm(v - v_back)
+            
+            print(f"    d={d:.2f}: exp_p(v) = [{q[0]:.3f}, {q[1]:.3f}, {q[2]:.3f}]"
+                  f"  (خطای برگشت: {error:.2e})")
+
+
+def demonstrate_sampling():
+    """نمایش نمونه‌برداری از کره"""
+    
+    print("\n" + "=" * 70)
+    print("نمونه‌برداری از S²")
+    print("=" * 70)
+    
+    s2 = Hypersphere(2)
+    
+    # نمونه‌برداری یکنواخت
+    n_samples = 10000
+    uniform_samples = s2.uniform_sample(n_samples)
+    
+    # بررسی یکنواختی: توزیع z باید یکنواخت در [-1, 1] باشد
+    z_values = uniform_samples[:, 2]
+    
+    print(f"\nنمونه‌برداری یکنواخت ({n_samples} نمونه):")
+    print(f"  میانگین z: {z_values.mean():.4f} (باید ≈ 0 باشد)")
+    print(f"  انحراف معیار z: {z_values.std():.4f} (باید ≈ 0.577 باشد)")
+    
+    # نمونه‌برداری vMF
+    mu = np.array([0, 0, 1])
+    for kappa in [1, 10, 100]:
+        vmf_samples = s2.sample_vmf(mu, kappa, size=1000)
+        mean_z = vmf_samples[:, 2].mean()
+        
+        # مقدار نظری E[z] برای vMF
+        # E[cos(θ)] = coth(κ) - 1/κ (تقریب برای κ بزرگ)
+        expected_z = 1/np.tanh(kappa) - 1/kappa if kappa > 0 else 0
+        
+        print(f"\nvMF با κ={kappa}:")
+        print(f"  میانگین z تجربی: {mean_z:.4f}")
+        print(f"  میانگین z نظری:  {expected_z:.4f}")
+
+
+def demonstrate_quaternions():
+    """نمایش ارتباط S³ و کواترنیون‌ها"""
+    
+    print("\n" + "=" * 70)
+    print("S³ و کواترنیون‌ها")
+    print("=" * 70)
+    
+    s3 = Hypersphere(3)
+    
+    # کواترنیون واحد = نقطه روی S³
+    # q = a + bi + cj + dk  ↔  (a, b, c, d) ∈ S³
+    
+    def quaternion_multiply(q1, q2):
+        """ضرب کواترنیونی"""
+        a1, b1, c1, d1 = q1
+        a2, b2, c2, d2 = q2
+        return np.array([
+            a1*a2 - b1*b2 - c1*c2 - d1*d2,
+            a1*b2 + b1*a2 + c1*d2 - d1*c2,
+            a1*c2 - b1*d2 + c1*a2 + d1*b2,
+            a1*d2 + b1*c2 - c1*b2 + d1*a2
+        ])
+    
+    def quaternion_conjugate(q):
+        """مزدوج کواترنیون"""
+        return np.array([q[0], -q[1], -q[2], -q[3]])
+    
+    # دو کواترنیون واحد تصادفی
+    q1 = s3.uniform_sample(1)[0]
+    q2 = s3.uniform_sample(1)[0]
+    
+    print(f"\nq₁ = {q1}")
+    print(f"q₂ = {q2}")
+    print(f"|q₁| = {np.linalg.norm(q1):.6f}")
+    print(f"|q₂| = {np.linalg.norm(q2):.6f}")
+    
+    # ضرب
+    q_product = quaternion_multiply(q1, q2)
+    print(f"\nq₁ × q₂ = {q_product}")
+    print(f"|q₁ × q₂| = {np.linalg.norm(q_product):.6f} (باید 1 باشد)")
+    
+    # معکوس (برای کواترنیون واحد = مزدوج)
+    q1_inv = quaternion_conjugate(q1)
+    identity = quaternion_multiply(q1, q1_inv)
+    print(f"\nq₁ × q₁* = {identity} (باید [1,0,0,0] باشد)")
+
+
+if __name__ == "__main__":
+    demonstrate_dimensions()
+    demonstrate_geodesics()
+    demonstrate_exp_log_maps()
+    demonstrate_sampling()
+    demonstrate_quaternions()
+    
+    print("\n" + "=" * 70)
+    print("✅ همه نمایش‌ها با موفقیت انجام شد!")
+    print("=" * 70)</code></pre>
+                </div>
+            </div>
+
+            <h3>📦 نصب و استفاده</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon txt">BASH</div>
+                        <span>installation</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># نصب وابستگی‌ها
+pip install numpy scipy matplotlib
+
+# برای یادگیری ماشین پیشرفته
+pip install scikit-learn torch
+
+# برای Spherical CNNs (اختیاری)
+pip install e3nn spherical-cnn
+
+# اجرای مثال‌ها
+python hypersphere.py
+python visualize_spheres.py
+python spherical_ml.py
+python numerical_examples.py</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SUMMARY
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="summary">
+            <div class="section-header">
+                <div class="section-icon cosmic">📝</div>
+                <div class="section-title-group">
+                    <div class="section-number">خلاصه</div>
+                    <h2 class="section-title">جمع‌بندی و نکات کلیدی</h2>
+                    <p class="section-subtitle">مرور سریع مفاهیم اصلی</p>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">🎯</div>
+                <div class="info-content">
+                    <h4>نکات کلیدی برای به خاطر سپردن</h4>
+                    <ul>
+                        <li><strong>$S^n$</strong> یک منیفلد <strong>n-بعدی</strong> در فضای <strong>(n+1)-بعدی</strong> است</li>
+                        <li><strong>تعریف:</strong> $S^n = \{\mathbf{x} \in \mathbb{R}^{n+1} : \|\mathbf{x}\| = 1\}$</li>
+                        <li><strong>فاصله ژئودزیک:</strong> $d(\mathbf{x}, \mathbf{y}) = \arccos(\mathbf{x} \cdot \mathbf{y})$</li>
+                        <li><strong>ژئودزیک‌ها:</strong> دایره‌های بزرگ (Great Circles)</li>
+                        <li><strong>$S^1 \cong U(1)$</strong> و <strong>$S^3 \cong SU(2)$</strong> گروه‌های Lie هستند</li>
+                        <li><strong>توزیع vMF:</strong> معادل گاوسی روی کره</li>
+                        <li><strong>Cosine similarity</strong> = ضرب داخلی بردارهای نرمال = $\cos(d_{geo})$</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>📊 فرمول‌های مهم</h3>
+            <div class="math-block">
+                <div class="math-block-title">🔹 خلاصه فرمول‌ها</div>
+                $$\begin{aligned}
+                &\textbf{تعریف:} & S^n &= \{\mathbf{x} \in \mathbb{R}^{n+1} : \|\mathbf{x}\| = 1\} \\[10pt]
+                &\textbf{فاصله:} & d(\mathbf{x}, \mathbf{y}) &= \arccos(\mathbf{x} \cdot \mathbf{y}) \\[10pt]
+                &\textbf{حجم:} & \text{Vol}(S^n) &= \frac{2\pi^{(n+1)/2}}{\Gamma((n+1)/2)} \\[10pt]
+                &\textbf{Exp map:} & \exp_p(v) &= \cos(\|v\|)p + \sin(\|v\|)\frac{v}{\|v\|} \\[10pt]
+                &\textbf{vMF:} & f(x; \mu, \kappa) &= C_p(\kappa) \exp(\kappa \mu^T x)
+                \end{aligned}$$
+            </div>
+
+            <h3>🔗 منابع بیشتر</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon purple">📚</div>
+                    <h4 class="card-title">کتاب‌ها</h4>
+                    <p class="card-description">
+                        • <em>Riemannian Geometry</em> — do Carmo<br>
+                        • <em>Topology</em> — Munkres<br>
+                        • <em>Lie Groups</em> — Hall
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">🔬</div>
+                    <h4 class="card-title">مقالات ML</h4>
+                    <p class="card-description">
+                        • Hyperspherical Variational Auto-Encoders<br>
+                        • Spherical CNNs<br>
+                        • von Mises-Fisher Mixture Models
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon pink">💻</div>
+                    <h4 class="card-title">کتابخانه‌ها</h4>
+                    <p class="card-description">
+                        • <code>geomstats</code> — هندسه روی منیفلدها<br>
+                        • <code>e3nn</code> — شبکه‌های عصبی هم‌ورد<br>
+                        • <code>spherical-cnn</code> — CNN کروی
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:1rem;">
+                <div class="logo-icon" style="width:50px;height:50px;font-size:1.3rem;">Sⁿ</div>
+                <span style="font-size:1.4rem; font-weight:800; background:var(--gradient-cosmic); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                    Hypersphere Tutorial
+                </span>
+            </div>
+            <p style="color:var(--text-secondary); margin-bottom:1rem;">
+                آموزش جامع ابرکره n-بعدی
+            </p>
+            <div class="footer-links">
+                <a href="https://en.wikipedia.org/wiki/N-sphere" target="_blank">Wikipedia</a>
+                <a href="https://mathworld.wolfram.com/Hypersphere.html" target="_blank">MathWorld</a>
+                <a href="https://geomstats.github.io/" target="_blank">Geomstats</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای علاقه‌مندان ریاضیات و یادگیری ماشین
+                <br>
+                <a href="https://claude.ai" target="_blank">Claude AI</a> | بهمن ۱۴۰۴
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+
+    <script>
+        // Initialize highlight.js
+        hljs.highlightAll();
+
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✅</span> کپی شد';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            }).catch(err => {
+                // Fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+
+                button.classList.add('copied');
+                button.innerHTML = '<span>✅</span> کپی شد';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            });
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Active nav on scroll
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function updateActiveNav() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNav);
+        window.addEventListener('load', updateActiveNav);
+
+        // Intersection Observer for animations
+        const observerOptions = { threshold: 0.05, rootMargin: '0px 0px -50px 0px' };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card, .code-block, .info-box, .theorem-box, .math-block, .table-container').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        console.log('%c🌐 Hypersphere Sⁿ Tutorial', 'font-size:20px; color:#a855f7; font-weight:bold;');
+        console.log('%cTopology • Geometry • Machine Learning', 'font-size:12px; color:#a5b4fc;');
+    </script>
+</body>
+</html>

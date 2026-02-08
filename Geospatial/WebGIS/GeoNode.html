@@ -1,0 +1,4828 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آموزش جامع GeoNode | پلتفرم متن‌باز مدیریت داده‌های مکانی</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
+    <style>
+        /* ═══════════════════════════════════════════════════
+           CSS VARIABLES — GeoNode Earth Theme
+           ═══════════════════════════════════════════════════ */
+        :root {
+            --primary: #1a5276;
+            --primary-light: #2980b9;
+            --primary-dark: #0e3d5c;
+            --accent: #27ae60;
+            --accent-light: #2ecc71;
+            --accent-dark: #1e8449;
+            --secondary: #e67e22;
+            --secondary-light: #f39c12;
+            --tertiary: #8e44ad;
+            --tertiary-light: #9b59b6;
+            --red: #e74c3c;
+            --red-light: #f1948a;
+            --cyan: #17a2b8;
+            --cyan-light: #1dd1a1;
+            --gold: #f1c40f;
+            --pink: #e84393;
+
+            --bg-primary: #0a1628;
+            --bg-secondary: #0f1f36;
+            --bg-tertiary: #162a46;
+            --bg-card: #12233d;
+            --bg-code: #0d1b2a;
+
+            --text-primary: #ecf0f1;
+            --text-secondary: #a8c4d8;
+            --text-muted: #5d7f96;
+
+            --border-color: #1e3a56;
+            --border-light: #2a4a6a;
+
+            --gradient-geo: linear-gradient(135deg, #27ae60 0%, #2980b9 50%, #1a5276 100%);
+            --gradient-earth: linear-gradient(135deg, #1a5276 0%, #27ae60 50%, #f39c12 100%);
+            --gradient-ocean: linear-gradient(135deg, #0f3443 0%, #34e89e 100%);
+            --gradient-forest: linear-gradient(135deg, #1e8449 0%, #27ae60 50%, #2ecc71 100%);
+            --gradient-sunset: linear-gradient(135deg, #e67e22 0%, #e74c3c 50%, #8e44ad 100%);
+
+            --shadow-sm: 0 2px 6px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+            --shadow-glow-green: 0 0 30px rgba(39, 174, 96, 0.2);
+            --shadow-glow-blue: 0 0 30px rgba(41, 128, 185, 0.2);
+
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 22px;
+            --radius-xl: 30px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 2;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        /* Topographic Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                radial-gradient(ellipse at 20% 80%, rgba(39,174,96,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(41,128,185,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(230,126,34,0.03) 0%, transparent 50%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-light); }
+        ::selection { background: var(--accent); color: white; }
+
+        /* ═══════════════════════════════════════════════════
+           HEADER
+           ═══════════════════════════════════════════════════ */
+        .header {
+            background: rgba(15, 31, 54, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.8rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-geo);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-glow-green);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-icon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: var(--gradient-geo);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle { font-size: 0.72rem; color: var(--text-muted); }
+
+        .nav {
+            display: flex;
+            gap: 0.2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.4rem 0.7rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.78rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+        .nav-link.active { color: var(--accent-light); background: rgba(39,174,96,0.15); }
+
+        /* ═══════════════════════════════════════════════════
+           HERO
+           ═══════════════════════════════════════════════════ */
+        .hero {
+            padding: 5rem 2rem 4rem;
+            background: var(--bg-secondary);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 30% 40%, rgba(39,174,96,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(41,128,185,0.1) 0%, transparent 50%);
+        }
+
+        /* Map Grid Pattern */
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image:
+                linear-gradient(rgba(39,174,96,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(39,174,96,0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(39,174,96,0.15);
+            border: 1px solid rgba(39,174,96,0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.88rem;
+            color: var(--accent-light);
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.2rem, 5vw, 3.6rem);
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .hero-title .highlight {
+            background: var(--gradient-geo);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            font-size: 1.12rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--gradient-geo);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-stat-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        /* Tech Stack Badges */
+        .tech-stack {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 2.5rem;
+        }
+
+        .tech-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .tech-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot.python { background: #3776AB; }
+        .dot.django { background: #092E20; }
+        .dot.geoserver { background: #27ae60; }
+        .dot.postgres { background: #336791; }
+        .dot.mapstore { background: #e67e22; }
+        .dot.docker { background: #2496ED; }
+
+        /* ═══════════════════════════════════════════════════
+           MAIN CONTENT
+           ═══════════════════════════════════════════════════ */
+        .main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.6rem;
+            list-style: none;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.65rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .toc-link:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+        .toc-num {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            flex-shrink: 0;
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 90px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section-icon {
+            width: 65px;
+            height: 65px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+        }
+
+        .section-icon.green { background: var(--gradient-forest); box-shadow: var(--shadow-glow-green); }
+        .section-icon.blue { background: linear-gradient(135deg, #2980b9, #1a5276); box-shadow: var(--shadow-glow-blue); }
+        .section-icon.orange { background: linear-gradient(135deg, #e67e22, #f39c12); }
+        .section-icon.purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+        .section-icon.red { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .section-icon.cyan { background: linear-gradient(135deg, #17a2b8, #1dd1a1); }
+        .section-icon.geo { background: var(--gradient-geo); box-shadow: var(--shadow-glow-green); }
+        .section-icon.earth { background: var(--gradient-earth); }
+        .section-icon.gold { background: linear-gradient(135deg, #f1c40f, #f39c12); }
+
+        .section-title-group { flex: 1; }
+
+        .section-number {
+            font-size: 0.82rem;
+            color: var(--accent-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.4rem;
+        }
+
+        .section-title { font-size: 1.9rem; font-weight: 800; margin-bottom: 0.4rem; }
+
+        .section-subtitle { font-size: 0.95rem; color: var(--text-secondary); }
+
+        h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        h4 { font-size: 1.05rem; font-weight: 600; margin: 1.5rem 0 0.7rem; color: var(--accent-light); }
+
+        p { margin-bottom: 1.1rem; color: var(--text-secondary); line-height: 2; }
+        ul, ol { margin: 1rem 0 1.5rem 1.5rem; color: var(--text-secondary); }
+        li { margin-bottom: 0.6rem; line-height: 1.9; }
+        strong { color: var(--text-primary); font-weight: 600; }
+        a { color: var(--accent-light); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 1.4rem;
+            border-radius: var(--radius-md);
+            margin: 1.5rem 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .info-box.tip { background: rgba(39,174,96,0.08); border: 1px solid rgba(39,174,96,0.25); }
+        .info-box.note { background: rgba(41,128,185,0.08); border: 1px solid rgba(41,128,185,0.25); }
+        .info-box.warning { background: rgba(230,126,34,0.08); border: 1px solid rgba(230,126,34,0.25); }
+        .info-box.danger { background: rgba(231,76,60,0.08); border: 1px solid rgba(231,76,60,0.25); }
+        .info-box.info { background: rgba(23,162,184,0.08); border: 1px solid rgba(23,162,184,0.25); }
+
+        .info-icon { font-size: 1.4rem; flex-shrink: 0; }
+        .info-content h4 { margin: 0 0 0.5rem; color: var(--text-primary); font-size: 1rem; }
+        .info-content p { margin: 0; font-size: 0.92rem; }
+        .info-content ul { margin: 0.5rem 0 0 1rem; }
+
+        /* Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.6rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg), var(--shadow-glow-green);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon.green { background: rgba(39,174,96,0.15); }
+        .card-icon.blue { background: rgba(41,128,185,0.15); }
+        .card-icon.orange { background: rgba(230,126,34,0.15); }
+        .card-icon.purple { background: rgba(142,68,173,0.15); }
+        .card-icon.red { background: rgba(231,76,60,0.15); }
+        .card-icon.cyan { background: rgba(23,162,184,0.15); }
+        .card-icon.gold { background: rgba(241,196,15,0.15); }
+        .card-icon.pink { background: rgba(232,67,147,0.15); }
+
+        .card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem; color: var(--text-primary); }
+        .card-description { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; }
+
+        /* Code Block */
+        .code-block {
+            background: var(--bg-code);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-header {
+            background: var(--bg-tertiary);
+            padding: 0.75rem 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .code-lang-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .code-lang-icon.bash { background: #4EAA25; color: white; }
+        .code-lang-icon.python { background: #3776AB; color: white; }
+        .code-lang-icon.yaml { background: #CB171E; color: white; }
+        .code-lang-icon.json { background: #292929; color: #f1c40f; }
+        .code-lang-icon.html { background: #E34F26; color: white; }
+        .code-lang-icon.sql { background: #336791; color: white; }
+        .code-lang-icon.nginx { background: #009639; color: white; }
+        .code-lang-icon.docker { background: #2496ED; color: white; }
+        .code-lang-icon.txt { background: #64748b; color: white; }
+
+        .code-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.35rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.76rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-family: inherit;
+        }
+
+        .code-btn:hover { background: var(--accent); border-color: var(--accent); color: white; }
+        .code-btn.copied { background: #27ae60; border-color: #27ae60; color: white; }
+
+        .code-body { padding: 1.2rem; overflow-x: auto; }
+        .code-body pre { margin: 0; background: transparent; }
+
+        .code-body code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.86rem;
+            line-height: 1.7;
+            background: transparent;
+            direction: ltr;
+            text-align: left;
+        }
+
+        code:not([class*="language-"]) {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85em;
+            color: var(--accent-light);
+            border: 1px solid var(--border-color);
+            direction: ltr;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        th, td { padding: 0.8rem 1rem; text-align: right; border-bottom: 1px solid var(--border-color); }
+        th { background: var(--bg-tertiary); font-weight: 600; color: var(--text-primary); }
+        td { color: var(--text-secondary); }
+        tr:hover td { background: var(--bg-secondary); }
+
+        /* Architecture Diagram */
+        .arch-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .arch-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .arch-layer {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.95rem;
+            position: relative;
+            border: 1px solid;
+        }
+
+        .arch-layer.client {
+            background: rgba(41,128,185,0.12);
+            border-color: rgba(41,128,185,0.3);
+            color: var(--primary-light);
+        }
+
+        .arch-layer.frontend {
+            background: rgba(230,126,34,0.12);
+            border-color: rgba(230,126,34,0.3);
+            color: var(--secondary-light);
+        }
+
+        .arch-layer.backend {
+            background: rgba(39,174,96,0.12);
+            border-color: rgba(39,174,96,0.3);
+            color: var(--accent-light);
+        }
+
+        .arch-layer.services {
+            background: rgba(142,68,173,0.12);
+            border-color: rgba(142,68,173,0.3);
+            color: var(--tertiary-light);
+        }
+
+        .arch-layer.data {
+            background: rgba(231,76,60,0.12);
+            border-color: rgba(231,76,60,0.3);
+            color: var(--red-light);
+        }
+
+        .arch-layer-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-top: 0.3rem;
+        }
+
+        .arch-arrow {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+
+        /* Steps */
+        .steps { margin: 2rem 0; }
+
+        .step {
+            display: flex;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+            padding: 1.2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: all 0.3s ease;
+        }
+
+        .step:hover { border-color: var(--accent); }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-geo);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .step-content { flex: 1; }
+        .step-title { font-weight: 600; margin-bottom: 0.3rem; color: var(--text-primary); }
+        .step-description { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge.green { background: rgba(39,174,96,0.15); color: var(--accent-light); border: 1px solid rgba(39,174,96,0.3); }
+        .badge.blue { background: rgba(41,128,185,0.15); color: var(--primary-light); border: 1px solid rgba(41,128,185,0.3); }
+        .badge.orange { background: rgba(230,126,34,0.15); color: var(--secondary-light); border: 1px solid rgba(230,126,34,0.3); }
+        .badge.red { background: rgba(231,76,60,0.15); color: var(--red-light); border: 1px solid rgba(231,76,60,0.3); }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content { max-width: 800px; margin: 0 auto; }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.88rem; }
+        .footer-links a:hover { color: var(--accent-light); }
+        .copyright { color: var(--text-muted); font-size: 0.82rem; }
+        .copyright a { color: var(--accent-light); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; text-align: center; }
+            .nav { justify-content: center; }
+            .hero { padding: 3rem 1.5rem; }
+            .hero-stats { gap: 1.5rem; }
+            .section-header { flex-direction: column; text-align: center; }
+            .section-icon { margin: 0 auto; }
+            .main { padding: 2rem 1rem; }
+            .arch-layers { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">🌍</div>
+                <div>
+                    <div class="logo-text">GeoNode</div>
+                    <div class="logo-subtitle">Geospatial Content Management System</div>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="#intro" class="nav-link active">معرفی</a>
+                <a href="#architecture" class="nav-link">معماری</a>
+                <a href="#install" class="nav-link">نصب</a>
+                <a href="#data" class="nav-link">داده‌ها</a>
+                <a href="#maps" class="nav-link">نقشه‌ها</a>
+                <a href="#api" class="nav-link">API</a>
+                <a href="#admin" class="nav-link">مدیریت</a>
+                <a href="#customize" class="nav-link">سفارشی‌سازی</a>
+                <a href="#security" class="nav-link">امنیت</a>
+                <a href="#deploy" class="nav-link">استقرار</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>🌐</span>
+                <span>Open Source Geospatial CMS — v4.x</span>
+            </div>
+            <h1 class="hero-title">
+                آموزش جامع
+                <span class="highlight">GeoNode</span>
+            </h1>
+            <p class="hero-description">
+                پلتفرم متن‌باز مدیریت، اشتراک‌گذاری و انتشار داده‌های مکانی.
+                از آپلود لایه‌ها تا ساخت نقشه‌های تعاملی، مدیریت فراداده و API‌های استاندارد OGC.
+            </p>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">۲۰۰۹</div>
+                    <div class="hero-stat-label">سال شروع توسعه</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">OGC</div>
+                    <div class="hero-stat-label">استانداردهای مکانی</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">SDI</div>
+                    <div class="hero-stat-label">زیرساخت داده مکانی</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">FOSS</div>
+                    <div class="hero-stat-label">کاملاً متن‌باز</div>
+                </div>
+            </div>
+
+            <div class="tech-stack">
+                <div class="tech-badge"><span class="dot python"></span>Python / Django</div>
+                <div class="tech-badge"><span class="dot geoserver"></span>GeoServer</div>
+                <div class="tech-badge"><span class="dot postgres"></span>PostgreSQL / PostGIS</div>
+                <div class="tech-badge"><span class="dot mapstore"></span>MapStore 2</div>
+                <div class="tech-badge"><span class="dot docker"></span>Docker</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- TOC -->
+        <div class="toc">
+            <h2 class="toc-title">📚 فهرست مطالب</h2>
+            <ul class="toc-grid">
+                <li><a href="#intro" class="toc-link"><span class="toc-num">۱</span>معرفی GeoNode</a></li>
+                <li><a href="#architecture" class="toc-link"><span class="toc-num">۲</span>معماری و اجزا</a></li>
+                <li><a href="#install" class="toc-link"><span class="toc-num">۳</span>نصب و راه‌اندازی</a></li>
+                <li><a href="#data" class="toc-link"><span class="toc-num">۴</span>مدیریت داده‌ها</a></li>
+                <li><a href="#maps" class="toc-link"><span class="toc-num">۵</span>نقشه‌ها و تجسم</a></li>
+                <li><a href="#api" class="toc-link"><span class="toc-num">۶</span>API و سرویس‌های OGC</a></li>
+                <li><a href="#admin" class="toc-link"><span class="toc-num">۷</span>مدیریت و کاربران</a></li>
+                <li><a href="#customize" class="toc-link"><span class="toc-num">۸</span>سفارشی‌سازی و توسعه</a></li>
+                <li><a href="#security" class="toc-link"><span class="toc-num">۹</span>امنیت و پشتیبان‌گیری</a></li>
+                <li><a href="#deploy" class="toc-link"><span class="toc-num">۱۰</span>استقرار Production</a></li>
+            </ul>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 1: INTRODUCTION
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="intro">
+            <div class="section-header">
+                <div class="section-icon geo">🌍</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل اول</div>
+                    <h2 class="section-title">معرفی GeoNode</h2>
+                    <p class="section-subtitle">پلتفرم متن‌باز مدیریت داده‌های مکانی</p>
+                </div>
+            </div>
+
+            <h3>🤔 GeoNode چیست؟</h3>
+            <p>
+                <strong>GeoNode</strong> یک <strong>سامانه مدیریت محتوای مکانی</strong> 
+                (Geospatial Content Management System) متن‌باز است که بر پایه 
+                <strong>Django</strong> ساخته شده و امکان آپلود، مدیریت، اشتراک‌گذاری و انتشار 
+                داده‌های جغرافیایی (وکتور و رستر) را فراهم می‌کند.
+            </p>
+            <p>
+                GeoNode به عنوان یک <strong>زیرساخت داده مکانی</strong> (SDI — Spatial Data Infrastructure) 
+                عمل می‌کند و از استانداردهای بین‌المللی <strong>OGC</strong> 
+                (Open Geospatial Consortium) پشتیبانی می‌کند.
+            </p>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>به زبان ساده</h4>
+                    <p>
+                        GeoNode مثل <strong>WordPress</strong> است اما برای <strong>داده‌های مکانی</strong>.
+                        همانطور که WordPress مدیریت مطالب وب را آسان می‌کند، GeoNode مدیریت 
+                        لایه‌های نقشه، نقشه‌های تعاملی و فراداده‌های مکانی را ساده می‌کند.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🎯 قابلیت‌های اصلی</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon green">📤</div>
+                    <h4 class="card-title">آپلود داده</h4>
+                    <p class="card-description">
+                        آپلود آسان Shapefile, GeoTIFF, GeoJSON, KML, CSV و ده‌ها فرمت دیگر.
+                        پردازش خودکار و انتشار به عنوان سرویس وب.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon blue">🗺️</div>
+                    <h4 class="card-title">ساخت نقشه</h4>
+                    <p class="card-description">
+                        ساخت نقشه‌های تعاملی با ترکیب لایه‌های مختلف.
+                        ابزار MapStore 2 با قابلیت‌های پیشرفته.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">📋</div>
+                    <h4 class="card-title">فراداده (Metadata)</h4>
+                    <p class="card-description">
+                        مدیریت فراداده مطابق استاندارد ISO 19115.
+                        جستجوی پیشرفته و کاتالوگ CSW.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon purple">🔗</div>
+                    <h4 class="card-title">سرویس‌های OGC</h4>
+                    <p class="card-description">
+                        WMS, WFS, WCS, WMTS, CSW.
+                        سازگار با تمام نرم‌افزارهای GIS.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">👥</div>
+                    <h4 class="card-title">مدیریت کاربران</h4>
+                    <p class="card-description">
+                        سیستم مجوزدهی پیشرفته. نقش‌ها و گروه‌ها.
+                        کنترل دسترسی در سطح لایه و نقشه.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon gold">🔌</div>
+                    <h4 class="card-title">API کامل</h4>
+                    <p class="card-description">
+                        REST API برای تمام عملیات.
+                        GraphQL (اختیاری).
+                        یکپارچه‌سازی با سیستم‌های دیگر.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🏢 چه کسانی از GeoNode استفاده می‌کنند؟</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>سازمان</th>
+                            <th>کاربرد</th>
+                            <th>مقیاس</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>بانک جهانی</strong> (World Bank)</td>
+                            <td>مدیریت ریسک بلایا و توسعه</td>
+                            <td>جهانی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>سازمان ملل</strong> (UN)</td>
+                            <td>مدیریت بحران و کمک‌های بشردوستانه</td>
+                            <td>جهانی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>USAID</strong></td>
+                            <td>پروژه‌های توسعه و محیط زیست</td>
+                            <td>منطقه‌ای</td>
+                        </tr>
+                        <tr>
+                            <td><strong>دولت‌ها</strong></td>
+                            <td>SDI ملی و استانی</td>
+                            <td>ملی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>دانشگاه‌ها</strong></td>
+                            <td>تحقیقات و اشتراک داده</td>
+                            <td>محلی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>NGOها</strong></td>
+                            <td>مدیریت پروژه‌های محیط زیستی</td>
+                            <td>متنوع</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>⚖️ مقایسه با ابزارهای مشابه</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ویژگی</th>
+                            <th>GeoNode</th>
+                            <th>GeoNetwork</th>
+                            <th>CKAN + Spatial</th>
+                            <th>ArcGIS Online</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>متن‌باز</strong></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                            <td><span class="badge red">❌ خیر</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>نقشه‌ساز تعاملی</strong></td>
+                            <td><span class="badge green">✅ MapStore</span></td>
+                            <td><span class="badge orange">⚠️ محدود</span></td>
+                            <td><span class="badge orange">⚠️ پلاگین</span></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>OGC Services</strong></td>
+                            <td><span class="badge green">✅ کامل</span></td>
+                            <td><span class="badge blue">CSW</span></td>
+                            <td><span class="badge orange">⚠️ محدود</span></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>مدیریت کاربران</strong></td>
+                            <td><span class="badge green">✅ Django</span></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                            <td><span class="badge green">✅ بله</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>زبان</strong></td>
+                            <td>Python / Django</td>
+                            <td>Java</td>
+                            <td>Python</td>
+                            <td>اختصاصی</td>
+                        </tr>
+                        <tr>
+                            <td><strong>هزینه</strong></td>
+                            <td><span class="badge green">رایگان</span></td>
+                            <td><span class="badge green">رایگان</span></td>
+                            <td><span class="badge green">رایگان</span></td>
+                            <td><span class="badge red">پولی</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 2: ARCHITECTURE
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="architecture">
+            <div class="section-header">
+                <div class="section-icon blue">🏗️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دوم</div>
+                    <h2 class="section-title">معماری و اجزا</h2>
+                    <p class="section-subtitle">ساختار داخلی و فناوری‌های زیرساختی</p>
+                </div>
+            </div>
+
+            <h3>📊 نمودار معماری</h3>
+            <div class="arch-diagram">
+                <h4 style="margin-bottom:1.5rem; color:var(--text-primary);">معماری لایه‌ای GeoNode</h4>
+                <div class="arch-layers">
+                    <div class="arch-layer client">
+                        🌐 کلاینت (مرورگر / QGIS / ArcGIS / موبایل)
+                        <div class="arch-layer-sub">HTTP / HTTPS — OGC Services — REST API</div>
+                    </div>
+                    <div class="arch-arrow">⬇️ ⬆️</div>
+                    <div class="arch-layer frontend">
+                        🎨 لایه نمایش — MapStore 2 / React
+                        <div class="arch-layer-sub">نقشه تعاملی | ویرایشگر استایل | داشبورد</div>
+                    </div>
+                    <div class="arch-arrow">⬇️ ⬆️</div>
+                    <div class="arch-layer backend">
+                        ⚙️ لایه منطق — Django / DRF / Celery
+                        <div class="arch-layer-sub">مدیریت لایه‌ها | فراداده | کاربران | API | Upload Pipeline</div>
+                    </div>
+                    <div class="arch-arrow">⬇️ ⬆️</div>
+                    <div class="arch-layer services">
+                        🗺️ سرویس‌های مکانی — GeoServer / pyCSW
+                        <div class="arch-layer-sub">WMS | WFS | WCS | WMTS | CSW | SLD Styling</div>
+                    </div>
+                    <div class="arch-arrow">⬇️ ⬆️</div>
+                    <div class="arch-layer data">
+                        💾 لایه داده — PostgreSQL + PostGIS / File Storage
+                        <div class="arch-layer-sub">وکتور | رستر | فراداده | Sessions | Cache (Redis/Memcached)</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🧩 اجزای اصلی</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon green">🐍</div>
+                    <h4 class="card-title">Django (هسته)</h4>
+                    <p class="card-description">
+                        فریم‌ورک وب پایتون. هسته GeoNode شامل:
+                        <br>• مدیریت لایه‌ها و نقشه‌ها
+                        <br>• سیستم کاربران و مجوزها
+                        <br>• REST API (DRF)
+                        <br>• فراداده و جستجو
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon blue">🗺️</div>
+                    <h4 class="card-title">GeoServer</h4>
+                    <p class="card-description">
+                        سرور مکانی Java-based. مسئول:
+                        <br>• ارائه سرویس‌های OGC
+                        <br>• رندر نقشه (WMS)
+                        <br>• دسترسی به فیچرها (WFS)
+                        <br>• استایل‌دهی (SLD)
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">🎨</div>
+                    <h4 class="card-title">MapStore 2</h4>
+                    <p class="card-description">
+                        کلاینت نقشه مبتنی بر React:
+                        <br>• نقشه‌ساز تعاملی
+                        <br>• ویرایشگر استایل بصری
+                        <br>• ابزارهای اندازه‌گیری
+                        <br>• داشبورد و GeoStory
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon purple">🗄️</div>
+                    <h4 class="card-title">PostgreSQL + PostGIS</h4>
+                    <p class="card-description">
+                        پایگاه داده اصلی:
+                        <br>• ذخیره داده‌های وکتور
+                        <br>• فراداده و تنظیمات
+                        <br>• کوئری‌های مکانی
+                        <br>• اطلاعات کاربران
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon cyan">📋</div>
+                    <h4 class="card-title">pyCSW</h4>
+                    <p class="card-description">
+                        سرور کاتالوگ مکانی:
+                        <br>• استاندارد OGC CSW
+                        <br>• جستجوی فراداده
+                        <br>• Harvesting از منابع دیگر
+                        <br>• ISO 19115 / Dublin Core
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon red">⏰</div>
+                    <h4 class="card-title">Celery + Redis</h4>
+                    <p class="card-description">
+                        پردازش غیرهمزمان:
+                        <br>• آپلود و پردازش فایل‌ها
+                        <br>• تولید Thumbnail
+                        <br>• همگام‌سازی با GeoServer
+                        <br>• وظایف زمان‌بندی‌شده
+                    </p>
+                </div>
+            </div>
+
+            <h3>🔄 جریان آپلود داده</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">آپلود فایل</div>
+                        <p class="step-description">کاربر فایل (Shapefile, GeoTIFF, ...) را از رابط وب آپلود می‌کند.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">اعتبارسنجی</div>
+                        <p class="step-description">Django فایل را اعتبارسنجی می‌کند (فرمت، اندازه، CRS).</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">ذخیره در PostGIS</div>
+                        <p class="step-description">داده‌های وکتور به PostGIS وارد می‌شوند. رسترها در فایل‌سیستم ذخیره می‌شوند.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">انتشار در GeoServer</div>
+                        <p class="step-description">لایه به صورت خودکار در GeoServer منتشر و سرویس‌های OGC فعال می‌شود.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">فراداده و Thumbnail</div>
+                        <p class="step-description">فراداده استخراج شده و Thumbnail تولید می‌شود. لایه آماده نمایش است.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 3: INSTALLATION
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="install">
+            <div class="section-header">
+                <div class="section-icon green">⚡</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل سوم</div>
+                    <h2 class="section-title">نصب و راه‌اندازی</h2>
+                    <p class="section-subtitle">Docker، نصب دستی و پیکربندی</p>
+                </div>
+            </div>
+
+            <h3>🐳 نصب با Docker (توصیه‌شده)</h3>
+            <div class="info-box tip">
+                <div class="info-icon">✅</div>
+                <div class="info-content">
+                    <h4>سریع‌ترین روش</h4>
+                    <p>نصب با Docker ساده‌ترین و مطمئن‌ترین روش است. تمام وابستگی‌ها خودکار مدیریت می‌شوند.</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>docker-install.sh</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# ═══════════════════════════════════════════════════════════
+# نصب GeoNode با Docker Compose
+# ═══════════════════════════════════════════════════════════
+
+# 1. پیش‌نیازها
+sudo apt update && sudo apt upgrade -y
+
+# نصب Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# نصب Docker Compose
+sudo apt install docker-compose-plugin -y
+
+# بررسی نسخه‌ها
+docker --version
+docker compose version
+
+# 2. کلون کردن GeoNode
+git clone https://github.com/GeoNode/geonode-project.git -b 4.2.x
+cd geonode-project
+
+# 3. ایجاد پروژه جدید
+# نام پروژه خود را جایگزین my_geonode کنید
+python3 -m pip install Django==4.2.*
+django-admin startproject --template=./src -e py,sh,md,rst,json,yml,ini,env,sample,properties -n monitoring-cron -n Dockerfile my_geonode
+
+cd my_geonode
+
+# 4. تنظیم متغیرهای محیطی
+cp .env.sample .env
+
+# ویرایش .env با دامنه و تنظیمات خود
+nano .env</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon txt">ENV</div>
+                        <span>.env — متغیرهای محیطی اصلی</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# GeoNode Environment Variables
+# ═══════════════════════════════════════════════════════════
+
+# --- General ---
+COMPOSE_PROJECT_NAME=my_geonode
+DOCKER_ENV=production
+
+# --- Domain & URLs ---
+SITEURL=https://geonode.example.com/
+SITENAME=My GeoNode Portal
+ALLOWED_HOSTS=['geonode.example.com', 'localhost']
+
+# --- Admin ---
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=geonode_admin_2024!
+ADMIN_EMAIL=admin@example.com
+
+# --- Database ---
+GEONODE_DATABASE=geonode
+GEONODE_DATABASE_USER=geonode
+GEONODE_DATABASE_PASSWORD=geonode_db_pass_2024
+GEONODE_GEODATABASE=geonode_data
+GEONODE_GEODATABASE_USER=geonode_data
+GEONODE_GEODATABASE_PASSWORD=geonode_geodata_pass_2024
+DATABASE_HOST=db
+DATABASE_PORT=5432
+
+# --- GeoServer ---
+GEOSERVER_PUBLIC_LOCATION=https://geonode.example.com/geoserver/
+GEOSERVER_ADMIN_USER=admin
+GEOSERVER_ADMIN_PASSWORD=geoserver_admin_2024!
+GEOSERVER_WEB_UI_LOCATION=https://geonode.example.com/geoserver/
+
+# --- Email ---
+EMAIL_ENABLE=True
+DJANGO_EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+DJANGO_EMAIL_HOST=smtp.gmail.com
+DJANGO_EMAIL_PORT=587
+DJANGO_EMAIL_HOST_USER=your-email@gmail.com
+DJANGO_EMAIL_HOST_PASSWORD=your-app-password
+DJANGO_EMAIL_USE_TLS=True
+DEFAULT_FROM_EMAIL=noreply@example.com
+
+# --- Celery ---
+BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+# --- Security ---
+SECRET_KEY=your-very-long-random-secret-key-change-this!
+OAUTH2_CLIENT_ID=Jrchz0oPY3akmzoxRhUlqs15
+OAUTH2_CLIENT_SECRET=rCnp5txobUo83EpQEblM8fVj3QT5zb5qRfxNsuPzCqZaiRyIoxM4jdgMiZKFfePBHYXCLd7B8
+
+# --- Monitoring ---
+MONITORING_ENABLED=True
+
+# --- Upload Limits ---
+CLIENT_RESULTS_LIMIT=5
+API_LIMIT_PER_PAGE=20
+MAX_DOCUMENT_SIZE=200  # MB
+DEFAULT_MAX_UPLOAD_SIZE=5368709120  # 5GB</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>اجرای GeoNode</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# راه‌اندازی GeoNode
+# ═══════════════════════════════════════════════════════════
+
+# 5. ساخت و اجرا
+docker compose build
+docker compose up -d
+
+# بررسی وضعیت کانتینرها
+docker compose ps
+
+# مشاهده لاگ‌ها
+docker compose logs -f django
+docker compose logs -f geoserver
+docker compose logs -f celery
+
+# 6. ایجاد superuser (اگر در .env تنظیم نشده)
+docker compose exec django python manage.py createsuperuser
+
+# 7. بارگذاری داده‌های اولیه
+docker compose exec django python manage.py loaddata initial_data
+
+# 8. جمع‌آوری فایل‌های استاتیک
+docker compose exec django python manage.py collectstatic --noinput
+
+# ═══════════════════════════════════════════════════════════
+# دسترسی
+# ═══════════════════════════════════════════════════════════
+# وب: http://localhost/
+# ادمین: http://localhost/admin/
+# GeoServer: http://localhost/geoserver/
+# API: http://localhost/api/v2/
+
+echo "✅ GeoNode با موفقیت راه‌اندازی شد!"</code></pre>
+                </div>
+            </div>
+
+            <h3>🔧 docker-compose.yml</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon yaml">YML</div>
+                        <span>docker-compose.override.yml — سفارشی‌سازی</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml"># ═══════════════════════════════════════════════════════════
+# Docker Compose Override - سفارشی‌سازی‌های شما
+# ═══════════════════════════════════════════════════════════
+version: '3.9'
+
+services:
+  # --- Django ---
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DEBUG=False
+      - DJANGO_SETTINGS_MODULE=my_geonode.settings
+    volumes:
+      - ./my_geonode:/usr/src/my_geonode/my_geonode
+      - statics:/mnt/volumes/statics
+      - geoserver-data-dir:/geoserver_data/data
+      - backup-restore:/backup_restore
+      - data:/data
+      - tmp:/tmp
+    restart: unless-stopped
+
+  # --- Celery Worker ---
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A my_geonode.celeryapp:app worker -B -E --loglevel=INFO
+    environment:
+      - DJANGO_SETTINGS_MODULE=my_geonode.settings
+    volumes:
+      - ./my_geonode:/usr/src/my_geonode/my_geonode
+      - statics:/mnt/volumes/statics
+      - data:/data
+      - tmp:/tmp
+    restart: unless-stopped
+
+  # --- GeoServer ---
+  geoserver:
+    image: geonode/geoserver:2.24.2
+    environment:
+      - GEOSERVER_JAVA_OPTS=-Xms1024m -Xmx4096m
+    volumes:
+      - geoserver-data-dir:/geoserver_data/data
+      - data:/data
+    restart: unless-stopped
+
+  # --- PostgreSQL + PostGIS ---
+  db:
+    image: geonode/postgis:15-3.3
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - dbbackups:/pg_backups
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    restart: unless-stopped
+
+  # --- Nginx ---
+  nginx:
+    image: geonode/nginx:1.25
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - statics:/mnt/volumes/statics
+      - ./nginx/geonode.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - django
+      - geoserver
+    restart: unless-stopped
+
+  # --- Redis ---
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  # --- RabbitMQ ---
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    restart: unless-stopped
+
+volumes:
+  statics:
+  geoserver-data-dir:
+  dbdata:
+  dbbackups:
+  backup-restore:
+  data:
+  tmp:</code></pre>
+                </div>
+            </div>
+
+            <h3>💻 نصب برای توسعه (Development)</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>dev-install.sh</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# ═══════════════════════════════════════════════════════════
+# نصب GeoNode برای توسعه (بدون Docker)
+# Ubuntu 22.04 LTS
+# ═══════════════════════════════════════════════════════════
+
+# 1. نصب پیش‌نیازها
+sudo apt update
+sudo apt install -y \
+    python3.10 python3.10-venv python3.10-dev \
+    build-essential gcc g++ \
+    libpq-dev libgdal-dev libgeos-dev libproj-dev \
+    postgresql postgresql-contrib postgis \
+    openjdk-11-jdk \
+    git curl wget unzip
+
+# 2. تنظیم PostgreSQL
+sudo -u postgres psql -c "CREATE USER geonode WITH PASSWORD 'geonode';"
+sudo -u postgres psql -c "CREATE DATABASE geonode OWNER geonode;"
+sudo -u postgres psql -c "CREATE DATABASE geonode_data OWNER geonode;"
+sudo -u postgres psql -d geonode -c "CREATE EXTENSION postgis;"
+sudo -u postgres psql -d geonode_data -c "CREATE EXTENSION postgis;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE geonode TO geonode;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE geonode_data TO geonode;"
+
+# 3. نصب GeoServer
+GEOSERVER_VERSION=2.24.2
+wget "https://sourceforge.net/projects/geoserver/files/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-bin.zip"
+unzip geoserver-${GEOSERVER_VERSION}-bin.zip -d /opt/
+export GEOSERVER_HOME=/opt/geoserver-${GEOSERVER_VERSION}
+
+# 4. کلون و نصب GeoNode
+git clone https://github.com/GeoNode/geonode.git -b 4.2.x
+cd geonode
+
+# ایجاد محیط مجازی
+python3.10 -m venv venv
+source venv/bin/activate
+
+# نصب وابستگی‌ها
+pip install --upgrade pip setuptools wheel
+pip install -e ".[dev,test]"
+pip install pygdal=="$(gdal-config --version).*"
+
+# 5. پیکربندی
+cp geonode/local_settings.py.sample geonode/local_settings.py
+nano geonode/local_settings.py
+
+# 6. مهاجرت و راه‌اندازی
+python manage.py migrate
+python manage.py collectstatic --noinput
+python manage.py createsuperuser
+
+# 7. اجرای سرور توسعه
+python manage.py runserver 0.0.0.0:8000
+
+# در ترمینال دیگر: اجرای GeoServer
+cd $GEOSERVER_HOME/bin
+./startup.sh</code></pre>
+                </div>
+            </div>
+
+            <h3>⚙️ تنظیمات محلی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>local_settings.py</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+تنظیمات محلی GeoNode
+این فایل تنظیمات پیش‌فرض را بازنویسی می‌کند
+"""
+
+import os
+
+# ═══════════════════════════════════════════════════════════
+# General
+# ═══════════════════════════════════════════════════════════
+SITEURL = "http://localhost:8000/"
+SITENAME = "پرتال GeoNode من"
+
+DEBUG = True
+ALLOWED_HOSTS = ['*']
+
+# زبان فارسی
+LANGUAGE_CODE = 'fa'
+LANGUAGES = (
+    ('fa', 'فارسی'),
+    ('en', 'English'),
+)
+
+TIME_ZONE = 'Asia/Tehran'
+
+# ═══════════════════════════════════════════════════════════
+# Database
+# ═══════════════════════════════════════════════════════════
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'geonode',
+        'USER': 'geonode',
+        'PASSWORD': 'geonode',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'CONN_MAX_AGE': 5,
+        'CONN_HEALTH_CHECKS': True,
+    },
+    'datastore': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'geonode_data',
+        'USER': 'geonode',
+        'PASSWORD': 'geonode',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        'CONN_MAX_AGE': 5,
+    },
+}
+
+# ═══════════════════════════════════════════════════════════
+# GeoServer
+# ═══════════════════════════════════════════════════════════
+OGC_SERVER = {
+    'default': {
+        'BACKEND': 'geonode.geoserver',
+        'LOCATION': 'http://localhost:8080/geoserver/',
+        'WEB_UI_LOCATION': 'http://localhost:8080/geoserver/',
+        'LOGIN_ENDPOINT': 'j_spring_oauth2_geonode_login',
+        'LOGOUT_ENDPOINT': 'j_spring_oauth2_geonode_logout',
+        'PUBLIC_LOCATION': 'http://localhost:8000/geoserver/',
+        'USER': 'admin',
+        'PASSWORD': 'geoserver',
+        'MAPFISH_PRINT_ENABLED': True,
+        'PRINT_NG_ENABLED': True,
+        'GEONODE_SECURITY_ENABLED': True,
+        'GEOFENCE_SECURITY_ENABLED': True,
+        'WMST_ENABLED': False,
+        'BACKEND_WRITE_ENABLED': True,
+        'WPS_ENABLED': False,
+        'DATASTORE': 'datastore',
+        'TIMEOUT': 100,
+    }
+}
+
+# ═══════════════════════════════════════════════════════════
+# Upload
+# ═══════════════════════════════════════════════════════════
+MAX_DOCUMENT_SIZE = 200  # MB
+DEFAULT_MAX_UPLOAD_SIZE = 5368709120  # 5GB
+
+UPLOADER = {
+    'BACKEND': 'geonode.importer',
+    'OPTIONS': {
+        'TIME_ENABLED': False,
+        'MOSAIC_ENABLED': False,
+    },
+}
+
+# ═══════════════════════════════════════════════════════════
+# Cache
+# ═══════════════════════════════════════════════════════════
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://localhost:6379/1',
+        'TIMEOUT': 300,
+    }
+}
+
+# ═══════════════════════════════════════════════════════════
+# Celery
+# ═══════════════════════════════════════════════════════════
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+# ═══════════════════════════════════════════════════════════
+# Map
+# ═══════════════════════════════════════════════════════════
+DEFAULT_MAP_CENTER = (53.0, 32.5)  # ایران
+DEFAULT_MAP_ZOOM = 5
+
+# نقشه پایه پیش‌فرض
+MAP_BASELAYERS = [
+    {
+        "source": {"ptype": "gxp_osmsource"},
+        "type": "OpenLayers.Layer.OSM",
+        "name": "mapnik",
+        "visibility": True,
+        "fixed": True,
+        "group": "background",
+    },
+]</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 4: DATA MANAGEMENT
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="data">
+            <div class="section-header">
+                <div class="section-icon orange">📊</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل چهارم</div>
+                    <h2 class="section-title">مدیریت داده‌ها</h2>
+                    <p class="section-subtitle">آپلود، فرمت‌ها، فراداده و مدیریت لایه‌ها</p>
+                </div>
+            </div>
+
+            <h3>📁 فرمت‌های پشتیبانی‌شده</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نوع</th>
+                            <th>فرمت</th>
+                            <th>پسوند</th>
+                            <th>توضیح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="5"><strong>وکتور</strong></td>
+                            <td>Shapefile</td>
+                            <td><code>.shp, .dbf, .shx, .prj</code></td>
+                            <td>رایج‌ترین فرمت — آپلود به صورت ZIP</td>
+                        </tr>
+                        <tr>
+                            <td>GeoJSON</td>
+                            <td><code>.geojson, .json</code></td>
+                            <td>فرمت متنی مبتنی بر JSON</td>
+                        </tr>
+                        <tr>
+                            <td>KML / KMZ</td>
+                            <td><code>.kml, .kmz</code></td>
+                            <td>فرمت Google Earth</td>
+                        </tr>
+                        <tr>
+                            <td>GeoPackage</td>
+                            <td><code>.gpkg</code></td>
+                            <td>فرمت مدرن OGC — توصیه‌شده</td>
+                        </tr>
+                        <tr>
+                            <td>CSV</td>
+                            <td><code>.csv</code></td>
+                            <td>با ستون‌های lat/lon</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>رستر</strong></td>
+                            <td>GeoTIFF</td>
+                            <td><code>.tif, .tiff</code></td>
+                            <td>رایج‌ترین فرمت رستر</td>
+                        </tr>
+                        <tr>
+                            <td>JPEG2000</td>
+                            <td><code>.jp2</code></td>
+                            <td>فشرده‌سازی بالا</td>
+                        </tr>
+                        <tr>
+                            <td>NetCDF</td>
+                            <td><code>.nc</code></td>
+                            <td>داده‌های آب و هوایی</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>سند</strong></td>
+                            <td>PDF</td>
+                            <td><code>.pdf</code></td>
+                            <td>اسناد و گزارش‌ها</td>
+                        </tr>
+                        <tr>
+                            <td>تصویر</td>
+                            <td><code>.png, .jpg</code></td>
+                            <td>نقشه‌های اسکن‌شده</td>
+                        </tr>
+                        <tr>
+                            <td>ویدیو</td>
+                            <td><code>.mp4</code></td>
+                            <td>محتوای چندرسانه‌ای</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>📤 آپلود با API</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>upload_data.py — آپلود لایه با API</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+آپلود داده‌ها به GeoNode با REST API
+"""
+
+import requests
+import os
+from pathlib import Path
+
+
+class GeoNodeClient:
+    """کلاینت ساده برای ارتباط با GeoNode API"""
+    
+    def __init__(self, base_url: str, username: str, password: str):
+        self.base_url = base_url.rstrip('/')
+        self.session = requests.Session()
+        self.session.auth = (username, password)
+        
+        # دریافت CSRF token
+        self.session.get(f"{self.base_url}/")
+        csrf = self.session.cookies.get('csrftoken', '')
+        self.session.headers.update({
+            'X-CSRFToken': csrf,
+            'Referer': self.base_url,
+        })
+    
+    def upload_layer(self, file_path: str, 
+                     layer_name: str = None,
+                     charset: str = 'UTF-8',
+                     permissions: dict = None) -> dict:
+        """
+        آپلود یک لایه (Shapefile ZIP, GeoTIFF, GeoJSON, ...)
+        
+        Parameters
+        ----------
+        file_path : مسیر فایل
+        layer_name : نام لایه (اختیاری)
+        charset : کدگذاری کاراکتر
+        permissions : دسترسی‌ها
+        
+        Returns
+        -------
+        اطلاعات لایه آپلودشده
+        """
+        file_path = Path(file_path)
+        
+        if not file_path.exists():
+            raise FileNotFoundError(f"فایل یافت نشد: {file_path}")
+        
+        if layer_name is None:
+            layer_name = file_path.stem
+        
+        url = f"{self.base_url}/api/v2/uploads/upload/"
+        
+        # آماده‌سازی فایل
+        with open(file_path, 'rb') as f:
+            files = {
+                'base_file': (file_path.name, f, 'application/octet-stream'),
+            }
+            
+            data = {
+                'charset': charset,
+                'dataset_title': layer_name,
+                'time': 'false',
+                'mosaic': 'false',
+            }
+            
+            if permissions:
+                data['permissions'] = str(permissions)
+            
+            response = self.session.post(url, files=files, data=data)
+        
+        if response.status_code in (200, 201):
+            result = response.json()
+            print(f"✅ لایه '{layer_name}' با موفقیت آپلود شد")
+            return result
+        else:
+            print(f"❌ خطا در آپلود: {response.status_code}")
+            print(response.text)
+            return None
+    
+    def list_datasets(self, page: int = 1, 
+                      page_size: int = 20) -> dict:
+        """لیست لایه‌ها"""
+        url = f"{self.base_url}/api/v2/datasets/"
+        params = {
+            'page': page,
+            'page_size': page_size,
+        }
+        response = self.session.get(url, params=params)
+        return response.json()
+    
+    def get_dataset(self, pk: int) -> dict:
+        """دریافت اطلاعات یک لایه"""
+        url = f"{self.base_url}/api/v2/datasets/{pk}/"
+        response = self.session.get(url)
+        return response.json()
+    
+    def delete_dataset(self, pk: int) -> bool:
+        """حذف یک لایه"""
+        url = f"{self.base_url}/api/v2/datasets/{pk}/"
+        response = self.session.delete(url)
+        if response.status_code == 204:
+            print(f"✅ لایه {pk} حذف شد")
+            return True
+        return False
+    
+    def update_metadata(self, pk: int, metadata: dict) -> dict:
+        """به‌روزرسانی فراداده لایه"""
+        url = f"{self.base_url}/api/v2/datasets/{pk}/"
+        response = self.session.patch(url, json=metadata)
+        return response.json()
+    
+    def search(self, query: str, 
+               resource_type: str = None) -> dict:
+        """جستجو در منابع"""
+        url = f"{self.base_url}/api/v2/resources/"
+        params = {'search': query}
+        if resource_type:
+            params['filter{resource_type}'] = resource_type
+        
+        response = self.session.get(url, params=params)
+        return response.json()
+    
+    def create_map(self, title: str, 
+                   layers: list, 
+                   abstract: str = '') -> dict:
+        """ایجاد نقشه جدید"""
+        url = f"{self.base_url}/api/v2/maps/"
+        data = {
+            'title': title,
+            'abstract': abstract,
+            'maplayers': layers,
+        }
+        response = self.session.post(url, json=data)
+        return response.json()
+
+
+# ═══════════════════════════════════════════════════════════
+# مثال استفاده
+# ═══════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    # اتصال به GeoNode
+    client = GeoNodeClient(
+        base_url="http://localhost",
+        username="admin",
+        password="admin"
+    )
+    
+    # آپلود Shapefile (به صورت ZIP)
+    result = client.upload_layer(
+        file_path="data/iran_provinces.zip",
+        layer_name="استان‌های ایران"
+    )
+    
+    # آپلود GeoTIFF
+    result = client.upload_layer(
+        file_path="data/dem_iran.tif",
+        layer_name="مدل ارتفاعی ایران"
+    )
+    
+    # لیست لایه‌ها
+    datasets = client.list_datasets()
+    print(f"\nتعداد لایه‌ها: {datasets['total']}")
+    
+    for ds in datasets['datasets']:
+        print(f"  - {ds['title']} ({ds['subtype']})")
+    
+    # به‌روزرسانی فراداده
+    if result:
+        client.update_metadata(
+            pk=result['dataset']['pk'],
+            metadata={
+                'abstract': 'نقشه استان‌های ایران با مرزهای اداری',
+                'category': 'boundaries',
+                'keywords': ['ایران', 'استان', 'مرز اداری'],
+                'license': 'cc-by-4.0',
+            }
+        )
+    
+    # جستجو
+    results = client.search("ایران")
+    print(f"\nنتایج جستجو: {results['total']}")
+    
+    print("\n✅ عملیات با موفقیت انجام شد!")</code></pre>
+                </div>
+            </div>
+
+            <h3>📋 مدیریت فراداده</h3>
+            <div class="info-box note">
+                <div class="info-icon">📝</div>
+                <div class="info-content">
+                    <h4>استانداردهای فراداده</h4>
+                    <p>GeoNode از استانداردهای زیر پشتیبانی می‌کند:</p>
+                    <ul>
+                        <li><strong>ISO 19115/19139:</strong> استاندارد بین‌المللی فراداده مکانی</li>
+                        <li><strong>Dublin Core:</strong> فراداده عمومی</li>
+                        <li><strong>FGDC:</strong> استاندارد آمریکایی</li>
+                        <li><strong>INSPIRE:</strong> استاندارد اتحادیه اروپا</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>batch_metadata.py — به‌روزرسانی دسته‌ای فراداده</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+به‌روزرسانی دسته‌ای فراداده لایه‌ها در GeoNode
+"""
+
+import requests
+import json
+from datetime import datetime
+
+
+def batch_update_metadata(base_url: str, auth: tuple, updates: list):
+    """
+    به‌روزرسانی دسته‌ای فراداده
+    
+    Parameters
+    ----------
+    base_url : آدرس GeoNode
+    auth : (username, password)
+    updates : لیست دیکشنری‌ها با pk و فراداده
+    """
+    session = requests.Session()
+    session.auth = auth
+    
+    for update in updates:
+        pk = update.pop('pk')
+        url = f"{base_url}/api/v2/datasets/{pk}/"
+        
+        response = session.patch(url, json=update)
+        
+        if response.status_code == 200:
+            print(f"✅ لایه {pk}: فراداده به‌روز شد")
+        else:
+            print(f"❌ لایه {pk}: خطا — {response.status_code}")
+
+
+def export_metadata_csv(base_url: str, auth: tuple, output_file: str):
+    """
+    خروجی گرفتن فراداده تمام لایه‌ها به CSV
+    """
+    import csv
+    
+    session = requests.Session()
+    session.auth = auth
+    
+    url = f"{base_url}/api/v2/datasets/"
+    all_datasets = []
+    page = 1
+    
+    while True:
+        response = session.get(url, params={'page': page, 'page_size': 50})
+        data = response.json()
+        all_datasets.extend(data.get('datasets', []))
+        
+        if not data.get('links', {}).get('next'):
+            break
+        page += 1
+    
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            'pk', 'title', 'abstract', 'category',
+            'keywords', 'date', 'owner', 'subtype'
+        ])
+        
+        for ds in all_datasets:
+            writer.writerow([
+                ds.get('pk'),
+                ds.get('title'),
+                ds.get('abstract', ''),
+                ds.get('category', {}).get('identifier', ''),
+                ', '.join(ds.get('keywords', [])),
+                ds.get('date'),
+                ds.get('owner', {}).get('username', ''),
+                ds.get('subtype'),
+            ])
+    
+    print(f"✅ فراداده {len(all_datasets)} لایه به {output_file} خروجی گرفته شد")
+
+
+# مثال استفاده
+if __name__ == "__main__":
+    BASE_URL = "http://localhost"
+    AUTH = ("admin", "admin")
+    
+    # خروجی فراداده
+    export_metadata_csv(BASE_URL, AUTH, "metadata_export.csv")
+    
+    # به‌روزرسانی دسته‌ای
+    updates = [
+        {
+            'pk': 1,
+            'abstract': 'توضیحات جدید لایه ۱',
+            'license': 'cc-by-4.0',
+        },
+        {
+            'pk': 2,
+            'abstract': 'توضیحات جدید لایه ۲',
+            'category': 'environment',
+        },
+    ]
+    
+    batch_update_metadata(BASE_URL, AUTH, updates)</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 5: MAPS
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="maps">
+            <div class="section-header">
+                <div class="section-icon earth">🗺️</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل پنجم</div>
+                    <h2 class="section-title">نقشه‌ها و تجسم</h2>
+                    <p class="section-subtitle">MapStore 2، استایل‌دهی و داشبورد</p>
+                </div>
+            </div>
+
+            <h3>🎨 MapStore 2</h3>
+            <p>
+                <strong>MapStore 2</strong> کلاینت نقشه پیش‌فرض GeoNode است که توسط 
+                <strong>GeoSolutions</strong> توسعه داده شده. یک اپلیکیشن React-based با قابلیت‌های غنی.
+            </p>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon blue">🗺️</div>
+                    <h4 class="card-title">Map Viewer</h4>
+                    <p class="card-description">
+                        مشاهده نقشه‌ها با لایه‌های مختلف.
+                        Zoom, Pan, Identify, Measure.
+                        پشتیبانی از لایه‌های WMS, WMTS, TMS.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">🎨</div>
+                    <h4 class="card-title">Style Editor</h4>
+                    <p class="card-description">
+                        ویرایش بصری استایل لایه‌ها.
+                        رنگ‌بندی، نمادگذاری، برچسب‌گذاری.
+                        خروجی SLD / CSS.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon green">📊</div>
+                    <h4 class="card-title">Dashboard</h4>
+                    <p class="card-description">
+                        ساخت داشبوردهای تعاملی.
+                        ترکیب نقشه، نمودار و جدول.
+                        ویجت‌های قابل تنظیم.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon purple">📖</div>
+                    <h4 class="card-title">GeoStory</h4>
+                    <p class="card-description">
+                        روایت مکانی (Story Map).
+                        ترکیب نقشه، متن، تصویر و ویدیو.
+                        مناسب برای ارائه پروژه‌ها.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🎨 استایل‌دهی با SLD</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon html">XML</div>
+                        <span>polygon_style.sld — استایل پلیگون</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;StyledLayerDescriptor version="1.0.0"
+  xmlns="http://www.opengis.net/sld"
+  xmlns:ogc="http://www.opengis.net/ogc"&gt;
+  
+  &lt;NamedLayer&gt;
+    &lt;Name&gt;iran_provinces&lt;/Name&gt;
+    &lt;UserStyle&gt;
+      &lt;Title&gt;استایل استان‌های ایران&lt;/Title&gt;
+      
+      &lt;!-- رنگ‌بندی بر اساس جمعیت --&gt;
+      &lt;FeatureTypeStyle&gt;
+        &lt;Rule&gt;
+          &lt;Name&gt;کم جمعیت&lt;/Name&gt;
+          &lt;ogc:Filter&gt;
+            &lt;ogc:PropertyIsLessThan&gt;
+              &lt;ogc:PropertyName&gt;population&lt;/ogc:PropertyName&gt;
+              &lt;ogc:Literal&gt;1000000&lt;/ogc:Literal&gt;
+            &lt;/ogc:PropertyIsLessThan&gt;
+          &lt;/ogc:Filter&gt;
+          &lt;PolygonSymbolizer&gt;
+            &lt;Fill&gt;
+              &lt;CssParameter name="fill"&gt;#eafaf1&lt;/CssParameter&gt;
+              &lt;CssParameter name="fill-opacity"&gt;0.8&lt;/CssParameter&gt;
+            &lt;/Fill&gt;
+            &lt;Stroke&gt;
+              &lt;CssParameter name="stroke"&gt;#27ae60&lt;/CssParameter&gt;
+              &lt;CssParameter name="stroke-width"&gt;1&lt;/CssParameter&gt;
+            &lt;/Stroke&gt;
+          &lt;/PolygonSymbolizer&gt;
+        &lt;/Rule&gt;
+        
+        &lt;Rule&gt;
+          &lt;Name&gt;پرجمعیت&lt;/Name&gt;
+          &lt;ogc:Filter&gt;
+            &lt;ogc:PropertyIsGreaterThanOrEqualTo&gt;
+              &lt;ogc:PropertyName&gt;population&lt;/ogc:PropertyName&gt;
+              &lt;ogc:Literal&gt;1000000&lt;/ogc:Literal&gt;
+            &lt;/ogc:PropertyIsGreaterThanOrEqualTo&gt;
+          &lt;/ogc:Filter&gt;
+          &lt;PolygonSymbolizer&gt;
+            &lt;Fill&gt;
+              &lt;CssParameter name="fill"&gt;#1e8449&lt;/CssParameter&gt;
+              &lt;CssParameter name="fill-opacity"&gt;0.8&lt;/CssParameter&gt;
+            &lt;/Fill&gt;
+            &lt;Stroke&gt;
+              &lt;CssParameter name="stroke"&gt;#145a32&lt;/CssParameter&gt;
+              &lt;CssParameter name="stroke-width"&gt;1.5&lt;/CssParameter&gt;
+            &lt;/Stroke&gt;
+          &lt;/PolygonSymbolizer&gt;
+          
+          &lt;!-- برچسب نام استان --&gt;
+          &lt;TextSymbolizer&gt;
+            &lt;Label&gt;
+              &lt;ogc:PropertyName&gt;name_fa&lt;/ogc:PropertyName&gt;
+            &lt;/Label&gt;
+            &lt;Font&gt;
+              &lt;CssParameter name="font-family"&gt;Vazirmatn&lt;/CssParameter&gt;
+              &lt;CssParameter name="font-size"&gt;12&lt;/CssParameter&gt;
+              &lt;CssParameter name="font-weight"&gt;bold&lt;/CssParameter&gt;
+            &lt;/Font&gt;
+            &lt;Fill&gt;
+              &lt;CssParameter name="fill"&gt;#2c3e50&lt;/CssParameter&gt;
+            &lt;/Fill&gt;
+          &lt;/TextSymbolizer&gt;
+        &lt;/Rule&gt;
+      &lt;/FeatureTypeStyle&gt;
+    &lt;/UserStyle&gt;
+  &lt;/NamedLayer&gt;
+&lt;/StyledLayerDescriptor&gt;</code></pre>
+                </div>
+            </div>
+
+            <h3>🔗 اتصال نقشه GeoNode به QGIS</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>qgis_connect.py — اتصال QGIS به GeoNode</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+اتصال QGIS به GeoNode از طریق سرویس‌های OGC
+این کد در QGIS Python Console اجرا می‌شود
+"""
+
+from qgis.core import (
+    QgsProject, QgsRasterLayer, QgsVectorLayer, 
+    QgsDataSourceUri
+)
+
+# ═══════════════════════════════════════════════════════════
+# اتصال WMS (لایه رستر)
+# ═══════════════════════════════════════════════════════════
+geonode_url = "http://localhost/geoserver/ows"
+
+wms_uri = (
+    f"url={geonode_url}?"
+    f"service=WMS&version=1.1.1&request=GetMap"
+    f"&layers=geonode:iran_provinces"
+    f"&styles="
+    f"&format=image/png"
+    f"&crs=EPSG:4326"
+)
+
+wms_layer = QgsRasterLayer(wms_uri, "استان‌های ایران (WMS)", "wms")
+
+if wms_layer.isValid():
+    QgsProject.instance().addMapLayer(wms_layer)
+    print("✅ لایه WMS اضافه شد")
+else:
+    print("❌ خطا در بارگذاری لایه WMS")
+
+# ═══════════════════════════════════════════════════════════
+# اتصال WFS (لایه وکتور)
+# ═══════════════════════════════════════════════════════════
+wfs_uri = (
+    f"pagingEnabled='true' "
+    f"preferCoordinatesForWfsT11='false' "
+    f"restrictToRequestBBOX='1' "
+    f"srsname='EPSG:4326' "
+    f"typename='geonode:iran_provinces' "
+    f"url='{geonode_url}' "
+    f"version='2.0.0'"
+)
+
+wfs_layer = QgsVectorLayer(wfs_uri, "استان‌های ایران (WFS)", "WFS")
+
+if wfs_layer.isValid():
+    QgsProject.instance().addMapLayer(wfs_layer)
+    print(f"✅ لایه WFS اضافه شد — {wfs_layer.featureCount()} فیچر")
+else:
+    print("❌ خطا در بارگذاری لایه WFS")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 6: API
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="api">
+            <div class="section-header">
+                <div class="section-icon purple">🔌</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل ششم</div>
+                    <h2 class="section-title">API و سرویس‌های OGC</h2>
+                    <p class="section-subtitle">REST API، WMS، WFS، WCS و CSW</p>
+                </div>
+            </div>
+
+            <h3>🌐 REST API v2</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>توضیح</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/api/v2/datasets/</code></td>
+                            <td><span class="badge green">GET</span></td>
+                            <td>لیست تمام لایه‌ها</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/datasets/{pk}/</code></td>
+                            <td><span class="badge green">GET</span></td>
+                            <td>جزئیات یک لایه</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/datasets/{pk}/</code></td>
+                            <td><span class="badge orange">PATCH</span></td>
+                            <td>به‌روزرسانی فراداده</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/datasets/{pk}/</code></td>
+                            <td><span class="badge red">DELETE</span></td>
+                            <td>حذف لایه</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/maps/</code></td>
+                            <td><span class="badge green">GET</span></td>
+                            <td>لیست نقشه‌ها</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/documents/</code></td>
+                            <td><span class="badge green">GET</span></td>
+                            <td>لیست اسناد</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/resources/</code></td>
+                            <td><span class="badge green">GET</span></td>
+                            <td>جستجوی عمومی منابع</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/users/</code></td>
+                            <td><span class="badge green">GET</span></td>
+                            <td>لیست کاربران</td>
+                        </tr>
+                        <tr>
+                            <td><code>/api/v2/uploads/upload/</code></td>
+                            <td><span class="badge blue">POST</span></td>
+                            <td>آپلود لایه جدید</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>🗺️ سرویس‌های OGC</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon blue">🖼️</div>
+                    <h4 class="card-title">WMS (Web Map Service)</h4>
+                    <p class="card-description">
+                        تصویر نقشه (PNG/JPEG) از سرور.
+                        <br><code>/geoserver/ows?service=WMS&request=GetMap</code>
+                        <br>• GetCapabilities
+                        <br>• GetMap
+                        <br>• GetFeatureInfo
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon green">📐</div>
+                    <h4 class="card-title">WFS (Web Feature Service)</h4>
+                    <p class="card-description">
+                        داده‌های وکتور (GML/JSON).
+                        <br><code>/geoserver/ows?service=WFS&request=GetFeature</code>
+                        <br>• GetCapabilities
+                        <br>• GetFeature
+                        <br>• DescribeFeatureType
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">🏔️</div>
+                    <h4 class="card-title">WCS (Web Coverage Service)</h4>
+                    <p class="card-description">
+                        داده‌های رستر.
+                        <br><code>/geoserver/ows?service=WCS&request=GetCoverage</code>
+                        <br>• GetCapabilities
+                        <br>• DescribeCoverage
+                        <br>• GetCoverage
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon purple">📋</div>
+                    <h4 class="card-title">CSW (Catalogue Service)</h4>
+                    <p class="card-description">
+                        جستجوی فراداده.
+                        <br><code>/catalogue/csw?service=CSW&request=GetRecords</code>
+                        <br>• GetCapabilities
+                        <br>• GetRecords
+                        <br>• GetRecordById
+                    </p>
+                </div>
+            </div>
+
+            <h3>📡 مثال‌های API</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>api_examples.py — مثال‌های کامل API</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+مثال‌های کامل استفاده از GeoNode API و سرویس‌های OGC
+"""
+
+import requests
+from owslib.wms import WebMapService
+from owslib.wfs import WebFeatureService
+from owslib.csw import CatalogueServiceWeb
+import json
+
+GEONODE_URL = "http://localhost"
+GEOSERVER_URL = f"{GEONODE_URL}/geoserver/ows"
+AUTH = ("admin", "admin")
+
+
+# ═══════════════════════════════════════════════════════════
+# 1. REST API
+# ═══════════════════════════════════════════════════════════
+
+def api_list_datasets():
+    """لیست لایه‌ها با فیلتر و مرتب‌سازی"""
+    url = f"{GEONODE_URL}/api/v2/datasets/"
+    
+    params = {
+        'page_size': 10,
+        'page': 1,
+        'order_by': '-date',  # جدیدترین
+        'filter{{subtype}}': 'vector',  # فقط وکتور
+    }
+    
+    response = requests.get(url, params=params, auth=AUTH)
+    data = response.json()
+    
+    print(f"تعداد کل: {data['total']}")
+    for ds in data['datasets']:
+        print(f"  [{ds['pk']}] {ds['title']} — {ds['subtype']}")
+    
+    return data
+
+
+def api_spatial_search():
+    """جستجوی مکانی (داخل یک bbox)"""
+    url = f"{GEONODE_URL}/api/v2/datasets/"
+    
+    # bbox: [minLon, minLat, maxLon, maxLat]
+    # محدوده ایران
+    params = {
+        'page_size': 50,
+        'extent': '44.0,25.0,63.5,39.8',  # ایران
+    }
+    
+    response = requests.get(url, params=params, auth=AUTH)
+    return response.json()
+
+
+# ═══════════════════════════════════════════════════════════
+# 2. WMS — دریافت تصویر نقشه
+# ═══════════════════════════════════════════════════════════
+
+def wms_get_map():
+    """دریافت تصویر نقشه از WMS"""
+    wms = WebMapService(GEOSERVER_URL, version='1.1.1')
+    
+    # لیست لایه‌ها
+    print("لایه‌های WMS:")
+    for layer_name in list(wms.contents)[:10]:
+        layer = wms[layer_name]
+        print(f"  {layer_name}: {layer.title}")
+    
+    # دریافت تصویر
+    img = wms.getmap(
+        layers=['geonode:iran_provinces'],
+        srs='EPSG:4326',
+        bbox=(44.0, 25.0, 63.5, 39.8),
+        size=(800, 600),
+        format='image/png',
+        transparent=True,
+    )
+    
+    with open('iran_map.png', 'wb') as f:
+        f.write(img.read())
+    
+    print("✅ تصویر نقشه ذخیره شد: iran_map.png")
+
+
+# ═══════════════════════════════════════════════════════════
+# 3. WFS — دریافت داده‌های وکتور
+# ═══════════════════════════════════════════════════════════
+
+def wfs_get_features():
+    """دریافت فیچرها از WFS"""
+    wfs = WebFeatureService(GEOSERVER_URL, version='2.0.0')
+    
+    # لیست لایه‌ها
+    print("\nلایه‌های WFS:")
+    for layer_name in list(wfs.contents)[:10]:
+        print(f"  {layer_name}")
+    
+    # دریافت فیچرها به صورت GeoJSON
+    response = wfs.getfeature(
+        typename='geonode:iran_provinces',
+        outputFormat='application/json',
+        maxfeatures=5,
+    )
+    
+    geojson = json.loads(response.read())
+    
+    print(f"\nتعداد فیچرها: {len(geojson['features'])}")
+    for feature in geojson['features']:
+        props = feature['properties']
+        print(f"  {props.get('name_fa', 'N/A')} — جمعیت: {props.get('population', 'N/A')}")
+    
+    # ذخیره به فایل
+    with open('iran_provinces.geojson', 'w', encoding='utf-8') as f:
+        json.dump(geojson, f, ensure_ascii=False, indent=2)
+    
+    print("✅ GeoJSON ذخیره شد")
+
+
+# ═══════════════════════════════════════════════════════════
+# 4. CSW — جستجوی فراداده
+# ═══════════════════════════════════════════════════════════
+
+def csw_search():
+    """جستجو در کاتالوگ فراداده"""
+    csw = CatalogueServiceWeb(f"{GEONODE_URL}/catalogue/csw")
+    
+    # جستجوی کلمه‌ای
+    csw.getrecords2(
+        constraints=[],
+        maxrecords=10,
+        outputschema='http://www.isotc211.org/2005/gmd'
+    )
+    
+    print(f"\nنتایج CSW: {csw.results['matches']} رکورد")
+    for rec_id, rec in csw.records.items():
+        print(f"  {rec_id}: {rec.title}")
+
+
+if __name__ == "__main__":
+    print("=" * 60)
+    print("مثال‌های GeoNode API")
+    print("=" * 60)
+    
+    api_list_datasets()
+    wms_get_map()
+    wfs_get_features()
+    csw_search()
+    
+    print("\n✅ تمام مثال‌ها اجرا شدند!")</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 7: ADMIN
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="admin">
+            <div class="section-header">
+                <div class="section-icon cyan">👥</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هفتم</div>
+                    <h2 class="section-title">مدیریت و کاربران</h2>
+                    <p class="section-subtitle">نقش‌ها، مجوزها و مدیریت سیستم</p>
+                </div>
+            </div>
+
+            <h3>👤 سطوح دسترسی</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>نقش</th>
+                            <th>مشاهده</th>
+                            <th>دانلود</th>
+                            <th>آپلود</th>
+                            <th>ویرایش</th>
+                            <th>حذف</th>
+                            <th>مدیریت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Anonymous</strong></td>
+                            <td>✅</td>
+                            <td>⚙️</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Registered User</strong></td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>⚙️</td>
+                            <td>⚙️</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Group Member</strong></td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>⚙️</td>
+                            <td>❌</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Group Manager</strong></td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>⚙️</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Superuser</strong></td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td>✅</td><td>✅</td>
+                            <td>✅</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-muted);">⚙️ = قابل تنظیم بر اساس مجوز هر منبع</p>
+
+            <h3>🔐 مدیریت مجوزها با API</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>permissions.py — مدیریت مجوزها</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+مدیریت مجوزها و کاربران در GeoNode
+"""
+
+import requests
+import json
+
+
+class GeoNodePermissions:
+    """مدیریت مجوزهای GeoNode"""
+    
+    def __init__(self, base_url: str, username: str, password: str):
+        self.base_url = base_url.rstrip('/')
+        self.session = requests.Session()
+        self.session.auth = (username, password)
+    
+    def get_permissions(self, resource_pk: int) -> dict:
+        """دریافت مجوزهای یک منبع"""
+        url = f"{self.base_url}/api/v2/resources/{resource_pk}/permissions/"
+        response = self.session.get(url)
+        return response.json()
+    
+    def set_permissions(self, resource_pk: int, 
+                        permissions: dict) -> dict:
+        """
+        تنظیم مجوزهای یک منبع
+        
+        Parameters
+        ----------
+        resource_pk : شناسه منبع
+        permissions : دیکشنری مجوزها
+        
+        مثال permissions:
+        {
+            "users": {
+                "admin": ["view", "download", "change", "delete", "manage"],
+                "user1": ["view", "download"],
+                "user2": ["view"]
+            },
+            "groups": {
+                "gis_team": ["view", "download", "change"],
+                "public": ["view"]
+            }
+        }
+        """
+        url = f"{self.base_url}/api/v2/resources/{resource_pk}/permissions/"
+        response = self.session.put(url, json=permissions)
+        
+        if response.status_code == 200:
+            print(f"✅ مجوزهای منبع {resource_pk} تنظیم شد")
+        else:
+            print(f"❌ خطا: {response.status_code} — {response.text}")
+        
+        return response.json()
+    
+    def make_public(self, resource_pk: int):
+        """عمومی کردن منبع"""
+        permissions = {
+            "users": {
+                "AnonymousUser": ["view_resourcebase", "download_resourcebase"],
+            },
+            "groups": {}
+        }
+        return self.set_permissions(resource_pk, permissions)
+    
+    def make_private(self, resource_pk: int, owner: str):
+        """خصوصی کردن منبع"""
+        permissions = {
+            "users": {
+                owner: [
+                    "view_resourcebase", "download_resourcebase",
+                    "change_resourcebase", "delete_resourcebase",
+                    "change_resourcebase_permissions"
+                ],
+            },
+            "groups": {}
+        }
+        return self.set_permissions(resource_pk, permissions)
+    
+    def share_with_group(self, resource_pk: int, 
+                         group_name: str, 
+                         level: str = "view"):
+        """اشتراک‌گذاری با گروه"""
+        current = self.get_permissions(resource_pk)
+        
+        perm_map = {
+            "view": ["view_resourcebase"],
+            "download": ["view_resourcebase", "download_resourcebase"],
+            "edit": [
+                "view_resourcebase", "download_resourcebase",
+                "change_resourcebase"
+            ],
+        }
+        
+        if 'groups' not in current:
+            current['groups'] = {}
+        
+        current['groups'][group_name] = perm_map.get(level, perm_map["view"])
+        return self.set_permissions(resource_pk, current)
+
+
+# ═══════════════════════════════════════════════════════════
+# مدیریت کاربران و گروه‌ها
+# ═══════════════════════════════════════════════════════════
+
+class GeoNodeUserManager:
+    """مدیریت کاربران GeoNode"""
+    
+    def __init__(self, base_url: str, username: str, password: str):
+        self.base_url = base_url.rstrip('/')
+        self.session = requests.Session()
+        self.session.auth = (username, password)
+    
+    def list_users(self, page_size: int = 50) -> list:
+        """لیست تمام کاربران"""
+        url = f"{self.base_url}/api/v2/users/"
+        response = self.session.get(url, params={'page_size': page_size})
+        return response.json()
+    
+    def get_user(self, pk: int) -> dict:
+        """دریافت اطلاعات کاربر"""
+        url = f"{self.base_url}/api/v2/users/{pk}/"
+        response = self.session.get(url)
+        return response.json()
+    
+    def list_groups(self) -> list:
+        """لیست گروه‌ها"""
+        url = f"{self.base_url}/api/v2/groups/"
+        response = self.session.get(url)
+        return response.json()
+    
+    def user_resources(self, username: str) -> dict:
+        """لیست منابع یک کاربر"""
+        url = f"{self.base_url}/api/v2/resources/"
+        params = {'filter{{owner__username}}': username}
+        response = self.session.get(url, params=params)
+        return response.json()
+
+
+# ═══════════════════════════════════════════════════════════
+# مثال استفاده
+# ═══════════════════════════════════════════════════════════
+
+if __name__ == "__main__":
+    BASE_URL = "http://localhost"
+    
+    # مدیریت مجوزها
+    perms = GeoNodePermissions(BASE_URL, "admin", "admin")
+    
+    # عمومی کردن لایه
+    perms.make_public(resource_pk=1)
+    
+    # اشتراک‌گذاری با گروه
+    perms.share_with_group(
+        resource_pk=2,
+        group_name="gis_analysts",
+        level="edit"
+    )
+    
+    # مدیریت کاربران
+    users = GeoNodeUserManager(BASE_URL, "admin", "admin")
+    
+    all_users = users.list_users()
+    print(f"\nتعداد کاربران: {all_users['total']}")
+    
+    for user in all_users.get('users', []):
+        print(f"  {user['username']} — {user.get('email', 'N/A')}")
+    
+    print("\n✅ عملیات مدیریت انجام شد!")</code></pre>
+                </div>
+            </div>
+
+            <h3>⚙️ دستورات مدیریتی Django</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>management_commands.sh</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# ═══════════════════════════════════════════════════════════
+# دستورات مدیریتی GeoNode
+# ═══════════════════════════════════════════════════════════
+
+# --- کاربران ---
+# ایجاد superuser
+docker compose exec django python manage.py createsuperuser
+
+# تغییر رمز عبور
+docker compose exec django python manage.py changepassword admin
+
+# --- داده‌ها ---
+# همگام‌سازی لایه‌ها با GeoServer
+docker compose exec django python manage.py updatelayers
+
+# بارگذاری لایه از خط فرمان
+docker compose exec django python manage.py importlayers /data/shapefiles/
+
+# حذف لایه‌های یتیم (بدون فایل)
+docker compose exec django python manage.py delete_orphaned_datasets
+
+# --- فراداده ---
+# به‌روزرسانی Thumbnail‌ها
+docker compose exec django python manage.py set_all_layers_metadata -d
+
+# بازسازی ایندکس جستجو
+docker compose exec django python manage.py rebuild_index --noinput
+
+# --- سیستم ---
+# مهاجرت پایگاه داده
+docker compose exec django python manage.py migrate
+
+# جمع‌آوری فایل‌های استاتیک
+docker compose exec django python manage.py collectstatic --noinput
+
+# پاکسازی session‌های منقضی‌شده
+docker compose exec django python manage.py clearsessions
+
+# --- پشتیبان‌گیری ---
+# پشتیبان‌گیری از پایگاه داده
+docker compose exec db pg_dump -U geonode geonode > backup_geonode.sql
+docker compose exec db pg_dump -U geonode geonode_data > backup_geodata.sql
+
+# بازیابی
+docker compose exec -T db psql -U geonode geonode < backup_geonode.sql
+
+# --- مانیتورینگ ---
+# بررسی سلامت سیستم
+docker compose exec django python manage.py check --deploy
+
+# لاگ‌ها
+docker compose logs -f --tail=100 django
+docker compose logs -f --tail=100 geoserver
+docker compose logs -f --tail=100 celery
+
+# --- GeoServer ---
+# همگام‌سازی امنیت GeoServer
+docker compose exec django python manage.py sync_geonode_datasets
+
+echo "✅ دستورات مدیریتی آماده هستند"</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 8: CUSTOMIZATION
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="customize">
+            <div class="section-header">
+                <div class="section-icon gold">🎨</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل هشتم</div>
+                    <h2 class="section-title">سفارشی‌سازی و توسعه</h2>
+                    <p class="section-subtitle">قالب‌ها، اپ‌های سفارشی و توسعه پلاگین</p>
+                </div>
+            </div>
+
+            <h3>📁 ساختار پروژه سفارشی</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon txt">TXT</div>
+                        <span>ساختار دایرکتوری</span>
+                    </div>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">my_geonode/
+├── docker-compose.yml          # تنظیمات Docker
+├── Dockerfile                  # ساخت image سفارشی
+├── .env                        # متغیرهای محیطی
+├── requirements.txt            # وابستگی‌های اضافی Python
+│
+├── my_geonode/
+│   ├── __init__.py
+│   ├── settings.py             # تنظیمات Django
+│   ├── urls.py                 # URL routing
+│   ├── wsgi.py
+│   ├── celeryapp.py            # تنظیمات Celery
+│   ├── local_settings.py       # تنظیمات محلی
+│   │
+│   ├── templates/              # قالب‌های سفارشی
+│   │   ├── base.html           # قالب پایه (override)
+│   │   ├── index.html          # صفحه اصلی
+│   │   ├── geonode-mapstore-client/
+│   │   │   └── snippets/
+│   │   │       └── custom_theme.html
+│   │   └── account/
+│   │       └── login.html
+│   │
+│   ├── static/                 # فایل‌های استاتیک
+│   │   ├── css/
+│   │   │   └── custom.css
+│   │   ├── js/
+│   │   │   └── custom.js
+│   │   └── img/
+│   │       ├── logo.png
+│   │       └── favicon.ico
+│   │
+│   └── apps/                   # اپ‌های سفارشی
+│       ├── __init__.py
+│       └── custom_app/
+│           ├── __init__.py
+│           ├── models.py
+│           ├── views.py
+│           ├── urls.py
+│           ├── serializers.py
+│           └── templates/
+│
+├── nginx/
+│   └── geonode.conf            # تنظیمات Nginx
+│
+└── scripts/
+    ├── backup.sh
+    └── restore.sh</code></pre>
+                </div>
+            </div>
+
+            <h3>🎨 سفارشی‌سازی ظاهر</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>settings.py — تنظیمات سفارشی‌سازی</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+تنظیمات سفارشی‌سازی GeoNode
+اضافه کردن به settings.py یا local_settings.py
+"""
+
+import os
+from geonode.settings import *  # noqa
+
+# ═══════════════════════════════════════════════════════════
+# اطلاعات سایت
+# ═══════════════════════════════════════════════════════════
+SITENAME = "پرتال داده مکانی ایران"
+SITEURL = os.getenv("SITEURL", "http://localhost/")
+
+# ═══════════════════════════════════════════════════════════
+# تم و ظاهر (MapStore Client)
+# ═══════════════════════════════════════════════════════════
+GEONODE_CLIENT_LAYER_PREVIEW_LIBRARY = 'mapstore'
+
+# تنظیمات MapStore
+MAPSTORE_BASELAYERS = [
+    {
+        "type": "osm",
+        "title": "OpenStreetMap",
+        "name": "mapnik",
+        "source": "osm",
+        "group": "background",
+        "visibility": True,
+    },
+    {
+        "type": "tileprovider",
+        "title": "Satellite",
+        "provider": "Esri.WorldImagery",
+        "name": "Esri.WorldImagery",
+        "source": "Esri",
+        "group": "background",
+        "visibility": False,
+    },
+    {
+        "type": "tileprovider",
+        "title": "Topographic",
+        "provider": "OpenTopoMap",
+        "name": "OpenTopoMap",
+        "source": "OpenTopoMap",
+        "group": "background",
+        "visibility": False,
+    },
+]
+
+# مرکز نقشه پیش‌فرض (ایران)
+DEFAULT_MAP_CENTER = (53.0, 32.5)
+DEFAULT_MAP_ZOOM = 5
+DEFAULT_MAP_CRS = "EPSG:4326"
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات آپلود
+# ═══════════════════════════════════════════════════════════
+MAX_DOCUMENT_SIZE = 500  # MB
+DEFAULT_MAX_UPLOAD_SIZE = 10737418240  # 10GB
+
+UPLOAD_SESSION_EXPIRY_HOURS = 24
+
+# فرمت‌های مجاز
+ALLOWED_DOCUMENT_TYPES = [
+    'doc', 'docx', 'gif', 'jpg', 'jpeg', 'ods', 'odt',
+    'odp', 'pdf', 'png', 'ppt', 'pptx', 'rar', 'sld',
+    'tif', 'tiff', 'txt', 'xls', 'xlsx', 'xml', 'zip',
+    'gz', 'qml', 'geojson', 'gpkg',
+]
+
+# ═══════════════════════════════════════════════════════════
+# زبان‌ها
+# ═══════════════════════════════════════════════════════════
+LANGUAGE_CODE = 'fa'
+LANGUAGES = (
+    ('fa', 'فارسی'),
+    ('en', 'English'),
+    ('ar', 'العربية'),
+)
+
+TIME_ZONE = 'Asia/Tehran'
+USE_I18N = True
+USE_L10N = True
+
+# ═══════════════════════════════════════════════════════════
+# اپ‌های سفارشی
+# ═══════════════════════════════════════════════════════════
+INSTALLED_APPS += (
+    'my_geonode.apps.custom_app',
+)
+
+# ═══════════════════════════════════════════════════════════
+# قالب‌ها
+# ═══════════════════════════════════════════════════════════
+TEMPLATES[0]['DIRS'].insert(0, os.path.join(LOCAL_ROOT, "templates"))
+
+# ═══════════════════════════════════════════════════════════
+# فایل‌های استاتیک
+# ═══════════════════════════════════════════════════════════
+STATICFILES_DIRS = [
+    os.path.join(LOCAL_ROOT, "static"),
+] + STATICFILES_DIRS
+
+# ═══════════════════════════════════════════════════════════
+# تنظیمات پیشرفته
+# ═══════════════════════════════════════════════════════════
+
+# فعال‌سازی ثبت‌نام عمومی
+ACCOUNT_OPEN_SIGNUP = True
+ACCOUNT_APPROVAL_REQUIRED = True  # نیاز به تأیید ادمین
+
+# تنظیمات جستجو
+HAYSTACK_SEARCH = True
+HAYSTACK_FACET_COUNTS = True
+
+# محدودیت API
+API_LIMIT_PER_PAGE = 50
+CLIENT_RESULTS_LIMIT = 25
+
+# ایمیل اطلاع‌رسانی
+NOTIFICATION_ENABLED = True
+NOTIFICATION_QUEUE_ALL = False
+
+# مانیتورینگ
+MONITORING_ENABLED = True
+MONITORING_DATA_TTL = 365  # روز</code></pre>
+                </div>
+            </div>
+
+            <h3>🔧 ساخت اپ سفارشی Django</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>apps/custom_app/models.py — مدل سفارشی</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+مدل‌های سفارشی برای افزونه GeoNode
+مثال: سیستم گزارش‌دهی مکانی
+"""
+
+from django.db import models
+from django.contrib.gis.db import models as gis_models
+from django.contrib.auth import get_user_model
+from geonode.base.models import ResourceBase
+
+User = get_user_model()
+
+
+class SpatialReport(models.Model):
+    """
+    گزارش مکانی — اتصال به منابع GeoNode
+    """
+    
+    REPORT_TYPES = (
+        ('analysis', 'تحلیل مکانی'),
+        ('monitoring', 'پایش'),
+        ('assessment', 'ارزیابی'),
+        ('survey', 'بررسی میدانی'),
+    )
+    
+    STATUS_CHOICES = (
+        ('draft', 'پیش‌نویس'),
+        ('review', 'در حال بررسی'),
+        ('published', 'منتشرشده'),
+        ('archived', 'بایگانی'),
+    )
+    
+    title = models.CharField('عنوان', max_length=255)
+    description = models.TextField('توضیحات', blank=True)
+    report_type = models.CharField('نوع گزارش', max_length=20, choices=REPORT_TYPES)
+    status = models.CharField('وضعیت', max_length=20, choices=STATUS_CHOICES, default='draft')
+    
+    # ارتباط با منابع GeoNode
+    related_datasets = models.ManyToManyField(
+        ResourceBase, 
+        blank=True, 
+        related_name='reports',
+        verbose_name='لایه‌های مرتبط'
+    )
+    
+    # فیلد مکانی — محدوده گزارش
+    area_of_interest = gis_models.PolygonField(
+        'محدوده مورد بررسی', 
+        srid=4326, 
+        null=True, 
+        blank=True
+    )
+    
+    # فیلدهای مدیریتی
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='نویسنده')
+    created_at = models.DateTimeField('تاریخ ایجاد', auto_now_add=True)
+    updated_at = models.DateTimeField('تاریخ به‌روزرسانی', auto_now=True)
+    
+    # فایل پیوست
+    attachment = models.FileField('فایل پیوست', upload_to='reports/', blank=True)
+    
+    class Meta:
+        verbose_name = 'گزارش مکانی'
+        verbose_name_plural = 'گزارش‌های مکانی'
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.title} ({self.get_report_type_display()})"
+    
+    @property
+    def area_hectares(self):
+        """مساحت محدوده بر حسب هکتار"""
+        if self.area_of_interest:
+            # تبدیل به سیستم مختصات متری
+            area_m2 = self.area_of_interest.transform(32639, clone=True).area
+            return round(area_m2 / 10000, 2)
+        return None</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>apps/custom_app/views.py — API View</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+API Views برای اپ سفارشی
+"""
+
+from rest_framework import viewsets, permissions, filters
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework_gis.filters import InBBoxFilter
+from django.contrib.gis.geos import GEOSGeometry
+from django.contrib.gis.measure import D
+
+from .models import SpatialReport
+from .serializers import SpatialReportSerializer
+
+
+class SpatialReportViewSet(viewsets.ModelViewSet):
+    """
+    API برای مدیریت گزارش‌های مکانی
+    
+    GET    /api/reports/          — لیست گزارش‌ها
+    POST   /api/reports/          — ایجاد گزارش
+    GET    /api/reports/{id}/     — جزئیات
+    PUT    /api/reports/{id}/     — به‌روزرسانی
+    DELETE /api/reports/{id}/     — حذف
+    GET    /api/reports/nearby/   — جستجوی مکانی
+    """
+    
+    queryset = SpatialReport.objects.all()
+    serializer_class = SpatialReportSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter, InBBoxFilter]
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at', 'title']
+    bbox_filter_field = 'area_of_interest'
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+    
+    @action(detail=False, methods=['get'])
+    def nearby(self, request):
+        """
+        جستجوی گزارش‌های نزدیک یک نقطه
+        
+        پارامترها:
+            lat: عرض جغرافیایی
+            lon: طول جغرافیایی
+            radius: شعاع (کیلومتر)
+        """
+        lat = float(request.query_params.get('lat', 35.7))
+        lon = float(request.query_params.get('lon', 51.4))
+        radius = float(request.query_params.get('radius', 50))
+        
+        point = GEOSGeometry(f'POINT({lon} {lat})', srid=4326)
+        
+        reports = SpatialReport.objects.filter(
+            area_of_interest__distance_lte=(point, D(km=radius))
+        ).order_by('area_of_interest')
+        
+        serializer = self.get_serializer(reports, many=True)
+        return Response({
+            'count': reports.count(),
+            'center': {'lat': lat, 'lon': lon},
+            'radius_km': radius,
+            'results': serializer.data,
+        })
+    
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """آمار گزارش‌ها"""
+        from django.db.models import Count
+        
+        stats = SpatialReport.objects.values('report_type').annotate(
+            count=Count('id')
+        )
+        
+        return Response({
+            'total': SpatialReport.objects.count(),
+            'by_type': list(stats),
+            'by_status': list(
+                SpatialReport.objects.values('status').annotate(count=Count('id'))
+            ),
+        })</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>apps/custom_app/urls.py — URL Routing</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+URL routing برای اپ سفارشی
+"""
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import SpatialReportViewSet
+
+router = DefaultRouter()
+router.register(r'reports', SpatialReportViewSet, basename='report')
+
+urlpatterns = [
+    path('api/', include(router.urls)),
+]</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 9: SECURITY
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="security">
+            <div class="section-header">
+                <div class="section-icon red">🔒</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل نهم</div>
+                    <h2 class="section-title">امنیت و پشتیبان‌گیری</h2>
+                    <p class="section-subtitle">SSL، امنیت‌سازی و استراتژی پشتیبان‌گیری</p>
+                </div>
+            </div>
+
+            <h3>🔐 چک‌لیست امنیتی</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon green">🔑</div>
+                    <h4 class="card-title">SSL/TLS</h4>
+                    <p class="card-description">
+                        فعال‌سازی HTTPS با Let's Encrypt.
+                        ریدایرکت HTTP به HTTPS.
+                        HSTS فعال.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon blue">🛡️</div>
+                    <h4 class="card-title">رمزهای عبور</h4>
+                    <p class="card-description">
+                        تغییر رمزهای پیش‌فرض.
+                        SECRET_KEY قوی.
+                        رمز GeoServer و DB تغییر یابد.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">🔥</div>
+                    <h4 class="card-title">فایروال</h4>
+                    <p class="card-description">
+                        فقط پورت‌های 80 و 443 باز.
+                        پورت‌های داخلی (5432, 8080) بسته.
+                        Rate Limiting فعال.
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon purple">📋</div>
+                    <h4 class="card-title">به‌روزرسانی</h4>
+                    <p class="card-description">
+                        به‌روزرسانی منظم GeoNode.
+                        پچ‌های امنیتی Django.
+                        به‌روزرسانی Docker images.
+                    </p>
+                </div>
+            </div>
+
+            <h3>🔒 تنظیمات SSL با Nginx</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon nginx">NG</div>
+                        <span>nginx/geonode.conf</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-nginx"># ═══════════════════════════════════════════════════════════
+# Nginx Configuration for GeoNode with SSL
+# ═══════════════════════════════════════════════════════════
+
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name geonode.example.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name geonode.example.com;
+
+    # --- SSL ---
+    ssl_certificate /etc/letsencrypt/live/geonode.example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/geonode.example.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    # --- Security Headers ---
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options SAMEORIGIN;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Referrer-Policy "strict-origin-when-cross-origin";
+
+    # --- Upload Limits ---
+    client_max_body_size 5G;
+    client_body_buffer_size 256k;
+    proxy_read_timeout 600s;
+
+    # --- Static Files ---
+    location /static/ {
+        alias /mnt/volumes/statics/static/;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /uploaded/ {
+        alias /mnt/volumes/statics/uploaded/;
+        expires 7d;
+    }
+
+    # --- GeoServer Proxy ---
+    location /geoserver/ {
+        proxy_pass http://geoserver:8080/geoserver/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 600s;
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+    }
+
+    # --- Django Application ---
+    location / {
+        proxy_pass http://django:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 600s;
+    }
+}</code></pre>
+                </div>
+            </div>
+
+            <h3>💾 استراتژی پشتیبان‌گیری</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>scripts/backup.sh — پشتیبان‌گیری کامل</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# ═══════════════════════════════════════════════════════════
+# GeoNode Full Backup Script
+# اجرا: ./backup.sh
+# Cron: 0 2 * * * /path/to/backup.sh
+# ═══════════════════════════════════════════════════════════
+
+set -euo pipefail
+
+# --- تنظیمات ---
+BACKUP_DIR="/backups/geonode"
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_PATH="${BACKUP_DIR}/${DATE}"
+RETENTION_DAYS=30
+COMPOSE_FILE="/path/to/docker-compose.yml"
+
+echo "═══════════════════════════════════════════"
+echo "🔄 شروع پشتیبان‌گیری GeoNode — ${DATE}"
+echo "═══════════════════════════════════════════"
+
+mkdir -p "${BACKUP_PATH}"
+
+# --- 1. پایگاه داده اصلی ---
+echo "📦 پشتیبان‌گیری از پایگاه داده geonode..."
+docker compose -f ${COMPOSE_FILE} exec -T db \
+    pg_dump -U geonode -Fc geonode \
+    > "${BACKUP_PATH}/geonode_db.dump"
+
+echo "📦 پشتیبان‌گیری از پایگاه داده geonode_data..."
+docker compose -f ${COMPOSE_FILE} exec -T db \
+    pg_dump -U geonode -Fc geonode_data \
+    > "${BACKUP_PATH}/geonode_data_db.dump"
+
+# --- 2. GeoServer Data Directory ---
+echo "📦 پشتیبان‌گیری از GeoServer..."
+docker compose -f ${COMPOSE_FILE} exec -T geoserver \
+    tar czf - /geoserver_data/data \
+    > "${BACKUP_PATH}/geoserver_data.tar.gz"
+
+# --- 3. آپلودها و فایل‌های استاتیک ---
+echo "📦 پشتیبان‌گیری از فایل‌های آپلود..."
+docker compose -f ${COMPOSE_FILE} exec -T django \
+    tar czf - /mnt/volumes/statics/uploaded \
+    > "${BACKUP_PATH}/uploaded_files.tar.gz"
+
+# --- 4. تنظیمات ---
+echo "📦 پشتیبان‌گیری از تنظیمات..."
+cp "${COMPOSE_FILE}" "${BACKUP_PATH}/"
+cp "$(dirname ${COMPOSE_FILE})/.env" "${BACKUP_PATH}/"
+
+# --- 5. فشرده‌سازی نهایی ---
+echo "📦 فشرده‌سازی..."
+cd "${BACKUP_DIR}"
+tar czf "${DATE}.tar.gz" "${DATE}/"
+rm -rf "${BACKUP_PATH}"
+
+# --- 6. حذف پشتیبان‌های قدیمی ---
+echo "🗑️ حذف پشتیبان‌های قدیمی‌تر از ${RETENTION_DAYS} روز..."
+find "${BACKUP_DIR}" -name "*.tar.gz" -mtime +${RETENTION_DAYS} -delete
+
+# --- 7. محاسبه حجم ---
+BACKUP_SIZE=$(du -sh "${BACKUP_DIR}/${DATE}.tar.gz" | cut -f1)
+
+echo "═══════════════════════════════════════════"
+echo "✅ پشتیبان‌گیری کامل شد!"
+echo "   فایل: ${BACKUP_DIR}/${DATE}.tar.gz"
+echo "   حجم: ${BACKUP_SIZE}"
+echo "═══════════════════════════════════════════"</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon bash">SH</div>
+                        <span>scripts/restore.sh — بازیابی</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash">#!/bin/bash
+# ═══════════════════════════════════════════════════════════
+# GeoNode Restore Script
+# اجرا: ./restore.sh /backups/geonode/20240101_020000.tar.gz
+# ═══════════════════════════════════════════════════════════
+
+set -euo pipefail
+
+BACKUP_FILE=$1
+COMPOSE_FILE="/path/to/docker-compose.yml"
+TEMP_DIR="/tmp/geonode_restore"
+
+if [ -z "$BACKUP_FILE" ]; then
+    echo "❌ لطفاً مسیر فایل پشتیبان را وارد کنید"
+    echo "استفاده: ./restore.sh /path/to/backup.tar.gz"
+    exit 1
+fi
+
+echo "⚠️ هشدار: این عملیات داده‌های فعلی را جایگزین می‌کند!"
+read -p "ادامه می‌دهید؟ (y/N): " confirm
+[ "$confirm" != "y" ] && exit 0
+
+echo "🔄 شروع بازیابی..."
+
+# استخراج
+mkdir -p ${TEMP_DIR}
+tar xzf ${BACKUP_FILE} -C ${TEMP_DIR}
+BACKUP_DIR=$(ls ${TEMP_DIR})
+
+# بازیابی پایگاه داده
+echo "📦 بازیابی پایگاه داده geonode..."
+docker compose -f ${COMPOSE_FILE} exec -T db \
+    pg_restore -U geonode -d geonode -c --if-exists \
+    < "${TEMP_DIR}/${BACKUP_DIR}/geonode_db.dump" || true
+
+echo "📦 بازیابی پایگاه داده geonode_data..."
+docker compose -f ${COMPOSE_FILE} exec -T db \
+    pg_restore -U geonode -d geonode_data -c --if-exists \
+    < "${TEMP_DIR}/${BACKUP_DIR}/geonode_data_db.dump" || true
+
+# بازیابی GeoServer
+echo "📦 بازیابی GeoServer..."
+docker compose -f ${COMPOSE_FILE} exec -T geoserver \
+    tar xzf - -C / \
+    < "${TEMP_DIR}/${BACKUP_DIR}/geoserver_data.tar.gz"
+
+# بازیابی فایل‌ها
+echo "📦 بازیابی فایل‌های آپلود..."
+docker compose -f ${COMPOSE_FILE} exec -T django \
+    tar xzf - -C / \
+    < "${TEMP_DIR}/${BACKUP_DIR}/uploaded_files.tar.gz"
+
+# ری‌استارت
+echo "🔄 ری‌استارت سرویس‌ها..."
+docker compose -f ${COMPOSE_FILE} restart
+
+# پاکسازی
+rm -rf ${TEMP_DIR}
+
+echo "✅ بازیابی کامل شد!"</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 10: PRODUCTION DEPLOYMENT
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="deploy">
+            <div class="section-header">
+                <div class="section-icon geo">🚀</div>
+                <div class="section-title-group">
+                    <div class="section-number">فصل دهم</div>
+                    <h2 class="section-title">استقرار Production</h2>
+                    <p class="section-subtitle">بهینه‌سازی عملکرد، مانیتورینگ و مقیاس‌پذیری</p>
+                </div>
+            </div>
+
+            <h3>📋 چک‌لیست Production</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">تنظیمات امنیتی</div>
+                        <p class="step-description">
+                            <code>DEBUG=False</code> | SECRET_KEY قوی | رمزهای پیش‌فرض تغییر یابد | SSL فعال
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">بهینه‌سازی پایگاه داده</div>
+                        <p class="step-description">
+                            ایندکس‌های مکانی | Connection Pooling | واکیوم خودکار | تنظیم shared_buffers
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">بهینه‌سازی GeoServer</div>
+                        <p class="step-description">
+                            تنظیم JVM Heap | فعال‌سازی Tile Caching (GWC) | Connection Pool | تنظیم SLD
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">کش‌گذاری</div>
+                        <p class="step-description">
+                            Redis/Memcached | Nginx Cache | GeoWebCache | CDN برای فایل‌های استاتیک
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">مانیتورینگ</div>
+                        <p class="step-description">
+                            Prometheus + Grafana | لاگ متمرکز | هشدار خودکار | Health Check
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <div class="step-title">پشتیبان‌گیری</div>
+                        <p class="step-description">
+                            پشتیبان‌گیری خودکار روزانه | تست بازیابی | ذخیره‌سازی خارجی (S3)
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>⚡ بهینه‌سازی PostgreSQL</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon sql">SQL</div>
+                        <span>postgresql_tuning.conf</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-sql">-- ═══════════════════════════════════════════════════════════
+-- PostgreSQL Performance Tuning for GeoNode
+-- برای سرور با 16GB RAM و 8 CPU Core
+-- ═══════════════════════════════════════════════════════════
+
+-- حافظه
+ALTER SYSTEM SET shared_buffers = '4GB';
+ALTER SYSTEM SET effective_cache_size = '12GB';
+ALTER SYSTEM SET work_mem = '256MB';
+ALTER SYSTEM SET maintenance_work_mem = '1GB';
+
+-- WAL
+ALTER SYSTEM SET wal_buffers = '64MB';
+ALTER SYSTEM SET checkpoint_completion_target = 0.9;
+ALTER SYSTEM SET max_wal_size = '4GB';
+
+-- اتصالات
+ALTER SYSTEM SET max_connections = 200;
+
+-- کوئری‌ها
+ALTER SYSTEM SET random_page_cost = 1.1;
+ALTER SYSTEM SET effective_io_concurrency = 200;
+
+-- موازی‌سازی
+ALTER SYSTEM SET max_worker_processes = 8;
+ALTER SYSTEM SET max_parallel_workers_per_gather = 4;
+ALTER SYSTEM SET max_parallel_workers = 8;
+
+-- لاگ
+ALTER SYSTEM SET log_min_duration_statement = 1000;  -- لاگ کوئری‌های بیش از 1 ثانیه
+ALTER SYSTEM SET log_checkpoints = on;
+
+-- اعمال تغییرات
+SELECT pg_reload_conf();
+
+-- ═══════════════════════════════════════════════════════════
+-- ایندکس‌های مکانی
+-- ═══════════════════════════════════════════════════════════
+
+-- بررسی ایندکس‌های موجود
+SELECT 
+    schemaname, tablename, indexname, indexdef
+FROM pg_indexes 
+WHERE indexdef LIKE '%gist%'
+ORDER BY tablename;
+
+-- ایجاد ایندکس مکانی (اگر وجود ندارد)
+CREATE INDEX IF NOT EXISTS idx_layer_geometry 
+ON public.my_layer USING GIST (the_geom);
+
+-- واکیوم و آنالیز
+VACUUM ANALYZE;
+
+-- آمار اندازه پایگاه داده
+SELECT 
+    pg_database.datname,
+    pg_size_pretty(pg_database_size(pg_database.datname)) AS size
+FROM pg_database
+WHERE datname IN ('geonode', 'geonode_data')
+ORDER BY pg_database_size(pg_database.datname) DESC;</code></pre>
+                </div>
+            </div>
+
+            <h3>☕ بهینه‌سازی GeoServer</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon txt">ENV</div>
+                        <span>GeoServer JVM Tuning</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-bash"># ═══════════════════════════════════════════════════════════
+# GeoServer JVM Tuning
+# docker-compose.yml → geoserver → environment
+# ═══════════════════════════════════════════════════════════
+
+GEOSERVER_JAVA_OPTS="\
+  -Xms2g \
+  -Xmx4g \
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+ParallelRefProcEnabled \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+DisableExplicitGC \
+  -XX:SoftRefLRUPolicyMSPerMB=36000 \
+  -XX:NewRatio=2 \
+  -Dfile.encoding=UTF-8 \
+  -Djavax.servlet.request.encoding=UTF-8 \
+  -Djavax.servlet.response.encoding=UTF-8 \
+  -Dorg.geotools.coverage.jaiext.enabled=true \
+  -DGEOSERVER_CSRF_DISABLED=true \
+  -DPRINT_BASE_URL=https://geonode.example.com/geoserver/pdf \
+  -DGEOSERVER_DATA_DIR=/geoserver_data/data"
+
+# ═══════════════════════════════════════════════════════════
+# GeoWebCache (Tile Caching) تنظیمات
+# ═══════════════════════════════════════════════════════════
+
+# فعال‌سازی GWC برای لایه‌ها
+# GeoServer Admin → Tile Layers → Enable Caching
+# فرمت‌های توصیه‌شده: image/png8, image/jpeg
+# Grid Sets: EPSG:4326, EPSG:3857</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 مانیتورینگ</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon python">PY</div>
+                        <span>health_check.py — بررسی سلامت سیستم</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-python">"""
+اسکریپت بررسی سلامت GeoNode
+قابل استفاده با cron یا مانیتورینگ خارجی
+"""
+
+import requests
+import sys
+import json
+from datetime import datetime
+
+
+class GeoNodeHealthCheck:
+    """بررسی سلامت تمام اجزای GeoNode"""
+    
+    def __init__(self, base_url: str):
+        self.base_url = base_url.rstrip('/')
+        self.results = {}
+    
+    def check_django(self) -> bool:
+        """بررسی سلامت Django"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/", 
+                timeout=10,
+                allow_redirects=True
+            )
+            ok = response.status_code == 200
+            self.results['django'] = {
+                'status': 'OK' if ok else 'ERROR',
+                'status_code': response.status_code,
+                'response_time_ms': response.elapsed.total_seconds() * 1000,
+            }
+            return ok
+        except Exception as e:
+            self.results['django'] = {'status': 'DOWN', 'error': str(e)}
+            return False
+    
+    def check_geoserver(self) -> bool:
+        """بررسی سلامت GeoServer"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/geoserver/web/",
+                timeout=10,
+                allow_redirects=True
+            )
+            ok = response.status_code == 200
+            self.results['geoserver'] = {
+                'status': 'OK' if ok else 'ERROR',
+                'status_code': response.status_code,
+                'response_time_ms': response.elapsed.total_seconds() * 1000,
+            }
+            return ok
+        except Exception as e:
+            self.results['geoserver'] = {'status': 'DOWN', 'error': str(e)}
+            return False
+    
+    def check_api(self) -> bool:
+        """بررسی سلامت API"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/api/v2/datasets/",
+                timeout=10,
+                params={'page_size': 1}
+            )
+            ok = response.status_code == 200
+            data = response.json() if ok else {}
+            self.results['api'] = {
+                'status': 'OK' if ok else 'ERROR',
+                'total_datasets': data.get('total', 'N/A'),
+                'response_time_ms': response.elapsed.total_seconds() * 1000,
+            }
+            return ok
+        except Exception as e:
+            self.results['api'] = {'status': 'DOWN', 'error': str(e)}
+            return False
+    
+    def check_wms(self) -> bool:
+        """بررسی سلامت WMS"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/geoserver/ows",
+                params={
+                    'service': 'WMS',
+                    'version': '1.1.1',
+                    'request': 'GetCapabilities',
+                },
+                timeout=15
+            )
+            ok = response.status_code == 200 and 'WMS_Capabilities' in response.text
+            self.results['wms'] = {
+                'status': 'OK' if ok else 'ERROR',
+                'response_time_ms': response.elapsed.total_seconds() * 1000,
+            }
+            return ok
+        except Exception as e:
+            self.results['wms'] = {'status': 'DOWN', 'error': str(e)}
+            return False
+    
+    def check_csw(self) -> bool:
+        """بررسی سلامت CSW"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/catalogue/csw",
+                params={
+                    'service': 'CSW',
+                    'version': '2.0.2',
+                    'request': 'GetCapabilities',
+                },
+                timeout=10
+            )
+            ok = response.status_code == 200
+            self.results['csw'] = {
+                'status': 'OK' if ok else 'ERROR',
+                'response_time_ms': response.elapsed.total_seconds() * 1000,
+            }
+            return ok
+        except Exception as e:
+            self.results['csw'] = {'status': 'DOWN', 'error': str(e)}
+            return False
+    
+    def run_all(self) -> dict:
+        """اجرای تمام بررسی‌ها"""
+        checks = {
+            'django': self.check_django,
+            'geoserver': self.check_geoserver,
+            'api': self.check_api,
+            'wms': self.check_wms,
+            'csw': self.check_csw,
+        }
+        
+        all_ok = True
+        for name, check_func in checks.items():
+            ok = check_func()
+            if not ok:
+                all_ok = False
+        
+        return {
+            'timestamp': datetime.now().isoformat(),
+            'overall': 'HEALTHY' if all_ok else 'UNHEALTHY',
+            'checks': self.results,
+        }
+
+
+if __name__ == "__main__":
+    url = sys.argv[1] if len(sys.argv) > 1 else "http://localhost"
+    
+    checker = GeoNodeHealthCheck(url)
+    report = checker.run_all()
+    
+    print(json.dumps(report, indent=2, ensure_ascii=False))
+    
+    # خروج با کد خطا اگر ناسالم
+    if report['overall'] != 'HEALTHY':
+        sys.exit(1)</code></pre>
+                </div>
+            </div>
+
+            <h3>📈 حداقل سخت‌افزار توصیه‌شده</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>مقیاس</th>
+                            <th>CPU</th>
+                            <th>RAM</th>
+                            <th>Disk</th>
+                            <th>کاربران همزمان</th>
+                            <th>لایه‌ها</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>توسعه</strong></td>
+                            <td>2 Core</td>
+                            <td>4 GB</td>
+                            <td>50 GB SSD</td>
+                            <td>۱-۵</td>
+                            <td>< ۵۰</td>
+                        </tr>
+                        <tr>
+                            <td><strong>کوچک</strong></td>
+                            <td>4 Core</td>
+                            <td>8 GB</td>
+                            <td>200 GB SSD</td>
+                            <td>۱۰-۲۰</td>
+                            <td>< ۲۰۰</td>
+                        </tr>
+                        <tr>
+                            <td><strong>متوسط</strong></td>
+                            <td>8 Core</td>
+                            <td>16 GB</td>
+                            <td>500 GB SSD</td>
+                            <td>۵۰-۱۰۰</td>
+                            <td>< ۱۰۰۰</td>
+                        </tr>
+                        <tr>
+                            <td><strong>بزرگ</strong></td>
+                            <td>16+ Core</td>
+                            <td>32+ GB</td>
+                            <td>1+ TB NVMe</td>
+                            <td>۱۰۰+</td>
+                            <td>۱۰۰۰+</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <h4>نکات مهم Production</h4>
+                    <ul>
+                        <li><strong>GeoServer</strong> بیشترین RAM را مصرف می‌کند — حداقل 4GB فقط برای JVM</li>
+                        <li><strong>PostGIS</strong> برای کوئری‌های مکانی سنگین به shared_buffers بالا نیاز دارد</li>
+                        <li><strong>Celery</strong> برای آپلودهای همزمان چند worker نیاز دارد</li>
+                        <li>از <strong>SSD/NVMe</strong> استفاده کنید — عملکردI/O تأثیر مستقیم روی سرعت GeoServer دارد</li>
+                        <li>برای مقیاس بزرگ، <strong>جداسازی سرویس‌ها</strong> روی سرورهای مختلف را در نظر بگیرید</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🐳 Docker Compose — Production Optimized</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon docker">DC</div>
+                        <span>docker-compose.production.yml</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml"># ═══════════════════════════════════════════════════════════
+# GeoNode Production Docker Compose
+# بهینه‌شده برای عملکرد و پایداری
+# ═══════════════════════════════════════════════════════════
+version: '3.9'
+
+services:
+
+  # ─── Django Application ─────────────────────────────────
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DEBUG=False
+      - DJANGO_SETTINGS_MODULE=my_geonode.settings
+    volumes:
+      - statics:/mnt/volumes/statics
+      - geoserver-data-dir:/geoserver_data/data
+      - data:/data
+      - tmp:/tmp
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ─── Celery Worker ──────────────────────────────────────
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      celery -A my_geonode.celeryapp:app worker
+      --concurrency=4
+      -B -E
+      --loglevel=INFO
+      --max-tasks-per-child=100
+    environment:
+      - DJANGO_SETTINGS_MODULE=my_geonode.settings
+    volumes:
+      - statics:/mnt/volumes/statics
+      - data:/data
+      - tmp:/tmp
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  # ─── GeoServer ──────────────────────────────────────────
+  geoserver:
+    image: geonode/geoserver:2.24.2
+    environment:
+      - GEOSERVER_JAVA_OPTS=-Xms2g -Xmx4g -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:SoftRefLRUPolicyMSPerMB=36000
+      - GEOSERVER_CSRF_DISABLED=true
+    volumes:
+      - geoserver-data-dir:/geoserver_data/data
+      - data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+          cpus: '4.0'
+        reservations:
+          memory: 3G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/geoserver/web/"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ─── PostgreSQL + PostGIS ───────────────────────────────
+  db:
+    image: geonode/postgis:15-3.3
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - dbbackups:/pg_backups
+      - ./postgresql/custom.conf:/etc/postgresql/conf.d/custom.conf
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    shm_size: '256mb'
+
+  # ─── Nginx Reverse Proxy ────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - statics:/mnt/volumes/statics:ro
+      - ./nginx/geonode.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      django:
+        condition: service_healthy
+      geoserver:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ─── Redis ──────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+    volumes:
+      - redis-data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  # ─── RabbitMQ ───────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS:-guest}
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  statics:
+  geoserver-data-dir:
+  dbdata:
+  dbbackups:
+  data:
+  tmp:
+  redis-data:
+  letsencrypt:
+
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16</code></pre>
+                </div>
+            </div>
+
+            <h3>📊 مانیتورینگ با Prometheus + Grafana</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon yaml">YML</div>
+                        <span>docker-compose.monitoring.yml</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml"># ═══════════════════════════════════════════════════════════
+# Monitoring Stack for GeoNode
+# ═══════════════════════════════════════════════════════════
+version: '3.9'
+
+services:
+  # --- Prometheus ---
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=30d'
+    restart: unless-stopped
+
+  # --- Grafana ---
+  grafana:
+    image: grafana/grafana:10.2.0
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+
+  # --- Node Exporter ---
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+    restart: unless-stopped
+
+  # --- PostgreSQL Exporter ---
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    environment:
+      - DATA_SOURCE_NAME=postgresql://geonode:${GEONODE_DATABASE_PASSWORD}@db:5432/geonode?sslmode=disable
+    restart: unless-stopped
+
+  # --- Nginx Exporter ---
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:0.11.0
+    command:
+      - '-nginx.scrape-uri=http://nginx:80/nginx_status'
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:</code></pre>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon yaml">YML</div>
+                        <span>monitoring/prometheus.yml</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml"># ═══════════════════════════════════════════════════════════
+# Prometheus Configuration
+# ═══════════════════════════════════════════════════════════
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alerts.yml"
+
+scrape_configs:
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+
+  - job_name: 'geonode-health'
+    metrics_path: /monitoring/api/health/
+    scrape_interval: 60s
+    static_configs:
+      - targets: ['django:8000']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']</code></pre>
+                </div>
+            </div>
+
+            <h3>🔄 CI/CD Pipeline</h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="code-lang">
+                        <div class="code-lang-icon yaml">YML</div>
+                        <span>.github/workflows/deploy.yml</span>
+                    </div>
+                    <button class="code-btn" onclick="copyCode(this)"><span>📋</span> کپی</button>
+                </div>
+                <div class="code-body">
+<pre><code class="language-yaml"># ═══════════════════════════════════════════════════════════
+# GitHub Actions — GeoNode CI/CD
+# ═══════════════════════════════════════════════════════════
+name: GeoNode CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── تست ────────────────────────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgis/postgis:15-3.3
+        env:
+          POSTGRES_USER: geonode
+          POSTGRES_PASSWORD: geonode
+          POSTGRES_DB: geonode_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgdal-dev libgeos-dev libproj-dev
+          pip install -r requirements.txt
+          pip install pytest pytest-django
+      
+      - name: Run tests
+        env:
+          DATABASE_URL: postgis://geonode:geonode@localhost:5432/geonode_test
+        run: |
+          python manage.py test --verbosity=2
+      
+      - name: Lint check
+        run: |
+          pip install flake8
+          flake8 my_geonode/ --max-line-length=120
+
+  # ─── ساخت Docker Image ──────────────────────────────────
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+  # ─── استقرار ─────────────────────────────────────────────
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/geonode
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker compose exec -T django python manage.py migrate --noinput
+            docker compose exec -T django python manage.py collectstatic --noinput
+            echo "✅ Deploy completed at $(date)"</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             SUMMARY
+             ═══════════════════════════════════════════════════ -->
+        <section class="section" id="summary">
+            <div class="section-header">
+                <div class="section-icon earth">📝</div>
+                <div class="section-title-group">
+                    <div class="section-number">خلاصه</div>
+                    <h2 class="section-title">جمع‌بندی و نکات کلیدی</h2>
+                    <p class="section-subtitle">مرور سریع مفاهیم اصلی</p>
+                </div>
+            </div>
+
+            <div class="info-box tip">
+                <div class="info-icon">🎯</div>
+                <div class="info-content">
+                    <h4>نکات کلیدی</h4>
+                    <ul>
+                        <li><strong>GeoNode</strong> یک CMS مکانی متن‌باز بر پایه Django + GeoServer + PostGIS</li>
+                        <li><strong>Docker</strong> ساده‌ترین روش نصب و استقرار است</li>
+                        <li>از استانداردهای <strong>OGC</strong> (WMS, WFS, WCS, CSW) پشتیبانی می‌کند</li>
+                        <li><strong>MapStore 2</strong> کلاینت نقشه پیش‌فرض با قابلیت‌های غنی</li>
+                        <li><strong>REST API v2</strong> برای تمام عملیات CRUD در دسترس است</li>
+                        <li>سیستم <strong>مجوزدهی</strong> پیشرفته در سطح لایه و نقشه</li>
+                        <li>قابلیت <strong>سفارشی‌سازی</strong> کامل با Django apps</li>
+                        <li>پشتیبانی از فرمت‌های متنوع: <strong>Shapefile, GeoTIFF, GeoJSON, GeoPackage</strong> و ...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🗺️ نقشه راه یادگیری</h3>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">مبتدی: نصب و آشنایی</div>
+                        <p class="step-description">
+                            نصب با Docker → آپلود اولین لایه → ساخت نقشه → مدیریت فراداده
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">متوسط: API و سفارشی‌سازی</div>
+                        <p class="step-description">
+                            استفاده از REST API → اتصال به QGIS → سفارشی‌سازی قالب → استایل‌دهی SLD
+                        </p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">پیشرفته: توسعه و استقرار</div>
+                        <p class="step-description">
+                            ساخت اپ Django سفارشی → بهینه‌سازی عملکرد → مانیتورینگ → CI/CD → مقیاس‌پذیری
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔗 منابع مفید</h3>
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon green">📚</div>
+                    <h4 class="card-title">مستندات رسمی</h4>
+                    <p class="card-description">
+                        <a href="https://docs.geonode.org/" target="_blank">docs.geonode.org</a>
+                        <br>مرجع کامل نصب، پیکربندی و API
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon blue">💻</div>
+                    <h4 class="card-title">سورس‌کد</h4>
+                    <p class="card-description">
+                        <a href="https://github.com/GeoNode/geonode" target="_blank">github.com/GeoNode/geonode</a>
+                        <br>مخزن اصلی و مشارکت در توسعه
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon orange">👥</div>
+                    <h4 class="card-title">جامعه</h4>
+                    <p class="card-description">
+                        <a href="https://gitter.im/GeoNode/general" target="_blank">Gitter Chat</a>
+                        <br><a href="https://lists.osgeo.org/mailman/listinfo/geonode-users" target="_blank">Mailing List</a>
+                        <br>پرسش و پاسخ و کمک از جامعه
+                    </p>
+                </div>
+                <div class="card">
+                    <div class="card-icon purple">🎓</div>
+                    <h4 class="card-title">آموزش‌ها</h4>
+                    <p class="card-description">
+                        <a href="https://training.geonode.org/" target="_blank">training.geonode.org</a>
+                        <br>دوره‌های آموزشی رسمی
+                        <br>ویدیوهای YouTube
+                    </p>
+                </div>
+            </div>
+
+            <h3>🏗️ پروژه‌های مرتبط</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>پروژه</th>
+                            <th>نقش</th>
+                            <th>لینک</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GeoServer</strong></td>
+                            <td>سرور سرویس‌های مکانی OGC</td>
+                            <td><a href="https://geoserver.org" target="_blank">geoserver.org</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>MapStore 2</strong></td>
+                            <td>کلاینت نقشه React</td>
+                            <td><a href="https://mapstore.geosolutionsgroup.com/" target="_blank">mapstore.geo...</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>PostGIS</strong></td>
+                            <td>افزونه مکانی PostgreSQL</td>
+                            <td><a href="https://postgis.net" target="_blank">postgis.net</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>pyCSW</strong></td>
+                            <td>سرور کاتالوگ مکانی</td>
+                            <td><a href="https://pycsw.org" target="_blank">pycsw.org</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>QGIS</strong></td>
+                            <td>نرم‌افزار دسکتاپ GIS</td>
+                            <td><a href="https://qgis.org" target="_blank">qgis.org</a></td>
+                        </tr>
+                        <tr>
+                            <td><strong>GeoSolutions</strong></td>
+                            <td>شرکت توسعه‌دهنده اصلی</td>
+                            <td><a href="https://www.geosolutionsgroup.com/" target="_blank">geosolutionsgroup.com</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:1rem;">
+                <div class="logo-icon" style="width:50px;height:50px;font-size:1.3rem;">🌍</div>
+                <span style="font-size:1.4rem; font-weight:800; background:var(--gradient-geo); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">
+                    GeoNode Tutorial
+                </span>
+            </div>
+            <p style="color:var(--text-secondary); margin-bottom:1rem;">
+                آموزش جامع پلتفرم متن‌باز مدیریت داده‌های مکانی
+            </p>
+            <div class="footer-links">
+                <a href="https://geonode.org" target="_blank">GeoNode.org</a>
+                <a href="https://docs.geonode.org" target="_blank">مستندات</a>
+                <a href="https://github.com/GeoNode/geonode" target="_blank">GitHub</a>
+                <a href="https://geoserver.org" target="_blank">GeoServer</a>
+                <a href="https://postgis.net" target="_blank">PostGIS</a>
+            </div>
+            <p class="copyright">
+                تهیه شده با ❤️ برای جامعه متن‌باز GIS ایران
+                <br>
+                <a href="https://claude.ai" target="_blank">Claude AI</a> | بهمن ۱۴۰۴
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/nginx.min.js"></script>
+
+    <script>
+        // ═══════════════════════════════════════════════════
+        // Initialize
+        // ═══════════════════════════════════════════════════
+        hljs.highlightAll();
+
+        // Copy code function
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+
+            navigator.clipboard.writeText(code).then(() => {
+                button.classList.add('copied');
+                button.innerHTML = '<span>✅</span> کپی شد';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                button.classList.add('copied');
+                button.innerHTML = '<span>✅</span> کپی شد';
+                setTimeout(() => {
+                    button.classList.remove('copied');
+                    button.innerHTML = '<span>📋</span> کپی';
+                }, 2000);
+            });
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Active nav on scroll
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function updateActiveNav() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', updateActiveNav);
+        window.addEventListener('load', updateActiveNav);
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.05,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card, .code-block, .info-box, .step, .table-container, .arch-diagram').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        console.log('%c🌍 GeoNode Tutorial', 'font-size:20px; color:#27ae60; font-weight:bold;');
+        console.log('%cOpen Source Geospatial CMS', 'font-size:12px; color:#2980b9;');
+    </script>
+</body>
+</html>
